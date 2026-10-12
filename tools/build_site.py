@@ -1142,6 +1142,26 @@ def hydro_level_label(sweep, ov):
     return sweep
 
 
+HYDRO_CREEP_WINDOW_S, HYDRO_CREEP_REL = 1.0, 0.005
+
+
+def hydro_still_creeping(data):
+    """该档末尾是否还在下沉：读该档的逐步数组（sweep.py 写的 <档位>.npz，路径在 run.npz），取压深时序
+    （刚球压地面 delta_mesh，压 FEM 块 delta_overlap）最后 HYDRO_CREEP_WINDOW_S 秒内的 (最大 − 最小) / |末值|，
+    超过 HYDRO_CREEP_REL 即判未静止。速度判据（v < 0.0018 m/s）在缓慢蠕变时一开始就满足，不能用来判静止。
+    返回 True / False；位置给定模式（probe）或 npz 缺失返回 None。"""
+    import numpy as np   # 只为读该档的 npz（genesis 环境自带）
+    run = data.get("run") or {}
+    path = Path(run.get("npz") or "")
+    if run.get("mode") != "press" or not path.is_file():
+        return None
+    arr = np.load(path)
+    key = "delta_mesh" if run.get("scene") == "sphere_floor" else "delta_overlap"
+    t, d = arr["t"], arr[key]
+    win = d[t >= t[-1] - HYDRO_CREEP_WINDOW_S]
+    return bool(abs(d[-1]) > 0 and (win.max() - win.min()) / abs(d[-1]) > HYDRO_CREEP_REL)
+
+
 def collect_hydro_sweeps(cfg):
     """所有 hydro 扫描（configs.HYDRO_SWEEPS）与官方测试各档（HYDRO_OFFICIAL_SWEEPS）的结果记录 + 视频记录。
     press 档复用 collect_level（overrides 与 configs 不一致 = 旧结果，标「重跑中」）；视频记录格式同 collect_demo，
@@ -1155,6 +1175,7 @@ def collect_hydro_sweeps(cfg):
             ov = cfg.hydro_overrides(sweep, level)
             r = collect_level(sweep, level, ov, root)
             r["label"] = hydro_level_label(sweep, ov)
+            r["creeping"] = hydro_still_creeping(r["data"]) if r["state"] == "ok" else None
             rows.append(r)
             d = Path(cfg.HYDRO_PRESS_VIDEO_ROOT) / f"{sweep}_{level}"
             mp4, ex = d / "genesis_hydro_press.mp4", d / "job.exit"
@@ -1215,14 +1236,15 @@ def _hydro_rows(sweep, rows, kind):
             out.append([r["label"], _hydro_state_cell(r)] + ["—"] * (len(heads) + len(extra) - 2))
             continue
         s, run = r["data"]["summary"], r["data"]["run"]
-        cells = [r["label"], _mm(s.get("delta_measured")), _mm(s.get("delta_pred")), g3(s.get("ratio_measured_over_pred"))]
+        settle = dig(s, "settle_time_s", "0.0018")
+        # 还在下沉（hydro_still_creeping，压深时序判）：末步压深与静力公式不可比，停稳时间也没有
+        creeping = r.get("creeping") is True or (kind == "b1_taud" and not is_num(settle))
+        cells = [r["label"], _mm(s.get("delta_measured")), _mm(s.get("delta_pred")),
+                 "未静止" if creeping else g3(s.get("ratio_measured_over_pred"))]
         if kind == "b1":
             cells.append(f"{s.get('final_n_near_rigid')} / {s.get('final_n_pairs')}")
         elif kind == "b1_taud":
-            if not is_num(dig(s, "settle_time_s", "0.0018")):
-                cells[3] = "未静止"   # 还在下沉：末步压深与静力公式不可比
-            cells.append(g3(dig(s, "settle_time_s", "0.0018")) if is_num(dig(s, "settle_time_s", "0.0018"))
-                         else "未静止")
+            cells.append("未静止" if creeping else g3(settle))
         elif kind in ("b1_R", "b2_R"):
             d = s.get("delta_measured")
             cells.append(g3(d / base_d) if is_num(d) and is_num(base_d) and base_d else "—")
@@ -1236,12 +1258,15 @@ def _hydro_rows(sweep, rows, kind):
 def _hydro_fact_line(rows):
     """由数据自动填的一句：跑完几档、实测/预测的范围、哪些档有近刚性接触块。"""
     ok = [r for r in rows if r["state"] == "ok" and r["data"]["summary"].get("mode") == "press"]
+    still = [r for r in ok if r.get("creeping") is True]
     ratios = [r["data"]["summary"]["ratio_measured_over_pred"] for r in ok
-              if is_num(r["data"]["summary"].get("ratio_measured_over_pred"))]
+              if r not in still and is_num(r["data"]["summary"].get("ratio_measured_over_pred"))]
     near = [r["label"] for r in ok if (r["data"]["summary"].get("final_n_near_rigid") or 0) > 0]
     txt = f"已跑完 {len(ok)} / {len(rows)} 档"
+    if still:
+        txt += "；末尾仍在下沉（未静止）的档：" + "、".join(r["label"] for r in still)
     if ratios:
-        txt += f"；实测 / 预测在 {g3(min(ratios))}–{g3(max(ratios))} 之间"
+        txt += f"；静止各档实测 / 预测在 {g3(min(ratios))}–{g3(max(ratios))} 之间"
     if ok:
         txt += "；末步有近刚性接触块的档：" + ("、".join(near) if near else "无")
     return txt + "。"
