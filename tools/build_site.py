@@ -1365,7 +1365,7 @@ def _hydro_official_html(hy):
         trs.append([r["title"], outcome,
                     "未静止" if creeping else (g3(sink * 1e6) if is_num(sink) else "—"),
                     "未静止" if creeping else pct(share),
-                    g3(settle) if is_num(settle) else "80 步内未停稳"])
+                    "未静止" if creeping else (g3(settle) if is_num(settle) else "80 步内未停稳")])
         cards.append(demo_card(dict(r, line=f"官方检查：{outcome}"), {}))
     return ('<div class="grid">' + "".join(cards) + "</div>"
             + table(["档位", "官方检查", "盒子压进地面（µm）", "近刚性接触承担的静力占比",
