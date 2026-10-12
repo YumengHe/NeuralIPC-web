@@ -1055,7 +1055,7 @@ def _hydro_more_html(hydro_more):
 # sandbox docs/drafts/hydro_sweep_design.md。结论句先写占位，用户看过数据后再写（用户 10-12）。
 HYDRO_CONCL_TODO = "结论待数据"
 # 每节最后一句结论（.kp 醒目色，与全页 TAKEAWAY 一致）。用户 / 主会话 2026-10-12 逐档核对 hydro_press/ 36 档后定稿；
-# 没有条目的节（官方测试各档）仍显示 HYDRO_CONCL_TODO
+# （"official" = 官方测试各档，2026-10-12 读各档 hydro_log 末步后定稿）；没有条目的节显示 HYDRO_CONCL_TODO
 HYDRO_CONCLUSIONS = {
     "b1_H": "压力场刚度在 10⁸ Pa（Genesis 默认）以内 hydro 公式成立：1e5–1e7 Pa 压深每 ×10 缩小 3.16 倍、实测 / 公式 "
             "1.03–1.04；1e8 Pa 时 1.11（球面离散使力偏低）；再大则部分接触被求解器的近刚性正则化接管"
@@ -1073,6 +1073,9 @@ HYDRO_CONCLUSIONS = {
     "b2_Eh": "压力场模量每 ×10，压深 ÷3.07、÷2.96，符合 \\(E_h^{-1/2}\\)。",
     "b2_E_over_Eh": "hydro 部分只有在材料杨氏模量不小于压力场模量时才主导结果：E = 1e5 Pa 时压深只有预测的 0.60"
                     "（块自身的弹性变形分担位移），E ≥ 1e6 Pa 时 0.99–1.04。",
+    "official": "官方 hydro 用例在默认参数下，盒子 77% 的支撑力来自求解器的近刚性正则化而非压力场：H 从 10⁸ 增到 10⁹ "
+                "下沉几乎不变（8.0 → 7.95 µm），改阻尼时间 τd（压力场里没有这个量）下沉却随之变化（τd = 0.01 s：1.83 µm）；"
+                "只有 H 降到 10⁷ 时近刚性占比降到 9%，下沉才按压力场增大（16.1 µm）。",
     "b2_H": "刚球压 FEM 块时全局刚度 H 不影响压深（1e6 / 1e8 / 1e10 Pa：5.589 / 5.594 / 5.602 mm）：静力只由块的压力场模量决定。",
 }
 # 每个扫描一小节：(扫描名, 小标题, 想验证什么（HTML，\\(…\\) 交给 MathJax）, 小表的列)
@@ -1159,9 +1162,14 @@ def hydro_still_creeping(data):
         return None
     arr = np.load(path)
     key = "delta_mesh" if run.get("scene") == "sphere_floor" else "delta_overlap"
-    t, d = arr["t"], arr[key]
-    start = d[t >= t[-1] - HYDRO_CREEP_WINDOW_S][0]   # x(T − 1 s)：窗口内第一步
-    return bool(abs(d[-1]) > 0 and abs(d[-1] - start) / abs(d[-1]) > HYDRO_CREEP_REL)
+    return net_drift_exceeds(arr["t"], arr[key])
+
+
+def net_drift_exceeds(t, x):
+    """时序 x(t) 末尾是否还在漂移：|x(T) − x(T − HYDRO_CREEP_WINDOW_S)| / |x(T)| > HYDRO_CREEP_REL
+    （x(T − 1 s) 取窗口内第一步；首尾净变化，不用 max − min，避免把抖动当下沉）。"""
+    start = x[t >= t[-1] - HYDRO_CREEP_WINDOW_S][0]
+    return bool(abs(x[-1]) > 0 and abs(x[-1] - start) / abs(x[-1]) > HYDRO_CREEP_REL)
 
 
 BBOX_NONDETERMINISM_ERROR = "[genesis_ipc] ERROR: pass-2 bounding box exceeds pass 1"
@@ -1324,30 +1332,41 @@ def _hydro_precheck_html(hy):
 
 
 def _hydro_official_html(hy):
-    """官方测试各档：视频卡片 + 小表（官方检查、盒子压进地面、停稳用时）。"""
-    import numpy as np   # 只为读 rigid_trajectory_scene0.npz（genesis 环境自带）
+    """官方测试各档：视频卡片 + 小表（官方检查、盒子压进地面、近刚性接触承担的静力占比、停稳用时）。
+    盒子下沉取 rigid_trajectory_scene0.npz 每步盒心高度（0.1 − z），静力取 hydro_log_scene0.npz 末步的
+    total_F_static_z / total_F_static_z_near_rigid；下沉末 1 s 净变化 > 1%（net_drift_exceeds）则下沉与占比都标「未静止」。"""
+    import numpy as np   # 只为读两个 npz（genesis 环境自带）
     trs, cards = [], []
     for r in hy["official"]:
         if r["state"] != "ok":
-            trs.append([r["title"], _hydro_state_cell(r), "—", "—"])
+            trs.append([r["title"], _hydro_state_cell(r), "—", "—", "—"])
             cards.append(demo_card(dict(r, line=r["reason"]), {}))
             continue
         rec = r["rec"]
         hl = rec["scenes"][0]["hydro_log"]
-        npz = r["dir"] / "rigid_trajectory_scene0.npz"
-        sink = MISSING
+        npz, hl_npz = r["dir"] / "rigid_trajectory_scene0.npz", Path(hl["npz"])
+        sink, share, creeping = MISSING, MISSING, False
+        log = np.load(hl_npz) if hl_npz.is_file() else None
+        if log is not None and log["total_F_static_z"][-1] > 0:
+            share = float(log["total_F_static_z_near_rigid"][-1] / log["total_F_static_z"][-1])
         if npz.is_file():
-            t = np.load(npz)
-            names = [str(x) for x in t["names"]]
+            traj = np.load(npz)
+            names = [str(x) for x in traj["names"]]
             if "Box" in names:   # 盒子高 0.2 m、放在地上：压进地面 = 0.1 − 盒心高度（docs/drafts/T2.4_web_chapter_plan.md:82）
-                sink = 0.1 - float(t["pos"][-1, names.index("Box"), 2])
+                sinks = 0.1 - traj["pos"][:, names.index("Box"), 2]
+                sink = float(sinks[-1])
+                if log is not None and len(log["t"]) == len(sinks):   # 两者都是第二遍每步一条
+                    creeping = net_drift_exceeds(log["t"], sinks)
         outcome = OUTCOME_LABEL.get(rec.get("outcome"), "无结果")
         settle = dig(hl, "settle_time_s", "0.03")
-        trs.append([r["title"], outcome, g3(sink * 1e6) if is_num(sink) else "—",
+        trs.append([r["title"], outcome,
+                    "未静止" if creeping else (g3(sink * 1e6) if is_num(sink) else "—"),
+                    "未静止" if creeping else pct(share),
                     g3(settle) if is_num(settle) else "80 步内未停稳"])
         cards.append(demo_card(dict(r, line=f"官方检查：{outcome}"), {}))
     return ('<div class="grid">' + "".join(cards) + "</div>"
-            + table(["档位", "官方检查", "盒子压进地面（µm）", "停稳用时（s，速度 < 0.03 m/s）"], trs))
+            + table(["档位", "官方检查", "盒子压进地面（µm）", "近刚性接触承担的静力占比",
+                     "停稳用时（s，速度 < 0.03 m/s）"], trs))
 
 
 def hydro_sweep_html(hy):
@@ -1376,7 +1395,7 @@ def hydro_sweep_html(hy):
     parts.append('<p class="expect"><b>按原理期待：</b>盒子底面平贴地面，力 ≈ \\(\\frac{H}{D}A\\delta\\)，'
                  "柔顺时盒子压进地面的深度 \\(\\propto 1/H\\)；\\(\\tau_d\\) 只改链落下时的弹跳和停稳快慢。</p>")
     parts.append(_hydro_official_html(hy))
-    parts.append(f'<p class="concl"><b>结论：</b>{esc(HYDRO_CONCL_TODO)}</p>')
+    parts.append(f'<p class="kp">{esc(HYDRO_CONCLUSIONS["official"])}</p>')
     parts.append(_hydro_precheck_html(hy))
     return "".join(parts)
 
