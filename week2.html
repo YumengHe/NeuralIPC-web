@@ -329,6 +329,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <h3>E1 球压厚块：改球半径</h3>
 
+<div class="grid"><figure><img src="assets/images/E1_a.png" alt="E1 示意图 a" loading="lazy"><figcaption class="small">（a）同一块、同一压深 δ = 0.024，刚球半径 R = 1。</figcaption></figure><figure><img src="assets/images/E1_b.png" alt="E1 示意图 b" loading="lazy"><figcaption class="small">（b）同一块、同一压深，刚球半径加倍为 2R = 2；只改了球半径。</figcaption></figure></div>
 <p>hydro 有两种搭法：(A) 刚球压一块只提供压力场、几乎不变形的块；(B) 两边都是刚体、各带压力场、共用全局刚度（Genesis 的刚体做法）。压力 = 刚度 × 到表面距离 ÷ 最大距离。</p>
 <p>\[F_A=\frac{E_h}{D}\,\pi R\,\delta^{2},\qquad F_B=K\,\frac{\pi R\,\delta^{2}}{R+D}\]</p>
 <ul>
@@ -340,6 +341,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <h3>E2 平底压头：半径 ×1、×2、×4</h3>
 
+<div class="grid"><figure><img src="assets/images/E2_a.png" alt="E2 示意图 a" loading="lazy"><figcaption class="small">（a）刚性平底圆柱压头，半径 a = 0.25，压同一块到同一压深。</figcaption></figure><figure><img src="assets/images/E2_b.png" alt="E2 示意图 b" loading="lazy"><figcaption class="small">（b）压头半径 4a = 1.0，块和压深不变；只改了压头半径。</figcaption></figure></div>
 <p><strong>测什么：</strong> 刚性平底圆柱压头压厚块，同一压深，半径 \(a\) 取 1、2、4 倍；hydro 用 (A)。</p>
 <p>\[F_{\text{解析}}=2E^{*}a\,\delta,\qquad F_{\text{hydro}}=\pi a^{2}\,p(\delta)\]</p>
 <ul>
@@ -351,6 +353,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <h3>E3 一个刚体上两个凸台：只改间距</h3>
 
+<div class="grid"><figure><img src="assets/images/E3_a.png" alt="E3 示意图 a" loading="lazy"><figcaption class="small">（a）一个刚体（两个半径 a 的平底凸台，顶上一根细杆连成一体）压同一块，凸台中心距 L = 4a。</figcaption></figure><figure><img src="assets/images/E3_b.png" alt="E3 示意图 b" loading="lazy"><figcaption class="small">（b）同一刚体形式、同一凸台半径、同一压深，凸台中心距拉开到 L = 10a；只改了间距。</figcaption></figure></div>
 <p><strong>测什么：</strong> 两个半径 \(a\) 的平底凸台同深压同一块，中心距 \(L\) 取 \(4a\)、\(10a\)、很远。</p>
 <p>\[F_{\text{每个凸台}}=\frac{2E^{*}a\,\delta}{1+2a/(\pi L)}\]</p>
 <p>凸台压深 = 自身压缩 \(F/(2E^*a)\) + 邻居造成的表面下沉 \(F/(\pi E^*L)\)，解出 \(F\)；要求 \(L\gg a\)。凸台越近，表面被邻居压低越多，力越小。裁判：小压深用 BEM，大压深用另一套有限元 PolyFEM 配二阶四面体。</p>
@@ -359,6 +362,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <h3>E4 粘结薄层：ν = 0.3 与接近不可压</h3>
 
+<div class="grid"><figure><img src="assets/images/E4_a.png" alt="E4 示意图 a" loading="lazy"><figcaption class="small">（a）过球心的剖面：粘在刚性底座（灰）上的薄层（蓝，厚 b），大球（R = 50b）的球冠压在层上，接触区宽约 10b，远宽于层厚。</figcaption></figure><figure><img src="assets/images/E4_b.png" alt="E4 示意图 b" loading="lazy"><figcaption class="small">（b）同一薄层、同一压深、同一比例尺，换成小球（直径约 0.9b）：接触区宽约 2b/3，远窄于层厚；只改了球半径。</figcaption></figure></div>
 <p>厚 \(b\) 的弹性层底面粘在刚性底座上，受压时材料被压缩或侧向挤出，挤出量取决于整片接触区。hydro 只能用 (A)。</p>
 <p><strong>E4a 换球：</strong> 同一层、同一压深，\(R_1=2R_2\)。</p>
 <p>\[F_{\text{可压}}=\pi M\frac{R\,\delta^{2}}{b},\qquad F_{\text{不可压}}=\frac{\pi}{2}E^{*}\frac{R^{2}\delta^{3}}{b^{3}}\]</p>
@@ -374,6 +378,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <h3>E5 粗模型从刚体换成仿射体</h3>
 
+<div class="grid"><figure><img src="assets/images/E5_a.png" alt="E5 示意图 a" loading="lazy"><figcaption class="small">（a）刚球压一个矮胖的软圆柱（半径 1、高 0.15），圆柱立在刚性底座上。</figcaption></figure><figure><img src="assets/images/E5_b.png" alt="E5 示意图 b" loading="lazy"><figcaption class="small">（b）同一刚球、同一压深，软圆柱变细长（半径 1、高 2.4）；只改了物体高度。</figcaption></figure></div>
 <p><strong>测什么：</strong> 同一软物体被压，粗模型取刚体或仿射体，物体由矮胖到细长，比较碰撞能量；裁判为线弹性有限元。</p>
 <p>\[U_c=U_{\text{精细}}-U_{\text{粗}}\]</p>
 <ul>
