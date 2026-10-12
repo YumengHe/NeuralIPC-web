@@ -1148,6 +1148,8 @@ def hydro_level_label(sweep, ov):
 # 未静止 = 最后 HYDRO_CREEP_WINDOW_S 秒的首尾净变化 |x(T) − x(T − 1 s)| / |x(T)| > HYDRO_CREEP_REL。
 # 用首尾净变化，不用 max − min，避免把抖动当下沉（β = 4、E = 1e5 两档末段 ±1% 抖动、净变化 < 1%）
 HYDRO_CREEP_WINDOW_S, HYDRO_CREEP_REL = 1.0, 0.01
+# 官方测试各档只有 80 步 = 1.33 s，末 1 s 窗口会包进链条落下的冲击段，静止的档也被判成未静止；官方档改用末 0.25 s
+HYDRO_OFFICIAL_CREEP_WINDOW_S = 0.25
 
 
 def hydro_still_creeping(data):
@@ -1165,10 +1167,11 @@ def hydro_still_creeping(data):
     return net_drift_exceeds(arr["t"], arr[key])
 
 
-def net_drift_exceeds(t, x):
-    """时序 x(t) 末尾是否还在漂移：|x(T) − x(T − HYDRO_CREEP_WINDOW_S)| / |x(T)| > HYDRO_CREEP_REL
-    （x(T − 1 s) 取窗口内第一步；首尾净变化，不用 max − min，避免把抖动当下沉）。"""
-    start = x[t >= t[-1] - HYDRO_CREEP_WINDOW_S][0]
+def net_drift_exceeds(t, x, window=HYDRO_CREEP_WINDOW_S):
+    """时序 x(t) 末尾是否还在漂移：|x(T) − x(T − window)| / |x(T)| > HYDRO_CREEP_REL
+    （x(T − window) 取窗口内第一步；首尾净变化，不用 max − min，避免把抖动当下沉）。
+    window 默认 HYDRO_CREEP_WINDOW_S（受控档）；官方测试档传 HYDRO_OFFICIAL_CREEP_WINDOW_S。"""
+    start = x[t >= t[-1] - window][0]
     return bool(abs(x[-1]) > 0 and abs(x[-1] - start) / abs(x[-1]) > HYDRO_CREEP_REL)
 
 
@@ -1334,7 +1337,7 @@ def _hydro_precheck_html(hy):
 def _hydro_official_html(hy):
     """官方测试各档：视频卡片 + 小表（官方检查、盒子压进地面、近刚性接触承担的静力占比、停稳用时）。
     盒子下沉取 rigid_trajectory_scene0.npz 每步盒心高度（0.1 − z），静力取 hydro_log_scene0.npz 末步的
-    total_F_static_z / total_F_static_z_near_rigid；下沉末 1 s 净变化 > 1%（net_drift_exceeds）则下沉与占比都标「未静止」。"""
+    total_F_static_z / total_F_static_z_near_rigid；下沉末 0.25 s 净变化 > 1%（net_drift_exceeds，HYDRO_OFFICIAL_CREEP_WINDOW_S）则下沉与占比都标「未静止」。"""
     import numpy as np   # 只为读两个 npz（genesis 环境自带）
     trs, cards = [], []
     for r in hy["official"]:
@@ -1356,7 +1359,7 @@ def _hydro_official_html(hy):
                 sinks = 0.1 - traj["pos"][:, names.index("Box"), 2]
                 sink = float(sinks[-1])
                 if log is not None and len(log["t"]) == len(sinks):   # 两者都是第二遍每步一条
-                    creeping = net_drift_exceeds(log["t"], sinks)
+                    creeping = net_drift_exceeds(log["t"], sinks, HYDRO_OFFICIAL_CREEP_WINDOW_S)
         outcome = OUTCOME_LABEL.get(rec.get("outcome"), "无结果")
         settle = dig(hl, "settle_time_s", "0.03")
         trs.append([r["title"], outcome,
