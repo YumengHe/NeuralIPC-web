@@ -3774,5 +3774,37 @@
   ],
   "out_size": 23162,
   "encoded_at": "2026-10-12 09:23:47"
+ },
+ "e1_press_R2.mp4": {
+  "src": "/nas/xiaoyingwang/Neural-IPC/outputs/label_validation/E1/video_R2/e1_press_R2.mp4",
+  "src_size": 70987,
+  "src_mtime": 1791836110.084095,
+  "crf": 26,
+  "ffmpeg": "/data/xiaoyingwang/projects/Neural-IPC-sandbox/.conda/genesis/lib/python3.11/site-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2",
+  "args": [
+   "-hide_banner",
+   "-loglevel",
+   "error",
+   "-nostdin",
+   "-y",
+   "-i",
+   "/nas/xiaoyingwang/Neural-IPC/outputs/label_validation/E1/video_R2/e1_press_R2.mp4",
+   "-vf",
+   "scale=-2:'min(720,ih)'",
+   "-c:v",
+   "libx264",
+   "-preset",
+   "slow",
+   "-crf",
+   "26",
+   "-pix_fmt",
+   "yuv420p",
+   "-movflags",
+   "+faststart",
+   "-an",
+   "<out>"
+  ],
+  "out_size": 60941,
+  "encoded_at": "2026-10-12 13:18:04"
  }
 }
