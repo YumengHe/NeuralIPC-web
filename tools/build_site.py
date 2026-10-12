@@ -1054,6 +1054,27 @@ def _hydro_more_html(hydro_more):
 # rigid_trajectory_scene0.npz）。档位与基准取 configs.HYDRO_SWEEPS / HYDRO_OFFICIAL_SWEEPS；每档的按原理期待与判据见
 # sandbox docs/drafts/hydro_sweep_design.md。结论句先写占位，用户看过数据后再写（用户 10-12）。
 HYDRO_CONCL_TODO = "结论待数据"
+# 每节最后一句结论（.kp 醒目色，与全页 TAKEAWAY 一致）。用户 / 主会话 2026-10-12 逐档核对 hydro_press/ 36 档后定稿；
+# 没有条目的节（官方测试各档）仍显示 HYDRO_CONCL_TODO
+HYDRO_CONCLUSIONS = {
+    "b1_H": "压力场刚度在 10⁸ Pa（Genesis 默认）以内 hydro 公式成立：1e5–1e7 Pa 压深每 ×10 缩小 3.16 倍、实测 / 公式 "
+            "1.03–1.04；1e8 Pa 时 1.11（球面离散使力偏低）；再大则部分接触被求解器的近刚性正则化接管"
+            "（1e9 Pa 时 6/43 个接触块），压深不再按公式缩小（实测 / 公式 1.74）。",
+    "b1_R": "刚球自带压力场时，压深与球半径无关（R = 0.05 / 0.1 / 0.2 m：1.804 / 1.797 / 1.800 mm），因为 Genesis "
+            "用球自身的最大深度 D = R 归一化压力场；弹性解析解随半径增大而减小（同载荷半径加倍减小 21%）。",
+    "b1_taud": "τd 只决定趋于平衡的快慢：τd 越大，阻尼 c = τd·k 越大，下沉越慢（τd = 0.01、0.1 静止压深 1.78、1.80 mm；"
+               "τd = 1.0 到 6 s 仍在下沉，该档未静止，力读数不可用）。",
+    "b1_beta": "近刚性区间里结果随纯数值参数 β 变化 3.6 倍（H = 1e9 Pa，β = 0.25 / 1 / 4：0.073 / 0.094 / 0.263 mm）；"
+               "正常区间与 β 无关（H = 1e6 Pa 三档逐位相同）。",
+    "b1_dt": "刚度小时压深与时间步无关（H = 1e6 Pa，dt 1/30–1/240 s 差别 < 1%）；刚度大时结果依赖时间步"
+             "（H = 1e9 Pa：0.117 / 0.094 / 0.076 / 0.073 mm，dt = 1/240 s 时近刚性接触才消失）。",
+    "b2_R": "hydro 对球半径的依赖（\\(R^{-1/2}\\)：半径每加倍压深 ×0.706、×0.722）与弹性解析解（\\(R^{-1/3}\\)，×0.794）"
+            "不同，调参无法消除；对应实验方案 E1。",
+    "b2_Eh": "压力场模量每 ×10，压深 ÷3.07、÷2.96，符合 \\(E_h^{-1/2}\\)。",
+    "b2_E_over_Eh": "hydro 部分只有在材料杨氏模量不小于压力场模量时才主导结果：E = 1e5 Pa 时压深只有预测的 0.60"
+                    "（块自身的弹性变形分担位移），E ≥ 1e6 Pa 时 0.99–1.04。",
+    "b2_H": "刚球压 FEM 块时全局刚度 H 不影响压深（1e6 / 1e8 / 1e10 Pa：5.589 / 5.594 / 5.602 mm）：静力只由块的压力场模量决定。",
+}
 # 每个扫描一小节：(扫描名, 小标题, 想验证什么（HTML，\\(…\\) 交给 MathJax）, 小表的列)
 HYDRO_SWEEP_PAGE = [
     ("b1_H", "刚球压地面：改压力场刚度 H",
@@ -1198,8 +1219,10 @@ def _hydro_rows(sweep, rows, kind):
         if kind == "b1":
             cells.append(f"{s.get('final_n_near_rigid')} / {s.get('final_n_pairs')}")
         elif kind == "b1_taud":
+            if not is_num(dig(s, "settle_time_s", "0.0018")):
+                cells[3] = "未静止"   # 还在下沉：末步压深与静力公式不可比
             cells.append(g3(dig(s, "settle_time_s", "0.0018")) if is_num(dig(s, "settle_time_s", "0.0018"))
-                         else "2 s 内未停稳")
+                         else "未静止")
         elif kind in ("b1_R", "b2_R"):
             d = s.get("delta_measured")
             cells.append(g3(d / base_d) if is_num(d) and is_num(base_d) and base_d else "—")
@@ -1295,7 +1318,10 @@ def hydro_sweep_html(hy):
         heads, trs = _hydro_rows(sweep, rows, kind)
         parts.append(table(heads, trs))
         parts.append(f'<p class="small">{esc(_hydro_fact_line(rows))}</p>')
-        parts.append(f'<p class="concl"><b>结论：</b>{esc(HYDRO_CONCL_TODO)}</p>')
+        if sweep in HYDRO_CONCLUSIONS:
+            parts.append(f'<p class="kp">{esc(HYDRO_CONCLUSIONS[sweep])}</p>')
+        else:
+            parts.append(f'<p class="concl"><b>结论：</b>{esc(HYDRO_CONCL_TODO)}</p>')
     parts.append("<h4>官方测试：改刚度 H 与阻尼时间尺度 τd</h4>")
     parts.append('<p class="expect"><b>按原理期待：</b>盒子底面平贴地面，力 ≈ \\(\\frac{H}{D}A\\delta\\)，'
                  "柔顺时盒子压进地面的深度 \\(\\propto 1/H\\)；\\(\\tau_d\\) 只改链落下时的弹跳和停稳快慢。</p>")
