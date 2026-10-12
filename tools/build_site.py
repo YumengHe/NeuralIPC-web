@@ -1142,12 +1142,14 @@ def hydro_level_label(sweep, ov):
     return sweep
 
 
-HYDRO_CREEP_WINDOW_S, HYDRO_CREEP_REL = 1.0, 0.005
+# 未静止 = 最后 HYDRO_CREEP_WINDOW_S 秒的首尾净变化 |x(T) − x(T − 1 s)| / |x(T)| > HYDRO_CREEP_REL。
+# 用首尾净变化，不用 max − min，避免把抖动当下沉（β = 4、E = 1e5 两档末段 ±1% 抖动、净变化 < 1%）
+HYDRO_CREEP_WINDOW_S, HYDRO_CREEP_REL = 1.0, 0.01
 
 
 def hydro_still_creeping(data):
     """该档末尾是否还在下沉：读该档的逐步数组（sweep.py 写的 <档位>.npz，路径在 run.npz），取压深时序
-    （刚球压地面 delta_mesh，压 FEM 块 delta_overlap）最后 HYDRO_CREEP_WINDOW_S 秒内的 (最大 − 最小) / |末值|，
+    （刚球压地面 delta_mesh，压 FEM 块 delta_overlap）最后 HYDRO_CREEP_WINDOW_S 秒的首尾净变化 / |末值|，
     超过 HYDRO_CREEP_REL 即判未静止。速度判据（v < 0.0018 m/s）在缓慢蠕变时一开始就满足，不能用来判静止。
     返回 True / False；位置给定模式（probe）或 npz 缺失返回 None。"""
     import numpy as np   # 只为读该档的 npz（genesis 环境自带）
@@ -1158,8 +1160,8 @@ def hydro_still_creeping(data):
     arr = np.load(path)
     key = "delta_mesh" if run.get("scene") == "sphere_floor" else "delta_overlap"
     t, d = arr["t"], arr[key]
-    win = d[t >= t[-1] - HYDRO_CREEP_WINDOW_S]
-    return bool(abs(d[-1]) > 0 and (win.max() - win.min()) / abs(d[-1]) > HYDRO_CREEP_REL)
+    start = d[t >= t[-1] - HYDRO_CREEP_WINDOW_S][0]   # x(T − 1 s)：窗口内第一步
+    return bool(abs(d[-1]) > 0 and abs(d[-1] - start) / abs(d[-1]) > HYDRO_CREEP_REL)
 
 
 def collect_hydro_sweeps(cfg):
