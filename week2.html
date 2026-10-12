@@ -107,7 +107,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[p_0 = E\,\epsilon\]</p>
 <ul>
 <li>\(p_0\)：物体内某点的虚拟压力（Pa），固定在物体上，不要求满足力学平衡。</li>
-<li>\(E\)：压力场模量（Pa），把穿入程度换算成压力的比例系数。</li>
+<li>\(E\)：材料的弹性模量（Pa），把穿入程度换算成压力的比例系数；Drake 与 Genesis 实现中改为独立设置的压力场模量，与杨氏模量无关。</li>
 <li>\(\epsilon\)：穿入程度，表面为 0，中轴（离表面最远的「骨架」，球为球心）为 1；在四面体网格内解 Laplace 方程得到。</li>
 </ul>
 <p>\[\mathbf f=\int_{\mathcal S}p_0\,\hat{\mathbf n}\;dS,\qquad \mathcal S=\{\,p_{0_A}=p_{0_B}\,\}\]</p>
@@ -298,7 +298,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <h4>关键结果</h4>
 <ul>
-<li>跨形状（早期以曲率为输入的版本）：90 个网格各取一块接触区，63 个训练、27 个测试；测试能量相对误差中位数，光滑块上网络 23.5%、全局拟合系数的 Hertz 28.5%，粗糙块上 41.2% 对 38.6%。</li>
+<li>跨形状（早期以曲率为输入的版本）：90 个网格各取一块接触区，63 个训练、27 个测试；测试能量相对误差中位数，光滑块上网络 23.5%、全局拟合系数的 Hertz 28.5%，粗糙块上 41.2% 对 38.6%，网络未优于 Hertz 基线。</li>
 <li>多接触区：各区能量直接相加时，2、3 个区高估 27.8%、54.9%；加耦合项后为 6.1%、6.5%。</li>
 <li>动力学：弹性球撞地，在峰值时刻比较完整有限元比粗模型多出的弹性能 \(D\) 与 \(U_c\)：撞击速度为波速的 0.015 时 \(D\) 比 \(U_c\) 高 0.4%，0.3 时高 212%，快速冲击时 \(U_c\) 漏掉了薄层振动能。</li>
 <li>libuipc 球压块：原代码设置未收敛，能量指数为 2.406（Hertz 为 2.5）；收敛后的结果见第 5 节 E0。</li>
@@ -386,9 +386,10 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <div class="grid"><figure><img src="assets/images/E4_a.png" alt="E4 示意图 a" loading="lazy"><figcaption class="small">（a）近不可压薄层（蓝，厚 b）粘在刚性底座（灰）上，刚球半径 R 压入。</figcaption></figure><figure><img src="assets/images/E4_b.png" alt="E4 示意图 b" loading="lazy"><figcaption class="small">（b）同一薄层、同一压深，球半径加倍为 2R；只改了球半径。</figcaption></figure></div>
 <p><strong>测什么：</strong> 厚 \(b\) 的弹性薄层底面粘在刚性底座上，材料近似不可压（\(\nu\to0.5\)，如橡胶）。刚球压入同一压深，球半径从 \(R\) 换成 \(2R\)；hydro 用 (A)。</p>
-<p>\[F_{\text{解析}}=\frac{\pi}{2}E^{*}\frac{R^{2}\delta^{3}}{b^{3}},\qquad F_{\text{hydro}}=\frac{E_h}{D}\,\pi R\,\delta^{2}\]</p>
+<p>\[F_{\text{解析}}\propto E^{*}\frac{R^{2}\delta^{3}}{b^{3}},\qquad F_{\text{hydro}}=\frac{E_h}{D}\,\pi R\,\delta^{2}\]</p>
 <ul>
-<li>材料体积不能变，底面又被粘住，只能从球底下侧向挤出；接触区越宽，要挤走的材料越多、挤出的路越长，力按 \(R^2\) 增长。解析式为润滑近似（材料像粘流体侧向挤出），要求 \((a/b)^2(1-2\nu)\ll1\)，即接触区不比层厚宽太多。</li>
+<li>材料体积不能变，底面又被粘住，只能从球底下侧向挤出；接触区越宽，要挤走的材料越多、挤出的路越长，力按 \(R^2\) 增长。解析式为润滑近似（材料像粘流体侧向挤出），前系数取决于球面与层之间有无摩擦，比值中约掉。</li>
+<li>成立条件：层薄（接触半径 \(a\gg b\)），且 \((a/b)^2(1-2\nu)\ll1\)，即 \(\nu\) 须非常接近 0.5（\(a/b=5\) 时约需 \(\nu\ge0.499\)）；否则材料宁可原地压缩，比值回到 2。</li>
 </ul>
 <p><strong>判据：</strong> 解析力 ×4；hydro ×2，与材料的泊松比无关。近不可压时 IPC 的线性四面体会假性变硬（体积锁死），裁判须用不锁死的轴对称有限元。</p>
 <p class="kp">不可压薄层里每一点的压强由整片接触区决定，球半径加倍时解析力增大 4 倍，hydro 只看局部穿入程度，恒为 2 倍。</p>
@@ -401,7 +402,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <ul>
 <li>\(U_{\text{精细}}\)：精细无穿透解的弹性能；\(U_{\text{粗}}\)：粗模型能表达的部分。粗模型越柔 → \(U_{\text{粗}}\) 越大 → \(U_c\) 越小。</li>
 </ul>
-<p>hydro 与粗模型无关，用在仿射体上会重复计入仿射体自身的柔度，力偏小。</p>
+<p>hydro 与粗模型无关：若其刚度按刚体粗模型标定，用在仿射体上会重复计入仿射体自身的柔度，力偏小。</p>
 <p><strong>判据：</strong> 原代码中仿射体的碰撞能量比刚体小 1.0%→9.6%（线弹性）、7.1%→16.8%（大变形），物体越细长差得越多；hydro 不变。</p>
 <p class="kp">粗模型越柔，正确的碰撞能量越小；hydro 与粗模型无关，物体越细长偏差越大。</p></section>
 <section id="w6"><h2>问题与待决定</h2>
