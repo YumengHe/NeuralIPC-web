@@ -980,6 +980,24 @@ def _e0_video():
             f'每个压深停 1.5 s；左为过球心的竖直截面（竖直方向放大），右为俯视块顶面的竖直位移</figcaption></figure>')
 
 
+# 实验方案 E1–E5 的场景示意图：sandbox tools/figs/experiment_setups.py 用 Genesis 搭场景渲染，每个实验两张（被比较的两种情况）
+SETUP_ROOT = OUT_ROOT / "experiment_setups"
+
+
+def _setup_figure(exp):
+    """[[SETUP_En]] → 该实验两张示意图并排，图注取渲染脚本记下的 caption（experiment_setups.json）。"""
+    meta, err = load_json(SETUP_ROOT / "experiment_setups.json")
+    if meta is None or err or exp not in meta.get("experiments", {}):
+        raise SystemExit(f"[build_site] 找不到 {exp} 的示意图（{SETUP_ROOT}/experiment_setups.json）")
+    figs = []
+    for tag, img in sorted(meta["experiments"][exp]["images"].items()):
+        src = Path(img["png"])
+        NOTION_IMAGES.append(src)   # build 时复制进 assets/images/
+        figs.append(f'<figure><img src="assets/images/{esc(src.name)}" alt="{esc(exp)} 示意图 {tag}" loading="lazy">'
+                    f'<figcaption class="small">（{tag}）{esc(img["caption"])}</figcaption></figure>')
+    return '<div class="grid">' + "".join(figs) + "</div>"
+
+
 def _week2_from_draft(demo_html, more_html):
     """整页讲稿 docs/drafts/web_week2.md（用户 10-10：整页要自成一条逻辑，一个 agent 统一重写）→
     [(锚点, 标题, HTML)]。按「## SECTION wN: 标题」分节，「### 」为论文标题，「TAKEAWAY: 」行为醒目色总结句，
@@ -999,7 +1017,9 @@ def _week2_from_draft(demo_html, more_html):
         md = re.sub(r"(?m)^TAKEAWAY:\s*(.+)$", lambda k: f'\n<p class="kp">{k.group(1).strip()}</p>\n', md)
         md = (md.replace("[[DEMO_VIDEO]]", "\n@@DEMO@@\n").replace("[[E0_FIG]]", "\n@@E0FIG@@\n")
               .replace("[[E0_VIDEO]]", "\n@@E0VIDEO@@\n").replace("[[HYDRO_MORE]]", "\n@@HYDROMORE@@\n"))
+        md = re.sub(r"\[\[SETUP_(E\d)\]\]", r"\n@@SETUP_\1@@\n", md)
         html = _notion_md_to_html(md)
+        html = re.sub(r"(?:<p>)?@@SETUP_(E\d)@@(?:</p>)?", lambda m: _setup_figure(m.group(1)), html)
         for mark, rep in (("@@DEMO@@", demo_html), ("@@E0FIG@@", _e0_figure()), ("@@E0VIDEO@@", _e0_video()),
                           ("@@HYDROMORE@@", more_html)):
             html = html.replace(f"<p>{mark}</p>", rep).replace(mark, rep)
