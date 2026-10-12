@@ -1164,6 +1164,30 @@ def hydro_still_creeping(data):
     return bool(abs(d[-1]) > 0 and abs(d[-1] - start) / abs(d[-1]) > HYDRO_CREEP_REL)
 
 
+BBOX_NONDETERMINISM_ERROR = "[genesis_ipc] ERROR: pass-2 bounding box exceeds pass 1"
+
+
+def hydro_video_check(d, mp4, fit_json):
+    """hydro 视频能否上页：mp4 存在且非空，且 camera_fit json 的 verify.n_frames_out == 0（逐帧没有出画面）。
+    不看 job.exit：GPU 后端非逐位确定，两遍包围盒差几 µm 就退出码 4（run_genesis_ipc_example.py fit_verdict 的
+    一致性检查），视频本身完好。job.log 里除这条包围盒 ERROR 外若还有 ERROR / Traceback，判失败。
+    返回 (能否上页, 不能时的说明)。"""
+    log = d / "job.log"
+    if log.is_file():
+        bad = [ln for ln in ANSI_RE.sub("", log.read_text(encoding="utf-8", errors="replace")).splitlines()
+               if ("ERROR" in ln or "Traceback" in ln) and BBOX_NONDETERMINISM_ERROR not in ln]
+        if bad:
+            return False, "录像失败"
+    if not (mp4.is_file() and mp4.stat().st_size > 0):
+        return False, "视频还没录完" if not (d / "job.exit").is_file() else "视频未生成"
+    fit, err = load_json(fit_json)
+    if fit is None or err:
+        return False, "取景检查结果缺失"
+    if dig(fit, "verify", "n_frames_out") != 0:
+        return False, "有帧物体出了画面"
+    return True, None
+
+
 def collect_hydro_sweeps(cfg):
     """所有 hydro 扫描（configs.HYDRO_SWEEPS）与官方测试各档（HYDRO_OFFICIAL_SWEEPS）的结果记录 + 视频记录。
     press 档复用 collect_level（overrides 与 configs 不一致 = 旧结果，标「重跑中」）；视频记录格式同 collect_demo，
@@ -1180,15 +1204,13 @@ def collect_hydro_sweeps(cfg):
             r["creeping"] = hydro_still_creeping(r["data"]) if r["state"] == "ok" else None
             rows.append(r)
             d = Path(cfg.HYDRO_PRESS_VIDEO_ROOT) / f"{sweep}_{level}"
-            mp4, ex = d / "genesis_hydro_press.mp4", d / "job.exit"
-            code = ex.read_text().strip() if ex.is_file() else None
-            if code is None and not d.is_dir():
+            if not d.is_dir():
                 continue   # 这一档没安排视频
-            done = code in ("0", "3", "4") and mp4.is_file() and mp4.stat().st_size > 0
+            mp4 = d / "genesis_hydro_press.mp4"
+            done, note = hydro_video_check(d, mp4, d / "camera_fit.json")
             videos[(sweep, level)] = {
                 "key": f"hydro_{sweep}_{level}", "expects_video": True, "title": r["label"], "line": "", "dir": d,
-                "state": "ok", "reason": None, "images": [], "video_src": mp4 if done else None,
-                "video_note": None if done else ("视频还没录完" if code is None else f"视频未生成（退出码 {code}）")}
+                "state": "ok", "reason": None, "images": [], "video_src": mp4 if done else None, "video_note": note}
         sweeps[sweep] = rows
     official = []
     for sweep, spec in cfg.HYDRO_OFFICIAL_SWEEPS.items():
@@ -1202,14 +1224,15 @@ def collect_hydro_sweeps(cfg):
             r = {"key": f"hydro_official_{sweep}_{level}", "expects_video": True, "title": label, "line": "", "dir": d,
                  "state": "ok", "reason": None, "images": [], "video_src": None, "video_note": None,
                  "rec": rec, "sweep": sweep, "level": level}
-            if rec is None or err or "hydro_log" not in ((rec.get("scenes") or [{}])[0]):
-                r.update(state="not_run", reason="未跑" if not err else "结果文件损坏")
+            if rec is None and not err:
+                r.update(state="not_run", reason="未跑")
+            elif err or "hydro_log" not in ((rec.get("scenes") or [{}])[0]) or rec.get("outcome") != "passed":
+                # 跑过但没写出读数、或官方断言没过：失败，不当成未跑
+                r.update(state="failed", reason="失败" if not err else "结果文件损坏")
             else:
                 vp = Path(rec["scenes"][0]["video"])
-                if vp.is_file() and vp.stat().st_size > 0:
-                    r["video_src"] = vp
-                else:
-                    r["video_note"] = "没有录到视频"
+                done, note = hydro_video_check(d, vp, d / "camera_fit_scene0.json")
+                r["video_src"], r["video_note"] = (vp if done else None), note
             official.append(r)
     return {"sweeps": sweeps, "videos": videos, "official": official}
 
@@ -1307,7 +1330,7 @@ def _hydro_official_html(hy):
     for r in hy["official"]:
         if r["state"] != "ok":
             trs.append([r["title"], _hydro_state_cell(r), "—", "—"])
-            cards.append(demo_card(dict(r, line="未跑"), {}))
+            cards.append(demo_card(dict(r, line=r["reason"]), {}))
             continue
         rec = r["rec"]
         hl = rec["scenes"][0]["hydro_log"]
