@@ -130,6 +130,27 @@ HYDRO = {
     "nodeid": "tests/coupling/test_hybrid.py::test_sap_rigid_rigid_hydroelastic_contact[64]",
     "title": "两条关节链落到盒子上（官方 hydroelastic 测试）",
 }
+# 其余走压力场接触的 Genesis 官方测试（清单见 sandbox docs/drafts/genesis_hydro_inventory.md；录像命令 run_commands 第 22 条）：
+# (目录名, pytest nodeid, 卡片标题, 设置)
+HYDRO_MORE = [
+    ("genesis_test_test_sap_fem_vs_robot_64_readable", "tests/coupling/test_hybrid.py::test_sap_fem_vs_robot[64]",
+     "刚体十字架压软球",
+     "Genesis 官方测试 test_sap_fem_vs_robot，原样；FEM 软球半径 0.2 m（E = 1e5 Pa、ν = 0.4）放在地上，自由刚体十字架"
+     "（四条带关节的腿）落在球顶；接触对：刚体–软球、软球–地面；dt = 1/60 s、每步 2 个子步、50 步；"
+     "官方检查：球心竖直下沉超过 2 cm、十字架停在球顶"),
+    ("genesis_test_test_implicit_sap_coupler_collide_sphere_box_64_readable",
+     "tests/deformable/test_fem.py::test_implicit_sap_coupler_collide_sphere_box[64]",
+     "软方块停在软球顶上",
+     "Genesis 官方测试 test_implicit_sap_coupler_collide_sphere_box，原样；FEM 软球半径 0.1 m 放在地上，球顶放一个边长 1.5 cm 的"
+     "FEM 软方块（E = 1e4 Pa、密度 50 kg/m³）；接触对：软方块–软球（两个压力场的等压面）、软球–地面；dt = 1/60 s、每步 2 个子步、40 步；"
+     "官方检查：两者静止、高度误差 < 5 mm"),
+    ("genesis_test_test_franka_panda_grasp_fem_entity_64_sphere_official_cam",
+     "tests/integration/test_integration.py::test_franka_panda_grasp_fem_entity[64-sphere]",
+     "机械臂夹起软球",
+     "Genesis 官方测试 test_franka_panda_grasp_fem_entity（软球那组），原样，相机用测试自带的位置；Franka 机械臂夹起半径 2 cm 的"
+     "FEM 软球（E = 1e5 Pa、ν = 0.4）后上提；接触对：手指–软球、软球–地面；dt = 1/60 s，等待 15 步、夹 10 步、上提 65 步、保持 25 步；"
+     "官方检查：软球随夹爪上移 5 cm、误差 < 5 mm"),
+]
 
 PAGE_TITLE = "Neural-IPC 周汇报"
 # 每周一块，新的一周在前；周的分界 = weekly todo/weekN.txt 文件头的日期。锚点只用字母和数字
@@ -273,7 +294,7 @@ def collect_demos():
     demos, timing runs, anything unexpected) are NOT put on the page; main() prints them so nothing is hidden.
     Returns (demos, official tests, unlisted dirs)."""
     known = ({k for k, *_ in DEMOS} | {k for k, *_ in OFFICIAL_TESTS} | {k for k, *_ in USER_RECORDINGS}
-             | {HYDRO["key"]})
+             | {HYDRO["key"]} | {k for k, *_ in HYDRO_MORE})
     demos = [collect_demo(*spec) for spec in DEMOS] + [collect_user_recording(*spec) for spec in USER_RECORDINGS]
     tests = [collect_official_test(*spec) for spec in OFFICIAL_TESTS]
     unlisted = []
@@ -959,7 +980,7 @@ def _e0_video():
             f'每个压深停 1.5 s；左为过球心的竖直截面（竖直方向放大），右为俯视块顶面的竖直位移</figcaption></figure>')
 
 
-def _week2_from_draft(demo_html):
+def _week2_from_draft(demo_html, more_html):
     """整页讲稿 docs/drafts/web_week2.md（用户 10-10：整页要自成一条逻辑，一个 agent 统一重写）→
     [(锚点, 标题, HTML)]。按「## SECTION wN: 标题」分节，「### 」为论文标题，「TAKEAWAY: 」行为醒目色总结句，
     [[DEMO_VIDEO]] / [[E0_FIG]] 换成视频卡片和 E0 图。未核对（不在 VERIFIED_DRAFTS）或不存在时返回 None。"""
@@ -977,9 +998,10 @@ def _week2_from_draft(demo_html):
         md = re.sub(r"(?m)^### (.+)$", lambda h: f"\n<h3>{esc(h.group(1).strip())}</h3>\n", md)
         md = re.sub(r"(?m)^TAKEAWAY:\s*(.+)$", lambda k: f'\n<p class="kp">{k.group(1).strip()}</p>\n', md)
         md = (md.replace("[[DEMO_VIDEO]]", "\n@@DEMO@@\n").replace("[[E0_FIG]]", "\n@@E0FIG@@\n")
-              .replace("[[E0_VIDEO]]", "\n@@E0VIDEO@@\n"))
+              .replace("[[E0_VIDEO]]", "\n@@E0VIDEO@@\n").replace("[[HYDRO_MORE]]", "\n@@HYDROMORE@@\n"))
         html = _notion_md_to_html(md)
-        for mark, rep in (("@@DEMO@@", demo_html), ("@@E0FIG@@", _e0_figure()), ("@@E0VIDEO@@", _e0_video())):
+        for mark, rep in (("@@DEMO@@", demo_html), ("@@E0FIG@@", _e0_figure()), ("@@E0VIDEO@@", _e0_video()),
+                          ("@@HYDROMORE@@", more_html)):
             html = html.replace(f"<p>{mark}</p>", rep).replace(mark, rep)
         out.append((anchor, title.strip(), html))
     return out
@@ -994,7 +1016,17 @@ def _with_e0_figure(plan_html):
     return plan_html[:m.start()] + fig + plan_html[m.start():]
 
 
-def week2_sections(hydro):
+def _hydro_more_html(hydro_more):
+    """其余官方 hydro 测试：每个一张视频卡片（官方检查结果）+ 小号灰字设置。"""
+    cards = []
+    for r, (_key, _nodeid, title, setting) in zip(hydro_more, HYDRO_MORE):
+        outcome = OUTCOME_LABEL.get(r.get("outcome"), "无结果") if r["state"] == "ok" else r["reason"]
+        card = demo_card(dict(r, title=title, line=f"官方检查：{outcome}"), {})
+        cards.append(card[:-len("</div>")] + _setting(setting) + "</div>")   # 设置放进卡片底部
+    return '<div class="grid">' + "".join(cards) + "</div>"
+
+
+def week2_sections(hydro, hydro_more):
     """Week 2 页：讲稿正文取自 Notion（_handout_sections），顺序照 Notion 拆解页：文献（hydroelastic、神经网络接触模型）→
     看代码（NeuralIPC、Genesis 的 hydroelastic）→ Genesis + hydroelastic demo → 实验方案 → 问题与待决定。"""
     outcome = OUTCOME_LABEL.get(hydro.get("outcome"), "无结果") if hydro["state"] == "ok" else hydro["reason"]
@@ -1003,7 +1035,7 @@ def week2_sections(hydro):
                             "0.5 × 0.5 × 0.2 m 的方盒，两条由球和胶囊（半径 24 mm）连成的链从上方落下；全部接触用 hydroelastic；"
                             "压力场刚度 1e8 Pa，阻尼时间尺度 0.1 s；80 步 = 1.33 s，视频慢放约 3.75 倍；"
                             "为便于观察接触，仅修改了光照、箱体颜色和相机仰角，物理过程与检查条件不变"))
-    whole = _week2_from_draft(demo_html)
+    whole = _week2_from_draft(demo_html, _hydro_more_html(hydro_more))
     if whole is not None:
         return [f'<div class="lead">{body}</div>' if t is None else f'<section id="{a}"><h2>{esc(t)}</h2>\n{body}</section>'
                 for a, t, body in whole]
@@ -1601,7 +1633,7 @@ def compute_facts(demos):
 
 
 
-def build_pages(demos, tests, hydro, gsweeps, cfg, facts, videos, commit):
+def build_pages(demos, tests, hydro, hydro_more, gsweeps, cfg, facts, videos, commit):
     """{路径: HTML}：index.html 只列各周的链接和摘要，每周一页 <weekN>.html（WEEKS 决定有哪几周、各放哪几节）。"""
     n_video = sum(1 for r in demos + tests if r.get("video_web"))
     n_pass = sum(1 for r in tests if r.get("outcome") == "passed")
@@ -1617,7 +1649,7 @@ def build_pages(demos, tests, hydro, gsweeps, cfg, facts, videos, commit):
                   f"做了单变量扫描，共 {n_grows} 个配置。主要发现：初始穿插会被拒绝开跑；表面全程没有穿透；"
                   "d̂ 越小越难解，且不能大于软体表面网格的边长；Genesis 默认 κ 1e9 会被 libuipc 夹到区间上界；"
                   "官方软球 E = 1 kPa 太软，会被压塌，所以主结果用 E = 1e5。")}
-    sections = {"week2": week2_sections(hydro),
+    sections = {"week2": week2_sections(hydro, hydro_more),
                 "week1": [videos_section(demos, tests, facts), sweep_section(gsweeps, cfg, videos), data_section()]}
     cards = "".join(f'<a class="weekcard" href="{wid}.html"><b>{esc(title)}</b>'
                     f'<span>{esc(" · ".join(n for _, n in items))}</span><p>{esc(summary[wid])}</p></a>'
@@ -1655,7 +1687,8 @@ def main():
         print(f"[build_site] 注意：NAS 上这些 demo 目录不在 DEMOS / OFFICIAL_TESTS 清单里，不上页面：{unlisted}")
     cfg, gsweeps = collect_sweeps()
     hydro = collect_official_test(HYDRO["key"], HYDRO["nodeid"], HYDRO["title"], "")
-    all_demos = demos + tests + [hydro]
+    hydro_more = [collect_official_test(key, nodeid, title, "") for key, nodeid, title, _ in HYDRO_MORE]
+    all_demos = demos + tests + [hydro] + hydro_more
     videos = gen_level_videos(gsweeps)   # 盒子扫描每档自己的视频（和 demo 视频一起压缩、一起上传）
     bypass = [x for x in (bypass_video_record(r["level"]) for r in rows_of(gsweeps, "init_penetration")) if x]
     vjobs, manifest = plan_videos(all_demos + list(videos.values()) + bypass + [dict(E0_VIDEO)],
@@ -1668,7 +1701,7 @@ def main():
     facts = compute_facts(demos)
     commit = genesis_commit()
 
-    pages = build_pages(demos, tests, hydro, gsweeps, cfg, facts, videos, commit)
+    pages = build_pages(demos, tests, hydro, hydro_more, gsweeps, cfg, facts, videos, commit)
     # 讲稿里引用的 NAS 图（_notion_image 在生成页面时登记）
     ijobs += [{"src": src, "dst": IMAGE_DIR / src.name, "size": src.stat().st_size} for src in NOTION_IMAGES]
     # 只压缩 / 复制页面真正引用的文件（扫描每档的视频不一定都上页面，没用到的不进 assets）
