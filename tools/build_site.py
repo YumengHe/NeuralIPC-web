@@ -30,6 +30,7 @@ import datetime
 import functools
 import html
 import importlib.util
+import itertools
 import json
 import math
 import os
@@ -739,24 +740,71 @@ def _handout_bullet(name, lead):
     return re.search(rf"(?m)^- \*\*{re.escape(lead)}\*\*.*$", text).group(0)
 
 
+def _normalize_list_indent(t):
+    """把讲稿里 2 / 3 / 5 格等不规则缩进的嵌套列表改成 Python-Markdown 认的每级 4 格。
+    按缩进维护一个「当前打开的列表项」栈：列表项的层级 = 栈里缩进更小的项数；缩进的续行（含公式行）挂在
+    缩进比它小的最深一项下面；紧跟在列表里、顶格的 $$ 公式行也算该项的续行（否则列表被截断、编号重排）。"""
+    out, stack, after_text = [], [], False   # after_text：上一行是列表项下的续行段落
+    for line in t.split("\n"):
+        body = line.lstrip(" ")
+        ind = len(line) - len(body)
+        if not body:
+            out.append(line)
+            after_text = False
+            continue
+        if re.match(r"(?:[-*]|\d+\.) ", body):
+            while stack and stack[-1] >= ind:
+                stack.pop()
+            if after_text:
+                out.append("")   # 续行段落后直接跟列表项会被当成段落的懒续行，补空行断开
+            out.append("    " * len(stack) + body)
+            stack.append(ind)
+            after_text = False
+        elif stack and (ind > 0 or body.startswith("$$")):
+            out.append("    " * (sum(1 for s in stack if s < ind) if ind > 0 else len(stack)) + body)
+            after_text = True
+        else:
+            stack = []
+            out.append(line)
+            after_text = False
+    return "\n".join(out)
+
+
+_STASH_IDS = itertools.count()
+
+
 def _notion_md_to_html(md):
     """Notion 增强 Markdown → HTML：公式交给 MathJax，<table>/<details> 逐个转换，图片换成 assets 路径，
-    标题降两级挂在页面的 h3 下面。"""
+    标题降两级挂在页面的 h3 下面。也认普通 Markdown 写法：$…$ 行内公式、单行 $$…$$、pipe 表格、
+    独占一行的 [视频](assets/videos/x.mp4)（内嵌播放）与 ![](assets/images/x.png)（同一行多张并排）。"""
     import markdown
-    stash = []
+    stash, uid = [], next(_STASH_IDS)   # 占位符带本次调用编号：<details> 递归转换时内外层不串号
 
     def keep(html_text, block=False):
         stash.append(html_text)
-        return f"\n\n@@S{len(stash) - 1}@@\n\n" if block else f"@@S{len(stash) - 1}@@"
+        return f"\n\n@@S{uid}x{len(stash) - 1}@@\n\n" if block else f"@@S{uid}x{len(stash) - 1}@@"
+
+    def keep_indented(m, html_text):
+        """块级占位符保留原行缩进，留在所属列表项里。"""
+        ind = m.group(1)
+        return f"\n\n{ind}@@S{uid}x{len(stash)}@@\n\n" + ("" if stash.append(html_text) else "")
 
     def inline(s):
         """表格格子 / 折叠标题里的行内格式：**粗体**、`代码`。"""
         s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
         return re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
 
-    t = md.replace("\\<", "&lt;")
+    t = _normalize_list_indent(md.replace("\\<", "&lt;"))
     t = re.sub(r"(?ms)^[ \t]*\$\$\s*\n(.*?)\n[ \t]*\$\$[ \t]*$", lambda m: keep(f"<p>\\[{esc(m.group(1).strip())}\\]</p>", True), t)
+    t = re.sub(r"(?m)^([ \t]*)\$\$(.+?)\$\$[ \t]*$", lambda m: keep_indented(m, f"<p>\\[{esc(m.group(2).strip())}\\]</p>"), t)
     t = re.sub(r"\$`(.+?)`\$", lambda m: keep(f"\\({esc(m.group(1))}\\)"), t)
+    t = re.sub(r"(?<![\$\\])\$([^\$\n]+?)\$", lambda m: keep(f"\\({esc(m.group(1))}\\)"), t)
+    t = re.sub(r"(?m)^([ \t]*)\[视频\]\((assets/videos/[^)\s]+\.mp4)\)[ \t]*$", lambda m: keep_indented(
+        m, f'<figure><video controls muted playsinline preload="metadata" src="{esc(m.group(2))}"></video></figure>'), t)
+    t = re.sub(r"(?m)^([ \t]*)((?:!\[[^\]]*\]\(assets/images/[^)\s]+\)[ \t]*)+)$", lambda m: keep_indented(
+        m, (lambda imgs: imgs[0] if len(imgs) == 1 else '<div class="grid">' + "".join(imgs) + "</div>")(
+            [f'<figure><img src="{esc(src)}" alt="{esc(alt)}" loading="lazy"></figure>'
+             for alt, src in re.findall(r"!\[([^\]]*)\]\(([^)\s]+)\)", m.group(2))])), t)
     t = re.sub(r'<image src="([^"]+)"></image>(（[^）]*）)?', lambda m: keep(_notion_image(m.group(1)), True), t)
     t = re.sub(r'<mention-page url="([^"]+)"\s*/>', r'[Notion 页面](\1)', t)
 
@@ -778,14 +826,16 @@ def _notion_md_to_html(md):
     t = re.sub(r"(?m)^(##+ )\d+(?:\.\d+)*\.? ", r"\1", t)   # 去掉讲稿自带的节号（页面只取部分节，原编号对不上）
     t = re.sub(r"(?m)^### ", "##### ", re.sub(r"(?m)^## ", "#### ", t))
     t = re.sub(r"(?m)^(\t+)", lambda m: "    " * len(m.group(1)), t)
-    t = re.sub(r"(?m)^(?![-*\s]|\d+\. )(.+)\n(?=\s*(?:[-*] |\d+\. ))", r"\1\n\n", t)   # 列表前补空行，否则不认
-    # Notion 里每一行是一个独立块：相邻两行顶格正文各成一段，不并成一段
-    t = re.sub(r"(?m)^(?![-*] |\s|\d+\. )(.+)\n(?![-*] |\s|\d+\. )", r"\1\n\n", t)
+    t = re.sub(r"(?m)^(?![-*] |\s|\||\d+\. )(.+)\n(?=\s*(?:[-*] |\d+\. ))", r"\1\n\n", t)   # 列表前补空行，否则不认（**粗体** 行也要补）
+    # Notion 里每一行是一个独立块：相邻两行顶格正文各成一段，不并成一段（pipe 表格的行除外）
+    t = re.sub(r"(?m)^(?![-*] |\s|\d+\. |\|)(.+)\n(?![-*] |\s|\d+\. |\|)", r"\1\n\n", t)
     # 列表后紧跟的顶格正文补空行，否则会被并进最后一条（Notion 里它是独立段落）
     t = re.sub(r"(?m)^(\s*(?:[-*]|\d+\.) .+)\n(?![-*] |\s|\d+\. )", r"\1\n\n", t)
-    out = markdown.markdown(t)
+    t = re.sub(r"(?m)^(?!\|)(.+)\n(?=\|)", r"\1\n\n", t)   # 表格前补空行
+    out = markdown.markdown(t, extensions=["tables"])
+    out = out.replace("<table>", '<div class="tablewrap"><table>').replace("</table>", "</table></div>")
     for i, s in reversed(list(enumerate(stash))):
-        out = out.replace(f"<p>@@S{i}@@</p>", s).replace(f"@@S{i}@@", s)
+        out = out.replace(f"<p>@@S{uid}x{i}@@</p>", s).replace(f"@@S{uid}x{i}@@", s)
     return out
 
 
@@ -1018,10 +1068,13 @@ def _week2_from_draft(demo_html, more_html, sweep_html=""):
     out = []
     intro = re.search(r"(?ms)^## INTRO\s*\n(.*)", parts[0])   # 页首：一句话说明要解决什么、本页讲什么
     if intro:
-        out.append(("intro", None, _notion_md_to_html(intro.group(1))))
+        intro_md = re.sub(r"(?m)^\*\*(本页结论.+)\*\*[ \t]*$", lambda k: f'\n<p class="kp">{k.group(1).strip()}</p>\n', intro.group(1))
+        out.append(("intro", None, _notion_md_to_html(intro_md)))
     for anchor, title, md in zip(parts[1::3], parts[2::3], parts[3::3]):
         md = re.sub(r"(?m)^### (.+)$", lambda h: f"\n<h3>{esc(h.group(1).strip())}</h3>\n", md)
         md = re.sub(r"(?m)^TAKEAWAY:\s*(.+)$", lambda k: f'\n<p class="kp">{k.group(1).strip()}</p>\n', md)
+        # 整行加粗的「结论…」也是醒目色总结句
+        md = re.sub(r"(?m)^\*\*(结论.+)\*\*[ \t]*$", lambda k: f'\n<p class="kp">{k.group(1).strip()}</p>\n', md)
         md = (md.replace("[[DEMO_VIDEO]]", "\n@@DEMO@@\n").replace("[[E0_FIG]]", "\n@@E0FIG@@\n")
               .replace("[[HYDRO_MORE]]", "\n@@HYDROMORE@@\n").replace("[[HYDRO_SWEEP]]", "\n@@HYDROSWEEP@@\n"))
         md = re.sub(r"\[\[SETUP_(E\d)\]\]", r"\n@@SETUP_\1@@\n", md)
