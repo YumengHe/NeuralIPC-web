@@ -1,0 +1,32 @@
+"""路径、体积上限、站点标题与周清单：全站共用的常量，不含任何逻辑。"""
+
+from pathlib import Path
+
+# ---------------- 路径 ----------------
+WEB = Path(__file__).resolve().parents[2]                    # 本仓库根目录（Neural-IPC-web）
+PROJECT = Path("/data/xiaoyingwang/projects/Neural-IPC")    # 讲稿、扫描配置所在的仓库（指向 Neural-IPC-sandbox 的软链接）
+OUT_ROOT = Path("/nas/xiaoyingwang/Neural-IPC/outputs")     # NAS 上的仿真结果根目录（只读）
+DEMO_ROOT = OUT_ROOT / "ipc_demos"
+SWEEP_ROOT = OUT_ROOT / "ipc_sweep"
+SWEEP_CONFIGS = PROJECT / "tools" / "ipc_sweep" / "configs.py"
+DRAFTS = PROJECT / "docs" / "drafts"                        # 每周讲稿 web_<周>.md
+
+VIDEO_DIR = WEB / "assets" / "videos"
+IMAGE_DIR = WEB / "assets" / "images"
+BUILD_TMP = WEB / "build_tmp"          # 压缩中间文件；已在 .gitignore
+VIDEO_MANIFEST = VIDEO_DIR / "encode_manifest.json"
+
+# ---------------- 体积上限 ----------------
+MAX_VIDEO_BYTES = 10 * 1024 * 1024        # 单个视频上限（Artifact 附属文件每个 ≤ 15 MB，留余量）
+MAX_TOTAL_VIDEO_BYTES = 60 * 1024 * 1024  # 全部视频加起来的上限
+MAX_IMAGE_BYTES = 5 * 1024 * 1024         # 单张图上限
+
+# ---------------- 站点 ----------------
+PAGE_TITLE = "Neural-IPC 周汇报"
+# 每周一块，新的一周在前；周的分界 = weekly todo/weekN.txt 文件头的日期。锚点只用字母和数字。
+# (页面名, 标题, [(节锚点, 节名)])；节名用于首页卡片和该周页面顶部的目录
+WEEKS = [("week2", "Week 2（TODO 2026-10-04）",
+          [("w1", "文献：Hydroelastic"), ("w2", "文献：神经网络接触模型"), ("w3", "看代码"), ("w4", "Demo"),
+           ("w5", "实验方案"), ("w6", "问题与待决定")]),
+         ("week1", "Week 1（TODO 2026-09-26）",
+          [("videos", "IPC demo"), ("tests", "官方测试"), ("sweep", "盒子实验与参数扫描"), ("data", "对生成数据的意义")])]
