@@ -28,10 +28,11 @@ def week_summaries(demos, tests, gsweeps):
 
 def build_pages(demos, tests, hydro, hydro_more, gsweeps, cfg, facts, videos, hy, week1_legacy=False):
     """生成全部页面，返回 {仓库内路径: HTML}：index.html 只列各周的链接和摘要，每周一页 <weekN>.html
-    （config.WEEKS 决定有哪几周、首页卡片列哪几节）。参数是 build_site.main 收集到的各类记录。
-    week1 有讲稿 web_week1.md 时从讲稿生成，页内目录取讲稿各节标题；没有讲稿或 week1_legacy=True 时走旧路径。"""
+    （config.WEEKS 决定有哪几周及其标题）。参数是 build_site.main 收集到的各类记录。
+    week1 有讲稿 web_week1.md 时从讲稿生成，目录（页面顶部与首页卡片共用）取讲稿各节标题；没有讲稿或
+    week1_legacy=True 时走旧路径、目录取 WEEKS。"""
     summary = week_summaries(demos, tests, gsweeps)
-    toc = {wid: items for wid, _, items in WEEKS}   # 每周页面顶部的目录
+    toc = {wid: items for wid, _, items in WEEKS}   # 每周的目录：页面顶部与首页卡片共用
     sections = {"week2": week2_sections(hydro, hydro_more, hy)}
     week1 = None if week1_legacy else page_from_draft("week1", {})
     if week1 is None:
@@ -40,8 +41,8 @@ def build_pages(demos, tests, hydro, hydro_more, gsweeps, cfg, facts, videos, hy
         sections["week1"] = sections_html(week1)
         toc["week1"] = [(a, t) for a, t, _ in week1 if t is not None]
     cards = "".join(f'<a class="weekcard" href="{wid}.html"><b>{esc(title)}</b>'
-                    f'<span>{esc(" · ".join(n for _, n in items))}</span><p>{esc(summary[wid])}</p></a>'
-                    for wid, title, items in WEEKS)
+                    f'<span>{esc(" · ".join(n for _, n in toc[wid]))}</span><p>{esc(summary[wid])}</p></a>'
+                    for wid, title, _ in WEEKS)
     pages = {WEB / "index.html": page(f'<header class="top"><h1>{esc(PAGE_TITLE)}</h1></header>\n'
                                       f'<nav class="weeks">{cards}</nav>', PAGE_TITLE)}
     for wid, title, _ in WEEKS:

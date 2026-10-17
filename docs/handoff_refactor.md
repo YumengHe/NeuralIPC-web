@@ -79,3 +79,32 @@ web_week1.md（sandbox，另一个 agent 写，已有 w1–w4 四节，commit a4
   注意 `gen_level_videos`、`bypass_video_record`、`init_frame_image`、`collect_sweeps`、`compute_facts` 仍被 build_site 用来排视频 / 图片 / 摘要，不能一起删。
 - `media.plan_images` 与记录里的 `images` 字段：所有记录 images 恒为空，可连同 `demo_card` 的 `images_web` 循环一起删（会不会改输出：不会）。
 - 首页 week1 卡片的节名仍是 `WEEKS` 里的旧四节，讲稿上线后应改成讲稿各节标题（这一改会让 index 变化，单独一个 commit）。
+
+## 旧 week1 路径删除清单（待用户批准，未删）
+
+week1 已从讲稿生成（e6b63ca），首页卡片节名也改为自动取讲稿节标题。下面是删掉旧「按数据拼接」路径时的清单。
+删完后 web_week1.md 缺失应和 week2 一样报错停止，不再退回旧内容。
+
+**删除**（只服务旧 week1 页面正文）：
+
+| 文件 | 函数 / 常量 |
+|---|---|
+| `tools/webgen/week1_box.py` | `week1_sections`、`videos_section`、`sweep_section`、`data_section`、`DATA_IMPLICATIONS`、`genesis_experiment`、`genesis_sweep_tables`、`gen_raw_cells`、`SWEEP_COLUMNS`、`NEWTON`、`SECONDS`、`KAPPA`、`CLAMPED`、`CONTACT`、`EDGE`、`col_newton`、`col_wall_seconds`、`col_edge`、`col_kappa`、`col_clamped`、`kappa_used`、`contact_columns`、`contact_groups`、`contact_kind`、`CONTACT_KINDS`、`FORMULA_BLOCK`、`INIT_LOG_GLOSSARY`、`bypass_distance_table`、`init_log_excerpt`、`GENESIS_TABLES`、`OBSERVE`、`OBSERVATIONS`、`FINDINGS`、`gen_defaults_text`、`gen_label`、`gen_level_value`、`gen_value`、`GENESIS_DEFAULTS`、`GENESIS_KEYS`、`BALL_SIZE_RE`、`gen_ball_verts`、`gen_ground_out`、`compute_facts` |
+| `tools/webgen/pages.py` | `build_pages` 的 `week1_legacy` 参数与旧路径分支；对 `week1_sections` 的 import |
+| `tools/build_site.py` | `--week1-legacy` 参数；`facts`（`compute_facts`）与演练输出里「页面里用到的关键数字」一段；`build_pages` 的 `facts` 参数 |
+| `tools/webgen/config.py` | `WEEKS` 里 week1 的旧四节节名（改为空列表，目录全由讲稿给） |
+| `tools/webgen/media.py`、`html_parts.py` | `plan_images` 与 `demo_card` 里的 `images_web` 循环（所有记录 `images` 恒为空，不改输出） |
+
+**必须保留**（讲稿引用的视频 / 图片和首页摘要的数字靠它们）：
+
+| 文件 | 函数 / 常量 | 用途 |
+|---|---|---|
+| `week1_box.py` | `VARIANTS`、`set_variant`、`GEN_TAG` / `GEN_BASE_OV` / `GEN_SWEEP_ROOT` / `GEN_VIDEO_ROOT`、`_tag_prefix` | 选盒子实验结果集，视频 key `box_stiffball_*` 由它定 |
+| `week1_box.py` | `collect_sweeps`、`rows_of` | 盒子各档记录：排视频任务、首页摘要里的扫描数 / 配置数 |
+| `week1_box.py` | `gen_level_videos`、`bypass_video_record`、`init_frame_image` | 讲稿里 `[▶](assets/videos/box_stiffball_…)`、硬跑视频、初始穿插图的来源 |
+| `catalog.py` | `DEMOS`、`USER_RECORDINGS`、`OFFICIAL_TESTS` | 讲稿引用的 demo / 官方测试视频的源文件，首页摘要的个数 |
+| `collect.py` | 全部 | 同上；`collect_level` 也被 week2 hydro 扫描使用 |
+| `html_parts.demo_card` | — | week2 仍用 |
+
+可一并精简但不影响功能：`catalog.OFFICIAL_TEST_NOTES` 与 `DEMOS` / `OFFICIAL_TESTS` 里的说明文字（只出现在旧 week1 卡片上；
+删时 `collect_demo` / `collect_official_test` 的 `line` 字段一起去掉）。
