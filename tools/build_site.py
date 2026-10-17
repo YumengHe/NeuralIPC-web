@@ -29,11 +29,11 @@ sys.dont_write_bytecode = True  # 不往本仓库和 Neural-IPC 仓库（加载 
 from webgen import week1_box as box  # noqa: E402  （必须在 dont_write_bytecode 之后导入）
 from webgen.catalog import E0_FIG, HYDRO, HYDRO_MORE, LABEL_VIDEOS  # noqa: E402
 from webgen.collect import collect_demos, collect_official_test, genesis_commit  # noqa: E402
-from webgen.common import MISSING, file_size_str  # noqa: E402
+from webgen.common import file_size_str  # noqa: E402
 from webgen.config import (DEMO_ROOT, IMAGE_DIR, MAX_IMAGE_BYTES, MAX_TOTAL_VIDEO_BYTES,  # noqa: E402
                            MAX_VIDEO_BYTES, OUT_ROOT, VIDEO_DIR)
 from webgen.draft_md import NOTION_IMAGES  # noqa: E402
-from webgen.media import encode_video, get_ffmpeg_exe, plan_images, plan_videos  # noqa: E402
+from webgen.media import encode_video, get_ffmpeg_exe, plan_videos  # noqa: E402
 from webgen.pages import build_pages  # noqa: E402
 from webgen.week2_hydro import collect_hydro_sweeps  # noqa: E402
 
@@ -52,8 +52,6 @@ def parse_args():
     ap.add_argument("--html-only", action="store_true",
                     help="回归用：只把 html 写到 --out-dir，不压视频、不复制图片、不写仓库")
     ap.add_argument("--out-dir", type=Path, help="--html-only 的输出目录")
-    ap.add_argument("--week1-legacy", action="store_true",
-                    help="week1 不用讲稿 web_week1.md、走旧的按数据拼接路径（回归对照用）")
     args = ap.parse_args()
     if args.html_only and (args.execute or args.out_dir is None):
         ap.error("--html-only 必须配 --out-dir，且不能和 --execute 同用")
@@ -62,7 +60,7 @@ def parse_args():
 
 def collect_all(args):
     """收集页面要用的全部记录并排好视频 / 图片任务。返回 dict：demos、tests、hydro、hydro_more、gsweeps、cfg、
-    videos（盒子每档视频）、hy（hydro 扫描）、vjobs、manifest、ijobs、facts、commit、unlisted。"""
+    videos（盒子每档视频）、hy（hydro 扫描）、vjobs、manifest、ijobs、commit、unlisted。"""
     box.set_variant(args.variant)
     demos, tests, unlisted = collect_demos()
     cfg, gsweeps = box.collect_sweeps()
@@ -74,18 +72,18 @@ def collect_all(args):
     hy = collect_hydro_sweeps(cfg)   # Genesis hydro 参数扫描（week2 [[HYDRO_SWEEP]]）
     vjobs, manifest = plan_videos(all_demos + list(videos.values()) + bypass + [dict(v) for v in LABEL_VIDEOS.values()]
                                   + list(hy["videos"].values()) + hy["official"], args.crf, args.force_videos)
-    ijobs = plan_images(all_demos) + [{"src": src, "dst": IMAGE_DIR / name, "size": src.stat().st_size}
-                                      for src, name in filter(None, (box.init_frame_image(r["level"])
-                                                                     for r in box.rows_of(gsweeps, "init_penetration")))]
+    ijobs = [{"src": src, "dst": IMAGE_DIR / name, "size": src.stat().st_size}
+             for src, name in filter(None, (box.init_frame_image(r["level"])
+                                            for r in box.rows_of(gsweeps, "init_penetration")))]
     ijobs += [{"src": OUT_ROOT / "figs" / name, "dst": IMAGE_DIR / name, "size": (OUT_ROOT / "figs" / name).stat().st_size}
               for name in (E0_FIG,)]
     return {"demos": demos, "tests": tests, "hydro": hydro, "hydro_more": hydro_more, "all_demos": all_demos,
             "gsweeps": gsweeps, "cfg": cfg, "videos": videos, "hy": hy, "vjobs": vjobs, "manifest": manifest,
-            "ijobs": ijobs, "facts": box.compute_facts(demos), "commit": genesis_commit(), "unlisted": unlisted}
+            "ijobs": ijobs, "commit": genesis_commit(), "unlisted": unlisted}
 
 
 def print_plan(args, c, pages, vjobs, ijobs):
-    """演练输出：每项结果的状态、关键数字、将写的页面、要压 / 跳过的视频、要复制的图片。"""
+    """演练输出：每项结果的状态、将写的页面、要压 / 跳过的视频、要复制的图片。"""
     mode = "EXECUTE" if args.execute else "DRY-RUN（只演练，不写任何文件；加 --execute 才真正写）"
     print(f"[build_site] 模式：{mode}")
     print(f"[build_site] demo 结果：{DEMO_ROOT}")
@@ -115,9 +113,6 @@ def print_plan(args, c, pages, vjobs, ijobs):
         for r in s["rows"]:
             if r["state"] in ("failed", "unfinished"):
                 print(f"      {r['level']}: {r['reason']}")
-    print("[build_site] 页面里用到的关键数字（全部读自结果文件）：")
-    for k, v in c["facts"].items():
-        print(f"  - {k} = {v if v is not MISSING else '缺失'}")
     print("[build_site] 将写页面：")
     for p, text in pages.items():
         print(f"  - {p}（{len(text.encode('utf-8')) / 1024:.1f} KB）")
@@ -188,8 +183,7 @@ def main():
     c = collect_all(args)
     if c["unlisted"]:
         print(f"[build_site] 注意：NAS 上这些 demo 目录不在 DEMOS / OFFICIAL_TESTS 清单里，不上页面：{c['unlisted']}")
-    pages = build_pages(c["demos"], c["tests"], c["hydro"], c["hydro_more"], c["gsweeps"], c["cfg"], c["facts"],
-                        c["videos"], c["hy"], week1_legacy=args.week1_legacy)
+    pages = build_pages(c["demos"], c["tests"], c["hydro"], c["hydro_more"], c["gsweeps"], c["hy"])
     # 讲稿里引用的 NAS 图（draft_md.notion_image / week2_hydro.setup_figure 在生成页面时登记）
     ijobs = c["ijobs"] + [{"src": src, "dst": IMAGE_DIR / src.name, "size": src.stat().st_size} for src in NOTION_IMAGES]
     # 只压缩 / 复制页面真正引用的文件（扫描每档的视频不一定都上页面，没用到的不进 assets）

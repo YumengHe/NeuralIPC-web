@@ -1,4 +1,4 @@
-"""视频与图片：决定哪些视频要（重新）压缩、哪些图片要复制，以及调用 ffmpeg 压缩。
+"""视频：决定哪些视频要（重新）压缩，以及调用 ffmpeg 压缩（图片的复制任务在 build_site.collect_all 里排）。
 
 压缩参数：H.264、高度 720（原片更小不放大）、给定 CRF、+faststart、去音轨。是否需要重压由
 assets/videos/encode_manifest.json 记录的源文件路径 / 大小 / mtime / crf 决定。
@@ -10,7 +10,7 @@ import os
 import subprocess
 
 from .common import file_size_str, load_json
-from .config import BUILD_TMP, IMAGE_DIR, MAX_VIDEO_BYTES, PROJECT, VIDEO_DIR, VIDEO_MANIFEST
+from .config import BUILD_TMP, MAX_VIDEO_BYTES, PROJECT, VIDEO_DIR, VIDEO_MANIFEST
 
 
 def load_manifest():
@@ -51,18 +51,6 @@ def plan_videos(demos, crf, force):
         r["video_web"] = f"assets/videos/{dst.name}"
         r["video_job"] = jobs[-1]
     return jobs, manifest
-
-
-def plan_images(demos):
-    """记录里 images 字段列出的图片的复制任务，并在记录上写 images_web。目前所有记录的 images 都为空。"""
-    jobs = []
-    for r in demos:
-        r["images_web"] = []
-        for src, name, src_label in r["images"]:
-            dst = IMAGE_DIR / name
-            jobs.append({"src": src, "dst": dst, "size": src.stat().st_size})
-            r["images_web"].append((f"assets/images/{name}", src, src_label))
-    return jobs
 
 
 def get_ffmpeg_exe():

@@ -4,7 +4,6 @@ from .common import esc
 from .config import PAGE_TITLE, WEB, WEEKS
 from .drafts import page_from_draft, sections_html
 from .html_parts import page
-from .week1_box import week1_sections
 from .week2_hydro import week2_sections
 
 
@@ -26,20 +25,18 @@ def week_summaries(demos, tests, gsweeps):
                   "官方软球 E = 1 kPa 太软，会被压塌，所以主结果用 E = 1e5。")}
 
 
-def build_pages(demos, tests, hydro, hydro_more, gsweeps, cfg, facts, videos, hy, week1_legacy=False):
+def build_pages(demos, tests, hydro, hydro_more, gsweeps, hy):
     """生成全部页面，返回 {仓库内路径: HTML}：index.html 只列各周的链接和摘要，每周一页 <weekN>.html
     （config.WEEKS 决定有哪几周及其标题）。参数是 build_site.main 收集到的各类记录。
-    week1 有讲稿 web_week1.md 时从讲稿生成，目录（页面顶部与首页卡片共用）取讲稿各节标题；没有讲稿或
-    week1_legacy=True 时走旧路径、目录取 WEEKS。"""
+    week1 从讲稿 web_week1.md 生成，目录（页面顶部与首页卡片共用）取讲稿各节标题；讲稿不存在就停止。"""
     summary = week_summaries(demos, tests, gsweeps)
     toc = {wid: items for wid, _, items in WEEKS}   # 每周的目录：页面顶部与首页卡片共用
     sections = {"week2": week2_sections(hydro, hydro_more, hy)}
-    week1 = None if week1_legacy else page_from_draft("week1", {})
+    week1 = page_from_draft("week1", {})
     if week1 is None:
-        sections["week1"] = week1_sections(demos, tests, gsweeps, cfg, facts, videos)
-    else:
-        sections["week1"] = sections_html(week1)
-        toc["week1"] = [(a, t) for a, t, _ in week1 if t is not None]
+        raise SystemExit("[build_site] 找不到 week1 讲稿 web_week1.md，停止（不退回旧内容）")
+    sections["week1"] = sections_html(week1)
+    toc["week1"] = [(a, t) for a, t, _ in week1 if t is not None]
     cards = "".join(f'<a class="weekcard" href="{wid}.html"><b>{esc(title)}</b>'
                     f'<span>{esc(" · ".join(n for _, n in toc[wid]))}</span><p>{esc(summary[wid])}</p></a>'
                     for wid, title, _ in WEEKS)

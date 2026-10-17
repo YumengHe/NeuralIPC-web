@@ -143,8 +143,6 @@ def demo_card(r, facts):
         media = f'<video controls muted playsinline preload="metadata" src="{esc(r["video_web"])}"></video>'
     else:
         media = f'<div class="novideo">{esc(r["video_note"] or "没有视频")}</div>'
-    for web, _src, _lbl in r.get("images_web", []):
-        media += f'<img class="plot" src="{esc(web)}" alt="动量随时间的变化曲线" loading="lazy">'
     return f'<div class="demo">{head}{media}<p>{esc(line)}</p></div>'
 
 

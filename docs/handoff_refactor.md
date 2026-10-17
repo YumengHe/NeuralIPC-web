@@ -108,3 +108,6 @@ week1 已从讲稿生成（e6b63ca），首页卡片节名也改为自动取讲�
 
 可一并精简但不影响功能：`catalog.OFFICIAL_TEST_NOTES` 与 `DEMOS` / `OFFICIAL_TESTS` 里的说明文字（只出现在旧 week1 卡片上；
 删时 `collect_demo` / `collect_official_test` 的 `line` 字段一起去掉）。
+
+**08:50 已删除**（用户 08:41 批准）：上表「删除」各项全部删除，「必须保留」各项未动；`--week1-legacy` 随旧路径删除，讲稿缺失时停止。
+`assets/videos/encode_manifest.json` 删掉 3e85151 已删视频的 32 个条目（119 → 87 条）；其余 87 条中还有 45 条对应的 mp4 早已不在 assets/videos/（libuipc 单独 demo 等旧条目），未动，待定。

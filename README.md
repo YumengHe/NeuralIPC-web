@@ -41,11 +41,11 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 | `html_parts.py` | 整页模板（CSS、MathJax）、表格、视频卡片 |
 | `draft_md.py` | 讲稿 Markdown → HTML 的转换器 |
 | `drafts.py` | 整页讲稿 → 页面各节（`page_from_draft`） |
-| `week1_box.py` | week1 旧路径：Demo 视频、盒子实验与参数扫描、对生成数据的意义（没有 week1 讲稿时使用） |
+| `week1_box.py` | week1 盒子实验的结果收集：选结果集、各档记录、每档视频 / 硬跑视频 / 初始穿插图（讲稿引用的视频图片由它找到源文件） |
 | `week2_hydro.py` | week2 里由代码生成的块：hydro 参数扫描表、hydro 官方测试卡片、E0 图、标签视频、实验示意图 |
 | `pages.py` | 组装首页与每周页面 |
 
-依赖只从上往下：`config / common` → `catalog` → `collect / media` → `html_parts / draft_md` → `drafts / week1_box / week2_hydro` → `pages` → `build_site.py`。
+依赖只从上往下：`config / common` → `catalog` → `collect / media` → `week1_box / html_parts / draft_md` → `drafts / week2_hydro` → `pages` → `build_site.py`。
 
 ## 如何生成
 
@@ -63,8 +63,7 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 cmp /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/before/week2.html /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/after/week2.html
 ```
 
-可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）、
-`--week1-legacy`（week1 不用讲稿、走旧的按数据拼接路径，回归对照用）。
+可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）。讲稿 `web_week1.md` / `web_week2.md` 缺失时停止，不生成旧内容。
 单个视频超过 10 MB 或页面引用的视频合计超过 60 MB 时停止，页面不更新。
 
 数据来源（只读）：
