@@ -2,7 +2,10 @@
 
 Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代码说明、仿真 demo 视频、实验方案与结果。
 
-在线地址（GitHub Pages）：https://delluluwxy.github.io/Neural-IPC-web/
+在线地址（GitHub Pages，两个仓库内容相同）：
+
+- https://delluluwxy.github.io/Neural-IPC-web/ （delluluwxy/Neural-IPC-web）
+- http://heyumeng.com/NeuralIPC-web/ （YumengHe/NeuralIPC-web）
 
 | 页面 | 内容 |
 |---|---|
@@ -60,7 +63,8 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 cmp /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/before/week2.html /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/after/week2.html
 ```
 
-可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）。
+可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）、
+`--week1-legacy`（week1 不用讲稿、走旧的按数据拼接路径，回归对照用）。
 单个视频超过 10 MB 或页面引用的视频合计超过 60 MB 时停止，页面不更新。
 
 数据来源（只读）：

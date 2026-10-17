@@ -52,6 +52,8 @@ def parse_args():
     ap.add_argument("--html-only", action="store_true",
                     help="回归用：只把 html 写到 --out-dir，不压视频、不复制图片、不写仓库")
     ap.add_argument("--out-dir", type=Path, help="--html-only 的输出目录")
+    ap.add_argument("--week1-legacy", action="store_true",
+                    help="week1 不用讲稿 web_week1.md、走旧的按数据拼接路径（回归对照用）")
     args = ap.parse_args()
     if args.html_only and (args.execute or args.out_dir is None):
         ap.error("--html-only 必须配 --out-dir，且不能和 --execute 同用")
@@ -187,7 +189,7 @@ def main():
     if c["unlisted"]:
         print(f"[build_site] 注意：NAS 上这些 demo 目录不在 DEMOS / OFFICIAL_TESTS 清单里，不上页面：{c['unlisted']}")
     pages = build_pages(c["demos"], c["tests"], c["hydro"], c["hydro_more"], c["gsweeps"], c["cfg"], c["facts"],
-                        c["videos"], c["hy"])
+                        c["videos"], c["hy"], week1_legacy=args.week1_legacy)
     # 讲稿里引用的 NAS 图（draft_md.notion_image / week2_hydro.setup_figure 在生成页面时登记）
     ijobs = c["ijobs"] + [{"src": src, "dst": IMAGE_DIR / src.name, "size": src.stat().st_size} for src in NOTION_IMAGES]
     # 只压缩 / 复制页面真正引用的文件（扫描每档的视频不一定都上页面，没用到的不进 assets）

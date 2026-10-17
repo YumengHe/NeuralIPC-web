@@ -2,6 +2,7 @@
 
 from .common import esc
 from .config import PAGE_TITLE, WEB, WEEKS
+from .drafts import page_from_draft, sections_html
 from .html_parts import page
 from .week1_box import week1_sections
 from .week2_hydro import week2_sections
@@ -25,19 +26,26 @@ def week_summaries(demos, tests, gsweeps):
                   "官方软球 E = 1 kPa 太软，会被压塌，所以主结果用 E = 1e5。")}
 
 
-def build_pages(demos, tests, hydro, hydro_more, gsweeps, cfg, facts, videos, hy):
+def build_pages(demos, tests, hydro, hydro_more, gsweeps, cfg, facts, videos, hy, week1_legacy=False):
     """生成全部页面，返回 {仓库内路径: HTML}：index.html 只列各周的链接和摘要，每周一页 <weekN>.html
-    （config.WEEKS 决定有哪几周、目录放哪几节）。参数是 build_site.main 收集到的各类记录。"""
+    （config.WEEKS 决定有哪几周、首页卡片列哪几节）。参数是 build_site.main 收集到的各类记录。
+    week1 有讲稿 web_week1.md 时从讲稿生成，页内目录取讲稿各节标题；没有讲稿或 week1_legacy=True 时走旧路径。"""
     summary = week_summaries(demos, tests, gsweeps)
-    sections = {"week2": week2_sections(hydro, hydro_more, hy),
-                "week1": week1_sections(demos, tests, gsweeps, cfg, facts, videos)}
+    toc = {wid: items for wid, _, items in WEEKS}   # 每周页面顶部的目录
+    sections = {"week2": week2_sections(hydro, hydro_more, hy)}
+    week1 = None if week1_legacy else page_from_draft("week1", {})
+    if week1 is None:
+        sections["week1"] = week1_sections(demos, tests, gsweeps, cfg, facts, videos)
+    else:
+        sections["week1"] = sections_html(week1)
+        toc["week1"] = [(a, t) for a, t, _ in week1 if t is not None]
     cards = "".join(f'<a class="weekcard" href="{wid}.html"><b>{esc(title)}</b>'
                     f'<span>{esc(" · ".join(n for _, n in items))}</span><p>{esc(summary[wid])}</p></a>'
                     for wid, title, items in WEEKS)
     pages = {WEB / "index.html": page(f'<header class="top"><h1>{esc(PAGE_TITLE)}</h1></header>\n'
                                       f'<nav class="weeks">{cards}</nav>', PAGE_TITLE)}
-    for wid, title, items in WEEKS:
-        nav = "".join(f'<a href="#{h}">{esc(n)}</a>' for h, n in items)
+    for wid, title, _ in WEEKS:
+        nav = "".join(f'<a href="#{h}">{esc(n)}</a>' for h, n in toc[wid])
         body = (f'<header class="top"><a href="index.html">← 所有周</a><h1>{esc(title)}</h1>'
                 f'<p class="summary">{esc(summary[wid])}</p><nav class="toc">{nav}</nav></header>\n'
                 + "\n".join(sections[wid]))
