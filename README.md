@@ -20,7 +20,7 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 | 路径 | 用途 |
 |---|---|
 | `index.html`、`week*.html` | 生成的页面（GitHub Pages 直接发布） |
-| `assets/videos/` | 页面引用的视频（H.264 / 720p），`encode_manifest.json` 记录每个视频由哪个源文件、什么参数压成 |
+| `assets/videos/` | 页面引用的视频（H.264 / 720p），`encode_manifest.json` 记录每个视频由哪个源文件、什么参数压成（只记录现存视频；删视频时同步删掉它的条目） |
 | `assets/images/` | 页面引用的图片（从 NAS 原样复制） |
 | `tools/build_site.py` | 生成脚本入口（命令行） |
 | `tools/webgen/` | 生成脚本的各模块，见下表 |
