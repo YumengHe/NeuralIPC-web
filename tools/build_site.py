@@ -2117,7 +2117,12 @@ def main():
     ap.add_argument("--force-videos", action="store_true", help="忽略 encode_manifest.json，全部重新压缩")
     ap.add_argument("--variant", choices=sorted(VARIANTS), default="stiffball",
                     help="盒子实验主结果用哪一套（VARIANTS；run_sweep_queue.sh 的 TAG）")
+    ap.add_argument("--html-only", action="store_true",
+                    help="回归用：只把 html 写到 --out-dir，不压视频、不复制图片、不写仓库")
+    ap.add_argument("--out-dir", type=Path, help="--html-only 的输出目录")
     args = ap.parse_args()
+    if args.html_only and (args.execute or args.out_dir is None):
+        ap.error("--html-only 必须配 --out-dir，且不能和 --execute 同用")
     set_variant(args.variant)
 
     demos, tests, unlisted = collect_demos()
@@ -2147,6 +2152,13 @@ def main():
     used = "".join(pages.values())
     vjobs = [j for j in vjobs if f"assets/videos/{j['dst'].name}" in used]
     ijobs = [j for j in ijobs if f"assets/images/{j['dst'].name}" in used]
+
+    if args.html_only:   # 回归：只写 html 到指定目录（文件名同仓库里的），其余一概不动
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        for p, text in pages.items():
+            (args.out_dir / p.name).write_text(text, encoding="utf-8")
+            print(f"[build_site] 写入 {args.out_dir / p.name}")
+        return 0
 
     # ---------------- 打印计划 ----------------
     mode = "EXECUTE" if args.execute else "DRY-RUN（只演练，不写任何文件；加 --execute 才真正写）"
