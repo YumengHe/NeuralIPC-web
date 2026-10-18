@@ -15,6 +15,8 @@ def week_summaries(demos, tests, gsweeps):
     n_gsweeps = sum(1 for s in gsweeps if s["name"] != "baseline")
     n_grows = sum(len(s["rows"]) for s in gsweeps)
     return {
+        "week3": ("标签代码扩展到两个软体，并与弹性解析解对照；hydro 在自身定义下做到最强（hydro++）及其仍有的本质问题；"
+                  "软–软接触的解析解与网络架构。"),
         "week2": "文献（hydroelastic、神经网络接触模型）、NeuralIPC 代码、Genesis + hydroelastic demo、实验方案、问题与待决定。",
         "week1": ("在服务器上跑通了 Genesis + lib IPC（Genesis 的 IPC 接触底层由 libuipc 计算）："
                   f"{len(demos)} 个 Genesis IPC 例子和 {len(tests)} 个 Genesis 官方 IPC 测试场景，共 {n_video} 段视频"
@@ -28,15 +30,17 @@ def week_summaries(demos, tests, gsweeps):
 def build_pages(demos, tests, hydro, hydro_more, gsweeps, hy):
     """生成全部页面，返回 {仓库内路径: HTML}：index.html 只列各周的链接和摘要，每周一页 <weekN>.html
     （config.WEEKS 决定有哪几周及其标题）。参数是 build_site.main 收集到的各类记录。
-    week1 从讲稿 web_week1.md 生成，目录（页面顶部与首页卡片共用）取讲稿各节标题；讲稿不存在就停止。"""
+    WEEKS 里目录为空的周（week3、week1）整页从讲稿 web_<周>.md 生成，目录（页面顶部与首页卡片共用）取讲稿各节标题；
+    讲稿不存在就停止。"""
     summary = week_summaries(demos, tests, gsweeps)
     toc = {wid: items for wid, _, items in WEEKS}   # 每周的目录：页面顶部与首页卡片共用
     sections = {"week2": week2_sections(hydro, hydro_more, hy)}
-    week1 = page_from_draft("week1", {})
-    if week1 is None:
-        raise SystemExit("[build_site] 找不到 week1 讲稿 web_week1.md，停止（不退回旧内容）")
-    sections["week1"] = sections_html(week1)
-    toc["week1"] = [(a, t) for a, t, _ in week1 if t is not None]
+    for wid in (w for w, _, items in WEEKS if not items):
+        whole = page_from_draft(wid, {})
+        if whole is None:
+            raise SystemExit(f"[build_site] 找不到 {wid} 讲稿 web_{wid}.md，停止（不退回旧内容）")
+        sections[wid] = sections_html(whole)
+        toc[wid] = [(a, t) for a, t, _ in whole if t is not None]
     cards = "".join(f'<a class="weekcard" href="{wid}.html"><b>{esc(title)}</b>'
                     f'<span>{esc(" · ".join(n for _, n in toc[wid]))}</span><p>{esc(summary[wid])}</p></a>'
                     for wid, title, _ in WEEKS)

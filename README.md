@@ -12,6 +12,7 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 | `index.html` | 首页，链接到各周 |
 | `week1.html` | 第 1 周：IPC 接触能量、Genesis + libuipc 官方例子与官方测试、盒子实验与参数扫描 |
 | `week2.html` | 第 2 周：hydroelastic 与 Hertz、神经网络接触模型、原代码碰撞能量、Genesis hydro demo、与 hydro 对比的实验方案（E0–E5） |
+| `week3.html` | 第 3 周：标签代码两个软体与弹性解对照、Genesis 中 hydro 的四种刚软组合、hydro++、软–软解析解与网络架构 |
 
 页面全部由脚本生成，**不要手改 html**。
 
@@ -63,7 +64,7 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 cmp /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/before/week2.html /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/after/week2.html
 ```
 
-可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）。讲稿 `web_week1.md` / `web_week2.md` 缺失时停止，不生成旧内容。
+可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）。讲稿 `web_week1.md` / `web_week2.md` / `web_week3.md` 缺失时停止，不生成旧内容。
 单个视频超过 10 MB 或页面引用的视频合计超过 60 MB 时停止，页面不更新。
 
 数据来源（只读）：
