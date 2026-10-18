@@ -32,8 +32,8 @@ from webgen.collect import collect_demos, collect_official_test, genesis_commit 
 from webgen.common import file_size_str  # noqa: E402
 from webgen.config import (DEMO_ROOT, IMAGE_DIR, MAX_IMAGE_BYTES, MAX_TOTAL_VIDEO_BYTES,  # noqa: E402
                            MAX_VIDEO_BYTES, OUT_ROOT, VIDEO_DIR)
-from webgen.draft_md import NOTION_IMAGES  # noqa: E402
-from webgen.media import encode_video, get_ffmpeg_exe, plan_videos  # noqa: E402
+from webgen.draft_md import NOTION_IMAGES, NOTION_VIDEOS  # noqa: E402
+from webgen.media import encode_video, get_ffmpeg_exe, merge_video_jobs, plan_videos  # noqa: E402
 from webgen.pages import build_pages  # noqa: E402
 from webgen.week2_hydro import collect_hydro_sweeps  # noqa: E402
 
@@ -186,9 +186,11 @@ def main():
     pages = build_pages(c["demos"], c["tests"], c["hydro"], c["hydro_more"], c["gsweeps"], c["hy"])
     # 讲稿里引用的 NAS 图（draft_md.notion_image / week2_hydro.setup_figure 在生成页面时登记）
     ijobs = c["ijobs"] + [{"src": src, "dst": IMAGE_DIR / src.name, "size": src.stat().st_size} for src in NOTION_IMAGES]
+    # 讲稿 [[视频 …]] 引用的视频（draft_md.draft_video 在生成页面时登记），和其余视频走同一套压缩流程
+    vjobs = merge_video_jobs(c["vjobs"], plan_videos(NOTION_VIDEOS, args.crf, args.force_videos)[0])
     # 只压缩 / 复制页面真正引用的文件（扫描每档的视频不一定都上页面，没用到的不进 assets）
     used = "".join(pages.values())
-    vjobs = [j for j in c["vjobs"] if f"assets/videos/{j['dst'].name}" in used]
+    vjobs = [j for j in vjobs if f"assets/videos/{j['dst'].name}" in used]
     ijobs = [j for j in ijobs if f"assets/images/{j['dst'].name}" in used]
 
     if args.html_only:   # 回归：只写 html 到指定目录（文件名同仓库里的），其余一概不动

@@ -114,6 +114,9 @@ TAKEAWAY: ……           醒目色总结句
 | `<details><summary>标题</summary>……</details>` | 可折叠块（可嵌套，内容照常写 Markdown） |
 | `<table><tr><td>…</td></tr></table>` | Notion 导出的表格，第一行为表头 |
 | `<image src="/nas/…/x.png"></image>` | NAS 上的图，生成时复制进 `assets/images/` |
+| 独占一行的 `[[图 /nas/…/x.png \| 图注]]` | 带图注的图卡；图按原文件名复制进 `assets/images/`（同名不同源时停止），NAS 路径不上页面 |
+| 独占一行的 `[[视频 /nas/…/<实验>/<档位>/x.mp4 \| 图注]]` | 带图注的视频卡；按其余视频同样的参数压进 `assets/videos/<实验>_<档位>.mp4`（取视频所在的上两级目录名；重名不同源时停止） |
+| 以 `设置：` 开头的一行 | 小号灰字的实验设置，行内公式照常 |
 | `[[名字]]` | 占位符，换成代码生成的块（week2 认 `DEMO_VIDEO`、`E0_FIG`、`HYDRO_MORE`、`HYDRO_SWEEP`、`E0_VIDEO`、`E1_VIDEO`、`SETUP_E0`–`SETUP_E5`） |
 
 讲稿里引用的视频 / 图片文件名必须是 `assets/` 下由生成器产出的名字；页面没引用到的视频不会被压缩、也不进仓库。

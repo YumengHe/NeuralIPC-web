@@ -53,6 +53,21 @@ def plan_videos(demos, crf, force):
     return jobs, manifest
 
 
+def merge_video_jobs(jobs, extra):
+    """把讲稿 [[视频 …]] 的压缩任务 extra 并入 plan_videos 排好的 jobs，返回合并后的新列表：目标文件名与已有任务相同时，
+    源文件也相同就不重复排，源文件不同就停止（否则两个视频会写到同一个 assets/videos/ 文件）。"""
+    by_name = {j["dst"].name: j for j in jobs}
+    merged = list(jobs)
+    for j in extra:
+        old = by_name.get(j["dst"].name)
+        if old is None:
+            merged.append(j)
+            by_name[j["dst"].name] = j
+        elif old["src"] != j["src"]:
+            raise SystemExit(f"[build_site] 讲稿视频 {j['src']} 与 {old['src']} 都要写成 {j['dst'].name}，停止")
+    return merged
+
+
 def get_ffmpeg_exe():
     """genesis 环境自带的 imageio-ffmpeg 二进制路径；不在该环境运行时停止并提示。"""
     try:

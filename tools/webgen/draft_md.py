@@ -5,6 +5,8 @@
 - 独占一行的 [视频](assets/videos/x.mp4) 内嵌播放；独占一行的 ![说明](assets/images/x.png)，同一行多张则并排
 - Notion 写法：<table><tr><td>…</td></tr></table>、<details><summary>…</summary>…</details>（可嵌套）、
   <image src="NAS 路径"></image>（复制进 assets/images/）、<mention-page url="…"/>
+- 独占一行的 [[图 NAS 路径 | 图注]]、[[视频 NAS 路径 | 图注]]：带图注的图卡 / 视频卡（NAS 路径不上页面）
+- 以「设置：」开头的一行：小号灰字（html_parts.setting），行内公式照常
 - 标题降两级（## → h4，### → h5），去掉讲稿自带的节号；--- 分隔线删掉
 """
 
@@ -13,8 +15,10 @@ import re
 from pathlib import Path
 
 from .common import esc
+from .html_parts import setting
 
-NOTION_IMAGES = []   # 讲稿里 <image src=NAS 路径> 和实验示意图引用的图，build 时复制进 assets/images/
+NOTION_IMAGES = []   # 讲稿里 <image src=NAS 路径>、[[图 …]] 和实验示意图引用的图，build 时复制进 assets/images/
+NOTION_VIDEOS = []   # 讲稿里 [[视频 …]] 引用的视频记录 {key, video_src}，build 时交给 media.plan_videos 压缩
 _STASH_IDS = itertools.count()
 
 
@@ -74,6 +78,10 @@ def notion_md_to_html(md):
     t = re.sub(r"(?m)^([ \t]*)\$\$(.+?)\$\$[ \t]*$", lambda m: keep_indented(m, f"<p>\\[{esc(m.group(2).strip())}\\]</p>"), t)
     t = re.sub(r"\$`(.+?)`\$", lambda m: keep(f"\\({esc(m.group(1))}\\)"), t)
     t = re.sub(r"(?<![\$\\])\$([^\$\n]+?)\$", lambda m: keep(f"\\({esc(m.group(1))}\\)"), t)
+    # 以下两种在公式之后处理：图注、设置里的公式已换成占位符，esc 不会把它们转坏
+    t = re.sub(r"(?m)^([ \t]*)\[\[(图|视频) ([^|\]]+?)[ \t]*\|[ \t]*([^\]]+?)[ \t]*\]\][ \t]*$", lambda m: keep_indented(
+        m, (draft_image if m.group(2) == "图" else draft_video)(m.group(3), m.group(4))), t)
+    t = re.sub(r"(?m)^设置：(.+)$", lambda m: keep(setting(m.group(1).strip()), True), t)
     t = re.sub(r"(?m)^([ \t]*)\[视频\]\((assets/videos/[^)\s]+\.mp4)\)[ \t]*$", lambda m: keep_indented(
         m, f'<figure><video controls muted playsinline preload="metadata" src="{esc(m.group(2))}"></video></figure>'), t)
     t = re.sub(r"(?m)^([ \t]*)((?:!\[[^\]]*\]\(assets/images/[^)\s]+\)[ \t]*)+)$", lambda m: keep_indented(
@@ -122,3 +130,43 @@ def notion_image(src):
     if path not in NOTION_IMAGES:
         NOTION_IMAGES.append(path)
     return f'<figure><img src="assets/images/{path.name}" alt="{esc(path.stem)}"></figure>'
+
+
+def draft_file(src):
+    """讲稿 [[图 / 视频 …]] 里的 NAS 路径 → Path；文件不存在就停止（不生成缺图的页面）。"""
+    path = Path(src)
+    if not path.is_file():
+        raise SystemExit(f"[build_site] 讲稿引用的文件不存在：{path}")
+    return path
+
+
+def draft_image(src, caption):
+    """[[图 NAS 路径 | 图注]] → 带图注的图卡；图登记到 NOTION_IMAGES（build 时按原文件名复制进 assets/images/，
+    同名不同源就停止）。"""
+    path = draft_file(src)
+    if any(p.name == path.name and p != path for p in NOTION_IMAGES):
+        raise SystemExit(f"[build_site] 讲稿里两张不同的图同名 {path.name}，assets/images/ 会互相覆盖，停止")
+    if path not in NOTION_IMAGES:
+        NOTION_IMAGES.append(path)
+    return (f'<figure><img src="assets/images/{esc(path.name)}" alt="{esc(caption)}" loading="lazy">'
+            f'<figcaption class="small">{esc(caption)}</figcaption></figure>')
+
+
+def draft_video_key(path):
+    """讲稿 NAS 视频 → assets/videos/ 里的文件名（不含 .mp4）：视频所在的上两级目录名用下划线相连，
+    例如 …/hydro_ss_diag/V2_k5_pcg400/genesis_hydro_press.mp4 → hydro_ss_diag_V2_k5_pcg400
+    （同一实验脚本录的视频文件名相同，区别只在实验目录）。"""
+    return f"{path.parent.parent.name}_{path.parent.name}"
+
+
+def draft_video(src, caption):
+    """[[视频 NAS 路径 | 图注]] → 带图注的视频卡；视频登记到 NOTION_VIDEOS（同一源文件只登记一次，
+    两个不同源文件得到同一文件名就停止），build 时由 media.plan_videos 压缩进 assets/videos/。"""
+    path = draft_file(src)
+    key = draft_video_key(path)
+    if any(r["key"] == key and r["video_src"] != path for r in NOTION_VIDEOS):
+        raise SystemExit(f"[build_site] 讲稿里两个不同的视频得到同一文件名 {key}.mp4：{path}，停止")
+    if all(r["video_src"] != path for r in NOTION_VIDEOS):
+        NOTION_VIDEOS.append({"key": key, "video_src": path})
+    return (f'<figure><video controls muted playsinline preload="metadata" src="assets/videos/{esc(key)}.mp4">'
+            f'</video><figcaption class="small">{esc(caption)}</figcaption></figure>')
