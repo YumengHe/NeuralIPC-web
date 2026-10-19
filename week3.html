@@ -162,7 +162,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure><img src="assets/images/exp3_SW.png" alt="硬度对调：软压头（浅橙）压硬块（深蓝），几何与加载不变（看图 0.3 分）" loading="lazy"><figcaption class="small">硬度对调：软压头（浅橙）压硬块（深蓝），几何与加载不变（看图 0.3 分）</figcaption></figure>
 <figure><img src="assets/images/exp3_SW_pressed_disp.png" alt="硬度对调、压深 0.024 时的位移大小（真实比例，剖面）：软压头被压平，硬块几乎不动（看图 0.3 分）" loading="lazy"><figcaption class="small">硬度对调、压深 0.024 时的位移大小（真实比例，剖面）：软压头被压平，硬块几乎不动（看图 0.3 分）</figcaption></figure>
 <ul>
-<li><strong>偏低量 ≈ \(s\cdot k\)</strong>〔1.0 分〕<ul>
+<li><strong>偏低量 ≈ \(s\cdot k\)</strong>〔0.9 分〕<ul>
 <li>\(s\) 为压头承担的柔度份额：压头越软 → \(s\) 越大 → 偏低越多（硬 10 倍 0.09，等软 0.5，对调 0.91）</li>
 <li>\(k\approx0.27\,a/R\)：接触圈半径 \(a\) 相对球冠半径 \(R\) 越大 → 偏低越多，因为接触区越宽，球冠越不像「无限大平面上的一小块抛物面」</li>
 <li>软压头压刚性地面同样出现，只看 \(a/R\)，与网格无关</li>
@@ -187,7 +187,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>两球对压等价于等效球（半径 \(R^*=R/2\)）压平面；能量 ∝ \(\sqrt{R^*}\)：球越大 → 能量越大，但只按开方涨，因为接触圈只按 \(\sqrt R\) 变宽</li>
 </ul>
 </li>
-<li><strong>按 hydro 的公式只能是 1 倍或 2 倍</strong>：力 = 压力梯度 × 重叠体积，球放大一倍重叠体积 ×2；场按半径归一 → 梯度减半 → 1 倍，按厚度归一 → 2 倍〔0.5 分〕</li>
+<li><strong>按 hydro 的公式只能是 1 倍或 2 倍</strong>：力 = 压力梯度 × 重叠体积，球放大一倍重叠体积 ×2；场按半径归一 → 梯度减半 → 1 倍，按厚度归一 → 2 倍〔0.4 分〕</li>
 <li><strong>标签：能量比 1.411–1.438</strong>，6 个压深都在 √2 的 2% 以内；两物体各担一半能量，偏差 ≤ 0.0015〔0.4 分〕</li>
 </ul>
 <p class="setting muted">设置：两个相同的球冠头厚块顶对顶对压，E = 1e5、ν = 0.3；比较 R = 1 与 R = 2，其余条件全同；压深 0.004–0.024 共 6 档。网格外推的收敛阶取假定值 0.8–2，结论不变（2% 以内依赖这一假设）；按三档网格实测收敛阶时只有 3 个压深可用，其中 0.024 为 √2 的 1.021 倍。最小压深 0.004 在这里保留：假定收敛阶时只用粗、中两档网格，不用在该压深分辨不了接触圈的特粗档。</p>
@@ -196,7 +196,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">两软球同时放大一倍，标签能量变为 1.41–1.44 倍，与 Hertz 的 √2 一致；hydro 的公式只能给出 1 倍或 2 倍。〔0.1 分〕</p></section>
 <section id="w4"><h2>更多形状与独立裁判：平底、圆锥、薄层、斜压、两个压头</h2>
 <ul>
-<li><strong>平底、薄层、圆锥、幂律：按 U_snk1，标签 ÷ 解析都在 1% 左右</strong>〔1.2 分〕<ul>
+<li><strong>平底、薄层、圆锥、幂律：按 U_snk1，标签 ÷ 解析都在 1% 左右</strong>〔1.1 分〕<ul>
 <li>平底 1.001–1.005，薄层 1.002–1.007，圆锥 1.004–1.011，\(k\) = 1.5 为 0.994–1.006</li>
 <li>这是两项相反的有限变形差别抵消后的净值；按小应变能比偏高至多约 3%，随压深增大</li>
 <li>压头 \(y=c\,r^k\) 的能量按压深的 \(2+1/k\) 次方涨：压头越尖 → 次方越大，因为接触面积涨得越快；标签 2.975 / 2.652 / 2.260，解析 3 / 2.667 / 2.25；按球调好的 hydro 最大误差 26%–68%</li>
@@ -417,7 +417,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <ul>
 <li><strong>两个物体都软时死结仍在</strong>：两个软球冠压头同压软块，下界 2.3%–3.2%（边界元）/ 2.0%–2.7%（标签）；比平底小，因为一半变形发生在球里，传给另一处的少〔0.6 分〕</li>
-<li><strong>之前「训练集内拟不准」的论证为什么不再算数</strong>〔1.2 分〕<ul>
+<li><strong>之前「训练集内拟不准」的论证为什么不再算数</strong>〔1.0 分〕<ul>
 <li>每给场多一份自由度，冲突就被拟掉：只随深度变的场斜压加水平压至少错 28%–35%，场随压头位置变后只剩 1.11%</li>
 <li>场 \(p=c\,s/r\)（\(s\) 深度，\(r\) 到接触轴的距离）让任意两球配对都精确等于 Hertz：离轴越近 → 弹簧越硬，大球多出的重叠落在软的外圈</li>
 <li>循环赛 198 个构型，场有 18720 个参数，拟到 5.1e-15：有限训练集总能背下来；死结的物体和场不变，参数再多也改不了相加</li>
@@ -441,12 +441,65 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 <li><strong>能直接用</strong>：球、椭圆、幂律、任意轴对称缝隙；<strong>不能直接用</strong>：平底等尖边、有限 \(a/R\)、有限厚度、多接触区交互〔0.4 分〕</li>
-<li><strong>骨架</strong>：\(U_0=\tfrac{E^*}{2}\int_{-a}^{a}\big(d-g(x)\big)^2dx\)，\(d=g(a)\)；\(g\) 为由缝隙算出的等效轮廓，\(d\) 压深，\(a\) 接触半径；\(d\) 越大 → 能量越大，因为每处压入量 \(d-g\) 都增大〔0.8 分〕<ul>
+<li><strong>骨架</strong>：\(U_0=\tfrac{E^*}{2}\int_{-a}^{a}\big(d-g(x)\big)^2dx\)，\(d=g(a)\)；\(g\) 为由缝隙算出的等效轮廓，\(d\) 压深，\(a\) 接触半径；\(d\) 越大 → 能量越大，因为每处压入量 \(d-g\) 都增大〔0.7 分〕<ul>
 <li>幂次由缝隙形状决定：幂律缝隙 \(c\,r^n\) 为 \((2n+1)/n\)，球（\(n=2\)）回到 Hertz 的 5/2</li>
 <li>\(dF/dd=2aE^*&gt;0\)：压得越深 → 刚度越大，因为接触圈随之变宽</li>
 </ul>
 </li>
 <li><strong>修正放进等效缝隙与等效模量</strong>：修正项输入不含压深，单调与凸由结构保证，无需截断；能量与力一起训练〔0.6 分〕</li>
+<li><strong>多接触区耦合</strong>：每区保留骨架的非线性，只把别的区造成的下沉按 Boussinesq 互柔度 \(C_{ij}=1/(\pi E&#x27; r_{ij})\) 线性叠加〔0.4 分〕<ul>
+<li>\(\delta_i=\delta_{e,i}(F_i)+\sum_{j\ne i}C_{ij}F_j\)，\(U=\sum U_0(\delta_{e,i})+\tfrac12\sum_{i\ne j}C_{ij}F_iF_j\)；自检 \(\partial U/\partial\delta_i=F_i\)，误差 3e-11 / 4e-11</li>
+<li>两区越近 → 互柔度越大 → 一区压下块、另一区少压，总能量小于单独之和</li>
+</ul>
+</li>
+<li><strong>不用训练，对边界元差 ≤ 0.0021，对标签差 ≤ 0.0083</strong>〔0.1 分〕</li>
+<li><strong>hydro 只能相加，\(c\equiv1\)，至少错 7.49% / 2%–3%</strong>：我们的结构里有这一项；这是结构能表达，不是网络已训练出的成绩，网络尚未实现〔0.3 分〕</li>
+</ul>
+<p>看表 0.2 分（\(c\) = 同时压 ÷ 两次单独压之和）：</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>构型</th>
+<th>骨架 + 互柔度</th>
+<th>边界元</th>
+<th>标签</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>平底 4a</td>
+<td>0.86270</td>
+<td>0.86064</td>
+<td>0.861</td>
+</tr>
+<tr>
+<td>平底 10a</td>
+<td>0.94015</td>
+<td>0.93985</td>
+<td>0.938</td>
+</tr>
+<tr>
+<td>两软球 δ 0.006</td>
+<td>0.95558</td>
+<td>0.95538</td>
+<td>0.96015</td>
+</tr>
+<tr>
+<td>两软球 δ 0.009</td>
+<td>0.94623</td>
+<td>0.94587</td>
+<td>0.95295</td>
+</tr>
+<tr>
+<td>两软球 δ 0.012</td>
+<td>0.93851</td>
+<td>0.93800</td>
+<td>0.94680</td>
+</tr>
+</tbody>
+</table></div>
+<p class="setting muted">设置：耦合公式的单区骨架：球为 Hertz（\(F=\tfrac43E^*\sqrt R\,\delta_e^{3/2}\)），平底为 \(F=2E&#x27;a\delta_e\)；\(C_{ij}\) 只对两区共用的物体求和，给定 δ 用牛顿法解 F。平底 a = 0.1，中心距 4a、10a（线弹性下 c 与 δ 无关）；两软球 R = 1、与块同模量，单区用两体组合 \(E^*\)，互柔度只算块，中心距 0.438。边界元值从 json 读。平底标签取 e3_pair4 / e3_pair10 三个压深的范围（4a 为 0.86120–0.86147，10a 为 0.93790–0.93801，表中取三位）；两软球的标签值是从第 4 节的最佳估计表（LB §10.7）抄来的，不是从 json 读出来的。骨架对边界元：平底 4a 高 0.0021（两凸台近，互柔度把对方的力当点力），10a 高 0.0003，两软球高 0.0002–0.0005；两软球标签比骨架高 0.0046–0.0083，原因是有限大小的软压头和有限块，骨架和边界元都把它们当半空间。</p>
+<ul>
 <li><strong>与上一节衔接</strong>：hydro 的场按物体各管各的，拆不出「缝隙 + \(E^*\)」，网络的输入正是它〔0.3 分〕</li>
 </ul>
 <p class="setting muted">设置：有摩擦时须两侧满足 Dundurs 参数 \(\beta_D=0\)；只对压深要求单调且凸。等价关系与适用条件出自 Popov, Heß &amp; Willert《Handbook of Contact Mechanics》（2019）§2.2 书 p.6、§2.6；幂律缝隙解为同书 §2.5.8 式 (2.61)、(2.63)。骨架与修正结构已定，尚未实现与训练。</p>
@@ -454,7 +507,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <section id="w8"><h2>后续对比的候选</h2>
 <ul>
 <li><strong>Romero et al. 三篇学接触造成的位移修正</strong>（2021，<em>Learning Contact Corrections for Handle-Based Subspace Dynamics</em>；2022，<em>Contact-Centric Deformation Learning</em>；2023，<em>Learning Contact Deformations with General Collider Descriptors</em>）：比能量需补造数据、可微弹性能与网络；2023 一篇有训练代码〔0.6 分〕</li>
-<li><strong>不参与压入对比</strong>：<em>RigidFormer</em> 只处理刚体，不输出力或能量；<em>ContactNets</em> 为硬接触，给定压深时力无定义〔0.4 分〕</li>
+<li><strong>不参与压入对比</strong>：<em>RigidFormer</em> 只处理刚体，不输出力或能量；<em>ContactNets</em> 为硬接触，给定压深时力无定义〔0.3 分〕</li>
 <li><strong>IPC 加速 / 简化自由度</strong>：仿射体动力学（ABD）与我们同一套粗自由度、不补接触能量，是最干净的消融对照；全自由度 IPC 作测速分母〔0.4 分〕</li>
 </ul>
 <p>已定：Romero et al. 2023 对比的设置见第 9 节。〔0.1 分〕</p>
@@ -463,7 +516,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <ul>
 <li><strong>标签</strong>：按 U_snk1 对独立裁判约 1%–2% 以内；斜压 0.003 仍偏低（0.94），推测网格不够细〔0.4 分〕</li>
 <li><strong>hydro</strong>：Genesis 实测与弹性解不符；hydro++ 只多一个接触就被迫相加，至少错 7.49%（两个软体 2.0%–2.7%）；留出配对作辅助，原版 hydro 只作消融〔0.5 分〕</li>
-<li>已定〔0.8 分〕：<ul>
+<li>已定〔0.7 分〕：<ul>
 <li>软压头标签验收判据（第 2 节）</li>
 <li>换位置评测：下周不做，网络训好后统一测，裁判优先曲面 Hertz</li>
 <li>网络架构：输入缝隙形状，骨架幂次由它决定，能量与力联合训练，只对压深单调且凸，无截断</li>
