@@ -20,7 +20,9 @@
 
 import argparse
 import json
+import re
 import shutil
+import struct
 import sys
 from pathlib import Path
 
@@ -36,6 +38,54 @@ from webgen.draft_md import NOTION_IMAGES, NOTION_VIDEOS  # noqa: E402
 from webgen.media import encode_video, get_ffmpeg_exe, merge_video_jobs, plan_videos  # noqa: E402
 from webgen.pages import build_pages  # noqa: E402
 from webgen.week2_hydro import collect_hydro_sweeps  # noqa: E402
+
+SHORT_SIDE = 420                 # 配图最短边的显示像素（用户 2026-10-22：最短边固定，图里文字约与正文同大）
+FIXED_SIZE_WEEKS = ("week2",)    # 按最短边定配图尺寸的周（size_media）
+
+
+def png_size(path):
+    """PNG 的 (宽, 高)：IHDR 紧跟 8 字节签名，宽高是第 16–24 字节的两个大端 uint32。"""
+    with open(path, "rb") as f:
+        head = f.read(24)
+    assert head[:8] == b"\x89PNG\r\n\x1a\n", f"{path} 不是 PNG"
+    return struct.unpack(">II", head[16:24])
+
+
+def video_size(path):
+    """视频的 (宽, 高)：imageio-ffmpeg read_frames 产出的第一项是元数据（不解码画面）。"""
+    import imageio_ffmpeg
+    gen = imageio_ffmpeg.read_frames(str(path))
+    meta = next(gen)
+    gen.close()
+    return tuple(meta["size"])
+
+
+def media_file(src):
+    """页面里的相对路径 assets/… → 磁盘文件：讲稿 NAS 图（NOTION_IMAGES）按文件名取源文件——本次 build 才会把它复制进
+    assets/，assets/ 里现有的可能还是上一版；其余取本仓库 assets/ 下的。都找不到就停止，不猜尺寸。"""
+    p = IMAGE_DIR.parent.parent / src
+    hit = [q for q in NOTION_IMAGES if q.name == p.name]
+    if len(hit) == 1:
+        return hit[0]
+    if p.exists():
+        return p
+    raise SystemExit(f"[build_site] 定配图尺寸时找不到 {src}（assets/ 里没有，讲稿 NAS 图里也没有），停止")
+
+
+def size_media(html):
+    """配图按最短边定尺寸：每个 <img src="assets/images/…"> / <video src="assets/videos/…"> 加行内样式，
+    显示宽度 = SHORT_SIDE × 宽 / min(宽, 高)（宽 ≤ 高时宽 = SHORT_SIDE，否则高 = SHORT_SIDE），再加 max-width: 100%、
+    height: auto，窄屏按比例缩小、不出横向滚动。同一行并排的图（draft_md 产出的 <div class="grid"><figure>…）
+    改成按各自宽度换行的 flex 行，免得被网格列宽压小；<figure> 的外边距改成上下 12px、左右 0。
+    只读文件头取尺寸，不改图片和视频。"""
+    def add_style(m):
+        p = media_file(m.group(2))
+        w, h = png_size(p) if p.suffix.lower() == ".png" else video_size(p)
+        return m.group(1) + f' style="width:{round(SHORT_SIDE * w / min(w, h))}px;max-width:100%;height:auto"'
+    html = re.sub(r'(<(?:img|video)\b[^>]*?\bsrc="(assets/(?:images|videos)/[^"]+)")', add_style, html)
+    html = html.replace('<div class="grid"><figure>', '<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure>')
+    return html.replace("<figure>", '<figure style="margin:12px 0">')   # 去掉浏览器默认的左右 40px，宽图少被压缩
+
 
 STATE_LABEL = {"ok": "完成", "failed": "失败", "not_run": "尚未运行", "unfinished": "未结束", "stale": "旧配置的结果，重跑中",
                "rejected": "被拒绝（预期内）"}
@@ -184,6 +234,9 @@ def main():
     if c["unlisted"]:
         print(f"[build_site] 注意：NAS 上这些 demo 目录不在 DEMOS / OFFICIAL_TESTS 清单里，不上页面：{c['unlisted']}")
     pages = build_pages(c["demos"], c["tests"], c["hydro"], c["hydro_more"], c["gsweeps"], c["hy"])
+    for p in pages:
+        if p.stem in FIXED_SIZE_WEEKS:
+            pages[p] = size_media(pages[p])
     # 讲稿里引用的 NAS 图（draft_md.notion_image / week2_hydro.setup_figure 在生成页面时登记）
     ijobs = c["ijobs"] + [{"src": src, "dst": IMAGE_DIR / src.name, "size": src.stat().st_size} for src in NOTION_IMAGES]
     # 讲稿 [[视频 …]] 引用的视频（draft_md.draft_video 在生成页面时登记），和其余视频走同一套压缩流程
