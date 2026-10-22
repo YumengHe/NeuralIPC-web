@@ -10,6 +10,9 @@ DEMO_ROOT = OUT_ROOT / "ipc_demos"
 SWEEP_ROOT = OUT_ROOT / "ipc_sweep"
 SWEEP_CONFIGS = PROJECT / "tools" / "ipc_sweep" / "configs.py"
 DRAFTS = PROJECT / "docs" / "drafts"                        # 每周讲稿 web_<周>.md
+# week3 讲稿配图版目录（图在 figs/<组>/、视频在 videos/<组>/）；讲稿写 [[配图 <组>/<文件>]] 直接取这里的当时版本，
+# 图注取 sandbox tools/figs/week3_md/assemble_md.py 读的三份图注清单（draft_md.illustrated）
+ILLUSTRATED = OUT_ROOT / "week3_illustrated"
 
 VIDEO_DIR = WEB / "assets" / "videos"
 IMAGE_DIR = WEB / "assets" / "images"
@@ -25,8 +28,9 @@ MAX_IMAGE_BYTES = 5 * 1024 * 1024         # 单张图上限
 PAGE_TITLE = "Neural-IPC 周汇报"
 # 每周一块，新的一周在前；周的分界 = weekly todo/weekN.txt 文件头的日期。锚点只用字母和数字。
 # (页面名, 标题, [(节锚点, 节名)])；节名用于首页卡片和该周页面顶部的目录。
-# 列表为空的周（week3、week1）整页从讲稿生成，目录自动取讲稿的节标题（pages.build_pages）。
-WEEKS = [("week3", "Week 3（TODO 2026-10-12）", []),
+# 列表为空的周（week3_4、week1）整页从讲稿生成，目录自动取讲稿的节标题（pages.build_pages）。
+# week3 没开会，第 3、4 周合成一页 week3_4（用户 10-22）；旧 week3.html 不再生成、不再链接。
+WEEKS = [("week3_4", "Week 3–4（第 3–4 周）", []),
          ("week2", "Week 2（TODO 2026-10-04）",
           [("w1", "文献：Hydroelastic"), ("w2", "文献：神经网络接触模型"), ("w3", "看代码"), ("w4", "Demo"),
            ("w5", "实验方案"), ("w6", "问题与待决定")]),

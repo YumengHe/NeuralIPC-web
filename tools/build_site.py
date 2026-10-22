@@ -22,7 +22,6 @@ import argparse
 import json
 import re
 import shutil
-import struct
 import sys
 from pathlib import Path
 
@@ -33,22 +32,39 @@ from webgen.catalog import E0_FIG, HYDRO, HYDRO_MORE, LABEL_VIDEOS  # noqa: E402
 from webgen.collect import collect_demos, collect_official_test, genesis_commit  # noqa: E402
 from webgen.common import file_size_str  # noqa: E402
 from webgen.config import (DEMO_ROOT, IMAGE_DIR, MAX_IMAGE_BYTES, MAX_TOTAL_VIDEO_BYTES,  # noqa: E402
-                           MAX_VIDEO_BYTES, OUT_ROOT, VIDEO_DIR)
+                           MAX_VIDEO_BYTES, OUT_ROOT, PROJECT, VIDEO_DIR)
 from webgen.draft_md import NOTION_IMAGES, NOTION_VIDEOS  # noqa: E402
 from webgen.media import encode_video, get_ffmpeg_exe, merge_video_jobs, plan_videos  # noqa: E402
 from webgen.pages import build_pages  # noqa: E402
 from webgen.week2_hydro import collect_hydro_sweeps  # noqa: E402
 
 SHORT_SIDE = 420                 # 配图最短边的显示像素（用户 2026-10-22：最短边固定，图里文字约与正文同大）
-FIXED_SIZE_WEEKS = ("week2",)    # 按最短边定配图尺寸的周（size_media）
+FIXED_SIZE_WEEKS = ("week2", "week3_4")    # 按最短边定配图尺寸的周（size_media）
+# 复制图片时统一留白的周：本周页面引用的图复制成 <前缀><原名> 的副本、在副本上跑 sandbox fig_margin.trim_and_pad
+# （裁到内容 + 四边 3% × 内容最短边）；NAS 原图不动，也不和别的页共用的同名 asset 撞（主会话 10-22 定）
+TRIM_WEEKS = {"week3_4": "w34_"}
+TRIM_SRC = {}                    # 留白副本的 asset 文件名 → NAS 源文件（size_media 登记，复制时用）
 
 
-def png_size(path):
-    """PNG 的 (宽, 高)：IHDR 紧跟 8 字节签名，宽高是第 16–24 字节的两个大端 uint32。"""
-    with open(path, "rb") as f:
-        head = f.read(24)
-    assert head[:8] == b"\x89PNG\r\n\x1a\n", f"{path} 不是 PNG"
-    return struct.unpack(">II", head[16:24])
+def fig_margin():
+    """sandbox 的统一留白模块 tools/figs/fig_margin.py（只 import，不复制逻辑）。"""
+    sys.path.insert(0, str(PROJECT / "tools" / "figs"))
+    import fig_margin as fm
+    return fm
+
+
+def image_size(path, trimmed=False):
+    """图片的 (宽, 高)；trimmed 时给 fig_margin.trim_and_pad 之后的尺寸（只在内存里算，不写文件）。"""
+    from PIL import Image
+    import numpy as np
+    with Image.open(path) as im:
+        if not trimmed:
+            return im.size
+        rgb = np.asarray(im.convert("RGB"))
+    fm = fig_margin()
+    t, b, l, r = fm.content_box(rgb, tuple(int(v) for v in rgb[0, 0]))
+    pad = round(fm.MARGIN_FRAC * min(b - t, r - l))
+    return r - l + 2 * pad, b - t + 2 * pad
 
 
 def video_size(path):
@@ -67,9 +83,22 @@ def media_file(src):
     hit = [q for q in NOTION_IMAGES if q.name == p.name]
     if len(hit) == 1:
         return hit[0]
+    vhit = [r["video_src"] for r in NOTION_VIDEOS if f"{r['key']}.mp4" == p.name]   # 讲稿 NAS 视频（可能还没压缩）
+    if len(vhit) == 1:
+        return vhit[0]
     if p.exists():
         return p
     raise SystemExit(f"[build_site] 定配图尺寸时找不到 {src}（assets/ 里没有，讲稿 NAS 图里也没有），停止")
+
+
+def trim_copies(html, prefix):
+    """TRIM_WEEKS 的页：每个 <img src="assets/images/X"> 改指向留白副本 assets/images/<prefix>X，源文件登记进 TRIM_SRC
+    （复制时 trim_and_pad）。在 size_media 之前调用，尺寸按留白后的副本算。"""
+    def swap(m):
+        name = m.group(2)
+        TRIM_SRC[prefix + name] = media_file(f"assets/images/{name}")
+        return f'{m.group(1)}assets/images/{prefix}{name}"'
+    return re.sub(r'(<img\b[^>]*?\bsrc=")assets/images/([^"]+)"', swap, html)
 
 
 def size_media(html):
@@ -79,8 +108,12 @@ def size_media(html):
     改成按各自宽度换行的 flex 行，免得被网格列宽压小；<figure> 的外边距改成上下 12px、左右 0。
     只读文件头取尺寸，不改图片和视频。"""
     def add_style(m):
-        p = media_file(m.group(2))
-        w, h = png_size(p) if p.suffix.lower() == ".png" else video_size(p)
+        name = m.group(2).rsplit("/", 1)[-1]
+        if name in TRIM_SRC:
+            w, h = image_size(TRIM_SRC[name], trimmed=True)
+        else:
+            p = media_file(m.group(2))
+            w, h = video_size(p) if p.suffix.lower() == ".mp4" else image_size(p)
         return m.group(1) + f' style="width:{round(SHORT_SIDE * w / min(w, h))}px;max-width:100%;height:auto"'
     html = re.sub(r'(<(?:img|video)\b[^>]*?\bsrc="(assets/(?:images|videos)/[^"]+)")', add_style, html)
     html = html.replace('<div class="grid"><figure>', '<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure>')
@@ -216,7 +249,9 @@ def execute(args, pages, vjobs, ijobs, manifest):
         IMAGE_DIR.mkdir(parents=True, exist_ok=True)
         for j in ijobs:
             shutil.copy2(j["src"], j["dst"])
-            print(f"[build_site] 复制 {j['src']} -> {j['dst']}")
+            if j.get("trim"):
+                fig_margin().trim_and_pad(j["dst"])
+            print(f"[build_site] 复制{'并统一留白' if j.get('trim') else ''} {j['src']} -> {j['dst']}")
     for p, text in pages.items():
         p.write_text(text, encoding="utf-8")
         print(f"[build_site] 写入 {p}")
@@ -235,10 +270,14 @@ def main():
         print(f"[build_site] 注意：NAS 上这些 demo 目录不在 DEMOS / OFFICIAL_TESTS 清单里，不上页面：{c['unlisted']}")
     pages = build_pages(c["demos"], c["tests"], c["hydro"], c["hydro_more"], c["gsweeps"], c["hy"])
     for p in pages:
+        if p.stem in TRIM_WEEKS:
+            pages[p] = trim_copies(pages[p], TRIM_WEEKS[p.stem])
         if p.stem in FIXED_SIZE_WEEKS:
             pages[p] = size_media(pages[p])
-    # 讲稿里引用的 NAS 图（draft_md.notion_image / week2_hydro.setup_figure 在生成页面时登记）
+    # 讲稿里引用的 NAS 图（draft_md.notion_image / week2_hydro.setup_figure 在生成页面时登记）；留白副本另列，复制后 trim
     ijobs = c["ijobs"] + [{"src": src, "dst": IMAGE_DIR / src.name, "size": src.stat().st_size} for src in NOTION_IMAGES]
+    ijobs += [{"src": src, "dst": IMAGE_DIR / name, "size": src.stat().st_size, "trim": True}
+              for name, src in TRIM_SRC.items()]
     # 讲稿 [[视频 …]] 引用的视频（draft_md.draft_video 在生成页面时登记），和其余视频走同一套压缩流程
     vjobs = merge_video_jobs(c["vjobs"], plan_videos(NOTION_VIDEOS, args.crf, args.force_videos)[0])
     # 只压缩 / 复制页面真正引用的文件（扫描每档的视频不一定都上页面，没用到的不进 assets）

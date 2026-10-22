@@ -6,6 +6,7 @@
 - Notion 写法：<table><tr><td>…</td></tr></table>、<details><summary>…</summary>…</details>（可嵌套）、
   <image src="NAS 路径"></image>（复制进 assets/images/）、<mention-page url="…"/>
 - 独占一行的 [[图 NAS 路径 | 图注]]、[[视频 NAS 路径 | 图注]]：带图注的图卡 / 视频卡（NAS 路径不上页面）
+- 独占一行的 [[配图 <组>/<文件>]]：week3 配图版目录里的图 / 视频，图注从图注清单取（illustrated）
 - 以「设置：」开头的一行：小号灰字（html_parts.setting），行内公式照常
 - 标题降两级（## → h4，### → h5），去掉讲稿自带的节号；--- 分隔线删掉
 """
@@ -15,6 +16,7 @@ import re
 from pathlib import Path
 
 from .common import esc
+from .config import ILLUSTRATED, PROJECT
 from .html_parts import setting
 
 NOTION_IMAGES = []   # 讲稿里 <image src=NAS 路径>、[[图 …]] 和实验示意图引用的图，build 时复制进 assets/images/
@@ -79,6 +81,7 @@ def notion_md_to_html(md):
     t = re.sub(r"\$`(.+?)`\$", lambda m: keep(f"\\({esc(m.group(1))}\\)"), t)
     t = re.sub(r"(?<![\$\\])\$([^\$\n]+?)\$", lambda m: keep(f"\\({esc(m.group(1))}\\)"), t)
     # 以下两种在公式之后处理：图注、设置里的公式已换成占位符，esc 不会把它们转坏
+    t = re.sub(r"(?m)^([ \t]*)\[\[配图 ([^\]\s]+)\]\][ \t]*$", lambda m: keep_indented(m, illustrated(m.group(2))), t)
     t = re.sub(r"(?m)^([ \t]*)\[\[(图|视频) ([^|\]]+?)[ \t]*\|[ \t]*([^\]]+?)[ \t]*\]\][ \t]*$", lambda m: keep_indented(
         m, (draft_image if m.group(2) == "图" else draft_video)(m.group(3), m.group(4))), t)
     t = re.sub(r"(?m)^设置：(.+)$", lambda m: keep(setting(m.group(1).strip()), True), t)
@@ -155,8 +158,29 @@ def draft_image(src, caption):
 def draft_video_key(path):
     """讲稿 NAS 视频 → assets/videos/ 里的文件名（不含 .mp4）：视频所在的上两级目录名用下划线相连，
     例如 …/hydro_ss_diag/V2_k5_pcg400/genesis_hydro_press.mp4 → hydro_ss_diag_V2_k5_pcg400
-    （同一实验脚本录的视频文件名相同，区别只在实验目录）。"""
+    （同一实验脚本录的视频文件名相同，区别只在实验目录）。配图版目录（ILLUSTRATED）里同一组的视频放在同一目录、
+    文件名各不相同，取 w3i_<文件名>。"""
+    if ILLUSTRATED in path.parents:
+        return f"w3i_{path.stem}"
     return f"{path.parent.parent.name}_{path.parent.name}"
+
+
+_ILLUSTRATED_CAPTIONS = {}
+
+
+def illustrated(rel):
+    """[[配图 <组>/<文件>]] → 配图版目录里的图卡 / 视频卡：图在 ILLUSTRATED/figs/<rel>、视频在 ILLUSTRATED/<rel>
+    （rel 以 videos/ 开头）；图注取 sandbox tools/figs/week3_md/assemble_md.py 的 read_captions(LISTS)
+    （配图版 md 用的同一份清单，只读、不复制）。没有图注就停止。"""
+    if not _ILLUSTRATED_CAPTIONS:
+        import sys
+        sys.path.insert(0, str(PROJECT / "tools" / "figs" / "week3_md"))
+        import assemble_md
+        _ILLUSTRATED_CAPTIONS.update(assemble_md.read_captions(assemble_md.LISTS))
+    if rel not in _ILLUSTRATED_CAPTIONS:
+        raise SystemExit(f"[build_site] 配图 {rel} 在图注清单里没有图注，停止")
+    path = str(ILLUSTRATED / (rel if rel.startswith("videos/") else f"figs/{rel}"))
+    return (draft_video if rel.endswith(".mp4") else draft_image)(path, _ILLUSTRATED_CAPTIONS[rel])
 
 
 def draft_video(src, caption):

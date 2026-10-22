@@ -12,7 +12,8 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 | `index.html` | 首页，链接到各周 |
 | `week1.html` | 第 1 周：IPC 接触能量、Genesis + libuipc 官方例子与官方测试、盒子实验与参数扫描 |
 | `week2.html` | 第 2 周：hydroelastic 与 Hertz、神经网络接触模型、原代码碰撞能量、Genesis hydro demo、与 hydro 对比的实验方案（E0–E5） |
-| `week3.html` | 第 3 周：标签代码两个软体与弹性解对照、Genesis 中 hydro 的四种刚软组合、hydro++、软–软解析解与网络架构 |
+| `week3_4.html` | 第 3–4 周（第 3 周没开会，合成一页）：碰撞能量、软–软解析解、标签对解析解与独立裁判、hydro / hydro++ 与死结、Genesis 中 hydro 实测、网络结构、最近进展与待定 |
+| `week3.html` | 旧的第 3 周页，已不再生成、首页不再链接（待按删除流程撤下） |
 
 页面全部由脚本生成，**不要手改 html**。
 
@@ -64,7 +65,7 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 cmp /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/before/week2.html /nas/xiaoyingwang/Neural-IPC/outputs/web_refactor/after/week2.html
 ```
 
-可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）。讲稿 `web_week1.md` / `web_week2.md` / `web_week3.md` 缺失时停止，不生成旧内容。
+可选参数：`--crf N`（默认 26，越大视频越小）、`--force-videos`（全部重压）、`--variant stiffball|officialball`（week1 盒子实验用哪套结果）。讲稿 `web_week1.md` / `web_week2.md` / `web_week3_4.md` 缺失时停止，不生成旧内容。week2、week3_4 的配图按最短边 420 px 显示；week3_4 引用的图复制成 `w34_` 前缀的副本并统一留白（sandbox `tools/figs/fig_margin.py`），NAS 原图不动。
 单个视频超过 10 MB 或页面引用的视频合计超过 60 MB 时停止，页面不更新。
 
 数据来源（只读）：
@@ -116,6 +117,7 @@ TAKEAWAY: ……           醒目色总结句
 | `<image src="/nas/…/x.png"></image>` | NAS 上的图，生成时复制进 `assets/images/` |
 | 独占一行的 `[[图 /nas/…/x.png \| 图注]]` | 带图注的图卡；图按原文件名复制进 `assets/images/`（同名不同源时停止），NAS 路径不上页面 |
 | 独占一行的 `[[视频 /nas/…/<实验>/<档位>/x.mp4 \| 图注]]` | 带图注的视频卡；按其余视频同样的参数压进 `assets/videos/<实验>_<档位>.mp4`（取视频所在的上两级目录名；重名不同源时停止） |
+| 独占一行的 `[[配图 <组>/<文件>]]` | week3 配图版目录（`/nas/xiaoyingwang/Neural-IPC/outputs/week3_illustrated/`）里的图（`figs/<组>/…`）或视频（`videos/<组>/…`，压成 `assets/videos/w3i_<文件名>.mp4`）；图注取 sandbox `docs/drafts/week3_md_figs_{concept,labels,project}.md`（经 `tools/figs/week3_md/assemble_md.py` 的 `read_captions`），没有图注就停止 |
 | 以 `设置：` 开头的一行 | 小号灰字的实验设置，行内公式照常 |
 | `[[名字]]` | 占位符，换成代码生成的块（week2 认 `DEMO_VIDEO`、`E0_FIG`、`HYDRO_MORE`、`HYDRO_SWEEP`、`E0_VIDEO`、`E1_VIDEO`、`SETUP_E0`–`SETUP_E5`） |
 
