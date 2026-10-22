@@ -764,17 +764,17 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\(U\) 为标签</p>
 </li>
 </ol>
-<figure style="margin:12px 0"><img src="assets/images/nipc_scene_K1.png" style="width:1063px;max-width:100%;height:auto" alt="nipc_scene_K1"></figure>
+<figure style="margin:12px 0"><img src="assets/images/nipc_scene_K1.png" style="width:936px;max-width:100%;height:auto" alt="nipc_scene_K1"></figure>
 <p><em>这张图是下面第 1 组训练样本的场景：一个下表面带 1 个凸起的刚性压头（深灰）压在弹性半空间（浅蓝）上。几何按原代码的生成器重建，和这组样本完全相同，竖直方向放大 4 倍。左幅沿样本图里的白色虚线（过凸起中心）剖开，只留后一半，斜着看剖面：凸起往下压进半空间，半空间表面被压出一个坑贴住它；压头往外越来越高，只画到原表面以上 0.03。右幅把压头拿开，从斜上方看整片半空间：深蓝是精细解里压强大于 0 的接触区，红点是凸起中心（最低点）。这一组的接触区是围着凸起中心的一圈，中心那一小块没有接触，因为凸起上的凹坑让那里的压头表面抬高了，和样本图里凸起中心的暗斑是同一回事。</em></p>
-<figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K1.png" style="width:872px;max-width:100%;height:auto" alt="nipc_training_samples_K1"></figure>
+<figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K1.png" style="width:875px;max-width:100%;height:auto" alt="nipc_training_samples_K1"></figure>
 <p><em>这张图展示一个训练样本由什么组成：输入是粗状态下的穿透，标签是精细解的弹性能。这是第 1 组，压头下表面有 1 个凸起（红色「+」是凸起中心（最低点），对应上面场景图里的红点），压到最深穿透 0.012，半空间 \(E^*=1\)。左格是粗状态：压头和半空间都不变形，压头直接穿进去，颜色是每点的穿透深度（0 到 0.012）；凸起中心的暗斑是凸起上的凹坑让压头表面抬高了，那里没有穿透。右格是 BEM 精细解：半空间表面被压下、贴住压头，颜色是表面下沉量，白线围出压强大于 0 的接触区。两格对比可以看到，精细解里接触区外的表面也被带着下沉，整片圆盘都有颜色，而粗状态只有穿透处有颜色。每格下方是沿白色虚线（过最深凸起的中心）的截面，竖直方向放大：蓝色是半空间，灰色是刚性压头，红色是穿透部分。粗状态截面里红色就是两者重叠；精细解截面里没有红色，半空间表面弯下去贴着压头（最大残余穿透约 \(10^{-17}\)）。标题里的 \(U=6.72\times10^{-6}\) 是精细解的弹性能，也就是网络要学的标签。</em></p>
-<figure style="margin:12px 0"><img src="assets/images/nipc_scene_K2.png" style="width:1063px;max-width:100%;height:auto" alt="nipc_scene_K2"></figure>
+<figure style="margin:12px 0"><img src="assets/images/nipc_scene_K2.png" style="width:934px;max-width:100%;height:auto" alt="nipc_scene_K2"></figure>
 <p><em>第 2 组的场景，画法同上：压头下表面有 2 个凸起。左幅剖面过较深的那个凸起，可以看到压头底面起伏，有几处同时压在半空间上。右幅两块深蓝接触区各围着一个红点：靠近中间的凸起接触区是一圈，中心同样因凹坑没有接触；远处的凸起接触区是一块弯月形。</em></p>
-<figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K2.png" style="width:872px;max-width:100%;height:auto" alt="nipc_training_samples_K2"></figure>
+<figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K2.png" style="width:875px;max-width:100%;height:auto" alt="nipc_training_samples_K2"></figure>
 <p><em>第 2 组样本，画法同第 1 组：左格两个凸起处各有一片穿透，右格白线围出两块接触区，形状与上面场景图的深蓝色块一致。标签 \(U=9.73\times10^{-6}\)。</em></p>
-<figure style="margin:12px 0"><img src="assets/images/nipc_scene_K3.png" style="width:1063px;max-width:100%;height:auto" alt="nipc_scene_K3"></figure>
+<figure style="margin:12px 0"><img src="assets/images/nipc_scene_K3.png" style="width:934px;max-width:100%;height:auto" alt="nipc_scene_K3"></figure>
 <p><em>第 3 组的场景，画法同上：压头下表面有 3 个凸起，左幅剖面里压头底面有几处凸起同时压进半空间。右幅三个红点各带一块深蓝接触区，三块互不相连，每块都偏在凸起中心的一侧，说明凸起上的凹坑和压头的倾斜决定了实际接触落在哪里。</em></p>
-<figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K3.png" style="width:872px;max-width:100%;height:auto" alt="nipc_training_samples_K3"></figure>
+<figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K3.png" style="width:875px;max-width:100%;height:auto" alt="nipc_training_samples_K3"></figure>
 <p><em>第 3 组样本，画法同第 1 组：左格三个凸起处各有一片穿透，右格白线围出三块互不相连的接触区，与上面场景图的深蓝色块一致。标签 \(U=1.00\times10^{-5}\)。三组压深相同，这三组里接触区越多，标签能量越大。</em></p>
 <h3>3.4 输入</h3>
 
@@ -1083,9 +1083,9 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[U_{\text{Hertz}}=\frac{8}{15}E^{*}R^{1/2}\delta^{5/2},\qquad E^{*}=\frac{E}{1-\nu^{2}}=\frac{10^5}{1-0.09}\approx1.099\times10^5\]</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/e0_press.mp4" style="width:1008px;max-width:100%;height:auto"></video></figure>
 <p><em>这段视频是造标签的仿真本身：IPC + FEM 把刚球（\(R=1\)）一档一档压进块里，块顶面在接触区内贴住球面。共 6 个压深，每个停 1.5 秒，第 0、1.5、3、4.5、6、7.5 秒依次是 \(\delta=\) 0.004、0.006、0.009、0.013、0.018、0.024，标题给出当前压深和球与块的最小间隙。左图是过球心的竖直截面，竖直方向放大：红点是球面，带点的蓝线是变形后的块顶面，灰色虚线是块顶面原来的位置。接触区内蓝线紧贴红点；接触区外蓝线也低于虚线，但与红点分开，和 1.4 节 Hertz 示意图的形状一致。右图从上往下看块顶面，颜色是竖直位移（0 到 −0.025），中心最深，向外逐渐变浅。标题里的最小间隙在 \(0.90\text{–}0.98\times10^{-4}\) 之间，小于这次仿真的 \(\hat d=1.25\times10^{-4}\)：IPC 在两表面距离小于 \(\hat d\) 时才把它们推开，所以球和块之间始终留着一层比 \(\hat d\) 还薄的缝，这层缝让标签偏离 Hertz，下图就是看这个偏离有多大。</em></p>
-<figure style="margin:12px 0"><img src="assets/images/e0_scene_L1.2.png" style="width:1063px;max-width:100%;height:auto" alt="e0_scene_L1.2"></figure>
+<figure style="margin:12px 0"><img src="assets/images/e0_scene_L1.2.png" style="width:681px;max-width:100%;height:auto" alt="e0_scene_L1.2"></figure>
 <p><em>这张图是下面收敛曲线那批仿真的场景：深灰色刚球（\(R=1\)）压蓝色弹性块，块宽 2.4、深 1.2，底面固定。几何取自这批配置重跑时存下的顶点，画的是最深压深 0.024 那一帧。左幅是整体，按真实比例：压深只有球半径的 2.4%，这样看不出凹陷。右幅是接触区特写：过球心竖直剖开，只取球心附近宽 0.6 的一块，竖直方向放大 5 倍。块顶面在球底下被压出一个坑，球正好坐在坑里，坑的边缘在球面和原表面之间缓缓抬起，和 1.4 节 Hertz 示意图是同一个形状。</em></p>
-<figure style="margin:12px 0"><img src="assets/images/e0_label_convergence.png" style="width:638px;max-width:100%;height:auto" alt="e0_label_convergence"></figure>
+<figure style="margin:12px 0"><img src="assets/images/e0_label_convergence.png" style="width:644px;max-width:100%;height:auto" alt="e0_label_convergence"></figure>
 <p><em>这张图说明标签为什么要外推、往哪里外推：IPC 的接触距离 \(\hat d\) 越小，标签能量越接近 Hertz 解。纵轴是标签能量除以 Hertz 能量，黑色横线 1 表示和解析解完全一致；横轴是 \(\hat d\)（两表面距离小于它时 IPC 开始把它们推开），每档是上一档的 2 倍，从 6.25e-5 到 1e-3。颜色从浅到深是接触区网格从粗到细（\(h_c=\) 0.025、0.0125、0.00625），实线是最浅压深 0.004，虚线是最深压深 0.024。所有曲线都在 1 以上，并且越往右（\(\hat d\) 越大）越高：\(\hat d=10^{-3}\) 时浅压深的比值到 1.8–1.9，深压深约 1.3。浅压深上升得更陡，因为压深越浅，\(\hat d\) 这层缝相对压深越厚。往左到 \(\hat d=6.25\times10^{-5}\)（只有 \(h_c=0.0125\) 一档跑到这么小），比值降到 1.15–1.20。这些都是外推前的原始数据，块半宽只有 1.2；把 \(\hat d\)、网格、块大小三项都外推到极限后的比值见下面的结果。</em></p>
 <p><strong>结果</strong>：网格取 0.025、0.0125、0.00625 三档，实测 \(q=1.8\text{–}2.0\)；经 \(\hat d\)、块大小、网格外推后，压深 0.004–0.024 处比值为 1.003–1.012。</p>
 <p class="kp">结论：标签与 Hertz 一致，标签可信。</p>
@@ -1093,7 +1093,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <h3>E1 球压厚块：球半径 ×2</h3>
 
 <p><strong>设置</strong>：刚球压厚块（基体远大于接触区，可按半空间处理），同一压深 \(\delta\)，球半径 \(R\to2R\)。</p>
-<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure style="margin:12px 0"><img src="assets/images/E1_a.png" style="width:672px;max-width:100%;height:auto" alt="E1a" loading="lazy"></figure><figure style="margin:12px 0"><img src="assets/images/E1_b.png" style="width:672px;max-width:100%;height:auto" alt="E1b" loading="lazy"></figure></div>
+<figure style="margin:12px 0"><img src="assets/images/E1_a.png" style="width:420px;max-width:100%;height:auto" alt="E1_a"></figure>
+<figure style="margin:12px 0"><img src="assets/images/E1_b.png" style="width:420px;max-width:100%;height:auto" alt="E1_b"></figure>
 <p><em>两张图只差球的半径，用来检验压到同样深时力怎样随球半径变化。深灰色是刚球，蓝色是被压的弹性块（宽 4.8、深 2.4，远大于接触区，可当半空间）。上图球半径 \(R=1\)，下图 \(2R=2\)，两球都压进块顶面 0.024；压深相对块很小，图上看不出凹陷。两张图用同一个相机，大小差别就是真实的几何差别。</em></p>
 <p><strong>裁判（Hertz，1.4 第 5 步）</strong></p>
 <ul>
@@ -1174,7 +1175,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <h3>E2 平底压头：半径 ×1、×2、×4</h3>
 
 <p><strong>设置</strong>：刚性平底圆柱压头（半径 \(a\)）压厚块，同一压深 \(\delta\)，\(a\) 取 1、2、4 倍。hydro 用 (A)。</p>
-<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure style="margin:12px 0"><img src="assets/images/E2_a.png" style="width:672px;max-width:100%;height:auto" alt="E2a" loading="lazy"></figure><figure style="margin:12px 0"><img src="assets/images/E2_b.png" style="width:672px;max-width:100%;height:auto" alt="E2b" loading="lazy"></figure></div>
+<figure style="margin:12px 0"><img src="assets/images/E2_a.png" style="width:519px;max-width:100%;height:auto" alt="E2_a"></figure>
+<figure style="margin:12px 0"><img src="assets/images/E2_b.png" style="width:519px;max-width:100%;height:auto" alt="E2_b"></figure>
 <p><em>两张图只差平底压头的半径。深灰色圆柱是刚性平底压头（高 0.8），蓝色是和 E1 同样的块（宽 4.8、深 2.4）。上图压头半径 \(a=0.25\)，下图 \(4a=1.0\)，压深都是 0.024。平底压头的接触区就是整个底面，半径变几倍，接触面积就变几的平方倍。</em></p>
 <p><strong>裁判：Boussinesq 平底解</strong> \(F_{\text{解析}}=2E^{*}a\,\delta\) → 半径 ×1、×2、×4，<strong>力 ×1、×2、×4</strong></p>
 <details><summary>推导：Boussinesq 平底解（与 1.4 第 4 步相同的方法）</summary><ol>
@@ -1220,7 +1222,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <h3>E3 两个平底凸台：只改间距</h3>
 
 <p><strong>设置</strong>：一个刚体，下方两个半径 \(a\) 的平底凸台，顶上一根细杆连成一体，同深压入厚块（可按半空间处理），压深 \(\delta\)，中心距 \(L=4a\)、\(10a\)、∞。</p>
-<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure style="margin:12px 0"><img src="assets/images/E3_a.png" style="width:672px;max-width:100%;height:auto" alt="E3a" loading="lazy"></figure><figure style="margin:12px 0"><img src="assets/images/E3_b.png" style="width:672px;max-width:100%;height:auto" alt="E3b" loading="lazy"></figure></div>
+<figure style="margin:12px 0"><img src="assets/images/E3_a.png" style="width:658px;max-width:100%;height:auto" alt="E3_a"></figure>
+<figure style="margin:12px 0"><img src="assets/images/E3_b.png" style="width:658px;max-width:100%;height:auto" alt="E3_b"></figure>
 <p><em>两张图只差两个凸台之间的距离。深灰色是一个刚体：两个半径 \(a=0.25\)、高 0.5 的平底圆柱凸台，顶上用一根细杆连成一体；蓝色是同一块（图里只拍了块顶面中间一部分）。上图两凸台中心距 \(L=4a=1.0\)，下图拉开到 \(L=10a=2.5\)，凸台大小和压深 0.024 都不变。</em></p>
 <p><strong>裁判</strong>：每个凸台的力 \(F=\dfrac{2E^{*}a\,\delta}{1+2a/(\pi L)}\)</p>
 <details><summary>推导（两凸台对称，受力均为 \(F\)）</summary><ol>
@@ -1303,8 +1306,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <h3>E4 粘结薄层、近似不可压：球半径 ×2</h3>
 
 <p><strong>设置</strong>：厚 \(b\) 的弹性层底面粘结于刚性底座，泊松比 \(\nu\to0.5\)。刚球（半径 \(R\)）压入，同一压深 \(\delta\)，球半径 ×2。hydro 用 (A)。</p>
-<figure style="margin:12px 0"><img src="assets/images/E4_a.png" style="width:1082px;max-width:100%;height:auto" alt="E4_a"></figure>
-<figure style="margin:12px 0"><img src="assets/images/E4_b.png" style="width:1082px;max-width:100%;height:auto" alt="E4_b"></figure>
+<figure style="margin:12px 0"><img src="assets/images/E4_a.png" style="width:1057px;max-width:100%;height:auto" alt="E4_a"></figure>
+<figure style="margin:12px 0"><img src="assets/images/E4_b.png" style="width:1057px;max-width:100%;height:auto" alt="E4_b"></figure>
 <p><em>两张图是过球心的剖面，从正侧面看，只差球的半径。浅灰色是刚性底座，蓝色是粘在底座上的薄弹性层（厚 \(b=0.1\)，泊松比 0.499，近似不可压），深灰色是刚球下部（球顶在画面之外）。上图球半径 \(R=2.25\)，下图 \(2R=4.5\)，压深都是 0.02。球越大，球底越平，压进层里的那一段越宽：几何重叠的半宽是层厚的 3 倍（上）和约 4.2 倍（下），都远大于层厚，这正是薄层解成立的条件。</em></p>
 <p><strong>本节用到的量</strong>（各向同性线弹性，由 \(E\)、\(\nu\) 确定）</p>
 <ul>
@@ -1480,7 +1483,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <h3>E5 粗模型：刚体 → 仿射体</h3>
 
 <p><strong>设置</strong>：同一软物体被压，粗模型取刚体或仿射体，物体由矮胖到细长。裁判为线弹性轴对称 FEM。</p>
-<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure style="margin:12px 0"><img src="assets/images/E5_a.png" style="width:672px;max-width:100%;height:auto" alt="E5a" loading="lazy"></figure><figure style="margin:12px 0"><img src="assets/images/E5_b.png" style="width:672px;max-width:100%;height:auto" alt="E5b" loading="lazy"></figure></div>
+<figure style="margin:12px 0"><img src="assets/images/E5_a.png" style="width:420px;max-width:100%;height:auto" alt="E5_a"></figure>
+<figure style="margin:12px 0"><img src="assets/images/E5_b.png" style="width:420px;max-width:100%;height:auto" alt="E5_b"></figure>
 <p><em>两张图只差软物体的高。浅灰色是刚性底座，蓝色是立在底座上的软圆柱（半径 1），深灰色是刚球（半径 1），压深 0.005（图上看不出）。上图圆柱高 0.15，矮胖；下图高 2.4，细长。物体越细长，整体能被压缩得越多，粗模型取刚体还是仿射体的差别就越大，下面的结果就是比这个差别。</em></p>
 <p>\[U_c=U_{\text{精细}}-U_{\text{粗}}\]</p>
 <p>\(U_{\text{精细}}\)：精细无穿透解的弹性能；\(U_{\text{粗}}\)：粗模型自身能表达的弹性能。仿射体可整体压缩，\(U_{\text{粗}}\) 更大，\(U_c\) 更小；物体越细长差异越大。</p>
