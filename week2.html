@@ -459,7 +459,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>已知：球半径 \(R\)、压深 \(\delta\)、模量 \(E^*\)；求：真实接触半径 \(a\) 与中心压强 \(p_0\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{u=\delta-\dfrac{r^2}{2R}\quad(r\le a)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u=\dfrac{P}{\pi E^*s}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p=p_0\sqrt{1-t^2/a^2}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=R\delta,\quad p_0=\frac{2aE^*}{\pi R}}\]</p>
-<p>式 (1)：几何贴合，接触区里垫子表面必须正好贴着球面，球面在哪，垫子就陷到哪（由 ①② 得）。</p>
+<p>式 (1)：几何贴合。\(u\) 是离中心 \(r\) 处垫子表面往下陷的深度：接触区里垫子表面必须正好贴着球面，球底压下了 \(\delta\)，而球面在 \(r\) 处比球底高出 ① 的 \(h\)，所以垫子在那里陷下 \(\delta-h\)。它不是处处为 0：中心陷得最深（等于 \(\delta\)），越往外陷得越浅；只有到 ② 算的几何重叠边缘（\(\delta=h\)）才降到 0。真实接触圈比那个边缘小（结果里算出接触边缘还陷着 \(\delta/2\)），因为接触区外的垫子也被带着往下陷，球还没碰到那里就已经离开了。</p>
 
 <p>式 (2)：Boussinesq 点力解，按住一点，周围也跟着陷，离得越远 → 陷得越少，与距离成反比；材料越硬 → 陷得越少（下面第二张图）。</p>
 
