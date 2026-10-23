@@ -150,44 +150,41 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>已知：轴对称缝隙 \(h(r)\)、合成模量 \(E^*\)、压深 \(d\)；求：接触半径 \(a\)、总力 \(F\)、总能量 \(U_0\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{g(x)=|x|\displaystyle\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\Delta k=E^*\,\Delta x} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{w(x)=d-g(x)} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{g(a)=d} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{U_{\text{弹簧}}=\tfrac12\,\Delta k\,w^2} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=E^*\int_{-a}^{a}\big(d-g(x)\big)dx,\quad U_0=\frac{E^*}{2}\int_{-a}^{a}\big(d-g(x)\big)^2dx}\]</p>
-<p>式 (1)：\(x\) 是一排弹簧所在直线上的坐标，原点在接触中心；\(r\) 是三维里离接触中心的径向距离；\(h&#x27;(r)\) 是缝隙随 \(r\) 变化的斜率；\(g(x)\) 是等效轮廓，即第 \(x\) 根弹簧顶端离平面的高度。这个式子不是定律，而是有意这样定义的：三维轴对称接触的精确解给出压深、力与接触半径之间的两个关系，把 \(g\) 取成这个积分以后，这两个关系正好变成「一排互不相干的弹簧压在轮廓 \(g\) 上」的样子，即压深 \(d=g(a)\)、力 \(F=2E^*\int_0^a(d-g)\,dx\)。所以一维弹簧给出的压深和力与三维精确解完全相同。推导见下面折叠的前半。</p>
+<p>\[\begin{cases}\color{#c0392b}{u(r)=d-h(r),\quad r\le a} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u(\mathbf x)=\dfrac{1}{\pi E^*}\displaystyle\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,dA&#x27;} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p(a)=0,\quad p=0\ (r&gt;a)} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA,\quad \frac{dU_0}{dd}=F} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ d=g(a),\ \ F=2E^*\int_0^a\big(d-g(x)\big)dx,\ \ U_0=E^*\int_0^a\big(d-g(x)\big)^2dx,\ \ g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}dr}\]</p>
+<p>式 (1)：\(r\) 是离接触中心的距离，\(h(r)\) 是接触前两表面之间的缝隙，\(d\) 是压深，\(a\) 是接触半径，\(u(r)\) 是表面往下陷的量。它说的是接触条件：接触区里表面必须正好贴着压头；压头整体压下 \(d\)，而离中心 \(r\) 处本来有 \(h(r)\) 的缝，所以那里表面只需陷 \(d-h(r)\)。</p>
 
-<p>式 (2)：\(\Delta x\) 是相邻两根弹簧的间距（每根的宽度），\(\Delta k\) 是每根弹簧的刚度。它说的是：每根弹簧的刚度等于合成模量乘它的宽度，弹簧越宽越硬、材料越硬越硬；例如压缩 1 mm，一根弹簧的推力就是 \(E^*\Delta x\times\)1 mm；原因是一根弹簧代表宽 Δx 的一条表面，越宽、材料越硬，同样压缩时推力越大。</p>
+<p>式 (2)：\(\mathbf x\) 是表面上要求下沉的点，\(\mathbf x&#x27;\) 是施压的点，\(p(\mathbf x&#x27;)\) 是那里的压强，\(dA&#x27;\) 是一小块面积，\(E^*\) 是合成模量。它说的是：每一小块压强都像一个点力，让周围表面按 1/距离 陷下去；线弹性里各处的下沉可以直接相加，所以总下沉是所有点力贡献的积分。</p>
 
-<p>式 (3)：\(d\) 是压深，\(w(x)\) 是第 \(x\) 根弹簧被压缩的量。它说的是：压头整体往下推 \(d\)，而第 \(x\) 根弹簧顶端本来就比最低点高 \(g(x)\)，所以只被压缩 \(d-g(x)\)；越往外顶端越高，压得越少。</p>
+<p>式 (3)：没有粘附时表面只能被推不能被拉，压强在接触边缘连续地降到 0，接触区外没有压强。这个条件决定接触半径 \(a\) 取多大。</p>
 
-<p>式 (4)：\(a\) 是接触半径。它说的是：接触边缘就是压缩量正好降到 0 的那根弹簧，再往外的弹簧碰不到压头；所以压得越深，能碰到的弹簧越多，接触越宽。</p>
+<p>式 (4)：\(F\) 是总力，即压强在接触区上的积分，把每小块面积的推力加起来；\(U_0\) 是储存的弹性能，力从 0 压到 \(d\) 一路做的功，所以能量对压深的导数就是力。</p>
 
-<p>式 (5)：\(U_{\text{弹簧}}\) 是一根弹簧储存的能量，\(\Delta k\) 是这根弹簧的刚度，\(w\) 是它的压缩量。它说的是：线弹簧从 0 压到 \(w\)，推力从 0 线性涨到 \(\Delta k\,w\)，平均推力是一半，所以储能是 ½ × 刚度 × 压缩量的平方。</p>
-
-<p>结果：\(F\) 是总接触力，\(U_0\) 是总能量，都是把接触区内所有弹簧加起来。压得越深 → 接触越宽、每根压得越多，力和能量都越大。</p>
+<p>结果：引入等效轮廓 \(g(x)\) 以后，三维的精确关系变成「一排互不相干的弹簧压在轮廓 \(g\) 上」：第 \(x\) 根弹簧被压缩 \(d-g(x)\)，刚度为每单位长度 \(E^*\)，接触边缘是压缩量为 0 的那根，即 \(d=g(a)\)；总力和总能量就是所有弹簧的力和储能之和。\(g\) 是有意这样定义的，目的正是让一维弹簧给出的压深和力与三维精确解完全相同。压得越深 → 接触越宽、每根压得越多，力和能量都越大。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/w34_fig04_mdr_springs.png" style="width:908px;max-width:100%;height:auto" alt="这张图展示了降维法怎样把三维接触换成一排一维弹簧。左边灰色刚体压橙色平面，两者之间的缝隙是 h(r)，平面里各点的变形互相牵连。右边把缝隙换成灰色的等效轮廓 g(x) = x²/R（R 是球的半径），压进一排弹簧，灰色虚线是弹簧没压时的顶端，红色箭头是压深 d。通过对比两条红色点线之间被压短的蓝色弹簧和点线外不受力的灰色弹簧，可以看出红色点线的位置就是接触边缘 a，满足 g(a) = d。每根弹簧只管自己那一格，所以三维里各点互相牵连的问题变成了一维的逐根相加。" loading="lazy"><figcaption class="small">这张图展示了降维法怎样把三维接触换成一排一维弹簧。左边灰色刚体压橙色平面，两者之间的缝隙是 h(r)，平面里各点的变形互相牵连。右边把缝隙换成灰色的等效轮廓 g(x) = x²/R（R 是球的半径），压进一排弹簧，灰色虚线是弹簧没压时的顶端，红色箭头是压深 d。通过对比两条红色点线之间被压短的蓝色弹簧和点线外不受力的灰色弹簧，可以看出红色点线的位置就是接触边缘 a，满足 g(a) = d。每根弹簧只管自己那一格，所以三维里各点互相牵连的问题变成了一维的逐根相加。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/w34_WikipediabilderKap_4.jpg" style="width:1184px;max-width:100%;height:auto" alt="这张图是降维法原作者的示意图。左边是半径 R 的灰色球在力 F 下压进弹性平面，a 是接触半径，d 是压深；箭头右边是换成的一维模型，一个半径 R1 的灰色轮廓在同样的力 F 下压进一排竖直弹簧，R1 = R/2，也就是等效轮廓 g(x) = x²/R。通过对比左右两边标出的 a 和 d，可以看出换成一排各压各的弹簧后，力、接触半径、压深都与三维问题相同，所以能用一维弹簧算三维接触。" loading="lazy"><figcaption class="small">这张图是降维法原作者的示意图。左边是半径 R 的灰色球在力 F 下压进弹性平面，a 是接触半径，d 是压深；箭头右边是换成的一维模型，一个半径 R1 的灰色轮廓在同样的力 F 下压进一排竖直弹簧，R1 = R/2，也就是等效轮廓 g(x) = x²/R。通过对比左右两边标出的 a 和 d，可以看出换成一排各压各的弹簧后，力、接触半径、压深都与三维问题相同，所以能用一维弹簧算三维接触。</figcaption></figure>
-<details><summary>推导</summary><p>先说明式 (1) 的 \(g\) 从哪来。把三维压入看成一连串平底压入：接触半径为 \(\tilde a\) 时再往下压 \(d\tilde d\)，等于用半径 \(\tilde a\) 的平底多压 \(d\tilde d\)。记压深与接触半径的关系为 \(\tilde d=g(\tilde a)\)。半径 \(\tilde a\) 的平底压 \(d\tilde d\) 增加的力：</p>
-<p>\[dF=2E^*\tilde a\,d\tilde d=2E^*\tilde a\,g&#x27;(\tilde a)\,d\tilde a\]</p>
-<p>从 0 积到接触半径 \(a\)，分部积分，用 \(g(a)=d\)：</p>
-<p>\[F=2E^*\int_0^a\tilde a\,g&#x27;(\tilde a)\,d\tilde a=2E^*\Big[\tilde a\,g(\tilde a)\Big]_0^a-2E^*\int_0^ag\,d\tilde a=2E^*\int_0^a\big(d-g(x)\big)dx\]</p>
-<p>半径 \(\tilde a\) 的平底压 \(d\tilde d\)，在它外面 \(r=a\) 处造成的表面下沉：</p>
-<p>\[dw(a)=\frac2\pi\arcsin\frac{\tilde a}{a}\,d\tilde d\]</p>
-<p>累加，并要求 \(r=a\) 处表面正好贴着压头，即下沉等于 \(d-h(a)\)：</p>
-<p>\[d-h(a)=\frac2\pi\int_0^a\arcsin\frac{\tilde a}{a}\;g&#x27;(\tilde a)\,d\tilde a\]</p>
-<p>分部积分，用 \(g(a)=d\) 与 \(\arcsin1=\pi/2\)：</p>
+<details><summary>推导</summary><p>先解一个平底：在式 (1) 中取 \(h=0\)（半径 \(\tilde a\) 内平），按式 (2)(3) 解得压深 \(\delta\) 时的力，以及平底外 \(r\) 处的下沉：</p>
+<p>\[F_{\text{平底}}=2E^*\tilde a\,\delta,\qquad w(r)=\frac{2\delta}{\pi}\arcsin\frac{\tilde a}{r}\quad(r&gt;\tilde a)\]</p>
+<p>一般形状的压入看成一连串平底压入：接触半径为 \(\tilde a\) 时再压 \(d\tilde d\)，相当于半径 \(\tilde a\) 的平底多压 \(d\tilde d\)。记压深与接触半径的关系为 \(\tilde d=g(\tilde a)\)，由式 (4) \(F=\int p\,dA\) 把各步的力相加：</p>
+<p>\[F=\int_0^a2E^*\tilde a\,g&#x27;(\tilde a)\,d\tilde a\]</p>
+<p>分部积分，用 \(g(a)=d\)：</p>
+<p>\[F=2E^*\Big[\tilde a\,g(\tilde a)\Big]_0^a-2E^*\int_0^ag\,d\tilde a=2E^*\int_0^a\big(d-g(x)\big)dx\]</p>
+<p>各步在 \(r=a\) 处造成的下沉相加：</p>
+<p>\[w(a)=\frac2\pi\int_0^a\arcsin\frac{\tilde a}{a}\;g&#x27;(\tilde a)\,d\tilde a\]</p>
+<p>由式 (1)，\(r=a\) 处表面正好贴着压头，\(w(a)=d-h(a)\)；分部积分，用 \(g(a)=d\) 与 \(\arcsin1=\pi/2\)：</p>
 <p>\[h(a)=\frac2\pi\int_0^a\frac{g(\tilde a)}{\sqrt{a^2-\tilde a^2}}\,d\tilde a\]</p>
-<p>这是关于 \(g\) 的 Abel 积分方程，它的解就是式 (1)：</p>
+<p>这是关于 \(g\) 的 Abel 积分方程，解为：</p>
 <p>\[g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr\]</p>
-<p>球验算：\(h=r^2/(2R)\)，\(h&#x27;=r/R\)，代入得 \(g=x^2/R\)；由 \(g(a)=d\) 得 \(a^2=Rd\)；力</p>
+<p>由式 (4) \(dU_0/dd=F\)，取</p>
+<p>\[U_0=E^*\int_0^a\big(d-g(x)\big)^2dx\]</p>
+<p>对 \(d\) 求导，积分上限 \(a\) 处 \(d-g(a)=0\)，边界项为 0：</p>
+<p>\[\frac{dU_0}{dd}=2E^*\int_0^a\big(d-g(x)\big)dx=F\]</p>
+<p>且 \(d=0\) 时 \(U_0=0\)，所以这就是弹性能。</p>
+<p>球验算：\(h=r^2/(2R)\)，\(h&#x27;=r/R\)，代入得</p>
+<p>\[g(x)=\frac{|x|}{R}\int_0^{|x|}\frac{r}{\sqrt{x^2-r^2}}\,dr=\frac{x^2}{R}\]</p>
+<p>由 \(g(a)=d\) 得 \(a^2=Rd\)；力</p>
 <p>\[F=2E^*\int_0^a\Big(d-\frac{x^2}{R}\Big)dx=2E^*\Big(\frac{a^3}{R}-\frac{a^3}{3R}\Big)=\frac43E^*\frac{a^3}{R}\]</p>
-<p>正是 Hertz 解。下面再由弹簧求和写出总力和总能量。</p>
-<p>第 \(x\) 根弹簧的力 = 刚度 × 压缩量，代入式 (2) \(\Delta k=E^*\Delta x\) 与式 (3) \(w=d-g(x)\)：</p>
-<p>\[\Delta F(x)=\Delta k\,w(x)=E^*\big(d-g(x)\big)\Delta x\]</p>
-<p>由式 (4) \(g(a)=d\)，只有 \(|x|\le a\) 的弹簧受压；对所有弹簧求和，\(\Delta x\to dx\)：</p>
-<p>\[F=E^*\int_{-a}^{a}\big(d-g(x)\big)dx\]</p>
-<p>第 \(x\) 根弹簧的能量，代入式 (5) \(U_{\text{弹簧}}=\tfrac12\Delta k\,w^2\)，其中 \(\Delta k=E^*\Delta x\)、\(w=d-g(x)\)：</p>
-<p>\[\Delta U(x)=\tfrac12E^*\Delta x\,\big(d-g(x)\big)^2\]</p>
-<p>求和：</p>
-<p>\[U_0=\frac{E^*}{2}\int_{-a}^{a}\big(d-g(x)\big)^2dx\]</p></details>
+<p>正是 Hertz 解。</p></details>
 <p><b>② 力是能量的导数，越压越硬</b></p>
 
 <p>已知：① 求出的总能量 \(U_0\) 与总力 \(F\)；求：能量对压深、力对压深的变化率。</p>
