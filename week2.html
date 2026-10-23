@@ -115,7 +115,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>做法</strong></p>
 <details><summary>推导：压力场模型（预设压强场 → 等压接触面 → 接触力）</summary>
 
-<b>① 预设压强场</b>
+<p><b>① 预设压强场</b></p>
 
 <p>已知：物体的形状、材料模量 \(E\)；求：物体内每一点的预设压强 \(p_0\)。</p>
 
@@ -150,7 +150,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 </ul></details>
-<p><strong>② 等压接触面</strong></p>
+<p><b>② 等压接触面</b></p>
+
 <p>已知：两物体 A、B 各自的压强场（① 的结果，在四面体网格上）；求：两物体重叠时的接触面。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{p_{0_A}(\mathbf x)=p_{0_B}(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p_{0_A}=E_A\,\boldsymbol\epsilon_A\cdot\zeta^A,\quad p_{0_B}=E_B\,\boldsymbol\epsilon_B\cdot\zeta^B} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \text{每对相交四面体内，接触面是一块平面多边形}}\]</p>
@@ -164,7 +165,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <details><summary>推导</summary><ul>
 <li>两物体重叠时，接触面取两侧压强相等的曲面。物体用四面体网格表示，四面体内压强线性，所以接触面在每对相交四面体内是一块平面多边形，整个接触面由这些多边形拼成</li>
 </ul></details>
-<p><strong>③ 接触力</strong></p>
+<p><b>③ 接触力</b></p>
+
 <p>已知：接触面 \(\mathcal S\)（② 的结果）及其上每点的压强 \(p_0\) 与法向 \(\hat{\mathbf n}\)；求：物体受的总接触力 \(\mathbf f\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\mathbf T=p_0\,\hat{\mathbf n}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf f=\displaystyle\int_{\mathcal S}\mathbf T\,dS} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf f=\int_{\mathcal S}p_0\,\hat{\mathbf n}\;dS}\]</p>
@@ -207,7 +209,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>Elandt 的模型配合加速度层面的变步长积分器使用（每步由力求加速度再积分，接触刚度大时步长须很小，无法实时）。1.1 的接触面由许多平面多边形拼成，本文把每块多边形改写为一根弹簧，使其可用于速度层面求解器（每步隐式求下一时刻速度，可取大步长），hydro 因此可实时运行，已在 Drake 开源。</p>
 <details><summary>推导：一块多边形 → 一根弹簧</summary>
 
-<b>① 一块多边形的力 = 面积 × 形心压强</b>
+<p><b>① 一块多边形的力 = 面积 × 形心压强</b></p>
 
 <p>已知：一块平面接触多边形的面积 \(A\)、形心 \(\mathbf x_c\)、形心处压强 \(p_c\)、多边形上的压强梯度 \(\nabla p\)；求：这块多边形给的法向力 \(f_n\)。</p>
 
@@ -233,7 +235,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[f_n=\int p\,dA=\int p_c\,dA+\nabla p\cdot\int(\mathbf x-\mathbf x_c)\,dA=p_c\,A+\nabla p\cdot0=p_c\,A\]</p>
 </li>
 </ul></details>
-<p><strong>② 压强与重叠量：梯度串联</strong></p>
+<p><b>② 压强与重叠量：梯度串联</b></p>
+
 <p>已知：A、B 两侧的压强梯度 \(g_A\)、\(g_B\)，该处两物体重叠的总深度 \(d\)（有符号距离 \(\phi\)）；求：接触面上的压强 \(p\) 与合成梯度 \(g\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{p_A=g_A\,d_A} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p_B=g_B\,d_B} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_A=p_B=p} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{d_A+d_B=d=-\phi} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=g\,d=-g\,\phi,\quad g=\dfrac{g_A\,g_B}{g_A+g_B}}\]</p>
@@ -261,7 +264,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[g=\frac{g_A\,g_B}{g_A+g_B},\qquad p=g\,d=-g\,\phi\]</p>
 </li>
 </ul></details>
-<p><strong>③ 一个时间步内重叠量的变化</strong></p>
+<p><b>③ 一个时间步内重叠量的变化</b></p>
+
 <p>已知：步首形心处压强 \(p_{c,0}\)、合成梯度 \(g\)、步长 \(\delta t\)、法向相对速度 \(v_n\)（分开为正）；求：步末形心处压强 \(p_c\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{p_c=-g\,\phi} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\phi_0=-\dfrac{p_{c,0}}{g}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\delta t\,v_n} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p_c=p_{c,0}-g\,\delta t\,v_n}\]</p>
@@ -281,7 +285,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[p_c=p_{c,0}-g\,\delta t\,v_n\]</p>
 </li>
 </ul></details>
-<p><strong>④ 得到弹簧</strong></p>
+<p><b>④ 得到弹簧</b></p>
+
 <p>已知：步首面积 \(A_0\)、合成梯度 \(g\)、有符号距离 \(\phi\)；求：这块多边形的法向力 \(f_n\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{f_n=A\,p_c} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{A=A_0} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_c=-g\,\phi} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{(x)_+=\max(x,0)} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ f_n=(-k\phi)_+,\quad k=g\,A_0}\]</p>
@@ -320,7 +325,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>做法</strong></p>
 <details><summary>推导：SAP（带阻尼的弹簧冲量 → 动量方程 = 求最小值 → 近刚性封顶）</summary>
 
-<b>① 每个接触是一根带阻尼的弹簧</b>
+<p><b>① 每个接触是一根带阻尼的弹簧</b></p>
 
 <p>已知：接触刚度 \(k\)、耗散时间尺度 \(\tau_d\)、步长 \(\delta t\)、步首有符号距离 \(\phi_0\)；求：一步内的法向冲量 \(\gamma_n\)，用下一步法向速度 \(v_n\) 表示。</p>
 
@@ -346,7 +351,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>代入 \(\phi=\phi_0+\delta t\,v_n\)（1.2 第 3 步）：\(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)_+\)，只含下一步速度 \(v_n\)</p>
 </li>
 </ul></details>
-<p><strong>② 动量方程 = 一个碗形函数的最低点</strong></p>
+<p><b>② 动量方程 = 一个碗形函数的最低点</b></p>
+
 <p>已知：质量矩阵 \(\mathbf M\)、不计接触时的下一步速度 \(\mathbf v^*\)、① 的冲量；求：下一步速度 \(\mathbf v\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf A=\mathbf M+\delta t^2\theta\theta_{qv}\mathbf K+\delta t\,\theta\mathbf D} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2}\]</p>
@@ -366,7 +372,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>核对：第一项求导得 \(\mathbf M(\mathbf v-\mathbf v^*)\)；第二项中 \(\dfrac{d\gamma_n}{dv_n}=-\delta t\,k(\delta t+\tau_d)=-\dfrac1R\)（\(\gamma_n&gt;0\) 时），所以 \(\dfrac{d}{dv_n}\big(\tfrac12R\gamma_n^2\big)=R\gamma_n\cdot\big(-\tfrac1R\big)=-\gamma_n\)。两项合起来为 0 即第 3 步。该函数是碗形（强凸：第一项因 \(\mathbf M\) 正定是碗形，第二项是线性函数取正部再平方，也向上弯），碗形函数导数为 0 的点只有一个，就是最低点，所以解方程与求最小值是同一件事。改成求最小值后，牛顿法每步都让函数值下降，可证收敛</p>
 </li>
 </ul></details>
-<p><strong>③ 近刚性处理：刚度封顶</strong></p>
+<p><b>③ 近刚性处理：刚度封顶</b></p>
+
 <p>已知：接触刚度 \(k\)、质量 \(m\)（多体时用等效质量）、步长 \(\delta t\)、数值参数 \(\beta\)；求：SAP 实际使用的 \(R_n\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\omega_n^2=k/m,\quad T_n=2\pi/\omega_n} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{T_n\lesssim\delta t\ \text{时为 near-rigid}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\tau_d=\dfrac{\beta}{\pi}\delta t,\quad k=\dfrac{4\pi^2m}{\beta^2\delta t^2}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{w=1/m} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,w,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)}\]</p>
@@ -398,9 +405,9 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><em>这张图说明：刚球压进弹性垫子时，真正贴住球的区域比两者几何重叠的区域窄。横轴是离球中心的水平距离 \(r\)，纵轴是竖直位置 \(z\)（纵向放大约 20 倍），取球半径 \(R=1\)、压深 \(\delta=0.01\)。红线是刚球下表面 \(z=-\delta+r^2/(2R)\)，蓝线是垫子变形后的表面 \(z=-u(r)\)，米色是垫子，灰色虚线 \(z=0\) 是垫子原来的表面。中间粉色带是紧贴区 \(|r|\le a=\sqrt{R\delta}=0.10\)：带内蓝线与红线重合，垫子贴着球面，中心下陷 \(\delta\)；到粉色带边缘（红色点线），垫子已经下陷 \(\delta/2\)，并不是回到原表面才和球分开。再往外，红线要到 \(r=\sqrt{2R\delta}=0.141\)（灰色点线，几何重叠的边缘）才升回 \(z=0\)，但这一段蓝线在红线下方，两者之间是缝隙：垫子被接触区带着下陷，却没有碰到球。所以按几何重叠估的接触半径 0.141 比真实的 0.10 宽。</em></p>
 <details><summary>推导：Hertz 接触（球面形状 → 接触半径 → 合力 → 弹性能 → 刚度）</summary>
 
-以下推导刚球（半径 \(R\)）压弹性半空间（杨氏模量 \(E\)、泊松比 \(\nu\)，即侧向膨胀应变 ÷ 轴向压缩应变）。两个物体都可变形时，两者的下沉相加，结论只需把 \(E^*\)、\(R\) 换成 \(\dfrac{1}{E^*}=\dfrac{1-\nu_1^2}{E_1}+\dfrac{1-\nu_2^2}{E_2}\)、\(\dfrac1R=\dfrac1{R_1}+\dfrac1{R_2}\)。
+<p>以下推导刚球（半径 \(R\)）压弹性半空间（杨氏模量 \(E\)、泊松比 \(\nu\)，即侧向膨胀应变 ÷ 轴向压缩应变）。两个物体都可变形时，两者的下沉相加，结论只需把 \(E^*\)、\(R\) 换成 \(\dfrac{1}{E^*}=\dfrac{1-\nu_1^2}{E_1}+\dfrac{1-\nu_2^2}{E_2}\)、\(\dfrac1R=\dfrac1{R_1}+\dfrac1{R_2}\)。</p>
 
-<b>① 球面形状</b>
+<p><b>① 球面形状</b></p>
 
 <p>已知：球半径 \(R\)、离最低点的水平距离 \(r\)；求：该处球面比最低点高出的 \(h\)。</p>
 
@@ -431,7 +438,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 </ul></details>
-<p><strong>② 压深与几何重叠</strong></p>
+<p><b>② 压深与几何重叠</b></p>
+
 <p>已知：球半径 \(R\)、压深 \(\delta\)（球最低点进入原表面以下的深度）；求：假设垫子不变形时的重叠半径。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{h\approx\dfrac{r^2}{2R}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\delta-h(a_{\text{几何}})=0} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a_{\text{几何}}^2=2R\delta}\]</p>
@@ -446,7 +454,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>压深</strong> \(\delta\)：球最低点进入基体原表面以下的深度。离中心 \(r\) 处的球面比最低点高 \(\dfrac{r^2}{2R}\)，所以它在原表面以下 \(\delta-\dfrac{r^2}{2R}\)</li>
 <li>几何重叠（基体不变形）：\(\delta-a^2/(2R)=0\Rightarrow a^2=2R\delta\)</li>
 </ul></details>
-<p><strong>③ 接触半径与中心压强</strong></p>
+<p><b>③ 接触半径与中心压强</b></p>
+
 <p>已知：球半径 \(R\)、压深 \(\delta\)、模量 \(E^*\)；求：真实接触半径 \(a\) 与中心压强 \(p_0\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{u=\delta-\dfrac{r^2}{2R}\quad(r\le a)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u=\dfrac{P}{\pi E^*s}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p=p_0\sqrt{1-t^2/a^2}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=R\delta,\quad p_0=\frac{2aE^*}{\pi R}}\]</p>
@@ -505,7 +514,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 </ul></details>
-<p><strong>④ 合力</strong></p>
+<p><b>④ 合力</b></p>
+
 <p>已知：③ 的接触半径与中心压强；求：合力 \(F\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{F=\displaystyle\int_0^a p(t)\,2\pi t\,dt=\tfrac23\pi a^2p_0} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p_0=\dfrac{2aE^*}{\pi R},\quad a^2=R\delta} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac43E^*R^{1/2}\delta^{3/2}}\]</p>
@@ -542,7 +552,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 </ul></details>
-<p><strong>⑤ 弹性能</strong></p>
+<p><b>⑤ 弹性能</b></p>
+
 <p>已知：④ 的力–压深关系；求：弹性能 \(U\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{U=\displaystyle\int_0^\delta F\,d\delta&#x27;} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\frac{8}{15}E^*R^{1/2}\delta^{5/2}}\]</p>
@@ -563,7 +574,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 </ul></details>
-<p><strong>⑥ 刚度</strong></p>
+<p><b>⑥ 刚度</b></p>
+
 <p>已知：④ 的力–压深关系、③ 的接触半径；求：刚度（再压一点力多出多少）。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{a=\sqrt{R\delta}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{dF}{d\delta}=2E^*a}\]</p>
@@ -634,7 +646,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>外修正网络的输入 \(\mathbf A(\mathbf q)^{-1}\mathbf z\)</strong>：</p>
 <details><summary>推导：外修正网络的输入（碰撞体世界位姿 → 相对把手的位姿）</summary>
 
-<b>① 刚体变换求逆：世界坐标 → 局部坐标</b>
+<p><b>① 刚体变换求逆：世界坐标 → 局部坐标</b></p>
 
 <p>已知：把手的朝向 \(\mathbf R_A\) 与位置 \(\mathbf t_A\)、某点的世界坐标；求：该点在把手局部坐标系中的坐标。</p>
 
@@ -656,7 +668,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>\(\mathbf z\)：碰撞体在世界坐标系下的状态，即位置 \(\mathbf p_z\)、朝向 \(\mathbf R_z\)</li>
 <li>\(\mathbf A(\mathbf q)^{-1}\)：反过来把世界坐标变成局部坐标。由 \(\mathbf x_{\text{世界}}=\mathbf R_A\mathbf x_{\text{局部}}+\mathbf t_A\) 两边减 \(\mathbf t_A\) 得 \(\mathbf x_{\text{世界}}-\mathbf t_A=\mathbf R_A\mathbf x_{\text{局部}}\)，再左乘 \(\mathbf R_A^{T}\)（旋转矩阵满足 \(\mathbf R_A^{T}\mathbf R_A=\mathbf I\)）得 \(\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\)</li>
 </ul></details>
-<p><strong>② 作用到碰撞体上：相对位姿</strong></p>
+<p><b>② 作用到碰撞体上：相对位姿</b></p>
+
 <p>已知：碰撞体在世界里的位置 \(\mathbf p_z\) 与朝向 \(\mathbf R_z\)、① 的逆变换；求：碰撞体相对把手的位姿，即外修正网络的输入。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\mathbf z=(\mathbf p_z,\mathbf R_z)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf A(\mathbf q)^{-1}\mathbf z=\big(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A),\ \mathbf R_A^{T}\mathbf R_z\big)}\]</p>
@@ -824,7 +837,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>由锚点加速度得到物体运动</strong>：</p>
 <details><summary>推导：由锚点加速度得到物体运动（Verlet → Kabsch → 全体顶点）</summary>
 
-<b>① Verlet 积分：锚点加速度 → 锚点新位置</b>
+<p><b>① Verlet 积分：锚点加速度 → 锚点新位置</b></p>
 
 <p>已知：锚点在上一帧与当前帧的位置 \(\mathbf q_{t-1}\)、\(\mathbf q_t\)，网络输出的锚点加速度 \(\mathbf a_t\)，帧间隔 \(\Delta t\)；求：锚点新位置。</p>
 
@@ -857,7 +870,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 </ul></details>
-<p><strong>② Kabsch 对齐：4 个预测锚点 → 一个刚体变换</strong></p>
+<p><b>② Kabsch 对齐：4 个预测锚点 → 一个刚体变换</b></p>
+
 <p>已知：① 给出的 4 个预测锚点 \(\hat{\mathbf q}_{t+1}^{k}\)、参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\)；求：一个刚体变换 \((\mathbf R,\mathbf t)\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\mathbf H=\displaystyle\sum_k(\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}})(\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}})^T,\quad \mathbf U,\boldsymbol\Sigma,\mathbf V^T=\mathrm{SVD}(\mathbf H)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf R=\mathbf V\,\mathrm{diag}(1,1,\det(\mathbf V\mathbf U^T))\,\mathbf U^T} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ (\mathbf R,\mathbf t)=\arg\min_{\mathbf R,\mathbf t}\sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2}\]</p>
@@ -872,7 +886,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <details><summary>推导</summary><ul>
 <li>网络各自预测的 4 个新位置不一定保持刚体的相对距离。Kabsch 算法求一组旋转 \(\mathbf R\) 与平移 \(\mathbf t\)，使参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\) 经变换后与 \(\hat{\mathbf q}_{t+1}^{k}\) 的距离平方和最小</li>
 </ul></details>
-<p><strong>③ 推到所有顶点</strong></p>
+<p><b>③ 推到所有顶点</b></p>
+
 <p>已知：② 的 \((\mathbf R,\mathbf t)\)、每个顶点的参考位置 \(\mathbf x_{\text{ref}}\)；求：所有顶点的新位置。</p>
 
 <p>\[\color{#c0392b}{\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\quad(\text{所有顶点})}\]</p>
@@ -886,7 +901,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>步长输入方式 FiLM</strong>（Feature-wise Linear Modulation，逐特征线性调制）：</p>
 <details><summary>推导：步长输入方式 FiLM（步长 → 缩放与偏移 → 调制每维特征）</summary>
 
-<b>① 用步长调制特征</b>
+<p><b>① 用步长调制特征</b></p>
 
 <p>已知：每个物体的 768 维特征 \(h\)、步长 \(s\)；求：被步长调制后的特征。</p>
 
@@ -1039,7 +1054,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <details><summary>推导：重力不进入 \(U_c\)（重力项之差 → 质量加权拟合 → 重力项为 0）</summary>
 
-<b>① 重力项之差</b>
+<p><b>① 重力项之差</b></p>
 
 <p>已知：粗形状 \(\Phi z\)、局部修正 \(\Psi w\)、节点质量 \(m_i\)、重力加速度 \(g\)；求：加修正前后重力势能之差。</p>
 
@@ -1058,7 +1073,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <details><summary>推导</summary><ul>
 <li>重力势能 \(\sum_i m_i g\,y_i\) 对位置线性，代入定义后重力项之差为 \(g\sum_i m_i(\Psi w)_{y,i}\)</li>
 </ul></details>
-<p><strong>② 质量加权拟合：局部修正不移动质心</strong></p>
+<p><b>② 质量加权拟合：局部修正不移动质心</b></p>
+
 <p>已知：全网格节点位置 \(\mathbf x_i\) 与质量 \(m_i\)；求：局部修正的质量加权和。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\mathbf t=\displaystyle\sum_i \frac{m_i}{\sum_j m_j}\,\mathbf x_i} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\Psi w=\mathbf x-\text{质量加权仿射拟合}(\mathbf x)} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \sum_i m_i(\Psi w)_i=0}\]</p>
@@ -1071,7 +1087,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <details><summary>推导</summary><ul>
 <li>条件：粗模型含整体平移自由度（刚体、仿射体等），且粗状态 \(z\) 取全网格位置按节点质量加权的拟合。此时质心平移全部归入 \(\Phi z\)，局部修正不移动质心：\(\sum_i m_i(\Psi w)_i=0\)</li>
 </ul></details>
-<p><strong>③ 重力项恒为 0</strong></p>
+<p><b>③ 重力项恒为 0</b></p>
+
 <p>已知：① 与 ② 的结果；求：重力对 \(U_c\) 的影响。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\Delta E_{\text{重}}=g\sum_i m_i(\Psi w)_{y,i}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\sum_i m_i(\Psi w)_i=0} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \Delta E_{\text{重}}=0,\quad U_c\ \text{与}\ g\ \text{无关}}\]</p>
@@ -1126,7 +1143,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>网格</strong>：原表面 \(z=0\) 上间距 \(h=0.008\) 的方格，取 \(r\le0.18\) 的圆盘（覆盖所有可能接触处），共 1597 格；每格压强取常数 \(p_j\)。网格建在变形前的表面上：线弹性小变形下，表面点的水平移动和表面倾斜忽略不计。</p>
 <details><summary>推导：BEM 标签（下沉与压强 → 求压强 → 弹性能）</summary>
 
-<b>① 下沉与压强：柔度矩阵</b>
+<p><b>① 下沉与压强：柔度矩阵</b></p>
 
 <p>已知：表面方格网（间距 \(h\)）、各格压强 \(p_j\)、模量 \(E^*\)；求：各格下沉 \(u_i\)。</p>
 
@@ -1151,7 +1168,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\(C\) 只由网格与 \(E^*\) 决定，算一次即可；\(C_{ij}&gt;0\)，\(C\) 对称正定</p>
 </li>
 </ul></details>
-<p><strong>② 求压强：带非负约束的二次最小化，用有效集法解</strong></p>
+<p><b>② 求压强：带非负约束的二次最小化，用有效集法解</b></p>
+
 <p>已知：① 的柔度矩阵 \(C\)、各格压头压入量 \(w_i\)；求：各格压强 \(p\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{u=C\,p} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{w=\delta-(z-z_0)\quad\big(\text{球压头 } w=\delta-\tfrac{r^2}{2R}\big)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_i\ge0,\quad u_i\ge w_i,\quad p_i&gt;0\Rightarrow u_i=w_i} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \min_{p\ge0}\ \tfrac12 p^TCp - p^Tw}\]</p>
@@ -1188,7 +1206,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 </li>
 </ul></details>
-<p><strong>③ 弹性能：标签</strong></p>
+<p><b>③ 弹性能：标签</b></p>
+
 <p>已知：② 解出的压强 \(p\)、① 的柔度矩阵 \(C\)、格距 \(h\)；求：弹性能标签 \(U\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{U=\displaystyle\sum_i\tfrac12\,(p_ih^2)\,u_i} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u=C\,p} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\tfrac12h^2\,p^TCp}\]</p>
@@ -1521,7 +1540,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <details><summary>方法：Richardson 外推（本页之后凡说「外推」都是它）</summary>
 
-<b>① 外推值</b>
+<p><b>① 外推值</b></p>
 
 <p>已知：中等档与细档两次计算的读数 \(X_m\)、\(X_f\)，两档尺寸比 \(r\)，收敛阶 \(p\)；求：离散无限细时的真值 \(X^*\)。</p>
 
@@ -1547,7 +1566,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>两式相减：\(X_m-X_f=C\,h_f^p\,(r^p-1)\)，所以 \(C\,h_f^p=\dfrac{X_m-X_f}{r^p-1}\)</li>
 <li>代回细档：\(X^*=X_f-C\,h_f^p=X_f-\dfrac{X_m-X_f}{r^p-1}=X_f+\dfrac{X_f-X_m}{r^p-1}\)</li>
 </ul></details>
-<p><strong>② 收敛阶 \(p\) 怎么来</strong></p>
+<p><b>② 收敛阶 \(p\) 怎么来</b></p>
+
 <p>已知：粗、中、细三档读数 \(X_c\)、\(X_m\)、\(X_f\)，相邻两档尺寸比 \(r\)；求：收敛阶 \(p\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{X_c-X_m=C\,h_m^p\,(r^p-1)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{X_m-X_f=C\,h_f^p\,(r^p-1)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{h_m=r\,h_f} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}}\]</p>
@@ -1557,7 +1577,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：(1) 除以 (2)，由 (3) 得两档差之比为 \(r^p\)，取对数。看网格每细一档，读数的变化缩小了多少倍，就知道误差按几次方收敛。三档差值噪声大时 \(p\) 会跳，所以同一组实验所有压深共用一个 \(p\)（取各压深实测阶的中位数）。</p>
 
-<p><strong>③ 本页三项各取什么</strong></p>
+<p><b>③ 本页三项各取什么</b></p>
+
 <ul>
 <li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(r=2\)），\(p\) 按 ② 实测，代入 ①</li>
 <li>\(\hat d\)：两档，取 \(p=1\)（偏差与 \(\hat d\) 成正比，\(h\) 换成 \(\hat d\)），即两点连直线延长到 \(\hat d=0\)</li>
