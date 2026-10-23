@@ -208,47 +208,49 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>已知：两球半径 \(R_A\)、\(R_B\)，合成模量 \(E^*\)，压深 \(d\)；求：接触半径 \(a\)、力 \(F\)、能量 \(U_H\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{h=\dfrac{r^2}{2R},\quad \dfrac1R=\dfrac1{R_A}+\dfrac1{R_B}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{g(x)=|x|\displaystyle\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{g(a)=d,\quad F=E^*\displaystyle\int_{-a}^{a}\big(d-g\big)dx,\quad \frac{dU}{dd}=F} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=Rd,\ F=\frac43E^*\sqrt R\,d^{3/2},\ U_H=\frac{8}{15}E^*\sqrt R\,d^{5/2}}\]</p>
-<p>式 (1)：\(r\) 是离接触中心的径向距离，\(h\) 是该处两球表面之间的缝隙，\(R_A\)、\(R_B\) 是两球半径，\(R\) 是合成半径。它说的是：在最低点附近球面像一只碗底，离中心 \(r\) 处高出 \(r^2/(2R)\)，离得远一倍高出四倍；两个球各自弯出去，缝隙是两边之和，所以曲率（半径的倒数）直接相加，和软度相加是一个道理；原因是球面上每点到球心的距离都是 R，在最低点附近用勾股定理展开、略去高阶小量就是这条抛物线。</p>
+<p>\[\begin{cases}\color{#c0392b}{h(r)=\dfrac{r^2}{2R},\quad \dfrac1R=\dfrac1{R_A}+\dfrac1{R_B}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u(r)=d-h(r),\quad r\le a} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{u(\mathbf x)=\dfrac{1}{\pi E^*}\displaystyle\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,dA&#x27;} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{p(a)=0,\quad F=\displaystyle\int p\,dA,\quad \frac{dU}{dd}=F} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=Rd,\ F=\frac43E^*\sqrt R\,d^{3/2},\ U_H=\frac{8}{15}E^*\sqrt R\,d^{5/2}}\]</p>
+<p>式 (1)：\(r\) 是离接触中心的径向距离，\(h\) 是该处两球表面之间的缝隙，\(R_A\)、\(R_B\) 是两球半径，\(R\) 是合成半径。它说的是：在最低点附近球面像一只碗底，离中心 \(r\) 处高出 \(r^2/(2R)\)，离得远一倍高出四倍；原因是球面上每点到球心的距离都是半径，在最低点附近用勾股定理展开、略去高阶小量就是这条抛物线；两个球各自弯出去，缝隙是两边之和，所以曲率直接相加。</p>
 
-<p>式 (2)：降维法的等效轮廓，\(x\) 是一排弹簧所在直线上的坐标，\(g(x)\) 是第 \(x\) 根弹簧顶端的高度，\(h&#x27;(r)\) 是缝隙随半径的斜率：把三维缝隙变换成一排互不相干的弹簧要压的轮廓。</p>
+<p>式 (2)：\(u\) 是表面往下陷的量，\(d\) 是压深，\(a\) 是接触半径。它说的是接触条件：接触区里表面必须正好贴着压头，压头压下 \(d\) 而那里本来有 \(h\) 的缝，所以只需陷 \(d-h\)。</p>
 
-<p>式 (3)：降维法的三个结论，\(a\) 是接触半径，\(F\) 是总力，\(U\) 是能量：接触边缘是压缩量降到 0 的那根弹簧；总力是所有弹簧的力相加；力是能量对压深的导数，所以能量是力对压深的积分。</p>
+<p>式 (3)：\(p\) 是压强，\(\mathbf x&#x27;\) 是施压点，\(dA&#x27;\) 是一小块面积，\(E^*\) 是合成模量。它说的是：每一小块压强像一个点力，让周围表面按 1/距离 陷下去，线弹性里各处的下沉直接相加。</p>
+
+<p>式 (4)：没有粘附时压强在接触边缘降到 0，这决定接触半径；\(F\) 是总力，把每小块面积的推力加起来；\(U\) 是能量，力从 0 压到 \(d\) 一路做的功，所以能量对压深的导数是力。</p>
 
 <p>结果：\(U_H\) 是 Hertz 能量。压得越深 → 接触圈越大，但只按平方根变大；能量按压深的 2.5 次方涨，因为每处压得更深，接触圈又同时变宽，两件事叠在一起；大球接触圈更宽，所以更「硬」，但只按开方变化。</p>
 
-<details><summary>推导</summary><p>式 (1) \(h=r^2/(2R)\) 对 \(r\) 求导：</p>
+<details><summary>推导</summary><p>式 (2)–(4) 与上一节 ① 的起点式相同，按上一节的推导，它们给出：</p>
+<p>\[d=g(a),\qquad F=2E^*\int_0^a\big(d-g(x)\big)dx,\qquad g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr\]</p>
+<p>式 (1) \(h=r^2/(2R)\) 对 \(r\) 求导：</p>
 <p>\[h&#x27;(r)=\frac rR\]</p>
-<p>代入式 (2) \(g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}dr\)：</p>
-<p>\[g(x)=\frac{|x|}{R}\int_0^{|x|}\frac{r}{\sqrt{x^2-r^2}}\,dr=\frac{|x|}{R}\Big[-\sqrt{x^2-r^2}\Big]_0^{|x|}=\frac{x^2}{R}\]</p>
-<p>由式 (3) 的边缘条件 \(g(a)=d\)：</p>
+<p>代入 \(g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}dr\)：</p>
+<p>\[g(x)=\frac{|x|}{R}\Big[-\sqrt{x^2-r^2}\Big]_0^{|x|}=\frac{x^2}{R}\]</p>
+<p>由 \(d=g(a)\)：</p>
 <p>\[\frac{a^2}{R}=d\quad\Longrightarrow\quad a^2=Rd\]</p>
-<p>代入式 (3) 的总力 \(F=E^*\int_{-a}^{a}(d-g)dx\)：</p>
-<p>\[F=E^*\int_{-a}^{a}\Big(d-\frac{x^2}{R}\Big)dx=E^*\Big(2ad-\frac{2a^3}{3R}\Big)\]</p>
-<p>用 \(a^2=Rd\)，即 \(a=\sqrt{Rd}\)：</p>
-<p>\[F=E^*\Big(2\sqrt{R}\,d^{3/2}-\frac23\sqrt R\,d^{3/2}\Big)=\frac43E^*\sqrt R\,d^{3/2}\]</p>
-<p>由式 (3) \(dU/dd=F\)，能量是力对压深的积分：</p>
-<p>\[U_H=\int_0^d\frac43E^*\sqrt R\,s^{3/2}\,ds=\frac43\cdot\frac25E^*\sqrt R\,d^{5/2}=\frac{8}{15}E^*\sqrt R\,d^{5/2}\]</p></details>
+<p>代入 \(F=2E^*\int_0^a(d-g)dx\)：</p>
+<p>\[F=2E^*\Big(ad-\frac{a^3}{3R}\Big)=2E^*\Big(\sqrt R\,d^{3/2}-\frac13\sqrt R\,d^{3/2}\Big)=\frac43E^*\sqrt R\,d^{3/2}\]</p>
+<p>由式 (4) \(dU/dd=F\)，从 0 积分：</p>
+<p>\[U_H=\int_0^d\frac43E^*\sqrt R\,s^{3/2}\,ds=\frac{8}{15}E^*\sqrt R\,d^{5/2}\]</p></details>
 <p><b>② 幂律形状</b></p>
 
 <p>已知：缝隙按半径的 \(n\) 次方变化；求：能量随压深涨的幂次。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{h=c\,r^n} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{g(x)=|x|\displaystyle\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr,\quad g(a)=d} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{U_0=\dfrac{E^*}{2}\displaystyle\int_{-a}^{a}\big(d-g\big)^2dx} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U_0\propto d^{(2n+1)/n}}\]</p>
-<p>式 (1)：\(c\) 是系数，\(n\) 是幂次，\(h\)、\(r\) 同 ①。它说的是：缝隙随离中心的距离按 \(n\) 次方张开；\(n\) 越大，中心附近越平（平底是 \(n\to\infty\)），\(n\) 越小越尖（圆锥 \(n=1\)，球 \(n=2\)）。</p>
+<p>\[\begin{cases}\color{#c0392b}{h(r)=c\,r^n} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u(r)=d-h(r),\quad r\le a} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{u(\mathbf x)=\dfrac{1}{\pi E^*}\displaystyle\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,dA&#x27;} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{p(a)=0,\quad F=\displaystyle\int p\,dA,\quad \frac{dU_0}{dd}=F} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U_0\propto d^{(2n+1)/n}}\]</p>
+<p>式 (1)：\(c\) 是系数，\(n\) 是幂次，\(h\)、\(r\) 同 ①。它说的是：缝隙随离中心的距离按 \(n\) 次方张开；\(n\) 越大中心附近越平，平底是 \(n\to\infty\)；\(n\) 越小越尖，圆锥 \(n=1\)，球 \(n=2\)。</p>
 
-<p>式 (2)：降维法的等效轮廓与接触边缘条件。</p>
-
-<p>式 (3)：降维法的总能量，所有弹簧储能之和。</p>
+<p>式 (2)–(4)：与 ① 相同的接触条件、点力叠加、边缘条件和力 / 能量定义，只是缝隙换成了式 (1)。</p>
 
 <p>结果：球（\(n=2\)）是 2.5 次方，圆锥（\(n=1\)）是 3 次方，平底（\(n\to\infty\)）是 2 次方。压头越尖 → 能量随压深涨得越快，因为接触面积随压深涨得越快。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/w34_fig05_power_law.png" style="width:548px;max-width:100%;height:auto" alt="这张图展示了压头形状怎样决定能量随压深涨得多快。横轴是压深，纵轴是能量，都取对数，所以每条线的斜率就是能量随压深的幂次，右边的小图标画的是对应的压头形状。通过对比红色圆锥线、蓝色球线、绿色平底线的倾斜程度，可以看出圆锥最陡（斜率 3），球居中（2.5），平底最缓（2），因为压头越尖，压深加大时接触面积涨得越快，能量也涨得越快。三条线的高低没有意义，只比斜率。" loading="lazy"><figcaption class="small">这张图展示了压头形状怎样决定能量随压深涨得多快。横轴是压深，纵轴是能量，都取对数，所以每条线的斜率就是能量随压深的幂次，右边的小图标画的是对应的压头形状。通过对比红色圆锥线、蓝色球线、绿色平底线的倾斜程度，可以看出圆锥最陡（斜率 3），球居中（2.5），平底最缓（2），因为压头越尖，压深加大时接触面积涨得越快，能量也涨得越快。三条线的高低没有意义，只比斜率。</figcaption></figure>
-<details><summary>推导</summary><p>由式 (1) \(h=c\,r^n\) 得 \(h&#x27;(r)=c\,n\,r^{n-1}\)，代入式 (2) 的积分 \(g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}dr\)，令 \(r=|x|\,t\)：</p>
-<p>\[g(x)=|x|\int_0^{1}\frac{c\,n\,|x|^{n-1}t^{n-1}}{|x|\sqrt{1-t^2}}\,|x|\,dt=\kappa_n\,c\,|x|^n,\qquad \kappa_n=n\int_0^1\frac{t^{n-1}}{\sqrt{1-t^2}}\,dt\]</p>
-<p>由式 (2) 的边缘条件 \(g(a)=d\)：</p>
+<details><summary>推导</summary><p>式 (2)–(4) 与上一节 ① 的起点式相同，按上一节的推导，它们给出：</p>
+<p>\[d=g(a),\qquad U_0=E^*\int_0^a\big(d-g(x)\big)^2dx,\qquad g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr\]</p>
+<p>由式 (1) \(h=c\,r^n\) 得 \(h&#x27;(r)=c\,n\,r^{n-1}\)，代入 \(g\) 的积分，令 \(r=|x|\,t\)：</p>
+<p>\[g(x)=\kappa_n\,c\,|x|^n,\qquad \kappa_n=n\int_0^1\frac{t^{n-1}}{\sqrt{1-t^2}}\,dt\]</p>
+<p>由 \(d=g(a)\)：</p>
 <p>\[d=\kappa_n\,c\,a^n\quad\Longrightarrow\quad a\propto d^{1/n}\]</p>
-<p>代入式 (3) \(U_0=\frac{E^*}{2}\int_{-a}^{a}(d-g)^2dx\)，令 \(x=a\,s\)：</p>
-<p>\[U_0=\frac{E^*}{2}\,a\,d^2\int_{-1}^{1}\big(1-|s|^n\big)^2ds\ \propto\ a\,d^2\]</p>
+<p>代入 \(U_0=E^*\int_0^a(d-g)^2dx\)，令 \(x=a\,s\)：</p>
+<p>\[U_0=E^*\,a\,d^2\int_0^1\big(1-s^n\big)^2ds\ \propto\ a\,d^2\]</p>
 <p>代入 \(a\propto d^{1/n}\)：</p>
 <p>\[U_0\propto d^{2+1/n}=d^{(2n+1)/n}\]</p></details></section>
 <section id="w3"><h2>标签对不对</h2>
