@@ -919,14 +919,14 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <details><summary>推导</summary><ul>
 <li>网络每层中每个物体的特征是一个 768 维向量 \(h=(h_1,\dots,h_{768})\)</li>
-<li>一个全连接层（与主网络一起训练）以 \([s,s^2]\) 为输入，输出两个 768 维向量：缩放 \(\gamma=(\gamma_1,\dots,\gamma_{768})\)、偏移 \(\beta=(\beta_1,\dots,\beta_{768})\)（论文 md 未写明，待查原 PDF）</li>
+<li>每个 FiLM 是一个独立的两层 MLP（编码器输出处一个、解码器每层各一个），以 \([s,s^2]\) 为输入，输出两个 768 维向量：缩放 \(\gamma=(\gamma_1,\dots,\gamma_{768})\)、偏移 \(\beta=(\beta_1,\dots,\beta_{768})\)；MLP 最后一层零初始化，所以训练开始时调制是恒等（论文 §3.1「layer-specific MLPs \(\gamma_\ell\), \(\beta_\ell\)」；附录 I.2「Each FiLM module is a two-layer MLP whose final affine layer is zero-initialized」；官方代码 github.com/Frank-ZY-Dou/Dynamics-Modeling/tree/main/RigidFormer 的 src/models/encoder.py L691 写成 \((1+\gamma)h+\beta\)，即同一调制把 \(\gamma\) 平移 1）</li>
 <li>每一维特征改为 \(h_i\leftarrow\gamma_i\,h_i+\beta_i\)</li>
 <li>\(\gamma,\beta\) 只由 \([s,s^2]\) 决定，同一步内所有物体用同一组</li>
-<li>作用位置：编码器输出处一次；之后每层 Transformer 内，物体之间的注意力计算完、进入逐物体全连接层之前各一次。所以每层的注意力结果都被步长调制（论文 md 未写明，待查原 PDF）</li>
+<li>作用位置：编码器输出处一次；之后每层 Transformer 内，注意力（含与 register token 的交叉注意力）之后、逐物体全连接层之前各一次。所以每层的注意力结果都被步长调制（论文附录 I.2「Both FiLMs are injected (i) once on the encoder output and (ii) per decoder layer, after the self/cross-attention sublayers and before the FFN」）</li>
 <li>同一个网络取不同 \(s\)，即输出对应步长的预测</li>
 </ul></details>
 </details>
-<p><strong>数据</strong>：MOVi 数据集（PyBullet 刚体仿真），1200 个场景，每个 3–10 个物体抛落互撞，2 s、480 帧。分三个子集：MOVi-Sphere（只有球）、MOVi-A（基本几何体）、MOVi-B（复杂形状）。RigidFormer 代码未发布；数据生成脚本在 HopNet（此前最强的学习型刚体仿真方法，基于网格）的仓库。</p>
+<p><strong>数据</strong>：MOVi 数据集（PyBullet 刚体仿真），1200 个场景，每个 3–10 个物体抛落互撞，2 s、480 帧。分三个子集：MOVi-Sphere（只有球）、MOVi-A（基本几何体）、MOVi-B（复杂形状）。RigidFormer 官方代码已公开（github.com/Frank-ZY-Dou/Dynamics-Modeling 的 RigidFormer 目录，项目页 people.csail.mit.edu/frankzydou/projects/RigidFormer 有链接）；数据生成脚本在 HopNet（此前最强的学习型刚体仿真方法，基于网格）的仓库。</p>
 <p><strong>跨数据集测试</strong>：在一个子集上训练、另一个子集上测试，共 6 种组合；比较预测 100 帧后物体质心的位置误差（均方根，m），两者均为每次前进 1 帧：</p>
 <div class="tablewrap"><table>
 <thead>
