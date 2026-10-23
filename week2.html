@@ -734,7 +734,21 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>参考位置</strong>：每个物体有一份固定的参考网格（物体在参考姿态下的顶点坐标 \(\mathbf x_{\text{ref}}\)）。刚体任一时刻的顶点位置都是参考网格整体旋转 \(\mathbf R\)、平移 \(\mathbf t\) 的结果：\(\mathbf x_t=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\)。所以 \(\mathbf x_t-\mathbf x_{\text{ref}}\) 是该顶点相对参考姿态移动了多少，反映物体当前的姿态。</p>
 <p><strong>锚点</strong>：每个物体从顶点中选 4 个点作为锚点，用最远点采样选取：先任取一个顶点，之后每次选离已选点最远的顶点，直到选够 4 个，使锚点在物体上尽量分散。刚体有 6 个自由度，3 个不共线的点即可确定其姿态；论文对比 3、4、8 个锚点，4 个的位置误差最小。</p>
 <p><strong>由锚点加速度得到物体运动</strong>：</p>
-<ol>
+<details><summary>推导：由锚点加速度得到物体运动（Verlet → Kabsch → 全体顶点）</summary>
+
+<b>① Verlet 积分：锚点加速度 → 锚点新位置</b>
+
+
+
+<p>\[\color{#c0392b}{\hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}}\]</p>
+
+
+
+- 用到 a 式 速度 = 相邻两帧位置差 ÷ \(\Delta t\)（论文 §3.1 把 \(\mathbf x_t-\mathbf x_{t-1}\) 当作离散速度输入）：这个式子说的是只看两帧就知道物体走得多快。
+- 用到 b 式 加速度 = 相邻两段速度之差 ÷ \(\Delta t\)，即 \(\mathbf a_t=(\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1})/\Delta t^2\)（论文附录 C.2 式 (11)，用同一 Verlet 离散从真实轨迹算加速度标签）：这个式子说的是速度变了多少就是加速度。
+- 得到 c 式 \(\hat{\mathbf q}_{t+1}=\mathbf a_t\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}\)（把式 (11) 移项；网络输出锚点加速度见 §3.2，附录 G 表「followed by Verlet + Kabsch」）：网络给的加速度越大 → 新位置偏离「按原速度直走」越远，因为 \(2\mathbf q_t-\mathbf q_{t-1}\) 就是匀速外推的位置，加速度项是在它上面加的修正；步长越大，同样的加速度修正得越多（按 \(\Delta t^2\) 涨）。
+
+<details><summary>推导</summary><ul>
 <li>
 <p>Verlet 积分求锚点新位置（\(\mathbf q_t\)：某锚点在第 \(t\) 帧的位置，\(\mathbf a_t\)：网络输出的该锚点加速度，\(\Delta t\)：两帧间隔）</p>
 <ul>
@@ -748,20 +762,54 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>
 <p>只需当前帧与上一帧的位置，不需单独存速度；这也是输入只用两帧（速度特征 \(\mathbf x_t-\mathbf x_{t-1}\)）的原因</p>
 </li>
-<li>网络各自预测的 4 个新位置不一定保持刚体的相对距离。Kabsch 算法求一组旋转 \(\mathbf R\) 与平移 \(\mathbf t\)，使参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\) 经变换后与 \(\hat{\mathbf q}_{t+1}^{k}\) 的距离平方和最小</li>
-<li>所有顶点：\(\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\)，物体严格保持刚性</li>
 </ul>
 </li>
-</ol>
+</ul></details>
+<p><strong>② Kabsch 对齐：4 个预测锚点 → 一个刚体变换</strong></p>
+<p>\[\color{#c0392b}{(\mathbf R,\mathbf t)=\arg\min_{\mathbf R,\mathbf t}\sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2}\]</p>
+<ul>
+<li>用到 a：① 给出的 4 个预测锚点 \(\hat{\mathbf q}_{t+1}^{k}\)（论文 §3.2，每个物体 \(N_a=4\) 个 FPS 锚点）：网络对每个锚点各自预测，彼此间距不一定保持，即不一定是一个刚体。</li>
+<li>用到 b：参考锚点 \(\mathbf q_{\text{ref}}^{k}\) 与 Kabsch 对齐（论文 §3.2「Differentiable Rigid Projection」，引 Kabsch 1976：\(\mathbf H=\sum_k(\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}})(\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}})^T\) 做 SVD，\(\mathbf R=\mathbf V\,\mathrm{diag}(1,1,\det(\mathbf V\mathbf U^T))\,\mathbf U^T\)，\(\mathbf t\) 由两组形心定出）：这个式子说的是找一个只转不变形的摆放，让参考锚点尽量贴近预测锚点。</li>
+<li>得到 c：一个 \((\mathbf R,\mathbf t)\)（距离平方和最小是 Kabsch 方法的定义，论文 §3.2 只写了算法步骤，没写目标函数）：预测锚点越不像刚体（间距偏差越大）→ 对齐后被「掰回」的量越大，因为结果只能是刚体运动，多出来的变形被丢掉。</li>
+</ul>
+<details><summary>推导</summary><ul>
+<li>网络各自预测的 4 个新位置不一定保持刚体的相对距离。Kabsch 算法求一组旋转 \(\mathbf R\) 与平移 \(\mathbf t\)，使参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\) 经变换后与 \(\hat{\mathbf q}_{t+1}^{k}\) 的距离平方和最小</li>
+</ul></details>
+<p><strong>③ 推到所有顶点</strong></p>
+<p>\[\color{#c0392b}{\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t}\]</p>
+<ul>
+<li>用到 a：② 的 \((\mathbf R,\mathbf t)\)：整个物体这一步怎么转、怎么挪。</li>
+<li>用到 b：每个顶点的参考位置 \(\mathbf x_{\text{ref}}\)（论文 §3.1：参考为序列第一帧）：物体在参考姿态下的形状。</li>
+<li>得到 c 式 \(\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\)（论文 §3.2，对所有顶点广播同一变换，「enforces rigidity by construction」）：无论物体有多少顶点，都只由 4 个锚点决定，物体严格保持刚性，因为所有顶点用的是同一个旋转和平移。</li>
+</ul>
+<details><summary>推导</summary><ul>
+<li>所有顶点：\(\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\)，物体严格保持刚性</li>
+</ul></details>
+</details>
 <p><strong>步长输入方式 FiLM</strong>（Feature-wise Linear Modulation，逐特征线性调制）：</p>
-<ol>
+<details><summary>推导：步长输入方式 FiLM（步长 → 缩放与偏移 → 调制每维特征）</summary>
+
+<b>① 用步长调制特征</b>
+
+
+
+<p>\[\color{#c0392b}{h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s),\qquad (\gamma,\beta)\ \text{由}\ [s,s^2]\ \text{生成}}\]</p>
+
+
+
+- 用到 a 式 FiLM 的定义 \(h_i\leftarrow\gamma_i h_i+\beta_i\)（论文引 Perez et al. 2018 [28]；本文附录 I.2 写作 \(\mathrm{FiLM}_{\text{step}}(\mathbf h;[s,s^2])\)，逐维公式本文未写出）：这个式子说的是每一维特征先乘一个系数、再加一个偏移，由条件决定乘多少、加多少。
+- 用到 b 式 时间码 \([s,s^2]\) 与 768 维特征（论文附录 G 表：Time step \([s,s^2]\in\mathbb R^2\)、per-layer FiLM conditioning；对象嵌入与隐层维度 \(D=768\)）：这个式子说的是步长只以 \(s\) 和 \(s^2\) 两个数进入网络。
+- 得到 c：同一个网络按不同 \(s\) 输出不同步长的预测（论文附录 C.1：训练时步长在 \(\{1,5,10\}\) 中随机取，同一个 FiLM 条件化的模型见过长短两种离散；§4.1 Step Sizes 与表 4）：\(s\) 不同 → \(\gamma,\beta\) 不同 → 同一场景得到不同步长的一步；步长越大 → 走完同样时长要滚动预测的次数越少、误差累积越少，所以论文表 4 中步长 10 的 100 帧误差最低（§4.1 Step Sizes）。调制系数只由 \(s\) 决定、对所有物体相同，因为 FiLM 参数在物体间共享（附录 B，不破坏物体顺序等变性）。
+
+<details><summary>推导</summary><ul>
 <li>网络每层中每个物体的特征是一个 768 维向量 \(h=(h_1,\dots,h_{768})\)</li>
-<li>一个全连接层（与主网络一起训练）以 \([s,s^2]\) 为输入，输出两个 768 维向量：缩放 \(\gamma=(\gamma_1,\dots,\gamma_{768})\)、偏移 \(\beta=(\beta_1,\dots,\beta_{768})\)</li>
+<li>一个全连接层（与主网络一起训练）以 \([s,s^2]\) 为输入，输出两个 768 维向量：缩放 \(\gamma=(\gamma_1,\dots,\gamma_{768})\)、偏移 \(\beta=(\beta_1,\dots,\beta_{768})\)（论文 md 未写明，待查原 PDF）</li>
 <li>每一维特征改为 \(h_i\leftarrow\gamma_i\,h_i+\beta_i\)</li>
 <li>\(\gamma,\beta\) 只由 \([s,s^2]\) 决定，同一步内所有物体用同一组</li>
-<li>作用位置：编码器输出处一次；之后每层 Transformer 内，物体之间的注意力计算完、进入逐物体全连接层之前各一次。所以每层的注意力结果都被步长调制</li>
+<li>作用位置：编码器输出处一次；之后每层 Transformer 内，物体之间的注意力计算完、进入逐物体全连接层之前各一次。所以每层的注意力结果都被步长调制（论文 md 未写明，待查原 PDF）</li>
 <li>同一个网络取不同 \(s\)，即输出对应步长的预测</li>
-</ol>
+</ul></details>
+</details>
 <p><strong>数据</strong>：MOVi 数据集（PyBullet 刚体仿真），1200 个场景，每个 3–10 个物体抛落互撞，2 s、480 帧。分三个子集：MOVi-Sphere（只有球）、MOVi-A（基本几何体）、MOVi-B（复杂形状）。RigidFormer 代码未发布；数据生成脚本在 HopNet（此前最强的学习型刚体仿真方法，基于网格）的仓库。</p>
 <p><strong>跨数据集测试</strong>：在一个子集上训练、另一个子集上测试，共 6 种组合；比较预测 100 帧后物体质心的位置误差（均方根，m），两者均为每次前进 1 帧：</p>
 <div class="tablewrap"><table>
