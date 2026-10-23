@@ -101,6 +101,41 @@ def trim_copies(html, prefix):
     return re.sub(r'(<img\b[^>]*?\bsrc=")assets/images/([^"]+)"', swap, html)
 
 
+# 每张图 / 视频里的子图数（用户 10-23：一个子图给一个固定面积；读图核过，见 sandbox docs/drafts/week2_web_captions.md
+# 交接笔记里的表）；没列的按 1。键是去掉 w34_ / w3i_ 前缀的文件名。
+SUBFIGS = {
+    # week2
+    "nipc_scene_K1.png": 2, "nipc_scene_K2.png": 2, "nipc_scene_K3.png": 2,
+    "nipc_training_samples_K1.png": 2, "nipc_training_samples_K2.png": 2, "nipc_training_samples_K3.png": 2,
+    "e0_press.mp4": 2, "e0_scene_L1.2.png": 2, "e1_press_R2.mp4": 2, "e0_label_convergence.png": 2,
+    # week3_4
+    "fig01_collision_energy.png": 2, "fig02_two_soft_equals_rigid_flat.png": 2, "fig04_mdr_springs.png": 2,
+    "WikipediabilderKap_4.jpg": 2, "s31_indenters_scene.png": 4, "s31_indenters_pressed.png": 4,
+    "s32_two_soft_caps_scene.png": 2, "s32_two_soft_caps_pressed.png": 2, "s33_soft_indenter_scene.png": 4,
+    "s33_soft_indenter_pressed.png": 4, "femref_capblock_pressed.png": 2, "label_one_run_scene.png": 2,
+    "tilt_pair4_scene.png": 2, "tilt_single02_scene.png": 2, "t6b_squeezed_pressed.png": 2,
+    "fig08a_deadlock_three_cases.png": 4, "t6p_pair4_scene.png": 2, "t6p_single02_scene.png": 2,
+    "s4_2_t5_tables.png": 3, "fig12_hydropp_15_objects.png": 2, "fig13_single_region.png": 2,
+    "s5_2_scene_spheres.png": 2, "e0_rigid_ball_flat_press.mp4": 2,
+    "t5_flat_overview.png": 2, "t5_ring_top_overview.png": 2, "t5_ring_inner_overview.png": 2,
+    "t5_wave_crest_overview.png": 2, "t5_wave_trough_overview.png": 2, "t5_ring_inner_R6_overview.png": 2,
+    "t5_ring_inner_R45_overview.png": 2, "t5_footprint_flat_vs_ring.png": 2, "fig10a_ellipse_vs_circle.png": 2,
+    "fig11a_similarity.png": 2, "e0e1_same_depth_ratio.png": 2,
+}
+AREA_BAND = (0.67, 1.5)   # 按最短边定出的面积在目标面积的这个倍数范围内，就仍按最短边
+
+
+def display_width(name, w, h):
+    """显示宽度（px）：子图数 n（SUBFIGS），目标面积 = n × SHORT_SIDE²。先按最短边 = SHORT_SIDE 算，面积与目标之比在
+    AREA_BAND 内就用它；超出（长宽比特殊）就按目标面积等比缩放。"""
+    n = SUBFIGS.get(re.sub(r"^w(?:34|3i)_", "", name), 1)
+    s = SHORT_SIDE / min(w, h)
+    target = n * SHORT_SIDE ** 2
+    if not AREA_BAND[0] <= (w * s) * (h * s) / target <= AREA_BAND[1]:
+        s = (target / (w * h)) ** 0.5
+    return round(w * s)
+
+
 def size_media(html):
     """配图按最短边定尺寸：每个 <img src="assets/images/…"> / <video src="assets/videos/…"> 加行内样式，
     显示宽度 = SHORT_SIDE × 宽 / min(宽, 高)（宽 ≤ 高时宽 = SHORT_SIDE，否则高 = SHORT_SIDE），再加 max-width: 100%、
@@ -114,7 +149,7 @@ def size_media(html):
         else:
             p = media_file(m.group(2))
             w, h = video_size(p) if p.suffix.lower() == ".mp4" else image_size(p)
-        return m.group(1) + f' style="width:{round(SHORT_SIDE * w / min(w, h))}px;max-width:100%;height:auto"'
+        return m.group(1) + f' style="width:{display_width(name, w, h)}px;max-width:100%;height:auto"'
     html = re.sub(r'(<(?:img|video)\b[^>]*?\bsrc="(assets/(?:images|videos)/[^"]+)")', add_style, html)
     html = html.replace('<div class="grid"><figure>', '<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure>')
     return html.replace("<figure>", '<figure style="margin:12px 0">')   # 去掉浏览器默认的左右 40px，宽图少被压缩
