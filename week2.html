@@ -367,15 +367,19 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <b>① 球面形状</b>
 
-
-
-<p>\[\color{#c0392b}{h\approx\frac{r^2}{2R}}\]</p>
+已知：球半径 \(R\)、离最低点的水平距离 \(r\)；求：该处球面比最低点高出的 \(h\)。
 
 
 
-- 用到 a 式 \(r^2+(R-h)^2=R^2\)（勾股定理，球心在最低点正上方 \(R\) 处）：这个式子说的是球面上每一点到球心的距离都是 \(R\)。
-- 用到 b 条件 \(h\ll R\)（只看最低点附近）：这个条件说的是接触只发生在球底很小一片，那里高出的量比球半径小得多，平方项可以丢掉。
-- 得到 c 式 \(h\approx r^2/(2R)\)：离中心越远 → 高出越多，而且按平方涨（远一倍高出四倍），因为碗底越往外越陡；球越大 → 同样距离高出越少，因为大球的碗底更平。
+<p>\[\begin{cases}\color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ h\approx\frac{r^2}{2R}}\]</p>
+
+
+
+式 (1)：勾股定理，球心在最低点正上方 \(R\) 处，球面上每一点到球心的距离都是 \(R\)。
+
+式 (2)：只看最低点附近，接触只发生在球底很小一片，那里高出的量比球半径小得多，平方项可以丢掉。
+
+结果：展开 (1)，按 (2) 略去高阶项。离中心越远 → 高出越多，而且按平方涨（远一倍高出四倍），因为碗底越往外越陡；球越大 → 同样距离高出越少，因为大球的碗底更平。
 
 
 
@@ -393,24 +397,23 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>② 压深与几何重叠</strong></p>
-<p>\[\color{#c0392b}{a_{\text{几何}}^2=2R\delta}\]</p>
-<ul>
-<li>用到 a：压深 \(\delta\) 的定义（球最低点进入原表面以下的深度）：这个量说的是球整体往下推了多少。</li>
-<li>用到 b 式 \(h\approx r^2/(2R)\)（①）：离中心 \(r\) 处的球面比最低点高这么多，所以它在原表面以下 \(\delta-r^2/(2R)\)。</li>
-<li>得到 c 式 \(a_{\text{几何}}^2=2R\delta\)：这个式子说的是假如垫子一点不凹，球插进去的那一圈有多大；压得越深 → 这一圈越大，但只按平方根变大，因为越往外球面越陡、越难再多插进一圈。下面会看到真实接触比这一圈小。</li>
-</ul>
+<p>已知：球半径 \(R\)、压深 \(\delta\)（球最低点进入原表面以下的深度）；求：假设垫子不变形时的重叠半径。</p>
+<p>\[\begin{cases}\color{#c0392b}{h\approx\dfrac{r^2}{2R}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\delta-h(a_{\text{几何}})=0} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a_{\text{几何}}^2=2R\delta}\]</p>
+<p>式 (1)：① 的结果，离中心 \(r\) 处的球面比最低点高这么多。</p>
+<p>式 (2)：重叠的边缘就是球面正好回到原表面的地方。</p>
+<p>结果：假如垫子一点不凹，球插进去的那一圈有多大；压得越深 → 这一圈越大，但只按平方根变大，因为越往外球面越陡、越难再多插进一圈。下面会看到真实接触比这一圈小。</p>
 <figure style="margin:12px 0"><img src="assets/images/hz02_geometric_overlap.png" style="width:538px;max-width:100%;height:auto" alt="假设基体（米色）完全不变形，刚球（灰）直接往下插进去，最低点比原表面低 δ（左边黑色双箭头）。红色透镜是球和基体重叠的那块。蓝色双箭头从中心沿原表面量到重叠的边缘，这一圈的半径就是 a_geo。由 ① 的碗底公式，r²/(2R) = δ 处正好碰到原表面，所以 a_geo² ≈ 2Rδ。真实接触中基体会被带着往下陷，接触圈比这个小，见 ③。" loading="lazy"><figcaption class="small">假设基体（米色）完全不变形，刚球（灰）直接往下插进去，最低点比原表面低 δ（左边黑色双箭头）。红色透镜是球和基体重叠的那块。蓝色双箭头从中心沿原表面量到重叠的边缘，这一圈的半径就是 a_geo。由 ① 的碗底公式，r²/(2R) = δ 处正好碰到原表面，所以 a_geo² ≈ 2Rδ。真实接触中基体会被带着往下陷，接触圈比这个小，见 ③。</figcaption></figure>
 <details><summary>推导</summary><ul>
 <li><strong>压深</strong> \(\delta\)：球最低点进入基体原表面以下的深度。离中心 \(r\) 处的球面比最低点高 \(\dfrac{r^2}{2R}\)，所以它在原表面以下 \(\delta-\dfrac{r^2}{2R}\)</li>
 <li>几何重叠（基体不变形）：\(\delta-a^2/(2R)=0\Rightarrow a^2=2R\delta\)</li>
 </ul></details>
 <p><strong>③ 接触半径与中心压强</strong></p>
-<p>\[\color{#c0392b}{a^2=R\delta,\qquad p_0=\frac{2aE^*}{\pi R}}\]</p>
-<ul>
-<li>用到 a 式（几何贴合）\(u=\delta-r^2/(2R)\)（由 ①② 得）：这个式子说的是接触区里垫子表面必须正好贴着球面，球面在哪，垫子就陷到哪。</li>
-<li>用到 b 式（力学下沉）：Boussinesq 点力解 \(u=P/(\pi E^*s)\)，叠加 Hertz 压强分布 \(p=p_0\sqrt{1-t^2/a^2}\)。这个式子说的是按住一点，周围也跟着陷，离得越远 → 陷得越少，按 \(1/\text{距离}\) 递减；材料越硬 → 陷得越少（下面第二张图）。</li>
-<li>令 a、b 两式对所有 \(r\le a\) 相等，得到 c 式 \(a^2=R\delta\)、\(p_0=2aE^*/(\pi R)\)，以及接触边缘下沉 \(\delta/2\)：压得越深 → 接触圈越大，球越大 → 接触圈越大；材料越硬、接触圈越大 → 中心压强越大。因为压一点周围都跟着陷，接触边缘的垫子已经被带着陷了一半压深，所以真实接触半径 \(\sqrt{R\delta}\) 比几何重叠的 \(\sqrt{2R\delta}\) 小。</li>
-</ul>
+<p>已知：球半径 \(R\)、压深 \(\delta\)、模量 \(E^*\)；求：真实接触半径 \(a\) 与中心压强 \(p_0\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{u=\delta-\dfrac{r^2}{2R}\quad(r\le a)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u=\dfrac{P}{\pi E^*s}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p=p_0\sqrt{1-t^2/a^2}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=R\delta,\quad p_0=\frac{2aE^*}{\pi R}}\]</p>
+<p>式 (1)：几何贴合，接触区里垫子表面必须正好贴着球面，球面在哪，垫子就陷到哪（由 ①② 得）。</p>
+<p>式 (2)：Boussinesq 点力解，按住一点，周围也跟着陷，离得越远 → 陷得越少，与距离成反比；材料越硬 → 陷得越少（下面第二张图）。</p>
+<p>式 (3)：Hertz 压强分布，中心最大、到接触边缘降到 0。</p>
+<p>结果：把 (3) 按 (2) 叠加出的下沉，令它对接触区内所有点都等于 (1)，得接触半径与中心压强，以及接触边缘下沉为压深的一半。压得越深 → 接触圈越大，球越大 → 接触圈越大；材料越硬、接触圈越大 → 中心压强越大。因为压一点周围都跟着陷，接触边缘的垫子已经被带着陷了一半压深，所以真实接触半径比几何重叠的小（平方比为 1 : 2）。</p>
 <figure style="margin:12px 0"><img src="assets/images/hz03_pressure_profile.png" style="width:559px;max-width:100%;height:auto" alt="横轴是离接触中心的距离 t，纵轴是那一点的压强。蓝色曲线 p(t) = p₀√(1 − t²/a²) 是半个椭圆：中心 t = 0 最大，等于 p₀（蓝点）；往外逐渐减小，到接触边缘 t = ±a（红色刻度）正好降到 0；圈外不受压。" loading="lazy"><figcaption class="small">横轴是离接触中心的距离 t，纵轴是那一点的压强。蓝色曲线 p(t) = p₀√(1 − t²/a²) 是半个椭圆：中心 t = 0 最大，等于 p₀（蓝点）；往外逐渐减小，到接触边缘 t = ±a（红色刻度）正好降到 0；圈外不受压。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/hertz_contact.png" style="width:587px;max-width:100%;height:auto" alt="核心式在图上的样子：刚球（红线）压进垫子，粉色带是真实接触区 \(|r|\le a=\sqrt{R\delta}\)，带边缘垫子已下陷 \(\delta/2\)；灰色点线是几何重叠的边缘 \(\sqrt{2R\delta}\)。各标注的含义见本节开头这张图的图注。" loading="lazy"><figcaption class="small">核心式在图上的样子：刚球（红线）压进垫子，粉色带是真实接触区 \(|r|\le a=\sqrt{R\delta}\)，带边缘垫子已下陷 \(\delta/2\)；灰色点线是几何重叠的边缘 \(\sqrt{2R\delta}\)。各标注的含义见本节开头这张图的图注。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/fig03_boussinesq_1_over_r.png" style="width:542px;max-width:100%;height:auto" alt="这张图说明 Boussinesq 点力解的核心：在弹性半空间表面按住一个点，周围一圈都跟着陷下去，离得越远陷得越少。红色箭头是作用在一点上的点力 \(F\)；米色是半空间，上方灰色虚线是它原来的表面。距离 \(r\) 处表面下沉 \(u\)（蓝色标注），到距离 \(2r\) 处只下沉 \(u/2\)：下沉和距离成反比，正对应 \(u=P/(\pi E^*s)\) 里的 \(1/s\)。" loading="lazy"><figcaption class="small">这张图说明 Boussinesq 点力解的核心：在弹性半空间表面按住一个点，周围一圈都跟着陷下去，离得越远陷得越少。红色箭头是作用在一点上的点力 \(F\)；米色是半空间，上方灰色虚线是它原来的表面。距离 \(r\) 处表面下沉 \(u\)（蓝色标注），到距离 \(2r\) 处只下沉 \(u/2\)：下沉和距离成反比，正对应 \(u=P/(\pi E^*s)\) 里的 \(1/s\)。</figcaption></figure>
@@ -459,12 +462,11 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>④ 合力</strong></p>
-<p>\[\color{#c0392b}{F=\frac43E^*R^{1/2}\delta^{3/2}}\]</p>
-<ul>
-<li>用到 a 式 \(F=\int_0^a p(t)\,2\pi t\,dt=\tfrac23\pi a^2p_0\)（压强在接触圆上按圆环加起来）：这个式子说的是合力等于接触圈面积乘上平均压强，平均压强是中心压强的 2/3。</li>
-<li>用到 b 式 \(p_0=2aE^*/(\pi R)\)、\(a=\sqrt{R\delta}\)（③）：接触圈多大、中心压多大。</li>
-<li>得到 c 式 \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\)：压深越大 → 力越大，而且比压深涨得快（1.5 次方），因为每处压得更深，接触圈又同时变宽，两件事叠在一起；球越大 → 力越大，但只按开方涨，因为大球只是接触圈宽一些。</li>
-</ul>
+<p>已知：③ 的接触半径与中心压强；求：合力 \(F\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{F=\displaystyle\int_0^a p(t)\,2\pi t\,dt=\tfrac23\pi a^2p_0} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p_0=\dfrac{2aE^*}{\pi R},\quad a^2=R\delta} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac43E^*R^{1/2}\delta^{3/2}}\]</p>
+<p>式 (1)：压强在接触圆上按圆环加起来，合力等于接触圈面积乘上平均压强，平均压强是中心压强的 2/3。</p>
+<p>式 (2)：③ 的结果，接触圈多大、中心压多大。</p>
+<p>结果：把 (2) 代入 (1)。压深越大 → 力越大，而且比压深涨得快（1.5 次方），因为每处压得更深，接触圈又同时变宽，两件事叠在一起；球越大 → 力越大，但只按开方涨，因为大球只是接触圈宽一些。</p>
 <figure style="margin:12px 0"><img src="assets/images/hz04_force_rings.png" style="width:572px;max-width:100%;height:auto" alt="从正上方看接触圆，半径 a，蓝色越深表示压强越大（中心最深，按 ③ 的半椭圆变浅）。把它切成一圈圈细圆环：红色这一圈半径 t（黑箭头）、宽 dt（两个小箭头夹住的宽度），面积是周长乘宽度 2πt·dt，受力是压强乘面积 p(t)·2πt·dt。把从中心到边缘所有圈的力加起来（积分）就是合力 F = (2/3)πa²p₀，再代入 ③ 的 a、p₀ 得 F = (4/3)E*R^{1/2}δ^{3/2}。" loading="lazy"><figcaption class="small">从正上方看接触圆，半径 a，蓝色越深表示压强越大（中心最深，按 ③ 的半椭圆变浅）。把它切成一圈圈细圆环：红色这一圈半径 t（黑箭头）、宽 dt（两个小箭头夹住的宽度），面积是周长乘宽度 2πt·dt，受力是压强乘面积 p(t)·2πt·dt。把从中心到边缘所有圈的力加起来（积分）就是合力 F = (2/3)πa²p₀，再代入 ③ 的 a、p₀ 得 F = (4/3)E*R^{1/2}δ^{3/2}。</figcaption></figure>
 <details><summary>推导</summary><ul>
 <li>
@@ -493,12 +495,11 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>⑤ 弹性能</strong></p>
-<p>\[\color{#c0392b}{U=\frac{8}{15}E^*R^{1/2}\delta^{5/2}}\]</p>
-<ul>
-<li>用到 a 式 \(U=\int_0^\delta F\,d\delta&#x27;\)（弹性能 = 力从 0 压到 \(\delta\) 一路做的功）：这个式子说的是能量是力–压深曲线下面的面积。</li>
-<li>用到 b 式 \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\)（④）。</li>
-<li>得到 c 式 \(U=\tfrac{8}{15}E^*R^{1/2}\delta^{5/2}\)：压深越大 → 能量越大，而且比力再多涨一次方（2.5 次方），因为每多压一点，都是在已经很大的力上再做功；在对数坐标里是一条斜率 2.5 的直线，压头越尖斜率越大（下面第二张图）。</li>
-</ul>
+<p>已知：④ 的力–压深关系；求：弹性能 \(U\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{U=\displaystyle\int_0^\delta F\,d\delta&#x27;} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\frac{8}{15}E^*R^{1/2}\delta^{5/2}}\]</p>
+<p>式 (1)：弹性能 = 力从 0 压到当前压深一路做的功，即力–压深曲线下面的面积。</p>
+<p>式 (2)：④ 的结果。</p>
+<p>结果：把 (2) 代入 (1) 积分。压深越大 → 能量越大，而且比力再多涨一次方（2.5 次方），因为每多压一点，都是在已经很大的力上再做功；在对数坐标里是一条斜率 2.5 的直线，压头越尖斜率越大（下面第二张图）。</p>
 <figure style="margin:12px 0"><img src="assets/images/hz05_energy_area.png" style="width:536px;max-width:100%;height:auto" alt="黑色曲线是合力随压深的变化 F = (4/3)E*R^{1/2}δ^{3/2}。从 0 压到 δ₁ 的过程中，每多压 dδ，力做功 F·dδ，就是曲线下一条细竖条的面积；全部竖条加起来，就是蓝色面积，也就是压到 δ₁ 时存进去的弹性能 U = (8/15)E*R^{1/2}δ^{5/2}。指数从 3/2 积分变成 5/2，能量随压深涨得比力更快。" loading="lazy"><figcaption class="small">黑色曲线是合力随压深的变化 F = (4/3)E*R^{1/2}δ^{3/2}。从 0 压到 δ₁ 的过程中，每多压 dδ，力做功 F·dδ，就是曲线下一条细竖条的面积；全部竖条加起来，就是蓝色面积，也就是压到 δ₁ 时存进去的弹性能 U = (8/15)E*R^{1/2}δ^{5/2}。指数从 3/2 积分变成 5/2，能量随压深涨得比力更快。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/fig05_power_law.png" style="width:542px;max-width:100%;height:auto" alt="这张图说明能量随压深涨多快由压头形状决定。横轴是压深、纵轴是能量，都取对数，所以按幂次涨的能量画出来是直线，斜率就是幂次。蓝线是球（斜率 2.5，就是这里的 \(U\propto\delta^{5/2}\)），红线是圆锥（斜率 3），绿线是平底（斜率 2）；右上角的小图标是三种压头的样子。压头越尖，接触面积随压深涨得越快，直线越陡。" loading="lazy"><figcaption class="small">这张图说明能量随压深涨多快由压头形状决定。横轴是压深、纵轴是能量，都取对数，所以按幂次涨的能量画出来是直线，斜率就是幂次。蓝线是球（斜率 2.5，就是这里的 \(U\propto\delta^{5/2}\)），红线是圆锥（斜率 3），绿线是平底（斜率 2）；右上角的小图标是三种压头的样子。压头越尖，接触面积随压深涨得越快，直线越陡。</figcaption></figure>
 <details><summary>推导</summary><ul>
@@ -511,12 +512,11 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>⑥ 刚度</strong></p>
-<p>\[\color{#c0392b}{\frac{dF}{d\delta}=2E^*a}\]</p>
-<ul>
-<li>用到 a 式 \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\)（④）：刚度就是它对压深的变化率，再压一点力多出多少。</li>
-<li>用到 b 式 \(a=\sqrt{R\delta}\)（③）。</li>
-<li>得到 c 式 \(dF/d\delta=2E^*a\)：接触圈越大 → 越硬，因为参与受力的面越大；压得越深，接触圈越大，所以越压越硬。</li>
-</ul>
+<p>已知：④ 的力–压深关系、③ 的接触半径；求：刚度（再压一点力多出多少）。</p>
+<p>\[\begin{cases}\color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{a=\sqrt{R\delta}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{dF}{d\delta}=2E^*a}\]</p>
+<p>式 (1)：④ 的结果；刚度就是它对压深的变化率。</p>
+<p>式 (2)：③ 的结果。</p>
+<p>结果：(1) 对压深求导，用 (2) 写回接触半径。接触圈越大 → 越硬，因为参与受力的面越大；压得越深，接触圈越大，所以越压越硬。</p>
 <figure style="margin:12px 0"><img src="assets/images/hz06_stiffness_tangents.png" style="width:548px;max-width:100%;height:auto" alt="黑色曲线是 F–δ。在浅压深 δ₁（绿）和深压深 δ₂（红）各画一条切线，切线斜率就是此时的刚度 dF/dδ，等于 2E*a。左上两个圆是这两个压深下对应的接触圈，按同一比例画：a₂ 比 a₁ 大，所以红切线比绿切线陡。也就是说接触圈越压越大，物体就越压越硬。" loading="lazy"><figcaption class="small">黑色曲线是 F–δ。在浅压深 δ₁（绿）和深压深 δ₂（红）各画一条切线，切线斜率就是此时的刚度 dF/dδ，等于 2E*a。左上两个圆是这两个压深下对应的接触圈，按同一比例画：a₂ 比 a₁ 大，所以红切线比绿切线陡。也就是说接触圈越压越大，物体就越压越硬。</figcaption></figure>
 <details><summary>推导</summary><ul>
 <li>刚度随接触半径增大<ul>
