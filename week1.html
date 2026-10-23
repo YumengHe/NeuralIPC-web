@@ -79,7 +79,7 @@ td { font-variant-numeric: tabular-nums; }
 td.good { color: var(--good); }
 td.warn { color: var(--warn); }
 ul.obs { font-size: 1.02rem; font-weight: 600; margin: 8px 0; padding-left: 22px; } ul.obs li { margin: 3px 0; }
-main.wrap { counter-reset: sec; } main.wrap section > h2 { counter-increment: sec; counter-reset: sub; } main.wrap section > h2::before { content: counter(sec) ". "; } main.wrap section > h3 { counter-increment: sub; } main.wrap section > h3::before { content: counter(sec) "." counter(sub) " "; }
+main.wrap { counter-reset: sec; } main.wrap section > h2 { counter-increment: sec; counter-reset: sub; } main.wrap section > h2::before { content: counter(sec) ". "; } main.wrap section > h3 { counter-increment: sub; } main.wrap section > h3::before { content: counter(sec) "." counter(sub) " "; } main.wrap section > h3.numbered::before { content: none; }
 main.wrap section > h3 { font-size: 1.3rem; margin: 56px 0 10px; padding-top: 20px; border-top: 1px solid var(--border); }
 img.initframe { display: block; max-width: 640px; width: 100%; margin: 6px 0; }
 mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
@@ -106,7 +106,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">本页结论：用 Genesis + libuipc 生成数据时，接触刚度必须显式设定并确认未被截断，作用距离要记录且不大于最短表面边长，初始状态必须无穿插，求解要真正收敛。</p></div>
 <section id="w1"><h2>IPC 的接触能量</h2>
 <p>后面的实验现象都由本节两个式子解释：接触能量，以及 libuipc 对接触刚度的截断区间。</p>
-<h3>1.1 原版 IPC 的 barrier 能量</h3>
+<h3 class="numbered">1.1 原版 IPC 的 barrier 能量</h3>
 
 <p><strong>每一对靠得足够近的图元都加一项 barrier 能量，距离为 0 时能量无穷大。</strong> 图元对指点–三角形或边–边这两种可能发生接触的最小单位。</p>
 <p>\[b(d)=-(d-\hat d)^2\ln\dfrac{d}{\hat d}\ \ (0&lt;d&lt;\hat d),\qquad b(d)=0\ \ (d\ge\hat d),\qquad E_{\text{contact}}=\kappa\sum_{k\in C} b(d_k)\]</p>
@@ -117,7 +117,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>\(C\)：所有距离小于 \(\hat d\) 的图元对，\(k\) 是其中一对；总接触能量是逐对求和，<strong>不按面积加权</strong></li>
 </ul>
 <p><strong>静止时物体停在作用层里</strong>：托住重力的推力只在 \(d&lt;\hat d\) 时存在，所以接触面之间会留一条比 \(\hat d\) 略小的缝。</p>
-<h3>1.2 libuipc 的写法与 κ 截断区间</h3>
+<h3 class="numbered">1.2 libuipc 的写法与 κ 截断区间</h3>
 
 <p><strong>libuipc 用距离平方写 barrier，并乘了时间步长平方。</strong></p>
 <p>\[B(D)=\kappa\,\Delta t^{2}\,(D-\hat d^{2})^{2}\Big[\ln\frac{D}{\hat d^{2}}\Big]^{2},\qquad 0&lt;D&lt;\hat d^{2}\]</p>
@@ -164,7 +164,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">Genesis + libuipc 的官方例子可在服务器上原样复现，刚体、软体、布料之间的双向接触均能正常求解。</p></section>
 <section id="w3"><h2>Demo：官方 IPC 测试</h2>
 <p>官方例子只看画面，官方测试带有断言，能检验结果是否符合预期。4 个场景原样运行：2 个通过，2 个未通过，未通过的原因都已查清。</p>
-<h3>3.1 离地间隙随接触刚度变化（未通过）</h3>
+<h3 class="numbered">3.1 离地间隙随接触刚度变化（未通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_ground_clearance_0_fit.mp4"></video></figure>
 <ul>
@@ -173,7 +173,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>原因是 κ 截断</strong>：前 3 个方块设定的刚度低于 \(\kappa_{\min}\)，被截断成同一个值（1.2）</li>
 </ul>
 <p><strong>设置</strong>：5 个方块落地，接触刚度从 \(10^2\) 到 \(10^6\)；断言：不横向漂移、最终停住、刚度越大离地间隙越大。</p>
-<h3>3.2 斜向重力下的地面滑动（未通过）</h3>
+<h3 class="numbered">3.2 斜向重力下的地面滑动（未通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_ground_sliding_0_fit.mp4"></video></figure>
 <ul>
@@ -182,14 +182,14 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>原因是求解提前终止</strong>：libuipc 默认开启半隐式提前终止，Newton 迭代未收敛就停止，误差逐步积累导致翻倒。只关掉这一项，最大倾角 0.24°，断言通过；步长减半也能通过，最大倾角 0.31°</li>
 </ul>
 <p><strong>设置</strong>：重力带水平分量，5 个方块摩擦系数 0–0.16；断言：不穿地、离地高度与摩擦无关、摩擦越小滑得越远。</p>
-<h3>3.3 布料盖在物体上（通过）</h3>
+<h3 class="numbered">3.3 布料盖在物体上（通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_objects_colliding_0_fit.mp4"></video></figure>
 <ul>
 <li><strong>布料确实软</strong>：蓝色布料初始是平的，最终高低差 127 mm，中间被方块和球顶起、四周垂下</li>
 </ul>
 <p><strong>设置</strong>：物体和布料落地；断言：全部落到地面且不穿地、没有飞走、最终静止、布料盖在所有物体上面。</p>
-<h3>3.4 夹住布料一角拖动（通过）</h3>
+<h3 class="numbered">3.4 夹住布料一角拖动（通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_cloth_corner_drag_0_fit.mp4"></video></figure>
 <ul>
@@ -200,7 +200,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <section id="w4"><h2>盒子实验与参数扫描</h2>
 <p>在盒子场景里每次只改一个量，看停住时接触面之间的最短距离（下称间隙）、每帧 Newton 迭代次数（求解难度）和总耗时。除初始穿插一组外，各档 libuipc 的穿透检查均未报告穿透。</p>
 <p><strong>设置</strong>：对照档取官方本例与 Genesis 默认：\(\Delta t=0.02\) s、\(\hat d=10\) mm、接触刚度设定 \(10^9\) Pa、摩擦系数 0.1、软球用官方球网格；软球杨氏模量取 \(10^5\) Pa（官方 \(10^3\) Pa 过软，在盒子里会被压塌）。物理时长 2 s。盒子墙画成半透明。</p>
-<h3>4.1 对照档：官方默认参数</h3>
+<h3 class="numbered">4.1 对照档：官方默认参数</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/box_stiffball_baseline_default.mp4"></video></figure>
 <div class="tablewrap"><table>
@@ -232,7 +232,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：静止时接触面之间留有 0.7–1 倍 \(\hat d\) 的间隙，间隙大小随接触载荷变化。</p>
 
-<h3>4.2 作用距离 \(\hat d\)</h3>
+<h3 class="numbered">4.2 作用距离 \(\hat d\)</h3>
 
 <ul>
 <li><strong>期待</strong>：间隙跟着 \(\hat d\) 变；\(\kappa_{\min}\propto1/\hat d^{4}\)，\(\hat d\) 越小接触越硬、越难解</li>
@@ -297,7 +297,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：\(\hat d\) 决定接触的尺度，越小越精确、越难解，且必须小于最短表面边长。</p>
 
-<h3>4.3 时间步长 \(\Delta t\)</h3>
+<h3 class="numbered">4.3 时间步长 \(\Delta t\)</h3>
 
 <ul>
 <li><strong>期待</strong>：\(\kappa_{\min}\propto1/\Delta t^{2}\)，步长越小接触越硬；总步数成倍增加</li>
@@ -362,7 +362,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：步长不仅影响耗时，也通过 κ 区间改变接触刚度。</p>
 
-<h3>4.4 接触刚度 κ</h3>
+<h3 class="numbered">4.4 接触刚度 κ</h3>
 
 <ul>
 <li><strong>期待</strong>：区间 \([1.57\times10^{5},\,1.57\times10^{7}]\) Pa 内 κ 越大间隙越接近 \(\hat d\)；区间外的值被截断到边界，结果与边界值相同</li>
@@ -435,7 +435,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：接触刚度只有落在 libuipc 按场景算出的区间内才生效；Genesis 默认的 \(10^9\) Pa 实际被截断到上限。</p>
 
-<h3>4.5 初始穿插</h3>
+<h3 class="numbered">4.5 初始穿插</h3>
 
 <ul>
 <li><strong>期待</strong>：barrier 只在距离为正时有定义，一开始就穿插时能量没有意义，libuipc 应拒绝开跑</li>
@@ -476,7 +476,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>设置</strong>：多放一个半径 80 mm 的软球，与官方软球初始互相穿进 0.5 倍半径；上图为第 0 帧侧视图；强行运行时关闭开跑前的相交检查，跑满 2 s。</p>
 <p class="kp">结论：IPC 必须从无穿插的状态开始；初始穿插时即使强行运行，结果在物理上也是错误的。</p>
 
-<h3>4.6 网格分辨率</h3>
+<h3 class="numbered">4.6 网格分辨率</h3>
 
 <ul>
 <li><strong>期待</strong>：网格越细越慢；只要初始无穿插，网格粗细不影响是否穿透</li>

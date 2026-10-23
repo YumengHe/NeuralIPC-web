@@ -79,7 +79,7 @@ td { font-variant-numeric: tabular-nums; }
 td.good { color: var(--good); }
 td.warn { color: var(--warn); }
 ul.obs { font-size: 1.02rem; font-weight: 600; margin: 8px 0; padding-left: 22px; } ul.obs li { margin: 3px 0; }
-main.wrap { counter-reset: sec; } main.wrap section > h2 { counter-increment: sec; counter-reset: sub; } main.wrap section > h2::before { content: counter(sec) ". "; } main.wrap section > h3 { counter-increment: sub; } main.wrap section > h3::before { content: counter(sec) "." counter(sub) " "; }
+main.wrap { counter-reset: sec; } main.wrap section > h2 { counter-increment: sec; counter-reset: sub; } main.wrap section > h2::before { content: counter(sec) ". "; } main.wrap section > h3 { counter-increment: sub; } main.wrap section > h3::before { content: counter(sec) "." counter(sub) " "; } main.wrap section > h3.numbered::before { content: none; }
 main.wrap section > h3 { font-size: 1.3rem; margin: 56px 0 10px; padding-top: 20px; border-top: 1px solid var(--border); }
 img.initframe { display: block; max-width: 640px; width: 100%; margin: 6px 0; }
 mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
@@ -110,7 +110,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">本页结论：hydro 的压强只取决于局部穿入深度；E1–E5 从不同角度说明该假设在弹性体上不成立，且比值判据下调参无法弥补。本项目的 IPC 标签在 E0–E3、E5 与 E4（\(\nu\le0.45\)）与裁判一致；网络能否复现是下一步。</p></div>
 <section id="w1"><h2>文献：Hydroelastic 与 Hertz 解析解</h2>
 <p>本节梳理 hydro 从"重叠"到"接触力"的计算链条（1.1 压强怎么来，1.2 压强怎么变成求解器用的力，1.3 怎么求解），提取其建模假设；1.4 给出用于比较的解析解。</p>
-<h3>1.1 Elandt et al. 2019：压力场模型</h3>
+<h3 class="numbered">1.1 Elandt et al. 2019：压力场模型</h3>
 
 <p><strong>做法</strong></p>
 <details><summary>推导：压力场模型（预设压强场 → 等压接触面 → 接触力）</summary>
@@ -190,7 +190,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论（假设一）：hydro 每点压强只取决于该点穿入深度。论文自身结果已显示该假设在点状接触时有偏差。</p>
 
-<h3>1.2 Masterjohn et al. 2022：速度层面近似</h3>
+<h3 class="numbered">1.2 Masterjohn et al. 2022：速度层面近似</h3>
 
 <p>Elandt 的模型配合加速度层面的变步长积分器使用（每步由力求加速度再积分，接触刚度大时步长须很小，无法实时）。1.1 的接触面由许多平面多边形拼成，本文把每块多边形改写为一根弹簧，使其可用于速度层面求解器（每步隐式求下一时刻速度，可取大步长），hydro 因此可实时运行，已在 Drake 开源。</p>
 <details><summary>推导：一块多边形 → 一根弹簧</summary>
@@ -201,7 +201,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{f_n=\displaystyle\int_A p\,dA} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p(\mathbf x)=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\displaystyle\int_A(\mathbf x-\mathbf x_c)\,dA=0} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ f_n=A\,p_c}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{f_n=\displaystyle\int_A p\,dA} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p(\mathbf x)=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\mathbf x_c=\dfrac1A\displaystyle\int_A\mathbf x\,dA} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ f_n=A\,p_c}\]</p>
 
 
 
@@ -209,9 +209,9 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 式 (2)：压强在多边形上是线性的，像一块斜坡：形心处是 \(p_c\)，离开形心按梯度 \(\nabla p\) 均匀升降（论文 §III-B 末「equilibrium pressure field is linear」）。
 
-式 (3)：形心的定义 \(\mathbf x_c=\frac1A\int_A\mathbf x\,dA\) 两边乘 \(A\) 移项所得，说的是形心是多边形的「平衡点」，各点相对形心的偏移加起来为零（几何定义，论文未写出）。
+式 (3)：形心的定义，形心是多边形的「平衡点」：两边乘面积再移项，就是各点相对形心的偏移加起来为零（几何定义，论文未写出）。
 
-结果：把 (2) 代入 (1)，斜坡部分正是 \(\nabla p\) 乘 (3) 的积分，等于 0，只剩 \(f_n=A\,p_c\)（论文 §IV 式 (12)，并说明在形心取一点积分是精确的）。多边形越大、形心处压强越大 → 力越大，因为斜坡在形心两侧多出来的和少掉的正好抵消，只剩「平均压强 × 面积」，而线性函数的平均值就是形心处的值。
+结果：把 (2) 代入 (1)，常数部分给出面积乘形心压强；斜坡部分是 \(\nabla p\) 乘「各点相对形心的偏移之和」，由 (3) 为零，所以力就是面积乘形心压强（论文 §IV 式 (12)，并说明在形心取一点积分是精确的）。多边形越大、形心处压强越大 → 力越大，因为斜坡在形心两侧多出来的和少掉的正好抵消，只剩「平均压强 × 面积」，而线性函数的平均值就是形心处的值。
 
 <details><summary>推导</summary><ul>
 <li>压强在多边形上是线性的：1.1 中每个四面体内压强按顶点值线性插值，多边形落在一对四面体内，所以压强可写成 \(p(\mathbf x)=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)\)，其中 \(\mathbf x_c\) 为形心，\(p_c\) 为形心处压强</li>
@@ -222,12 +222,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>② 压强与重叠量：梯度串联</strong></p>
-<p>\[\color{#c0392b}{p=g\,d=-g\,\phi,\qquad g=\frac{g_A\,g_B}{g_A+g_B}}\]</p>
-<ul>
-<li>用到 a 式 每侧压强沿法向线性 \(p_A=g_A\,d_A\)、\(p_B=g_B\,d_B\)（论文 §IV-A 式 (17)(18) 把两侧压强沿法向近似为线性，\(g_A\)、\(g_B\) 为法向斜率，见 Fig. 2 图注；\(g_A=E_{h,A}/D_A\) 这一取法来自 1.1 的实现，不是本文）：这个式子说的是每一侧被压得越深，压强按固定斜率越大。</li>
-<li>用到 b 式 两侧等压 \(p_A=p_B\)（论文 §III-A「\(L_a\) 等于 \(L_b\) 的面为平衡面」；§IV-A 式 (19)）：这个式子说的是接触面停在两边压强打平的地方，所以总重叠 \(d\) 按两侧软硬分给两边，软的一侧分得多。</li>
-<li>得到 c 式 \(g=g_Ag_B/(g_A+g_B)\)（与论文 §IV-A 式 (23) 的系数相同；论文是对式 (19) 求时间导数、用式 (20)–(22) 的速度推出，本页用静态的深度分配推出，结果一致）：任一侧越软（梯度越小）→ 合成梯度 \(g\) 越小，而且 \(g\) 比两侧中较软的那个还小，因为这就是两根弹簧串联，总刚度由软的一根主导。</li>
-</ul>
+<p>已知：A、B 两侧的压强梯度 \(g_A\)、\(g_B\)，该处两物体重叠的总深度 \(d\)（有符号距离 \(\phi\)）；求：接触面上的压强 \(p\) 与合成梯度 \(g\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{p_A=g_A\,d_A} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p_B=g_B\,d_B} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_A=p_B=p} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{d_A+d_B=d=-\phi} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=g\,d=-g\,\phi,\quad g=\dfrac{g_A\,g_B}{g_A+g_B}}\]</p>
+<p>式 (1)(2)：每一侧的压强沿法向线性，被压得越深压强按固定斜率越大；\(d_A\)、\(d_B\) 是接触面进入 A、B 的深度（论文 §IV-A 式 (17)(18)，斜率 \(g_A\)、\(g_B\) 见 Fig. 2 图注；梯度取压力场模量 ÷ 物体内最大距离，这一取法来自 1.1 的实现，不是本文）。</p>
+<p>式 (3)：接触面停在两边压强打平的地方（论文 §III-A「\(L_a\) 等于 \(L_b\) 的面为平衡面」；§IV-A 式 (19)）。</p>
+<p>式 (4)：接触面把总重叠分成两段；有符号距离分开为正、穿透为负（几何关系；符号约定见论文 §II-A）。</p>
+<p>结果：由 (1)(2)(3) 解出两段深度，代入 (4) 解出接触面压强，比例系数就是合成梯度 \(g\)（与论文 §IV-A 式 (23) 的系数相同；论文是对式 (19) 求时间导数、用式 (20)–(22) 的速度推出，本页用静态的深度分配推出，结果一致）。任一侧越软（梯度越小）→ 合成梯度 \(g\) 越小，而且比两侧中较软的那个还小，因为这就是两根弹簧串联，总刚度由软的一根主导；软的一侧分到的重叠深度也更多。</p>
 <details><summary>推导</summary><ul>
 <li>沿法向，A、B 在该处重叠的总深度为 \(d\)。记有符号距离 \(\phi=-d\)（两表面分开为正、穿透为负）</li>
 <li>接触面把 \(d\) 分成两段：进入 A 的深度 \(d_A\)、进入 B 的深度 \(d_B\)，\(d_A+d_B=d\)</li>
@@ -245,12 +245,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>③ 一个时间步内重叠量的变化</strong></p>
-<p>\[\color{#c0392b}{p_c=p_{c,0}-g\,\delta t\,v_n}\]</p>
-<ul>
-<li>用到 a 式 步首替代有符号距离 \(\phi_0=-p_{c,0}/g\)（论文 §IV 式 (16)；有符号距离穿透为负，§II-A）：这个式子说的是把步首的形心压强换算成「相当于重叠了多深」。</li>
-<li>用到 b 式 一阶近似 \(\phi=\phi_0+\delta t\,v_n\)（论文 §II-B 式 (3) 前、§IV 式 (16)；\(v_n\) 分离为正，§IV-A 式 (23) 后「\(v_n&gt;0\) 时两物体分开、压强下降」）：这个式子说的是一步之内重叠量按当前的相对速度匀速变化。</li>
-<li>得到 c 式 \(p_c=p_{c,0}-g\,\delta t\,v_n\)（即论文 §IV 式 (13)(14) 去掉正部）：分开得越快（\(v_n\) 越大）或步长越大 → 压强降得越多；合成梯度 \(g\) 越大 → 同样的速度下压强变化越快，因为压强 = \(g\) × 重叠深度，重叠变了多少，压强就按 \(g\) 倍跟着变。</li>
-</ul>
+<p>已知：步首形心处压强 \(p_{c,0}\)、合成梯度 \(g\)、步长 \(\delta t\)、法向相对速度 \(v_n\)（分开为正）；求：步末形心处压强 \(p_c\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{p_c=-g\,\phi} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\phi_0=-\dfrac{p_{c,0}}{g}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\delta t\,v_n} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p_c=p_{c,0}-g\,\delta t\,v_n}\]</p>
+<p>式 (1)：② 的结果，形心处压强 = 合成梯度 × 重叠深度。</p>
+<p>式 (2)：步首的替代有符号距离，把步首的形心压强换算成「相当于重叠了多深」（论文 §IV 式 (16)；有符号距离穿透为负，§II-A）。</p>
+<p>式 (3)：一阶近似，一步之内重叠量按当前的相对速度匀速变化（论文 §II-B 式 (3) 前、§IV 式 (16)；\(v_n\) 分开为正，见 §IV-A 式 (23) 后「两物体分开时压强下降」）。</p>
+<p>结果：把 (3) 代入 (1)，再用 (2) 换回步首压强，即得步末压强（即论文 §IV 式 (13)(14) 去掉正部）。分开得越快（\(v_n\) 越大）或步长越大 → 压强降得越多；合成梯度 \(g\) 越大 → 同样的速度下压强变化越快，因为压强 = \(g\) × 重叠深度，重叠变了多少，压强就按 \(g\) 倍跟着变。</p>
 <details><summary>推导</summary><ul>
 <li>步首形心处压强为 \(p_{c,0}\)，由第 2 步 \(p=-g\phi\) 得步首有符号距离 \(\phi_0=-\dfrac{p_{c,0}}{g}\)</li>
 <li>法向相对速度 \(v_n\)（分离为正）是 \(\phi\) 的变化率，经过一步 \(\delta t\)：\(\phi=\phi_0+\delta t\,v_n\)</li>
@@ -260,12 +260,13 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>④ 得到弹簧</strong></p>
-<p>\[\color{#c0392b}{f_n=(-k\phi)_+,\qquad k=g\,A_0}\]</p>
-<ul>
-<li>用到 a 式 \(f_n=A\,p_c\)（①，论文式 (12)）且面积固定为步首值 \(A_0\)（论文 §IV 式 (16) 后「froze geometric quantities at the previous time step」）：这个式子说的是一步之内把多边形当成大小不变的一块。</li>
-<li>用到 b 式 \(p_c=-g\phi\)（②）与正部 \((\cdot)_+\)（论文 §IV 式 (13) 后：物体外压强为零，分开时须取正部）：这个式子说的是压强只能推不能拉。</li>
-<li>得到 c 式 \(f_n=(-k\phi)_+\)、\(k=gA_0\)（论文 §IV 式 (15)(16)，与 §II-B 式 (1) 的点接触弹簧同形）：多边形越大、合成梯度越大 → 弹簧越硬，因为同样的重叠下面积大、压强升得快，力都更大；每块多边形各自一根弹簧，刚度只看自己的面积和梯度。</li>
-</ul>
+<p>已知：步首面积 \(A_0\)、合成梯度 \(g\)、有符号距离 \(\phi\)；求：这块多边形的法向力 \(f_n\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{f_n=A\,p_c} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{A=A_0} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_c=-g\,\phi} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{(x)_+=\max(x,0)} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ f_n=(-k\phi)_+,\quad k=g\,A_0}\]</p>
+<p>式 (1)：① 的结果，力 = 面积 × 形心压强（论文 §IV 式 (12)）。</p>
+<p>式 (2)：一步之内把多边形当成大小不变的一块，面积取步首值（论文 §IV 式 (16) 后「froze geometric quantities at the previous time step」）。</p>
+<p>式 (3)：② 的结果，压强 = 合成梯度 × 重叠深度。</p>
+<p>式 (4)：取正部，压强只能推不能拉，已分开时力为 0（论文 §IV 式 (13) 后：物体外压强为零，分开时须取正部）。</p>
+<p>结果：把 (2)(3) 代入 (1)，再按 (4) 取正部，记刚度 \(k\) 为合成梯度乘步首面积（论文 §IV 式 (15)(16)，与 §II-B 式 (1) 的点接触弹簧同形）。多边形越大、合成梯度越大 → 弹簧越硬，因为同样的重叠下面积大、压强升得快，力都更大；每块多边形各自一根弹簧，刚度只看自己的面积和梯度。</p>
 <details><summary>推导</summary><ul>
 <li>面积在一步内变化很小，固定为步首值 \(A_0\)。代入第 1 步 \(f_n=A\,p_c\)，再代入第 2 步 \(p_c=-g\phi\)：\(f_n=A_0\cdot(-g\phi)=-gA_0\,\phi\)</li>
 <li>记 \(k=gA_0\)，得 \(f_n=-k\phi\)</li>
@@ -285,7 +286,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论（假设二）：每块接触多边形为一根独立弹簧，刚度 \(k=gA_0\) 只由该块面积和压强梯度决定，相邻接触区互不影响。</p>
 
-<h3>1.3 Castro et al. 2023：SAP 求解器</h3>
+<h3 class="numbered">1.3 Castro et al. 2023：SAP 求解器</h3>
 
 <p>带接触的时间步进通常要解"不接触则无力、有力则必须贴紧"的二选一条件，难以稳健求解。本文把柔顺接触的一步时间积分写成只含速度的强凸无约束优化，求解器称为 SAP，解唯一，牛顿法可证收敛。Drake 与 Genesis 的 hydro 都用它。</p>
 <p><strong>做法</strong></p>
@@ -346,7 +347,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：SAP 按 1.2 的刚度求解；接触刚度大到触发近刚性处理时，力改由数值参数决定，不再是压力场给出的值。</p>
 
-<h3>1.4 Hertz 1882：解析裁判</h3>
+<h3 class="numbered">1.4 Hertz 1882：解析裁判</h3>
 
 <p>两个光滑弹性曲面接触的闭式解，不依赖任何仿真代码，作为比较 hydro 与本项目的裁判。</p>
 <figure style="margin:12px 0"><img src="assets/images/hertz_contact.png" style="width:587px;max-width:100%;height:auto" alt="hertz_contact"></figure>
@@ -528,7 +529,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <section id="w2"><h2>文献：神经网络接触模型</h2>
 <p>本节回答三个问题：同类方法学什么、数据从哪来、与本项目的关系。用于说明本项目选择学习能量的理由、可借鉴的做法，以及标签需要自行生成。</p>
 <p><strong>共同背景</strong>：子空间模型用少量控制量（把手，handle）通过插值驱动全网格，求解快，但做不出局部接触凹陷。三篇 Romero 都在子空间模型上补回接触凹陷，标签构造相同：固定把手 → 求全网格的平衡解 → 减去子空间形状 → 差值为标签。</p>
-<h3>2.1 Romero et al. 2021：Handle-Based Subspace Contact Corrections</h3>
+<h3 class="numbered">2.1 Romero et al. 2021：Handle-Based Subspace Contact Corrections</h3>
 
 <p><strong>学什么</strong>：全网格位移修正</p>
 <p>\[\mathbf{x} = \mathbf{U}\mathbf{q} + \mathbf{F}\left[\mathbf{r}_{\text{int}}(\mathbf{q}) + \mathbf{r}_{\text{ext}}(\text{碰撞体相对把手的位姿})\right]\]</p>
@@ -607,7 +608,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：学位移，没有可求导的能量；每个组合单独训练。</p>
 <p class="kp">结论：在子空间上叠加学习的位移修正，学的是形状。</p>
 
-<h3>2.2 Romero et al. 2022：Contact-Centric Deformation Learning</h3>
+<h3 class="numbered">2.2 Romero et al. 2022：Contact-Centric Deformation Learning</h3>
 
 <p><strong>学什么</strong>：在碰撞体坐标系（固定在碰撞体上、随其运动的坐标系）中学习每个点的位移。该坐标系下凹坑随物体姿态变化平滑，少量数据即可泛化。接触力来自人工罚函数：碰撞体 SDF（空间中每点到碰撞体表面的有符号距离，外正内负）为负时，能量按穿入深度的三次方增长。</p>
 <p><strong>输入 → 输出</strong>：一个网络，逐点调用（网格上每个需要位移的点调用一次）</p>
@@ -651,7 +652,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：标签构造与我们相同（固定粗自由度 → 精细解 → 取差）。它存位移、力来自人工罚函数，每个碰撞体单独训练；我们存能量、力由能量求导得到。</p>
 <p class="kp">结论：在碰撞体坐标系中学习接触位移，少量姿态即可获得实时接触细节。</p>
 
-<h3>2.3 Romero et al. 2023：General Collider Descriptors</h3>
+<h3 class="numbered">2.3 Romero et al. 2023：General Collider Descriptors</h3>
 
 <p><strong>学什么</strong>：以碰撞体局部形状为条件的位移，泛化到训练时未见过的碰撞体。局部形状用 65 个探针描述：以接触点为原点、一根轴沿接触法向建立接触坐标系，在单位球内取 65 个点，读取每点的 SDF 值（到碰撞体表面的有符号距离）。压入越深，负值探针越多。</p>
 <p><strong>输入 → 输出</strong>：一个网络，逐点调用</p>
@@ -701,7 +702,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：泛化方向不同。它固定被压物体、泛化到新碰撞体；我们的目标是覆盖多种被压物体。SDF 探针可借用于编码我们的穿透状态。</p>
 <p class="kp">结论：以 SDF 探针描述碰撞体局部形状，接触位移可泛化到未见碰撞体。</p>
 
-<h3>2.4 Dou et al. 2026：RigidFormer</h3>
+<h3 class="numbered">2.4 Dou et al. 2026：RigidFormer</h3>
 
 <p><strong>学什么</strong>：刚体运动本身，网络替代整个物理求解器。</p>
 <p><strong>输入 → 输出</strong>：一个网络，一次处理整个场景</p>
@@ -879,7 +880,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：没有局部形变，也没有可加入仿真的能量项；换到未训练过的数据集时，6 组中 3 组不如 HopNet。我们保留粗模型仿真，只学一项能量。</p>
 <p class="kp">结论：从点云学习刚体运动，替代整个求解器。</p>
 
-<h3>2.5 对比</h3>
+<h3 class="numbered">2.5 对比</h3>
 
 <div class="tablewrap"><table>
 <thead>
@@ -937,7 +938,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p class="kp">结论：前三篇学位移，RigidFormer 学运动，本项目学能量；能量求导即接触力，可直接接入现有仿真器。三篇 Romero 均未公开数据生成代码，本项目标签需自行生成。</p></section>
 <section id="w3"><h2>原代码：碰撞能量 U_c</h2>
-<h3>3.1 思路</h3>
+<h3 class="numbered">3.1 思路</h3>
 
 <p>\[U_c(z)=\min_w \Pi(\Phi z+\Psi w)-\Pi(\Phi z)\]</p>
 <ol>
@@ -993,7 +994,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>底部固定的物体也不例外</strong>：真实物体一端固定，它的粗模型代理并不需要固定那一端。代理允许穿透，完整代表精细解里的仿射变化（包括压缩后质心的整体下移），只是不含局部变形。所以粗状态仍取精细解按节点质量加权的拟合，局部修正不移动质心，重力项同样为 0</li>
 <li><strong>\(U_c\) 与粗模型绑定</strong>：粗模型自身能表示的变形越多，剩给 \(U_c\) 的越少。刚体粗模型不存弹性能，全部变形能都在 \(U_c\) 中；仿射体粗模型可整体均匀压缩，这部分由粗模型自身承担。由上一条，重力项为 0，\(U_c\) 只剩弹性能之差：\(U_c^{\text{仿射}}=E_{\text{总}}-\psi(\bar{\mathbf F})V_0\)（\(E_{\text{总}}\)：精细解的总弹性能；\(\bar{\mathbf F}\)：全物体平均变形梯度，即变形后对变形前位置的导数的体积平均；\(\psi\)：单位体积弹性能；\(V_0\)：体积）。为刚体训练的 \(U_c\) 直接用于仿射体，会把整体压缩能量重复计算</li>
 </ul>
-<h3>3.2 训练数据</h3>
+<h3 class="numbered">3.2 训练数据</h3>
 
 <p>刚性压头压弹性<strong>半空间</strong>（表面为平面、向下无限延伸的弹性体），\(E^*=1\)（等效模量 \(E^*=E/(1-\nu^2)\) 取 1，即无量纲化）。</p>
 <p><strong>压头形状</strong>（基体原表面为 \(z=0\)，压头在曲面上方）：</p>
@@ -1024,7 +1025,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p><strong>压深扫描</strong>：同一形状取 \(d=0.003、0.006、0.009、0.012\) 四个压深，各算一个标签。同一形状只有一个压深时，网络无法分辨能量变化来自形状还是压深，会记住样本；扫描压深使网络看到每个形状的能量–压深曲线。</p>
 <p><strong>划分</strong>：520 组形状 × 4 个压深 = 2080 个样本；按形状留出 1/4 测试，测试形状未在训练中出现。</p>
-<h3>3.3 标签：BEM</h3>
+<h3 class="numbered">3.3 标签：BEM</h3>
 
 <p><strong>BEM（边界元法）</strong>：只在基体表面划网格，内部变形由半空间解析解给出。对 3.2 的每个样本求弹性能作为标签。</p>
 <p><strong>网格</strong>：原表面 \(z=0\) 上间距 \(h=0.008\) 的方格，取 \(r\le0.18\) 的圆盘（覆盖所有可能接触处），共 1597 格；每格压强取常数 \(p_j\)。网格建在变形前的表面上：线弹性小变形下，表面点的水平移动和表面倾斜忽略不计。</p>
@@ -1108,7 +1109,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><em>第 3 组的场景，画法同上：压头下表面有 3 个凸起，左幅剖面里压头底面有几处凸起同时压进半空间。右幅三个红点各带一块深蓝接触区，三块互不相连，每块都偏在凸起中心的一侧，说明凸起上的凹坑和压头的倾斜决定了实际接触落在哪里。</em></p>
 <figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K3.png" style="width:875px;max-width:100%;height:auto" alt="nipc_training_samples_K3"></figure>
 <p><em>第 3 组样本，画法同第 1 组：左格三个凸起处各有一片穿透，右格白线围出三块互不相连的接触区，与上面场景图的深蓝色块一致。标签 \(U=1.00\times10^{-5}\)。三组压深相同，这三组里接触区越多，标签能量越大。</em></p>
-<h3>3.4 输入</h3>
+<h3 class="numbered">3.4 输入</h3>
 
 <p><strong>高度图</strong></p>
 <ol>
@@ -1121,7 +1122,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>压深</strong>：\(\delta_k=-\min_{\text{窗口}}\big(a_h+z_k+t_y x-t_x y\big)\)。\(z_k\) 是第 \(k\) 个凸起自身的形状；\(a_h\) 与 \(t_yx-t_xy\) 是整个压头的竖直位置与倾斜，所有凸起共用（倾角 \(t_x,t_y\) 全压头相同；倾斜引起的高度变化 \(t_yx-t_xy\) 随位置变化，离转轴越远升降越多，\(x,y\) 为全局坐标）。括号内即该凸起表面的实际高度，在第 \(k\) 个窗口的 20×20 点上取最小再取负，即该凸起最深点的穿透量；\(\delta_k\le0\) 表示未接触，该区不计入。</p>
 <p><strong>取 \(\log\delta\)</strong>：接触能随压深的变化通常接近<strong>幂律</strong> \(U=c\,\delta^{p}\)：能量正比于压深的 \(p\) 次方，\(c\)、\(p\) 由形状决定。Hertz 球即 \(c=\tfrac{8}{15}E^*R^{1/2}\)、\(p=\tfrac52\)（1.4 第 6 步）。两边取对数得 \(\log U=\log c+p\log\delta\)，是 \(\log\delta\) 的线性函数，所以输入 \(\log\delta\) 便于网络表示；\(\delta\) 量级跨 \(10^{-3}\)–\(10^{-2}\)，取对数后数值范围也更均匀。</p>
 <p><strong>曲率</strong>：耦合项另需每区一个标量曲率 \(\kappa_k=\sqrt{\kappa_x\kappa_y}\)，取自生成器。</p>
-<h3>3.5 网络</h3>
+<h3 class="numbered">3.5 网络</h3>
 
 <p>\[U_c=\sum_k U_k+\sum_{i&lt;j}U_{ij}\]</p>
 <p>每个接触区一个单区能量 \(U_k\)，每对接触区一个耦合项 \(U_{ij}\)。</p>
@@ -1187,7 +1188,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p>\(r\) 不作为网络输入，而以 \(1/r\) 固定在网络外，使训练范围以外的间距仍按 \(1/r\) 衰减。依据：由 Boussinesq 点力解（1.4），半空间表面一点受力 \(P\)，距离 \(r\) 处表面下沉 \(\dfrac{P}{\pi E^*r}\propto\dfrac1r\)。衰减系数取决于接触区尺寸，接触区尺寸由 \(\delta,\kappa\) 决定（Hertz：\(a^2=R\delta\)，\(R=1/\kappa\)，得 \(a=\sqrt{\delta/\kappa}\)），所以网络输入 \(\delta,\kappa\)。</p>
 <p><strong>训练</strong>：单区网络与耦合网络一起训练。损失为相对误差平方的均值 \(\big((U_{\text{pred}}-U)/U\big)^2\)，只拟合能量；力由<strong>自动求导</strong>（框架按计算图自动求梯度）得到。Adam 优化，学习率 \(2\times10^{-3}\)，3000 步。</p>
-<h3>3.6 缺陷</h3>
+<h3 class="numbered">3.6 缺陷</h3>
 
 <p>当前阶段在半空间合成数据上拟合能量，以下为这一阶段的问题。</p>
 <ul>
@@ -1198,7 +1199,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">结论：方案已有 \(U_c\) 定义、单区 + 耦合的网络结构和半空间合成数据；当前主要限制是输入特征。</p></section>
 <section id="w4"><h2>Demo：Genesis 中的 hydro</h2>
 <p>第 1 节所述 hydro 在 Genesis 中的实际运行；第 5 节的对比对象就是它。</p>
-<h3>4.1 官方用例</h3>
+<h3 class="numbered">4.1 官方用例</h3>
 
 <p>Genesis 用 SAP 求解器的官方用例共 10 个场景，接触默认全部走压力场，覆盖刚体–刚体、刚体–地面、刚体–软体、软体–地面、软体–软体五类接触对。以下四个原样运行，官方检查均通过。</p>
 <p><strong>两条关节链落到盒子上</strong>（<code>test_sap_rigid_rigid_hydroelastic_contact</code>，全为刚体）</p>
@@ -1217,7 +1218,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_franka_panda_grasp_fem_entity_64_sphere_official_cam.mp4" style="width:560px;max-width:100%;height:auto"></video></figure>
 <p><em>这段视频展示靠接触力夹起软体。白色小球是 FEM 软球，上方是 Franka 机械臂的夹爪。第 0 秒到约第 1 秒夹爪两指合拢夹住小球，约第 1.5 秒起小球随夹爪一起上移，之后一直夹在两指之间。</em></p>
 <p>Franka 机械臂夹起半径 2 cm 的 FEM 软球（\(E=10^5\) Pa、\(\nu=0.4\)）后上提；接触对：手指–软球、软球–地面；等待 15 步、夹 10 步、上提 65 步、保持 25 步。检查：软球随夹爪上移 5 cm、误差 &lt; 5 mm。</p>
-<h3>4.2 Genesis 的 hydro 与受控场景</h3>
+<h3 class="numbered">4.2 Genesis 的 hydro 与受控场景</h3>
 
 <p><strong>Genesis 与原论文的差别</strong>（第 1 节各"实现"汇总）</p>
 <ul>
@@ -1244,7 +1245,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\(\delta\ll R\) 时括号 \(\approx1\)，\(F\approx\dfrac{E_h}{D}\pi R\delta^2\)。平衡 \(F=mg\)：\(\delta\approx\sqrt{\dfrac{mgD}{\pi E_hR}}\propto R^{-1/2}\)；Hertz 为 \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\)，压深 \(\propto R^{-1/3}\)。</p>
 </li>
 </ol></details>
-<h3>4.3 参数扫描：每次只改一个量</h3>
+<h3 class="numbered">4.3 参数扫描：每次只改一个量</h3>
 
 <p><strong>刚球压 FEM 块：改球半径（同为 1 kg）</strong>（预期：压深 \(\propto R^{-1/2}\)；Hertz \(\propto R^{-1/3}\)）</p>
 <div class="tablewrap"><table>
@@ -1368,7 +1369,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>\(H\) 不影响压深，静力只由块的压力场模量决定。</strong></p>
 <p class="kp">结论：Genesis 中刚体压软体的结果符合压力场公式（块足够硬时实测/预测 0.99–1.12），对半径的依赖为 \(R^{-1/2}\)，与弹性解 \(R^{-1/3}\) 不同，调参无法消除；全局刚度 \(H\) 不影响静止力，压深只由块的压力场模量决定。</p></section>
 <section id="w5"><h2>实验方案：在原理层面与 hydro 对比</h2>
-<h3>5.0 设定</h3>
+<h3 class="numbered">5.0 设定</h3>
 
 <p><strong>检验对象</strong>：第 1 节提取的 hydro 两个假设。</p>
 <ul>
@@ -1889,7 +1890,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：正确的碰撞能量随粗模型柔度减小，标签与裁判一致；hydro 不随粗模型改变，物体越细长偏差越大。</p>
 
-<h3>5.6 小结</h3>
+<h3 class="numbered">5.6 小结</h3>
 
 <div class="tablewrap"><table>
 <thead>
@@ -1962,7 +1963,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p class="kp">结论：hydro "压强只取决于局部穿入深度、各接触区互不影响"的假设在弹性体上不成立，比值判据下调参无法弥补。本项目标签在 E0–E3、E5 与 E4（\(\nu\le0.45\)）与裁判一致。</p>
 
-<h3>5.7 尚未完成的验证</h3>
+<h3 class="numbered">5.7 尚未完成的验证</h3>
 
 <p>论证链：</p>
 <ol>
