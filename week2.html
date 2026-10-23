@@ -197,15 +197,21 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <b>① 一块多边形的力 = 面积 × 形心压强</b>
 
-
-
-<p>\[\color{#c0392b}{f_n=\int p\,dA=A\,p_c}\]</p>
+已知：一块平面接触多边形的面积 \(A\)、形心 \(\mathbf x_c\)、形心处压强 \(p_c\)、多边形上的压强梯度 \(\nabla p\)；求：这块多边形给的法向力 \(f_n\)。
 
 
 
-- 用到 a 式 力 = 压强在多边形上的积分 \(\mathbf f_e=\hat{\mathbf n}\int_A p_e\,dA\)（论文 §IV 式 (11)，多边形是平面，法向处处相同可提到积分外）：这个式子说的是把多边形上每一小块的推力加起来，就是这块多边形给的力。
-- 用到 b 式 压强在多边形上线性 \(p=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)\)（论文 §III-B 末「equilibrium pressure field is linear」）与形心定义 \(\int(\mathbf x-\mathbf x_c)\,dA=0\)（几何定义，论文未写出）：这两个式子说的是压强在多边形上是一块斜坡，形心是多边形的「平衡点」，斜坡在形心两侧多出来的和少掉的正好相等。
-- 得到 c 式 \(f_n=A\,p_c\)（论文 §IV 式 (12)，并说明在形心取一点积分是精确的）：多边形越大、形心处压强越大 → 力越大，因为斜坡的线性部分在形心两侧正负抵消，只剩「平均压强 × 面积」，而线性函数的平均值就是形心处的值。
+<p>\[\begin{cases}\color{#c0392b}{f_n=\displaystyle\int_A p\,dA} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p(\mathbf x)=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\displaystyle\int_A(\mathbf x-\mathbf x_c)\,dA=0} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ f_n=A\,p_c}\]</p>
+
+
+
+式 (1)：力 = 压强在多边形上的积分，把每一小块的推力加起来就是这块多边形给的力；多边形是平面，法向处处相同，可提到积分外（论文 §IV 式 (11)）。
+
+式 (2)：压强在多边形上是线性的，像一块斜坡：形心处是 \(p_c\)，离开形心按梯度 \(\nabla p\) 均匀升降（论文 §III-B 末「equilibrium pressure field is linear」）。
+
+式 (3)：形心的定义 \(\mathbf x_c=\frac1A\int_A\mathbf x\,dA\) 两边乘 \(A\) 移项所得，说的是形心是多边形的「平衡点」，各点相对形心的偏移加起来为零（几何定义，论文未写出）。
+
+结果：把 (2) 代入 (1)，斜坡部分正是 \(\nabla p\) 乘 (3) 的积分，等于 0，只剩 \(f_n=A\,p_c\)（论文 §IV 式 (12)，并说明在形心取一点积分是精确的）。多边形越大、形心处压强越大 → 力越大，因为斜坡在形心两侧多出来的和少掉的正好抵消，只剩「平均压强 × 面积」，而线性函数的平均值就是形心处的值。
 
 <details><summary>推导</summary><ul>
 <li>压强在多边形上是线性的：1.1 中每个四面体内压强按顶点值线性插值，多边形落在一对四面体内，所以压强可写成 \(p(\mathbf x)=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)\)，其中 \(\mathbf x_c\) 为形心，\(p_c\) 为形心处压强</li>
