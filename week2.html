@@ -551,13 +551,37 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </tbody>
 </table></div>
 <p><strong>外修正网络的输入 \(\mathbf A(\mathbf q)^{-1}\mathbf z\)</strong>：</p>
-<ul>
+<details><summary>推导：外修正网络的输入（碰撞体世界位姿 → 相对把手的位姿）</summary>
+
+<b>① 刚体变换求逆：世界坐标 → 局部坐标</b>
+
+
+
+<p>\[\color{#c0392b}{\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)}\]</p>
+
+
+
+- 用到 a 式 \(\mathbf x_{\text{世界}}=\mathbf R_A\,\mathbf x_{\text{局部}}+\mathbf t_A\)（论文 §4.1 只说「为把手定义刚体变换 \(\mathbf A(\mathbf q)\) 并求逆」；写成旋转 + 平移是刚体变换的标准形式，论文未写出）：这个式子说的是把物体局部坐标里的一点先按把手朝向转过去，再挪到把手所在位置，就得到它在世界里的位置。
+- 用到 b 式 \(\mathbf R_A^{T}\mathbf R_A=\mathbf I\)（旋转矩阵的性质，论文未写）：这个式子说的是转回去只要用转置，不用真的解方程。
+- 得到 c 式 \(\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\)（即论文 §4.1 式 (7) 中的 \(\mathbf A(\mathbf q)^{-1}\)）：把手挪到哪 → 先减掉哪，把手转了多少 → 再反着转回多少，因为求逆就是把「先转后挪」倒过来做成「先退回再反转」。
+
+<details><summary>推导</summary><ul>
 <li>\(\mathbf q\)：把手状态，即所有点把手的位置、所有坐标架把手的位置和朝向拼成的向量</li>
 <li>\(\mathbf A(\mathbf q)\)：由 \(\mathbf q\) 确定的物体坐标架把手的刚体变换，即旋转 \(\mathbf R_A\) 加平移 \(\mathbf t_A\)（把手的朝向和位置）。它把物体局部坐标变成世界坐标：\(\mathbf x_{\text{世界}}=\mathbf R_A\,\mathbf x_{\text{局部}}+\mathbf t_A\)</li>
 <li>\(\mathbf z\)：碰撞体在世界坐标系下的状态，即位置 \(\mathbf p_z\)、朝向 \(\mathbf R_z\)</li>
 <li>\(\mathbf A(\mathbf q)^{-1}\)：反过来把世界坐标变成局部坐标。由 \(\mathbf x_{\text{世界}}=\mathbf R_A\mathbf x_{\text{局部}}+\mathbf t_A\) 两边减 \(\mathbf t_A\) 得 \(\mathbf x_{\text{世界}}-\mathbf t_A=\mathbf R_A\mathbf x_{\text{局部}}\)，再左乘 \(\mathbf R_A^{T}\)（旋转矩阵满足 \(\mathbf R_A^{T}\mathbf R_A=\mathbf I\)）得 \(\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\)</li>
-<li>作用到 \(\mathbf z\) 上：位置变成 \(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A)\)，朝向变成 \(\mathbf R_A^{T}\mathbf R_z\)</li>
+</ul></details>
+<p><strong>② 作用到碰撞体上：相对位姿</strong></p>
+<p>\[\color{#c0392b}{\mathbf A(\mathbf q)^{-1}\mathbf z=\big(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A),\ \mathbf R_A^{T}\mathbf R_z\big)}\]</p>
+<ul>
+<li>用到 a 式 碰撞体状态 \(\mathbf z=(\mathbf p_z,\mathbf R_z)\)（论文 §4.1：\(\mathbf z\) 为交互状态，可含刚性碰撞体的状态与尺寸；拆成位置 + 朝向是本页写法）：这个式子说的是碰撞体在世界里在哪、朝哪。</li>
+<li>用到 b 式 ① 的 \(\mathbf A(\mathbf q)^{-1}\)：位置按点变换，朝向只需反转（朝向不受平移影响）。</li>
+<li>得到 c 式 相对位姿（论文 §4.1 式 (7) 的 \(\mathbf r_{\text{ext}}(\mathbf A(\mathbf q)^{-1}\mathbf z)\)；论文 §4.1「For better learning ability」把交互状态写成相对子空间状态）：物体和碰撞体在世界里一起平移或旋转 → 相对位姿不变 → 网络输入不变，因为两者的 \(\mathbf t\) 一起变、\(\mathbf R\) 一起乘，相减、相乘后抵消；所以同一个凹坑只需学一次。</li>
 </ul>
+<details><summary>推导</summary><ul>
+<li>作用到 \(\mathbf z\) 上：位置变成 \(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A)\)，朝向变成 \(\mathbf R_A^{T}\mathbf R_z\)</li>
+</ul></details>
+</details>
 <p><strong>为什么用相对位姿</strong>：凹坑形状只由碰撞体相对物体在哪、怎么转决定。物体和碰撞体在世界中一起平移或旋转时，\(\mathbf A(\mathbf q)^{-1}\mathbf z\) 不变，凹坑也不变；直接输入 \(\mathbf z\) 则网络要在每个世界位置重新学同一个凹坑。<strong>输入相对位姿，网络只需学碰撞体相对物体的那部分变化。</strong></p>
 <ul>
 <li><strong>PCA</strong>：从训练数据中所有修正位移里提取最主要的若干个变形模式（PCA 基，每个模式是一个"全网格位移场"）。任意修正 ≈ 各模式按系数加权求和，所以网络只输出系数</li>
