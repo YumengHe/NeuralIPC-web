@@ -934,12 +934,47 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>光滑球压厚块时 \(U_c\) 即 Hertz 弹性能 \(U_{\text{Hertz}}=\dfrac{8}{15}E^*R^{1/2}\delta^{5/2}\)（1.4 第 6 步）。网络学习一般形状下的 \(U_c\)。</p>
 <p><strong>设计考虑</strong></p>
 <ul>
-<li><strong>重力不进入 \(U_c\)</strong>：<ol>
+<li><strong>重力不进入 \(U_c\)</strong>：</li>
+</ul>
+<details><summary>推导：重力不进入 \(U_c\)（重力项之差 → 质量加权拟合 → 重力项为 0）</summary>
+
+<b>① 重力项之差</b>
+
+
+
+<p>\[\color{#c0392b}{E_{\text{重}}(\Phi z+\Psi w)-E_{\text{重}}(\Phi z)=g\sum_i m_i(\Psi w)_{y,i}}\]</p>
+
+
+
+- 用到 a 式 \(U_c(z)=\min_w\Pi(\Phi z+\Psi w)-\Pi(\Phi z)\)，\(\Pi\) 含重力势能（本节开头的定义；原代码 <code>nipc/validation/gravity_projection_check.py:94-96</code> 的 <code>total</code> 把弹性能、接触能与 <code>g * (m * X[:, 1]).sum()</code> 相加后对修正量最小化）：这个式子说的是 \(U_c\) 是「加上局部修正前后总势能之差」。
+- 用到 b 式 重力势能 \(\sum_i m_i g\,y_i\) 对位置线性（同一行代码 <code>g * (m * X[:, 1]).sum()</code>）：这个式子说的是每个节点的重力势能只看它有多高，高度加一点，势能就按固定比例加一点。
+- 得到 c 式 两者相减只剩修正量那部分：\(g\sum_i m_i(\Psi w)_{y,i}\)。修正把质量往下挪得越多 → 重力项越负，因为线性函数之差只和挪动量有关、和粗形状 \(\Phi z\) 无关。
+
+<details><summary>推导</summary><ul>
 <li>重力势能 \(\sum_i m_i g\,y_i\) 对位置线性，代入定义后重力项之差为 \(g\sum_i m_i(\Psi w)_{y,i}\)</li>
+</ul></details>
+<p><strong>② 质量加权拟合：局部修正不移动质心</strong></p>
+<p>\[\color{#c0392b}{\sum_i m_i(\Psi w)_i=0}\]</p>
+<ul>
+<li>用到 a 式 粗状态 \(z\) 取全网格位置按节点质量加权的仿射拟合，平移部分 \(\mathbf t=\sum_i \tfrac{m_i}{\sum m}\mathbf x_i\)（原代码 <code>gravity_projection_check.py:68-78</code> 的 <code>AffineSplit</code>：权重 <code>w = mvert / sum</code>、<code>fit</code> 中 <code>t = (w * X).sum(0)</code>；调用处 <code>:123</code> 用节点质量 <code>mvert</code>）：这个式子说的是粗模型的平移就是质心的位置。</li>
+<li>用到 b 式 修正 = 位置减去它自己的质量加权仿射拟合（<code>gravity_projection_check.py:83-86</code> 的 <code>project_t</code>：先减加权平均 <code>s</code>，再减以加权质心为原点的线性部分，二者加权平均都为 0）：这个式子说的是修正里任何整体平移的成分都被先拿走、交给粗模型。</li>
+<li>得到 c 式 \(\sum_i m_i(\Psi w)_i=0\)：局部修正只在质心附近来回挪，质心一点不动；粗模型能表示的整体运动越完整（含平移的刚体、仿射体）→ 修正里剩下的越只是局部凹陷，因为所有能被拟合的部分都已归入 \(\Phi z\)。</li>
+</ul>
+<details><summary>推导</summary><ul>
 <li>条件：粗模型含整体平移自由度（刚体、仿射体等），且粗状态 \(z\) 取全网格位置按节点质量加权的拟合。此时质心平移全部归入 \(\Phi z\)，局部修正不移动质心：\(\sum_i m_i(\Psi w)_i=0\)</li>
+</ul></details>
+<p><strong>③ 重力项恒为 0</strong></p>
+<p>\[\color{#c0392b}{U_c\ \text{与}\ g\ \text{无关}}\]</p>
+<ul>
+<li>用到 a 式 ① 的重力项之差 \(g\sum_i m_i(\Psi w)_{y,i}\)。</li>
+<li>用到 b 式 ② 的 \(\sum_i m_i(\Psi w)_i=0\)，取 \(y\) 分量即 \(\sum_i m_i(\Psi w)_{y,i}=0\)（原代码 <code>gravity_projection_check.py:108</code> 记录这一量 <code>mass_moment</code> 以核对）。</li>
+<li>得到 c：重力项恒为 0，\(U_c\) 和最优修正都与 \(g\) 无关；所以生成标签时可以关掉重力（原代码 <code>nipc/teacher/gen3d_press.py:94</code> 设 <code>cfg["gravity"] = [[0.0], [0.0], [0.0]]</code>），重力由粗模型通过质心承担。重力再大 → \(U_c\) 也不变，因为重力在修正方向上做功为 0。</li>
+</ul>
+<details><summary>推导</summary><ul>
 <li>所以重力项恒为 0，\(U_c\) 与 \(g\) 无关；重力由粗模型通过质心承担，标签可关闭重力生成</li>
-</ol>
-</li>
+</ul></details>
+</details>
+<ul>
 <li><strong>底部固定的物体也不例外</strong>：真实物体一端固定，它的粗模型代理并不需要固定那一端。代理允许穿透，完整代表精细解里的仿射变化（包括压缩后质心的整体下移），只是不含局部变形。所以粗状态仍取精细解按节点质量加权的拟合，局部修正不移动质心，重力项同样为 0</li>
 <li><strong>\(U_c\) 与粗模型绑定</strong>：粗模型自身能表示的变形越多，剩给 \(U_c\) 的越少。刚体粗模型不存弹性能，全部变形能都在 \(U_c\) 中；仿射体粗模型可整体均匀压缩，这部分由粗模型自身承担。由上一条，重力项为 0，\(U_c\) 只剩弹性能之差：\(U_c^{\text{仿射}}=E_{\text{总}}-\psi(\bar{\mathbf F})V_0\)（\(E_{\text{总}}\)：精细解的总弹性能；\(\bar{\mathbf F}\)：全物体平均变形梯度，即变形后对变形前位置的导数的体积平均；\(\psi\)：单位体积弹性能；\(V_0\)：体积）。为刚体训练的 \(U_c\) 直接用于仿射体，会把整体压缩能量重复计算</li>
 </ul>
