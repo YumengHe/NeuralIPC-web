@@ -1569,8 +1569,8 @@
  },
  "w3i_e0_rigid_ball_flat_press.mp4": {
   "src": "/nas/xiaoyingwang/Neural-IPC/outputs/week3_illustrated/videos/project/e0_rigid_ball_flat_press.mp4",
-  "src_size": 622911,
-  "src_mtime": 1792747352.932738,
+  "src_size": 663676,
+  "src_mtime": 1792749665.413265,
   "crf": 26,
   "ffmpeg": "/data/xiaoyingwang/projects/Neural-IPC-sandbox/.conda/genesis/lib/python3.11/site-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2",
   "args": [
@@ -1596,8 +1596,8 @@
    "-an",
    "<out>"
   ],
-  "out_size": 417505,
-  "encoded_at": "2026-10-23 02:24:39"
+  "out_size": 455456,
+  "encoded_at": "2026-10-23 03:08:56"
  },
  "w3i_t1b_press_to_rest.mp4": {
   "src": "/nas/xiaoyingwang/Neural-IPC/outputs/week3_illustrated/videos/project/t1b_press_to_rest.mp4",
