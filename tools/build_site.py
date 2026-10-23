@@ -120,7 +120,7 @@ SUBFIGS = {
     "t5_flat_overview.png": 2, "t5_ring_top_overview.png": 2, "t5_ring_inner_overview.png": 2,
     "t5_wave_crest_overview.png": 2, "t5_wave_trough_overview.png": 2, "t5_ring_inner_R6_overview.png": 2,
     "t5_ring_inner_R45_overview.png": 2, "t5_footprint_flat_vs_ring.png": 2, "fig10a_ellipse_vs_circle.png": 2,
-    "fig11a_similarity.png": 2, "e0e1_same_depth_ratio.png": 2,
+    "fig11a_similarity.png": 2, "e0e1_same_depth_ratio.png": 2, "fig09_network_diagram.png": 2,
 }
 AREA_BAND = (0.67, 1.5)   # 按最短边定出的面积在目标面积的这个倍数范围内，就仍按最短边
 
