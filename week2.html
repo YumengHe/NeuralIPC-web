@@ -274,7 +274,21 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>带接触的时间步进通常要解"不接触则无力、有力则必须贴紧"的二选一条件，难以稳健求解。本文把柔顺接触的一步时间积分写成只含速度的强凸无约束优化，求解器称为 SAP，解唯一，牛顿法可证收敛。Drake 与 Genesis 的 hydro 都用它。</p>
 <p><strong>做法</strong></p>
-<ol>
+<details><summary>推导：SAP（带阻尼的弹簧冲量 → 动量方程 = 求最小值 → 近刚性封顶）</summary>
+
+<b>① 每个接触是一根带阻尼的弹簧</b>
+
+
+
+<p>\[\color{#c0392b}{\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+}\]</p>
+
+
+
+- 用到 a 式 柔顺接触模型 \(\gamma_n/\delta t=(-k\phi-\tau_d\,k\,v_n)_+\)（论文 §II-B 式 (2)，\(\tau_d\) 称 dissipation time scale）：这个式子说的是接触力 = 弹簧力（穿得越深推得越大）+ 阻尼力（相互靠近得越快推得越大），只推不拉。
+- 用到 b 式 \(\phi=\phi_0+\delta t\,v_n\)（论文 §V-A 式 (28) 前「approximates the signed distance function at the next time step」；1.2 ③）：这个式子说的是下一步的穿透量 = 步首穿透量 + 一步内按速度走的量。
+- 得到 c 式 \(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)_+\)（论文 §V-A：取 \(\hat v_n=-\phi_0/(\delta t+\tau_d)\)、\(R_n^{-1}=\delta t\,k(\delta t+\tau_d)\) 代入式 (27)，式 (28) 前给出法向冲量 \(-\delta t\,k(\phi+\tau_d v_n)\)，再代入 \(\phi=\phi_0+\delta t\,v_n\) 即本式）：步首穿得越深 → 冲量越大；下一步相互靠近得越快（\(v_n\) 越负）→ 冲量越大，因为弹簧会被压得更深、阻尼也更大；\(\tau_d\) 越大 → 速度项权重越大，碰后反弹越小。冲量只含下一步速度这一个未知量，所以可以隐式求解。
+
+<details><summary>推导</summary><ul>
 <li>
 <p>每个接触（含 1.2 的每块多边形）是一根带阻尼的弹簧：弹簧力 \(-k\phi\) 加阻尼力 \(-\tau_dk\,v_n\)，只推不拉。力乘步长得一步内的法向冲量 \(\gamma_n\)：</p>
 <p>\[\gamma_n=\delta t\,\big(-k\phi-\tau_d\,k\,v_n\big)_+\]</p>
@@ -283,16 +297,33 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>
 <p>代入 \(\phi=\phi_0+\delta t\,v_n\)（1.2 第 3 步）：\(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)_+\)，只含下一步速度 \(v_n\)</p>
 </li>
+</ul></details>
+<p><strong>② 动量方程 = 一个碗形函数的最低点</strong></p>
+<p>\[\color{#c0392b}{\min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2,\qquad R=\frac{1}{\delta t\,k(\delta t+\tau_d)}}\]</p>
+<ul>
+<li>用到 a 式 动量方程 \(\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma\)（论文 §II-D 式 (18) 用 \(\mathbf A\)；由式 (15) \(\mathbf A=\mathbf M+\delta t^2\theta\theta_{qv}\mathbf K+\delta t\,\theta\mathbf D\)，\(\theta=0\) 时 \(\mathbf A=\mathbf M\)；\(\mathbf v^*\) 为 free motion velocities，§II-D）：这个式子说的是速度相对「不碰时会有的速度」的改变量，全部来自接触冲量。</li>
+<li>用到 b 式 ① 的冲量对 \(v_n\) 的斜率 \(-\delta t\,k(\delta t+\tau_d)=-1/R\)（\(R\) 即论文 §V-A 的 \(R_n\)，\(R_n^{-1}=\delta t\,k(\delta t+\tau_d)\)）：这个式子说的是下一步速度每变一点，冲量按固定比例反向变化。</li>
+<li>得到 c 式 无约束最小化（论文 §III-C 式 (24)；\(\ell_p\) 强凸、解唯一见同节 Lemma 2 / 附录 E；SAP 全局收敛见 §IV）：\(k\) 越大、\(\delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，所以最低点唯一，牛顿法每步下降都能走到它。</li>
+</ul>
+<details><summary>推导</summary><ul>
 <li>隐式欧拉的动量方程：\(\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)\)（\(\mathbf M\)：质量矩阵；\(\mathbf v^*\)：不计接触时的下一步速度；\(\mathbf J\)：把接触冲量换成各自由度上的冲量）</li>
 <li>
 <p>这个方程正是下面函数对 \(\mathbf v\) 求导为 0 的条件，所以一步积分等价于求它的最小值：</p>
 <p>\[\min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2,\qquad R=\frac{1}{\delta t\,k(\delta t+\tau_d)}\]</p>
 <p>核对：第一项求导得 \(\mathbf M(\mathbf v-\mathbf v^*)\)；第二项中 \(\dfrac{d\gamma_n}{dv_n}=-\delta t\,k(\delta t+\tau_d)=-\dfrac1R\)（\(\gamma_n&gt;0\) 时），所以 \(\dfrac{d}{dv_n}\big(\tfrac12R\gamma_n^2\big)=R\gamma_n\cdot\big(-\tfrac1R\big)=-\gamma_n\)。两项合起来为 0 即第 3 步。该函数是碗形（强凸：第一项因 \(\mathbf M\) 正定是碗形，第二项是线性函数取正部再平方，也向上弯），碗形函数导数为 0 的点只有一个，就是最低点，所以解方程与求最小值是同一件事。改成求最小值后，牛顿法每步都让函数值下降，可证收敛</p>
 </li>
-<li>
-<p><strong>近刚性处理</strong>：接触刚度 \(k\) 太大时（接触的振动周期比一步还短），SAP 不再用真实的 \(k\)，而把这个接触的刚度封顶为一个只由数值参数 \(\beta\)（默认 1）、步长 \(\delta t\) 和物体质量决定的值。此时该接触的力不再是"面积 × 压强"，与压力场无关；\(k\) 越大、\(\delta t\) 越大越容易触发</p>
-</li>
-</ol>
+</ul></details>
+<p><strong>③ 近刚性处理：刚度封顶</strong></p>
+<p>\[\color{#c0392b}{R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,w,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)}\]</p>
+<ul>
+<li>用到 a 式 接触振动周期 \(T_n=2\pi/\omega_n\)，\(\omega_n^2=k/m\)，\(T_n\lesssim\delta t\) 时为 near-rigid（论文 §V-B）：这个式子说的是接触像一个质量挂在弹簧上振动，弹簧越硬、质量越小，振得越快；快到一步之内就振完一次，步长就看不清这个振动了。</li>
+<li>用到 b 式 取 \(T_n\) 与步长同量级，\(\tau_d=\frac{\beta}{\pi}\delta t\)、\(k=4\pi^2m/(\beta^2\delta t^2)\)，得 \(R_n=\frac{\beta^2}{4\pi^2}w\)，\(w=1/m\)（论文 §V-B；多体时 \(w\) 取 Delassus 对角块的 rms）：这个式子说的是步长能分辨的最硬弹簧只由 \(\beta\)、\(\delta t\) 和质量决定。</li>
+<li>得到 c 式 \(R_n\) 取两者较大（论文 §V-B 式 (29)，\(\beta=1\) 见同节与 §VI）：\(k\) 越大、\(\delta t\) 越大 → 真实 \(k\) 给的 \(R\) 越小，越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、\(\delta t\)、质量决定，与压力场给的 \(k\) 无关，因为 \(\max\) 里用的已经不是 \(k\) 那一项。</li>
+</ul>
+<details><summary>推导</summary><ul>
+<li><strong>近刚性处理</strong>：接触刚度 \(k\) 太大时（接触的振动周期比一步还短），SAP 不再用真实的 \(k\)，而把这个接触的刚度封顶为一个只由数值参数 \(\beta\)（默认 1）、步长 \(\delta t\) 和物体质量决定的值。此时该接触的力不再是"面积 × 压强"，与压力场无关；\(k\) 越大、\(\delta t\) 越大越容易触发</li>
+</ul></details>
+</details>
 <p><strong>实现</strong></p>
 <ul>
 <li>Drake：每次牛顿迭代用稀疏 Cholesky 分解；\(\tau_d\) 取接触两侧几何体各自的值之和，每侧默认 0.1 s</li>
