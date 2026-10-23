@@ -306,61 +306,56 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>式 (1)：柔顺接触模型，接触力 = 弹簧力（穿得越深推得越大）+ 阻尼力（相互靠近得越快推得越大），只推不拉；力乘步长即冲量（论文 §II-B 式 (2)，\(\tau_d\) 称 dissipation time scale）。</p>
+<p>式 (1)：\(\gamma_n\) 是一步内的法向冲量，即力乘步长；\(k\) 是接触刚度；\(\phi\) 是下一步的有符号距离，穿透为负；\(\tau_d\) 是耗散时间尺度，单位秒，阻尼系数为 \(\tau_dk\)；\(v_n\) 是法向相对速度，分开为正；\((\cdot)_+\) 表示负数取 0。它说的是：接触力 = 弹簧力 + 阻尼力，穿得越深推得越大，相互靠近得越快推得越大，只推不拉；\(\tau_d\) 越大，碰后反弹越小。</p>
 
-<p>式 (2)：下一步的穿透量 = 步首穿透量 + 一步内按速度走的量（论文 §V-A 式 (28) 前；同 1.2 ③ 式 (3)）。</p>
+<p>式 (2)：\(\phi_0\) 是步首的有符号距离。它说的是：一步之内重叠量按下一步的速度匀速变化，下一步的穿透量 = 步首穿透量 + 一步内走过的量。</p>
 
-<p>结果：把 (2) 代入 (1)（论文 §V-A：由式 (27) 与式 (28) 前的法向冲量得到）。步首穿得越深 → 冲量越大；下一步相互靠近得越快（\(v_n\) 越负）→ 冲量越大，因为弹簧会被压得更深、阻尼也更大；\(\tau_d\) 越大 → 速度项权重越大，碰后反弹越小。冲量只含下一步速度这一个未知量，所以可以隐式求解。</p>
+<p>结果：步首穿得越深 → 冲量越大；下一步相互靠近得越快 → 冲量越大，因为弹簧会被压得更深、阻尼也更大。冲量只含下一步速度这一个未知量，所以可以隐式求解，步长可以取大。</p>
 
-<details><summary>推导</summary><ul>
-<li>
-<p>每个接触（含 1.2 的每块多边形）是一根带阻尼的弹簧：弹簧力 \(-k\phi\) 加阻尼力 \(-\tau_dk\,v_n\)，只推不拉。力乘步长得一步内的法向冲量 \(\gamma_n\)：</p>
-<p>\[\gamma_n=\delta t\,\big(-k\phi-\tau_d\,k\,v_n\big)_+\]</p>
-<p>\(k\)：1.2 的刚度；\(\tau_d\)：<strong>耗散时间尺度</strong>（s），阻尼系数为 \(\tau_dk\)，越大碰后反弹越小；\((\cdot)_+=\max(\cdot,0)\)</p>
-</li>
-<li>
-<p>代入 \(\phi=\phi_0+\delta t\,v_n\)（1.2 第 3 步）：\(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)_+\)，只含下一步速度 \(v_n\)</p>
-</li>
-</ul></details>
+<details><summary>推导</summary><p>把式 (2) \(\phi=\phi_0+\delta t\,v_n\) 代入式 (1)：</p>
+<p>\[\gamma_n=\delta t\big(-k\phi_0-k\,\delta t\,v_n-\tau_d\,k\,v_n\big)_+\]</p>
+<p>合并 \(v_n\) 项：</p>
+<p>\[\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+\]</p></details>
 <p><b>② 动量方程 = 一个碗形函数的最低点</b></p>
 
-<p>已知：质量矩阵 \(\mathbf M\)、不计接触时的下一步速度 \(\mathbf v^*\)、① 的冲量；求：下一步速度 \(\mathbf v\)。</p>
+<p>已知：质量矩阵 \(\mathbf M\)、不计接触时的下一步速度 \(\mathbf v^*\)、① 的冲量 \(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)_+\)；求：下一步速度 \(\mathbf v\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf A=\mathbf M+\delta t^2\theta\theta_{qv}\mathbf K+\delta t\,\theta\mathbf D} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2}\]</p>
-<p>式 (1)：动量方程，速度相对「不碰时会有的速度」的改变量全部来自接触冲量（论文 §II-D 式 (18)，论文写作 \(\mathbf A\)；\(\mathbf v^*\) 为 free motion velocities，§II-D）。</p>
+<p>\[\begin{cases}\color{#c0392b}{\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2}\]</p>
+<p>式 (1)：\(\mathbf M\) 是质量矩阵，\(\mathbf v\) 是下一步所有自由度的速度，\(\mathbf v^*\) 是不计接触时的下一步速度，\(\boldsymbol\gamma\) 是所有接触的冲量，\(\mathbf J\) 把接触冲量换成各自由度上的冲量。它说的是：隐式欧拉的动量守恒，速度相对「不碰时会有的速度」的改变量 × 质量，全部来自接触冲量，就是冲量 = 动量变化。</p>
 
-<p>式 (2)：论文的 \(\mathbf A\)；取 \(\theta=0\) 时就是质量矩阵（论文 §II-D 式 (15)）。</p>
+<p>式 (2)：\(R\) 是 ① 中冲量随下一步速度变化的斜率的倒数：下一步速度每增加一点，冲量按固定比例减少。</p>
 
-<p>式 (3)：① 中冲量随下一步速度变化的斜率的倒数，下一步速度每变一点，冲量按固定比例反向变化（论文 §V-A 的 \(R_n\)）。</p>
+<p>结果：解动量方程等价于找右边函数的最低点。\(k\)、\(\delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
 
-<p>结果：(1) 正是右边函数对速度求导为 0 的条件，所以一步积分等价于求它的最低点（论文 §III-C 式 (24)；强凸、解唯一见同节 Lemma 2 与附录 E；SAP 全局收敛见 §IV）。\(k\) 越大、\(\delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，所以最低点唯一，牛顿法每步下降都能走到它。</p>
-
-<details><summary>推导</summary><ul>
-<li>隐式欧拉的动量方程：\(\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)\)（\(\mathbf M\)：质量矩阵；\(\mathbf v^*\)：不计接触时的下一步速度；\(\mathbf J\)：把接触冲量换成各自由度上的冲量）</li>
-<li>
-<p>这个方程正是下面函数对 \(\mathbf v\) 求导为 0 的条件，所以一步积分等价于求它的最小值：</p>
-<p>\[\min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2,\qquad R=\frac{1}{\delta t\,k(\delta t+\tau_d)}\]</p>
-<p>核对：第一项求导得 \(\mathbf M(\mathbf v-\mathbf v^*)\)；第二项中 \(\dfrac{d\gamma_n}{dv_n}=-\delta t\,k(\delta t+\tau_d)=-\dfrac1R\)（\(\gamma_n&gt;0\) 时），所以 \(\dfrac{d}{dv_n}\big(\tfrac12R\gamma_n^2\big)=R\gamma_n\cdot\big(-\tfrac1R\big)=-\gamma_n\)。两项合起来为 0 即第 3 步。该函数是碗形（强凸：第一项因 \(\mathbf M\) 正定是碗形，第二项是线性函数取正部再平方，也向上弯），碗形函数导数为 0 的点只有一个，就是最低点，所以解方程与求最小值是同一件事。改成求最小值后，牛顿法每步都让函数值下降，可证收敛</p>
-</li>
-</ul></details>
+<details><summary>推导</summary><p>记目标函数：</p>
+<p>\[\ell(\mathbf v)=\tfrac12(\mathbf v-\mathbf v^*)^T\mathbf M(\mathbf v-\mathbf v^*)+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2\]</p>
+<p>第一项对 \(\mathbf v\) 求导：</p>
+<p>\[\frac{\partial}{\partial\mathbf v}\tfrac12(\mathbf v-\mathbf v^*)^T\mathbf M(\mathbf v-\mathbf v^*)=\mathbf M(\mathbf v-\mathbf v^*)\]</p>
+<p>\(\gamma_n&gt;0\) 时，由 ① 的 \(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)\) 与式 (2) \(R=1/(\delta t\,k(\delta t+\tau_d))\)：</p>
+<p>\[\frac{d\gamma_n}{dv_n}=-\delta t\,k(\delta t+\tau_d)=-\frac1R\]</p>
+<p>第二项对 \(v_n\) 求导：</p>
+<p>\[\frac{d}{dv_n}\Big(\tfrac12R\gamma_n^2\Big)=R\,\gamma_n\cdot\Big(-\frac1R\Big)=-\gamma_n\]</p>
+<p>经 \(\mathbf J\) 换到所有自由度上，令总导数为 0：</p>
+<p>\[\mathbf M(\mathbf v-\mathbf v^*)-\mathbf J^T\boldsymbol\gamma=0\quad\Longleftrightarrow\quad\text{式 (1)}\ \mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma\]</p></details>
 <p><b>③ 近刚性处理：刚度封顶</b></p>
 
-<p>已知：接触刚度 \(k\)、质量 \(m\)（多体时用等效质量）、步长 \(\delta t\)、数值参数 \(\beta\)；求：SAP 实际使用的 \(R_n\)。</p>
+<p>已知：接触刚度 \(k\)、质量 \(m\)、步长 \(\delta t\)、数值参数 \(\beta\)；求：SAP 实际使用的 \(R_n\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\omega_n^2=k/m,\quad T_n=2\pi/\omega_n} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{T_n\lesssim\delta t\ \text{时为 near-rigid}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\tau_d=\dfrac{\beta}{\pi}\delta t,\quad k=\dfrac{4\pi^2m}{\beta^2\delta t^2}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{w=1/m} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,w,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)}\]</p>
-<p>式 (1)：接触像一个质量挂在弹簧上振动，弹簧越硬、质量越小，振得越快（论文 §V-B）。</p>
+<p>\[\begin{cases}\color{#c0392b}{\omega_n^2=k/m,\quad T_n=2\pi/\omega_n} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{T_n=\beta\,\delta t,\quad \tau_d=\dfrac{\beta}{\pi}\delta t} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{R_n=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}\approx\dfrac{1}{\delta t^2k}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)}\]</p>
+<p>式 (1)：\(m\) 是质量，\(\omega_n\) 是接触振动的角频率，\(T_n\) 是振动周期。它说的是：接触像一个质量挂在弹簧上振动，弹簧越硬、质量越小，振得越快。</p>
 
-<p>式 (2)：快到一步之内就振完一次，步长就看不清这个振动了（论文 §V-B）。</p>
+<p>式 (2)：\(\beta\) 是数值参数，默认 1。它说的是：步长能分辨的最快振动，周期大约是一个步长；把周期取到这个界限，就得到步长允许的最硬弹簧，阻尼也按同一时间尺度取。若真实周期比一步还短，一步之内振动就完成了，步长看不清它，这叫近刚性。</p>
 
-<p>式 (3)：取接触振动周期与步长同量级时的阻尼与刚度，即步长能分辨的最硬弹簧（论文 §V-B）。</p>
+<p>式 (3)：\(R_n\) 是 ② 的 \(R\)，阻尼时间与步长同量级时近似为 \(1/(\delta t^2k)\)。</p>
 
-<p>式 (4)：等效质量的倒数；多体时取 Delassus 算子对角块的 rms（论文 §V-B）。</p>
+<p>结果：真实刚度给的 \(R_n\) 太小，即弹簧太硬时，就用步长允许的下限顶住。\(k\) 越大、\(\delta t\) 越大 → 越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、步长、质量决定，与压力场给的 \(k\) 无关。</p>
 
-<p>结果：把 (3)(4) 代入 ② 式 (3) 得一个只由 \(\beta\)、步长和质量决定的下限，与真实刚度给的值取较大者（论文 §V-B 式 (29)，\(\beta=1\) 见同节与 §VI）。\(k\) 越大、\(\delta t\) 越大 → 真实 \(k\) 给的值越小，越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、\(\delta t\)、质量决定，与压力场给的 \(k\) 无关，因为取较大者时用的已经不是 \(k\) 那一项。</p>
-
-<details><summary>推导</summary><ul>
-<li><strong>近刚性处理</strong>：接触刚度 \(k\) 太大时（接触的振动周期比一步还短），SAP 不再用真实的 \(k\)，而把这个接触的刚度封顶为一个只由数值参数 \(\beta\)（默认 1）、步长 \(\delta t\) 和物体质量决定的值。此时该接触的力不再是"面积 × 压强"，与压力场无关；\(k\) 越大、\(\delta t\) 越大越容易触发</li>
-</ul></details>
+<details><summary>推导</summary><p>由式 (1) \(T_n=2\pi\sqrt{m/k}\) 与式 (2) \(T_n=\beta\,\delta t\)：</p>
+<p>\[2\pi\sqrt{\frac mk}=\beta\,\delta t\quad\Longrightarrow\quad k=\frac{4\pi^2m}{\beta^2\delta t^2}\]</p>
+<p>代入式 (3) \(R_n\approx1/(\delta t^2k)\)：</p>
+<p>\[R_n\approx\frac{\beta^2}{4\pi^2}\,\frac1m\]</p>
+<p>真实刚度给的值小于这个下限时取下限：</p>
+<p>\[R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)\]</p></details>
 </details>
 <p><strong>实现</strong></p>
 <ul>
