@@ -97,7 +97,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 <main class="wrap">
 <header class="top"><a href="index.html">← 所有周</a><h1>Week 3–4（第 3–4 周）</h1><p class="summary">要学的碰撞能量；两个软物体相碰的解析解（降维法、Hertz）；标签对解析解与独立裁判；hydro、hydro++ 与死结，Genesis 中 hydro 实测；网络结构与多接触区耦合；接进引擎、体力法造标签、试训与椭圆骨架；待定事项。</p><nav class="toc"><a href="#w1">要学的量：碰撞能量</a><a href="#w2">裁判：两个软物体相碰的解析解</a><a href="#w3">标签对不对</a><a href="#w4">hydro 和它的死结</a><a href="#w5">网络结构</a><a href="#w6">最近两天</a><a href="#w7">还没解决的</a><a href="#w8">10-21 至 10-22 的进展</a><a href="#w9">现在在跑和等你定的</a></nav></header>
-<div class="lead"><p>精细仿真（IPC 接触加精细有限元）准确但慢，粗模型（刚体、仿射体）快但没有接触处的局部变形；我们用神经网络学一项碰撞能量 \(U_c\) 补上。这一页讲这两周做的事：\(U_c\) 是什么、拿什么当裁判、标签对不对、对比方法 hydro 及其加强版 hydro++ 为什么做不对、网络怎么搭，以及最近两天的进展和要你定的事。</p>
+<div class="lead"><p>精细仿真（IPC 接触加精细有限元；IPC 即 Incremental Potential Contact，Li 等 2020 提出的一种保证物体之间不穿透的接触算法）准确但慢，粗模型（刚体、仿射体）快但没有接触处的局部变形；我们用神经网络学一项碰撞能量 \(U_c\) 补上。这一页讲这两周做的事：\(U_c\) 是什么、拿什么当裁判、标签对不对、对比方法 hydro 及其加强版 hydro++ 为什么做不对、网络怎么搭，以及最近两天的进展和要你定的事。</p>
 <p class="kp">本页结论：标签对解析解和独立裁判在约 1% 以内；hydro++ 的死结是「同一批物体只多一个接触，能量被迫相加」，任何压力场至少错 7.49%；网络以「缝隙 + 合成模量」为骨架，换成椭圆骨架后 64 个数据点留一法中位数 0.15%、最大 1.11%。</p></div>
 <section id="w1"><h2>要学的量：碰撞能量</h2>
 <p>粗模型只用很少几个数描述一个物体：刚体用 6 个（3 个平移、3 个转动），仿射体用 12 个（还能整体拉伸、剪切）。两个物体靠近时，粗模型不会变形，所以它们会互相穿进去。真实的物体不会穿透，而是在接触的地方局部凹下去让开。我们要学的，就是这块局部凹陷里存了多少弹性能。写成公式：</p>
@@ -362,7 +362,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>原版 hydro（压头刚性、不带压力场）只当消融对照：它的能量和球半径 \(R\)、平底半径 \(a\) 的平方成正比，真值是和 \(\sqrt R\)、\(a\) 成正比，半径差 2 倍时至少错 17.16%，实测拟合 17.24%。薄层底面粘结和不粘结共用一张场时至少错 10.1%，各学一张后拟到机器精度，说明的只是「按材料给场的规则看不到底面边界条件」。</p>
 <h3>Genesis 里 hydro 的实测</h3>
 
-<p>Genesis 是实现 hydro 的开源仿真器。在里面实测了四种刚软组合，看它按自身公式给出的压深和弹性解差在哪里。</p>
+<p>Genesis 是实现 hydro 的开源仿真器（现名 Genesis World，2024 年 12 月起于学术项目、现由 Genesis AI 公司支持），一个场景里可以同时放刚体、FEM 软体等多种物体；它的 hydro 和 SAP 求解器配在一起，另有一套接触是调用开源库 libuipc 做 IPC。本项目的演示、参数扫描都在 Genesis 里跑，IPC 部分走它调用的 libuipc。在里面实测了四种刚软组合，看它按自身公式给出的压深和弹性解差在哪里。</p>
 <p>两个都软的物体：球（半径 0.1 m、1 kg）靠自重静置在底面固定的块（0.3 × 0.3 × 0.2 m）上，两侧压力场模量 \(E_h\) 各取 \(10^5\) 或 \(10^6\) Pa，四种组合的压深都在 1.784 到 1.787 mm 之间。把两侧 \(E_h\) 同时改大 10 倍，串联公式预言压深变成 0.316 倍，实测 0.9999 倍，几乎不变。原因是 Genesis 软–软的接触力等于一个全局参数乘重叠体积，\(E_h\) 在力里约掉了，只决定两侧压强相等的那个面落在哪个物体里。</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/w3i_hydro_soft_soft_k1e5.mp4" style="width:560px;max-width:100%;height:auto"></video><figcaption class="small">这段视频展示 Genesis 里两个软物体之间的 hydro 接触：半径 0.1 m、1 kg 的软球（橙）从刚好碰到的位置靠自重落在软块（蓝）上，两者的压力场模量都是 1e5 Pa。画面是过球心的竖直剖面，竖直方向放大 8 倍；红色是球和块的剖面互相重叠的部分，hydro 允许两个物体重叠，接触力就按这片重叠算。看第 0 到 1.3 秒，球往下沉、红色区域长大，之后停在压深 1.79 mm（球半径的 1.8%），红色区域不再变化。</figcaption></figure>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/w3i_hydro_soft_soft_k1e6.mp4" style="width:560px;max-width:100%;height:auto"></video><figcaption class="small">这段视频和上一段只差一处：两侧压力场模量都从 1e5 改成 1e6 Pa，画法相同（竖直放大 8 倍，红色是重叠部分）。看最后一秒停住时的压深：1.789 mm，和上一段只差 0.01%，红色重叠区的形状也一样，说明在 Genesis 的软–软接触里，把两侧压力场同时调硬十倍并不改变压深。</figcaption></figure>
@@ -466,7 +466,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p>平底 \(4a\) 高 0.0021，是因为两个凸台离得近，互柔度把对方的力当成了集中在一点的力；其余都在 0.0005 以内。这是结构能表达，不是网络已训练出的成绩。</p></section>
 <section id="w6"><h2>最近两天</h2>
-<p>接进引擎：libuipc 可以挂我们自定义的能量项。测试中能量和力与参考值完全一致，Hessian（能量的二阶导数，牛顿法要用）误差在 \(10^{-15}\) 量级，牛顿法 3 步收敛。</p>
+<p>接进引擎：libuipc 是开源的 GPU 版 IPC 仿真库（C++/CUDA 写成，Python 包名 pyuipc），Genesis 的 IPC 接触底层就是调用它，本项目的网络最终也要经 Genesis 接到它上面。libuipc 可以挂我们自定义的能量项。测试中能量和力与参考值完全一致，Hessian（能量的二阶导数，牛顿法要用）误差在 \(10^{-15}\) 量级，牛顿法 3 步收敛。</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/w3i_engine_hertz_drop.mp4" style="width:560px;max-width:100%;height:auto"></video><figcaption class="small">这段视频展示了我们自己写的接触能量项挂进 libuipc 以后，能在 Genesis 里真的托住一个物体。画面中间的灰色刚球半径 0.1 m，从离地 2 cm 的地方落下，球和蓝灰色地面之间关掉了 IPC 自带的接触，能挡住它的只有我们加进去的那一项 Hertz 能量。看第 0.8 秒球落到最低的时候，它压进地面 7.27 mm，随后被这项能量推回去，弹到离地约 8 mm 再落下；视频结束时球还在小幅弹跳，压深 2.3 mm，仿真继续跑下去会停在 2.0 mm，和用 Hertz 公式算出的静止压深一致。</figcaption></figure>
 <p>造标签：现在块不再固定（软–软时压头也不固定），用一对大小相等、方向相反的力把它们压在一起，等停稳再读能量。这样更接近 1 节「给定粗状态，取最小能量」的定义。物体在水平方向没有东西拉住，会慢慢漂走，所以钉住了中轴线上节点的水平位置。正确的解里这些节点本来就不横向移动，钉住它们只带来 0.05% 到 0.4% 的误差。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_bf_loading_scheme.png" style="width:420px;max-width:100%;height:auto" alt="这张图展示了现在造标签的加载方式。画面是过中心的剖面，上面橙色是底部带半径 1 球冠的软压头，下面蓝色是软块，两个都是杨氏模量 1e5，压到最深一档停稳后的样子按真实比例画出。两个物体都没有固定在任何地方：压头上每一点受一个向下的力，块上每一点受一个向上的力，两个红色箭头标的就是这两个力的方向，它们合起来大小相等、方向相反，把两个物体挤在一起。两个物体都能自由移动，就可能整体往旁边漂走，所以把中轴线上的节点（图中竖排的黑点，压头和块各有 20 个这样的节点）钉住了水平位置，它们仍然可以上下移动；在正确的解里这些点本来就不会横向移动，钉住它们只防止漂走，对结果的影响只有 0.05% 到 0.4%；接触处附近的几个黑点没有画，免得挡住接触面。" loading="lazy"><figcaption class="small">这张图展示了现在造标签的加载方式。画面是过中心的剖面，上面橙色是底部带半径 1 球冠的软压头，下面蓝色是软块，两个都是杨氏模量 1e5，压到最深一档停稳后的样子按真实比例画出。两个物体都没有固定在任何地方：压头上每一点受一个向下的力，块上每一点受一个向上的力，两个红色箭头标的就是这两个力的方向，它们合起来大小相等、方向相反，把两个物体挤在一起。两个物体都能自由移动，就可能整体往旁边漂走，所以把中轴线上的节点（图中竖排的黑点，压头和块各有 20 个这样的节点）钉住了水平位置，它们仍然可以上下移动；在正确的解里这些点本来就不会横向移动，钉住它们只防止漂走，对结果的影响只有 0.05% 到 0.4%；接触处附近的几个黑点没有画，免得挡住接触面。</figcaption></figure>
