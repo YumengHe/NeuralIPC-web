@@ -1047,15 +1047,21 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <b>① 下沉与压强：柔度矩阵</b>
 
-
-
-<p>\[\color{#c0392b}{u=C\,p}\]</p>
+已知：表面方格网（间距 \(h\)）、各格压强 \(p_j\)、模量 \(E^*\)；求：各格下沉 \(u_i\)。
 
 
 
-- 用到 a 式 Boussinesq 点力解 \(u=P/(\pi E^*s)\)（1.4 ③）：这个式子说的是按住一点，周围都跟着陷，离得越远陷得越少。
-- 用到 b：把点力解在一个 \(h\times h\) 方格上积分，得「一格单位均匀压强在另一格中心产生的下沉」（原代码 <code>nipc/analytic/hertz_contact.py:46-57</code> 的 <code>love_coeff</code>：矩形均布压强的闭式下沉，最后除以 \(\pi E^*\)；<code>:71-75</code> 的 <code>build_compliance</code> 对所有格两两求出 \(C_{ij}\)；格点由 <code>:60-68</code> 的 <code>build_nodes</code> 取 \(r\le r_{\max}\) 的方格，\(h=0.008\)、\(r_{\max}=0.18\) 时实算 1597 格，取值见 <code>nipc/learning/neuralipc_nodefit_gen.py:5</code>）。
-- 得到 c 式 \(u=Cp\)：某格压强越大 → 所有格都陷得越多，离它越近的格陷得越多，因为 \(C_{ij}\) 随两格距离按约 \(1/\)距离 衰减；\(E^*\) 越大 → \(C\) 越小，同样压强陷得越少。
+<p>\[\begin{cases}\color{#c0392b}{u=\dfrac{P}{\pi E^*s}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{C_{ij}=\displaystyle\int_{\text{第 }j\text{ 格}}\frac{dA}{\pi E^*s_i}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{u_i=\displaystyle\sum_j C_{ij}\,p_j} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ u=C\,p}\]</p>
+
+
+
+式 (1)：Boussinesq 点力解，按住一点，周围都跟着陷，离得越远陷得越少（1.4 ③）。
+
+式 (2)：把点力解在一个 \(h\times h\) 方格上积分，得「一格单位均匀压强在另一格中心产生的下沉」，\(s_i\) 为到第 \(i\) 格中心的距离（原代码 <code>nipc/analytic/hertz_contact.py:46-57</code> 的 <code>love_coeff</code>：矩形均布压强的闭式下沉，最后除以 \(\pi E^*\)；<code>:71-75</code> 的 <code>build_compliance</code> 对所有格两两求出 \(C_{ij}\)；格点由 <code>:60-68</code> 的 <code>build_nodes</code> 取 \(r\le r_{\max}\) 的方格，\(h=0.008\)、\(r_{\max}=0.18\) 时实算 1597 格，取值见 <code>nipc/learning/neuralipc_nodefit_gen.py:5</code>）。
+
+式 (3)：各格压强的贡献相加。
+
+结果：写成矩阵即得。某格压强越大 → 所有格都陷得越多，离它越近的格陷得越多，因为 \(C_{ij}\) 大约与两格距离成反比；\(E^*\) 越大 → \(C\) 越小，同样压强陷得越少。
 
 <details><summary>推导</summary><ul>
 <li>
@@ -1065,12 +1071,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>② 求压强：带非负约束的二次最小化，用有效集法解</strong></p>
-<p>\[\color{#c0392b}{\min_{p\ge0}\ \tfrac12 p^TCp - p^Tw}\]</p>
-<ul>
-<li>用到 a 式 ① 的 \(u=Cp\)，以及不穿透 \(u_i\ge w_i\)，\(w_i\) 为压头压入量（原代码 <code>hertz_contact.py:117</code> 球压头 \(w=\delta-r^2/(2R)\)；<code>neuralipc_nodefit_gen.py:33</code> 一般压头 \(w=\delta-(z-z_0)\)）：这个式子说的是每一格要么被压头压到、要么离压头还有缝。</li>
-<li>用到 b：三个接触条件——只推不拉 \(p_i\ge0\)、不穿透、有压强处必贴合：这三条说的是压强只出现在真正贴住压头的格上。</li>
-<li>得到 c 式 \(\min_{p\ge0}\tfrac12p^TCp-p^Tw\)，按有效集法求解（原代码 <code>hertz_contact.py:81-105</code> 的 <code>solve_signorini</code>：<code>:83</code> 初值取 \(w&gt;0\) 的格；<code>:90</code> 在当前集合上解 \(C_{AA}p_A=w_A\)；<code>:92-95</code> 压强为负的格移出；<code>:99-103</code> 集合外 \(Cp-w&lt;0\)（穿进压头）的格加入；两项都通过即停）：压得越深（\(w\) 越大）→ 接触格越多、压强越大，因为更多格的不穿透条件被顶住；接触区外的格压强为 0，却被相邻压强带着下陷。</li>
-</ul>
+<p>已知：① 的柔度矩阵 \(C\)、各格压头压入量 \(w_i\)；求：各格压强 \(p\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{u=C\,p} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{w=\delta-(z-z_0)\quad\big(\text{球压头 } w=\delta-\tfrac{r^2}{2R}\big)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_i\ge0,\quad u_i\ge w_i,\quad p_i&gt;0\Rightarrow u_i=w_i} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \min_{p\ge0}\ \tfrac12 p^TCp - p^Tw}\]</p>
+<p>式 (1)：① 的结果。</p>
+<p>式 (2)：压头压入量，每一格要么被压头压到、要么离压头还有缝（原代码 <code>neuralipc_nodefit_gen.py:33</code> 一般压头；<code>hertz_contact.py:117</code> 球压头）。</p>
+<p>式 (3)：三个接触条件——只推不拉、不穿透、有压强处必贴合，压强只出现在真正贴住压头的格上。</p>
+<p>结果：(3) 正是右边带非负约束的二次最小化的最优条件，按有效集法求解（原代码 <code>hertz_contact.py:81-105</code> 的 <code>solve_signorini</code>：<code>:83</code> 初值取压入量为正的格；<code>:90</code> 在当前集合上解线性方程组；<code>:92-95</code> 压强为负的格移出；<code>:99-103</code> 集合外穿进压头的格加入；两项都通过即停）。压得越深（\(w\) 越大）→ 接触格越多、压强越大，因为更多格的不穿透条件被顶住；接触区外的格压强为 0，却被相邻压强带着下陷。</p>
 <details><summary>推导</summary><ul>
 <li>
 <p><strong>求压强</strong></p>
@@ -1097,12 +1103,11 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </li>
 </ul></details>
 <p><strong>③ 弹性能：标签</strong></p>
-<p>\[\color{#c0392b}{U=\tfrac12h^2\,p^TCp}\]</p>
-<ul>
-<li>用到 a：线弹性下做功 = \(\tfrac12\times\)力\(\times\)位移，第 \(i\) 格力 \(p_ih^2\)：这个式子说的是力从 0 线性涨到终值，平均只有一半在做功。</li>
-<li>用到 b 式 ① 的 \(u=Cp\) 与 ② 解出的 \(p\)。</li>
-<li>得到 c 式 \(U=\tfrac12h^2p^TCp\)（原代码 <code>hertz_contact.py:119-122</code> 的 <code>0.5 * np.sum(p * u) * cell</code>，<code>cell = h*h</code>；标签生成同式，如 <code>neuralipc_nodefit_gen.py:36</code>）：压得越深 → 压强和下沉都更大 → 标签能量增长得比压深快，因为能量是两者之积。</li>
-</ul>
+<p>已知：② 解出的压强 \(p\)、① 的柔度矩阵 \(C\)、格距 \(h\)；求：弹性能标签 \(U\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{U=\displaystyle\sum_i\tfrac12\,(p_ih^2)\,u_i} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u=C\,p} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\tfrac12h^2\,p^TCp}\]</p>
+<p>式 (1)：线弹性下做功 = ½ × 力 × 位移，第 \(i\) 格的力是压强乘格面积；力从 0 线性涨到终值，平均只有一半在做功。</p>
+<p>式 (2)：① 的结果。</p>
+<p>结果：把 (2) 代入 (1)（原代码 <code>hertz_contact.py:119-122</code> 的 <code>0.5 * np.sum(p * u) * cell</code>，<code>cell = h*h</code>；标签生成同式，如 <code>neuralipc_nodefit_gen.py:36</code>）。压得越深 → 压强和下沉都更大 → 标签能量增长得比压深快，因为能量是两者之积。</p>
 <details><summary>推导</summary><ul>
 <li>
 <p><strong>弹性能</strong>：线弹性下做功为 \(\tfrac12\times\)力\(\times\)位移，第 \(i\) 格力 \(p_ih^2\)：</p>
