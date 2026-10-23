@@ -109,7 +109,27 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <h3>1.1 Elandt et al. 2019：压力场模型</h3>
 
 <p><strong>做法</strong></p>
-<ol>
+<details><summary>推导：压力场模型（预设压强场 → 等压接触面 → 接触力）</summary>
+
+<b>① 预设压强场</b>
+
+
+
+<p>\[\color{#c0392b}{p_0=E\,\epsilon,\qquad \nabla^2\epsilon=0\ \ (\text{表面 }\epsilon=0,\ \text{中轴 }\epsilon=1)}\]</p>
+
+
+
+- 用到 a 式 \(p_0=E\,\epsilon\)（论文 §VI-A「\(p_0^R=E\epsilon^R\)」；§X-B 定理 2 证明中同式，\(E\) 称 Young's Modulus）：这个式子说的是每一点的压强 = 材料模量 × 这一点的穿入程度，越往里压强越大。
+- 用到 b 式 Laplace 方程 \(\nabla^2\epsilon=0\)，边界条件表面为 0、中轴（或刚性核心边界）为 1（论文 §VI-A-2 式 (4)）：这个式子说的是 \(\epsilon\) 从表面的 0 平滑地升到中轴的 1，每一点的值等于它周围的平均，中间没有尖峰和突跳。
+- 得到 c 式 \(p_0=E\,\epsilon\)（固定场）：离表面越深 → 压强越大，因为 \(\epsilon\) 从表面 0 一路升到中轴 1；材料越硬（\(E\) 越大）→ 同样深处压强越大。这个场离线算好后固定在物体上，不需要满足任何力学平衡（论文 §III 第 (2) 条），与对面压进来的是什么无关，这正是下面「假设一」的来源。
+
+
+
+<figure style="margin:12px 0"><img src="assets/images/Elandt2019_p3_Fig2_pressure_field_crop.png" style="width:492px;max-width:100%;height:auto" alt="Elandt 原论文 Fig. 2：一个形状不规则的柔性物体（灰色）里用 Laplace 方程算出的压力场。灰色越深压力越大：外表面（Exterior 一侧）为 0，越往中间的刚性核心（Rigid Core）越大。蓝色方块是压进来的刚体，橙色箭头是物体压在方块上的压力，绿色箭头是合力。可以看出每一点的压力只看它在物体里有多深，与压进来的是什么无关。" loading="lazy"><figcaption class="small">Elandt 原论文 Fig. 2：一个形状不规则的柔性物体（灰色）里用 Laplace 方程算出的压力场。灰色越深压力越大：外表面（Exterior 一侧）为 0，越往中间的刚性核心（Rigid Core）越大。蓝色方块是压进来的刚体，橙色箭头是物体压在方块上的压力，绿色箭头是合力。可以看出每一点的压力只看它在物体里有多深，与压进来的是什么无关。</figcaption></figure>
+
+
+
+<details><summary>推导</summary><ul>
 <li>
 <p>每个物体内部预设一个固定压强场：</p>
 <p>\[p_0 = E\,\epsilon\]</p>
@@ -117,12 +137,34 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>\(\epsilon\)：穿入程度，表面为 0、中轴为 1（<strong>中轴</strong>：物体内离表面最远的点组成的集合，球的中轴是球心），由 Laplace 方程 \(\nabla^2\epsilon=0\) 在物体内求得</li>
 <li>\(E\)：材料的杨氏模量（单轴拉压时应力与应变之比，\(\sigma=E\varepsilon\)）</li>
 <li>该场为人工设定的固定场</li>
-<li>两物体重叠时，接触面取两侧压强相等的曲面。物体用四面体网格表示，四面体内压强线性，所以接触面在每对相交四面体内是一块平面多边形，整个接触面由这些多边形拼成</li>
-<li>接触力为接触面上的压强积分：</li>
 </ul>
+</li>
+</ul></details>
+<p><strong>② 等压接触面</strong></p>
+<p>\[\color{#c0392b}{p_{0_A}(\mathbf x)=p_{0_B}(\mathbf x)\ \Rightarrow\ \text{每对相交四面体内是一块平面}}\]</p>
+<ul>
+<li>用到 a 式 \(p_{0_A}=p_{0_B}\)（接触面的定义，论文 §III 第 (3) 条；§X-B 式 (13)）：这个式子说的是两个物体在重叠区里互相推，两边压强一样大的地方就是接触面，像两股推力打平的分界线。</li>
+<li>用到 b 式 四面体内压强线性 \(p_{0_A}=E_A\,\boldsymbol\epsilon_A\cdot\zeta^A\)（论文 §X-B 式 (12)，\(\zeta^A\) 为重心坐标）：这个式子说的是每个四面体里压强像一块斜坡，沿任何方向都是均匀地升降。</li>
+<li>得到 c 式「两块斜坡相等的点构成一个平面」（论文 §X-B 定理 2，式 (14)(15)；§VI-B-2）：所以接触面在每对相交四面体里是一块平面多边形，整面由这些多边形拼成。哪一侧越硬 → 接触面越靠近它原来的表面（它被压进去越少），因为它的压强升得快，在较浅处就和对面相等。</li>
+</ul>
+<figure style="margin:12px 0"><img src="assets/images/Elandt2019_p3_Fig1_contact_surface.png" style="width:420px;max-width:100%;height:auto" alt="Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。" loading="lazy"><figcaption class="small">Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。</figcaption></figure>
+<details><summary>推导</summary><ul>
+<li>两物体重叠时，接触面取两侧压强相等的曲面。物体用四面体网格表示，四面体内压强线性，所以接触面在每对相交四面体内是一块平面多边形，整个接触面由这些多边形拼成</li>
+</ul></details>
+<p><strong>③ 接触力</strong></p>
+<p>\[\color{#c0392b}{\mathbf f=\int_{\mathcal S}p_0\,\hat{\mathbf n}\;dS}\]</p>
+<ul>
+<li>用到 a 式 法向牵引 \(T_{\hat n}^R=p^R\,\hat{\mathbf n}^R\)（论文 §VI-B-3）：这个式子说的是接触面上每一小块受到的推力，大小等于那里的压强，方向沿接触面法向。</li>
+<li>用到 b 式 合力 = 牵引在整个接触面上的积分（论文 §III 第 (4) 条；§VI-B-3 式 (8)；§X-C 中不计阻尼 \(\chi=0\) 时即本式）：这个式子说的是把所有小块的推力加起来就是物体受的总力。</li>
+<li>得到 c 式 \(\mathbf f=\int_{\mathcal S}p_0\,\hat{\mathbf n}\,dS\)：重叠越深 → 力越大，因为接触面上每点压强更大、接触面也更大；接触面越平 → 各小块推力方向越一致、合力越接近「压强 × 面积」，因为法向相同的推力不会互相抵消。</li>
+</ul>
+<details><summary>推导</summary><ul>
+<li>
+<p>接触力为接触面上的压强积分：</p>
 <p>\[\mathbf f=\int_{\mathcal S}p_0\,\hat{\mathbf n}\;dS\]</p>
 </li>
-</ol>
+</ul></details>
+</details>
 <p><strong>实现</strong></p>
 <p>Drake 与 Genesis 取 \(\epsilon\) = 到表面距离 ÷ 物体内最大距离，因此</p>
 <p>\[p=\frac{E_h}{D}\times\text{深度}\]</p>
