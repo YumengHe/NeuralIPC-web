@@ -759,56 +759,50 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>式 (1)：速度 = 相邻两帧位置差 ÷ 帧间隔，只看两帧就知道物体走得多快（论文 §3.1 把相邻两帧位置差当作离散速度输入）。</p>
+<p>式 (1)：\(\mathbf q_t\) 是某个锚点在第 \(t\) 帧的位置，\(\mathbf q_{t-1}\) 是上一帧的位置，\(\Delta t\) 是两帧的时间间隔，\(\mathbf v_t\) 是这段时间里的速度。它说的是：速度 = 走过的距离 ÷ 用的时间，只看相邻两帧就知道锚点走得多快，所以网络输入只需两帧。</p>
 
-<p>式 (2)：加速度 = 相邻两段速度之差 ÷ 帧间隔（论文附录 C.2 式 (11)，用同一 Verlet 离散从真实轨迹算加速度标签）。</p>
+<p>式 (2)：\(\mathbf q_{t+1}\) 是下一帧的位置，\(\mathbf a_t\) 是第 \(t\) 帧的加速度。它说的是：加速度 = 速度的变化 ÷ 时间，后一段的速度减前一段的速度，再除以间隔；训练时也用同一个式子从真实轨迹算出加速度的标签。</p>
 
-<p>结果：把 (2) 移项（网络输出锚点加速度见 §3.2，附录 G 表「followed by Verlet + Kabsch」）。网络给的加速度越大 → 新位置偏离「按原速度直走」越远，因为当前位置加上一步的位移就是匀速外推的位置，加速度项是在它上面加的修正；步长越大，同样的加速度修正得越多（按步长的平方涨）。</p>
+<p>结果：\(\hat{\mathbf q}_{t+1}\) 是由网络给的加速度算出的锚点新位置。网络给的加速度越大 → 新位置偏离「按原速度直走」越远，因为 \(2\mathbf q_t-\mathbf q_{t-1}\) 就是按原速度再走一步的位置，加速度项是在它上面加的修正；步长越大，同样的加速度修正得越多，按步长的平方涨。</p>
 
-<details><summary>推导</summary><ul>
-<li>
-<p>Verlet 积分求锚点新位置（\(\mathbf q_t\)：某锚点在第 \(t\) 帧的位置，\(\mathbf a_t\)：网络输出的该锚点加速度，\(\Delta t\)：两帧间隔）</p>
-<ul>
-<li>速度 = 位置差 ÷ 时间。第 \(t-1\) 帧到第 \(t\) 帧的速度 \(\mathbf v_t=\dfrac{\mathbf q_t-\mathbf q_{t-1}}{\Delta t}\)；第 \(t\) 帧到第 \(t+1\) 帧的速度 \(\mathbf v_{t+1}=\dfrac{\mathbf q_{t+1}-\mathbf q_t}{\Delta t}\)</li>
-<li>加速度 = 速度差 ÷ 时间：\(\mathbf a_t=\dfrac{\mathbf v_{t+1}-\mathbf v_t}{\Delta t}\)</li>
-<li>代入两个速度：\(\mathbf a_t=\dfrac{1}{\Delta t}\Big(\dfrac{\mathbf q_{t+1}-\mathbf q_t}{\Delta t}-\dfrac{\mathbf q_t-\mathbf q_{t-1}}{\Delta t}\Big)=\dfrac{\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}}{\Delta t^2}\)</li>
-<li>
-<p>两边乘 \(\Delta t^2\)：\(\mathbf a_t\Delta t^2=\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}\)，移项解出新位置：</p>
-<p>\[\hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}\]</p>
-</li>
-<li>
-<p>只需当前帧与上一帧的位置，不需单独存速度；这也是输入只用两帧（速度特征 \(\mathbf x_t-\mathbf x_{t-1}\)）的原因</p>
-</li>
-</ul>
-</li>
-</ul></details>
+<details><summary>推导</summary><p>式 (2) 中的速度用式 (1) \(\mathbf v=\dfrac{\text{位置差}}{\Delta t}\) 写出：</p>
+<p>\[\mathbf a_t=\frac{1}{\Delta t}\Big(\frac{\mathbf q_{t+1}-\mathbf q_t}{\Delta t}-\frac{\mathbf q_t-\mathbf q_{t-1}}{\Delta t}\Big)=\frac{\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}}{\Delta t^2}\]</p>
+<p>两边乘 \(\Delta t^2\)：</p>
+<p>\[\mathbf a_t\,\Delta t^2=\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}\]</p>
+<p>移项，把 \(\mathbf a_t\) 换成网络的输出：</p>
+<p>\[\hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}\]</p></details>
 <p><b>② Kabsch 对齐：4 个预测锚点 → 一个刚体变换</b></p>
 
 <p>已知：① 给出的 4 个预测锚点 \(\hat{\mathbf q}_{t+1}^{k}\)、参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\)；求：一个刚体变换 \((\mathbf R,\mathbf t)\)。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\mathbf H=\displaystyle\sum_k(\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}})(\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}})^T,\quad \mathbf U,\boldsymbol\Sigma,\mathbf V^T=\mathrm{SVD}(\mathbf H)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf R=\mathbf V\,\mathrm{diag}(1,1,\det(\mathbf V\mathbf U^T))\,\mathbf U^T} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ (\mathbf R,\mathbf t)=\arg\min_{\mathbf R,\mathbf t}\sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2}\]</p>
-<p>式 (1)：两组锚点各自减去形心后的相关矩阵，再做奇异值分解；网络对每个锚点各自预测，彼此间距不一定保持（论文 §3.2，每个物体 4 个 FPS 锚点）。</p>
+<p>式 (1)：\(k\) 是锚点编号，每个物体 4 个锚点；\(\mathbf q_{\text{ref}}^{k}\) 是参考姿态下第 \(k\) 个锚点，\(\hat{\mathbf q}_{t+1}^{k}\) 是 ① 预测的第 \(k\) 个锚点；\(\bar{\mathbf q}_{\text{ref}}\)、\(\bar{\hat{\mathbf q}}\) 是两组锚点各自的形心；\(\mathbf H\) 是两组锚点减去形心后的 3×3 相关矩阵；\(\mathbf U\)、\(\boldsymbol\Sigma\)、\(\mathbf V\) 是它的奇异值分解。它说的是：先把两组点都挪到以形心为原点，只剩「怎么转」的问题；\(\mathbf H\) 记录了两组点的方向如何对应，分解它就能读出最好的转法。网络对每个锚点各自预测，彼此间距不一定保持，所以需要这一步把它们掰回一个刚体。</p>
 
-<p>式 (2)：旋转，中间的行列式项保证得到的是旋转而不是镜像（论文 §3.2「Differentiable Rigid Projection」，引 Kabsch 1976）。</p>
+<p>式 (2)：\(\mathbf R\) 是求出的旋转矩阵，\(\det\) 是行列式。它说的是：由分解出的两组方向拼成旋转；中间的行列式项保证得到的是真正的旋转，而不是镜像翻转。</p>
 
-<p>式 (3)：平移，把参考形心转过去后对齐到预测形心（论文 §3.2）。</p>
+<p>式 (3)：\(\mathbf t\) 是平移。它说的是：把参考形心转过去以后，再挪到预测形心的位置。</p>
 
-<p>结果：找一个只转不变形的摆放，让参考锚点尽量贴近预测锚点。预测锚点越不像刚体（间距偏差越大）→ 对齐后被「掰回」的量越大，因为结果只能是刚体运动，多出来的变形被丢掉。</p>
+<p>结果：这组旋转和平移让参考锚点经变换后与预测锚点的距离平方和最小，即找一个只转不变形的摆放，让参考锚点尽量贴近预测锚点。预测锚点越不像刚体，间距偏差越大 → 对齐后被「掰回」的量越大，因为结果只能是刚体运动，多出来的变形被丢掉。</p>
 
-<details><summary>推导</summary><ul>
-<li>网络各自预测的 4 个新位置不一定保持刚体的相对距离。Kabsch 算法求一组旋转 \(\mathbf R\) 与平移 \(\mathbf t\)，使参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\) 经变换后与 \(\hat{\mathbf q}_{t+1}^{k}\) 的距离平方和最小</li>
-</ul></details>
+<details><summary>推导</summary><p>两组锚点各自减去形心：</p>
+<p>\[\mathbf r_k=\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}},\qquad \hat{\mathbf r}_k=\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}}\]</p>
+<p>由式 (1) 组成相关矩阵并分解：</p>
+<p>\[\mathbf H=\sum_k\mathbf r_k\,\hat{\mathbf r}_k^{T}=\mathbf U\boldsymbol\Sigma\mathbf V^{T}\]</p>
+<p>由式 (2) 取旋转：</p>
+<p>\[\mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}\]</p>
+<p>由式 (3) 取平移：</p>
+<p>\[\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\]</p></details>
 <p><b>③ 推到所有顶点</b></p>
 
 <p>已知：② 的 \((\mathbf R,\mathbf t)\)、每个顶点的参考位置 \(\mathbf x_{\text{ref}}\)；求：所有顶点的新位置。</p>
 
 <p>\[\color{#c0392b}{\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\quad(\text{所有顶点})}\]</p>
-<p>式：整个物体这一步怎么转、怎么挪，作用在参考姿态的形状上，参考为序列第一帧（论文 §3.1；§3.2 对所有顶点广播同一变换，「enforces rigidity by construction」）。</p>
+<p>式：\(\mathbf x_{\text{ref}}\) 是一个顶点在参考姿态下的位置，参考姿态取序列第一帧；\(\mathbf x_{t+1}\) 是它的新位置；\(\mathbf R\)、\(\mathbf t\) 是 ② 求出的旋转与平移。它说的是：整个物体这一步怎么转、怎么挪，就把参考姿态的形状整体照这样转、挪过去；刚体上所有点只能一起转、一起挪。</p>
+
 <p>结果：无论物体有多少顶点，都只由 4 个锚点决定，物体严格保持刚性，因为所有顶点用的是同一个旋转和平移。</p>
 
-<details><summary>推导</summary><ul>
-<li>所有顶点：\(\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\)，物体严格保持刚性</li>
-</ul></details>
+<details><summary>推导</summary><p>对每个顶点代入 ② 的 \(\mathbf R\)、\(\mathbf t\)：</p>
+<p>\[\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\]</p></details>
 </details>
 <p><strong>步长输入方式 FiLM</strong>（Feature-wise Linear Modulation，逐特征线性调制）：</p>
 <details><summary>推导：步长输入方式 FiLM（步长 → 缩放与偏移 → 调制每维特征）</summary>
@@ -823,20 +817,17 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>式 (1)：FiLM 的定义，每一维特征先乘一个系数、再加一个偏移，由条件决定乘多少、加多少（Perez et al. 2018，论文引文 [28]；论文附录 I.2 写作 \(\mathrm{FiLM}_{\text{step}}(\mathbf h;[s,s^2])\)）。</p>
+<p>式 (1)：\(h\) 是网络某一层里一个物体的特征，是一个 768 维向量，\(h_i\) 是它的第 \(i\) 维；\(\gamma_i\) 是第 \(i\) 维的缩放，\(\beta_i\) 是偏移。它说的是：每一维特征先乘一个系数、再加一个偏移，由外部条件决定乘多少、加多少；这样同一套网络权重可以按条件改变行为，像调音台上每个通道的音量和偏置旋钮。</p>
 
-<p>式 (2)：步长只以 \(s\) 和 \(s^2\) 两个数进入网络（论文附录 G 表：Time step、per-layer FiLM conditioning；对象嵌入与隐层维度 768）。</p>
+<p>式 (2)：\(s\) 是步长，即一次预测跨过的帧数。它说的是：步长只以 \(s\) 和 \(s^2\) 两个数进入网络，由它们生成每一层的 \(\gamma\)、\(\beta\)；用 \(s^2\) 是因为 ① 里位置的修正按步长的平方涨。</p>
 
-<p>结果：同一个网络按不同 \(s\) 输出不同步长的预测（论文附录 C.1：训练时步长在 1、5、10 中随机取，同一个 FiLM 条件化的模型见过长短两种离散；§4.1 Step Sizes 与表 4）：\(s\) 不同 → \(\gamma,\beta\) 不同 → 同一场景得到不同步长的一步；步长越大 → 走完同样时长要滚动预测的次数越少、误差累积越少，所以论文表 4 中步长 10 的 100 帧误差最低（§4.1 Step Sizes）。调制系数只由 \(s\) 决定、对所有物体相同，因为 FiLM 参数在物体间共享（附录 B，不破坏物体顺序等变性）。</p>
+<p>结果：同一个网络按不同 \(s\) 输出不同步长的预测。\(s\) 不同 → \(\gamma\)、\(\beta\) 不同 → 同一场景得到不同步长的一步；步长越大 → 走完同样时长要滚动预测的次数越少、误差累积越少。调制系数只由 \(s\) 决定、对所有物体相同，所以不破坏物体顺序的对称性。</p>
 
-<details><summary>推导</summary><ul>
-<li>网络每层中每个物体的特征是一个 768 维向量 \(h=(h_1,\dots,h_{768})\)</li>
-<li>每个 FiLM 是一个独立的两层 MLP（编码器输出处一个、解码器每层各一个），以 \([s,s^2]\) 为输入，输出两个 768 维向量：缩放 \(\gamma=(\gamma_1,\dots,\gamma_{768})\)、偏移 \(\beta=(\beta_1,\dots,\beta_{768})\)；MLP 最后一层零初始化，所以训练开始时调制是恒等（论文 §3.1「layer-specific MLPs \(\gamma_\ell\), \(\beta_\ell\)」；附录 I.2「Each FiLM module is a two-layer MLP whose final affine layer is zero-initialized」；官方代码 github.com/Frank-ZY-Dou/Dynamics-Modeling/tree/main/RigidFormer 的 src/models/encoder.py L691 写成 \((1+\gamma)h+\beta\)，即同一调制把 \(\gamma\) 平移 1）</li>
-<li>每一维特征改为 \(h_i\leftarrow\gamma_i\,h_i+\beta_i\)</li>
-<li>\(\gamma,\beta\) 只由 \([s,s^2]\) 决定，同一步内所有物体用同一组</li>
-<li>作用位置：编码器输出处一次；之后每层 Transformer 内，注意力（含与 register token 的交叉注意力）之后、逐物体全连接层之前各一次。所以每层的注意力结果都被步长调制（论文附录 I.2「Both FiLMs are injected (i) once on the encoder output and (ii) per decoder layer, after the self/cross-attention sublayers and before the FFN」）</li>
-<li>同一个网络取不同 \(s\)，即输出对应步长的预测</li>
-</ul></details>
+<details><summary>推导</summary><p>由式 (2)，一个小网络把 \([s,s^2]\) 映成两组 768 维系数：</p>
+<p>\[\big(\gamma(s),\beta(s)\big)=\mathrm{MLP}\big([s,s^2]\big)\]</p>
+<p>代入式 (1)：</p>
+<p>\[h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s),\qquad i=1,\dots,768\]</p></details>
+<p>结构细节：每个 FiLM 是一个独立的两层 MLP，编码器输出处一个、解码器每层各一个；最后一层零初始化，所以训练开始时调制是恒等，官方代码写成 \((1+\gamma)h+\beta\)，即同一调制把 \(\gamma\) 平移 1。作用位置是编码器输出处一次，之后每层 Transformer 内注意力（含与 register token 的交叉注意力）之后、逐物体全连接层之前各一次，所以每层的注意力结果都被步长调制。训练时步长在 1、5、10 中随机取，步长 10 的 100 帧误差最低。</p>
 </details>
 <p><strong>数据</strong>：MOVi 数据集（PyBullet 刚体仿真），1200 个场景，每个 3–10 个物体抛落互撞，2 s、480 帧。分三个子集：MOVi-Sphere（只有球）、MOVi-A（基本几何体）、MOVi-B（复杂形状）。RigidFormer 官方代码已公开（github.com/Frank-ZY-Dou/Dynamics-Modeling 的 RigidFormer 目录，项目页 people.csail.mit.edu/frankzydou/projects/RigidFormer 有链接）；数据生成脚本在 HopNet（此前最强的学习型刚体仿真方法，基于网格）的仓库。</p>
 <p><strong>跨数据集测试</strong>：在一个子集上训练、另一个子集上测试，共 6 种组合；比较预测 100 帧后物体质心的位置误差（均方根，m），两者均为每次前进 1 帧：</p>
@@ -964,56 +955,27 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <ul>
 <li><strong>重力不进入 \(U_c\)</strong>：</li>
 </ul>
-<details><summary>推导：重力不进入 \(U_c\)（重力项之差 → 质量加权拟合 → 重力项为 0）</summary>
-
-<p><b>① 重力项之差</b></p>
+<details><summary>推导：重力不进入 \(U_c\)（重力项之差 → 质量加权拟合 → 重力项为 0）</summary><p><b>① 重力项之差</b></p>
 
 <p>已知：粗形状 \(\Phi z\)、局部修正 \(\Psi w\)、节点质量 \(m_i\)、重力加速度 \(g\)；求：加修正前后重力势能之差。</p>
 
-
-
 <p>\[\begin{cases}\color{#c0392b}{U_c(z)=\min_w\Pi(\Phi z+\Psi w)-\Pi(\Phi z)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{E_{\text{重}}=\sum_i m_i\,g\,y_i} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ E_{\text{重}}(\Phi z+\Psi w)-E_{\text{重}}(\Phi z)=g\sum_i m_i(\Psi w)_{y,i}}\]</p>
-
-
-
-<p>式 (1)：\(U_c\) 是加上局部修正前后总势能之差，总势能含重力势能（本节开头的定义；原代码 <code>nipc/validation/gravity_projection_check.py:94-96</code> 的 <code>total</code> 把弹性能、接触能与 <code>g * (m * X[:, 1]).sum()</code> 相加后对修正量最小化）。</p>
-
-<p>式 (2)：每个节点的重力势能只看它有多高，高度加一点，势能就按固定比例加一点（同一行代码 <code>g * (m * X[:, 1]).sum()</code>）。</p>
-
-<p>结果：(2) 对位置线性，两者相减只剩修正量那部分。修正把质量往下挪得越多 → 重力项越负，因为线性函数之差只和挪动量有关、和粗形状无关。</p>
-
-<details><summary>推导</summary><ul>
-<li>重力势能 \(\sum_i m_i g\,y_i\) 对位置线性，代入定义后重力项之差为 \(g\sum_i m_i(\Psi w)_{y,i}\)</li>
-</ul></details>
+<p>@@R1S@@</p>
+<p>@@R1F@@</p>
 <p><b>② 质量加权拟合：局部修正不移动质心</b></p>
 
 <p>已知：全网格节点位置 \(\mathbf x_i\) 与质量 \(m_i\)；求：局部修正的质量加权和。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\mathbf t=\displaystyle\sum_i \frac{m_i}{\sum_j m_j}\,\mathbf x_i} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\Psi w=\mathbf x-\text{质量加权仿射拟合}(\mathbf x)} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \sum_i m_i(\Psi w)_i=0}\]</p>
-<p>式 (1)：粗状态取全网格位置按节点质量加权的仿射拟合，它的平移部分就是质心的位置（原代码 `gravity_projection_check.py:68-78` 的 `AffineSplit`：权重 `w = mvert / sum`、`fit` 中 `t = (w * X).sum(0)`；调用处 `:123` 用节点质量 `mvert`）。</p>
-
-<p>式 (2)：修正 = 位置减去它自己的质量加权仿射拟合，修正里任何整体平移的成分都被先拿走、交给粗模型（`gravity_projection_check.py:83-86` 的 `project_t`：先减加权平均 `s`，再减以加权质心为原点的线性部分，二者加权平均都为 0）。</p>
-
-<p>结果：局部修正只在质心附近来回挪，质心一点不动。粗模型能表示的整体运动越完整（含平移的刚体、仿射体）→ 修正里剩下的越只是局部凹陷，因为所有能被拟合的部分都已归入粗形状。</p>
-
-<details><summary>推导</summary><ul>
-<li>条件：粗模型含整体平移自由度（刚体、仿射体等），且粗状态 \(z\) 取全网格位置按节点质量加权的拟合。此时质心平移全部归入 \(\Phi z\)，局部修正不移动质心：\(\sum_i m_i(\Psi w)_i=0\)</li>
-</ul></details>
+<p>@@R2S@@</p>
+<p>@@R2F@@</p>
 <p><b>③ 重力项恒为 0</b></p>
 
 <p>已知：① 与 ② 的结果；求：重力对 \(U_c\) 的影响。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\Delta E_{\text{重}}=g\sum_i m_i(\Psi w)_{y,i}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\sum_i m_i(\Psi w)_i=0} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \Delta E_{\text{重}}=0,\quad U_c\ \text{与}\ g\ \text{无关}}\]</p>
-<p>式 (1)：① 的结果，加修正前后的重力势能之差。</p>
-
-<p>式 (2)：② 的结果，取竖直分量即 (1) 中的求和（原代码 `gravity_projection_check.py:108` 记录这一量 `mass_moment` 以核对）。</p>
-
-<p>结果：重力项恒为 0，\(U_c\) 和最优修正都与 \(g\) 无关；所以生成标签时可以关掉重力（原代码 `nipc/teacher/gen3d_press.py:94` 设 `cfg["gravity"] = [[0.0], [0.0], [0.0]]`），重力由粗模型通过质心承担。重力再大 → \(U_c\) 也不变，因为重力在修正方向上做功为 0。</p>
-
-<details><summary>推导</summary><ul>
-<li>所以重力项恒为 0，\(U_c\) 与 \(g\) 无关；重力由粗模型通过质心承担，标签可关闭重力生成</li>
-</ul></details>
-</details>
+<p>@@R3S@@</p>
+<p>@@R3F@@</p></details>
 <ul>
 <li><strong>底部固定的物体也不例外</strong>：真实物体一端固定，它的粗模型代理并不需要固定那一端。代理允许穿透，完整代表精细解里的仿射变化（包括压缩后质心的整体下移），只是不含局部变形。所以粗状态仍取精细解按节点质量加权的拟合，局部修正不移动质心，重力项同样为 0</li>
 <li><strong>\(U_c\) 与粗模型绑定</strong>：粗模型自身能表示的变形越多，剩给 \(U_c\) 的越少。刚体粗模型不存弹性能，全部变形能都在 \(U_c\) 中；仿射体粗模型可整体均匀压缩，这部分由粗模型自身承担。由上一条，重力项为 0，\(U_c\) 只剩弹性能之差：\(U_c^{\text{仿射}}=E_{\text{总}}-\psi(\bar{\mathbf F})V_0\)（\(E_{\text{总}}\)：精细解的总弹性能；\(\bar{\mathbf F}\)：全物体平均变形梯度，即变形后对变形前位置的导数的体积平均；\(\psi\)：单位体积弹性能；\(V_0\)：体积）。为刚体训练的 \(U_c\) 直接用于仿射体，会把整体压缩能量重复计算</li>
