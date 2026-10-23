@@ -968,36 +968,38 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <b>① 重力项之差</b>
 
-
-
-<p>\[\color{#c0392b}{E_{\text{重}}(\Phi z+\Psi w)-E_{\text{重}}(\Phi z)=g\sum_i m_i(\Psi w)_{y,i}}\]</p>
+已知：粗形状 \(\Phi z\)、局部修正 \(\Psi w\)、节点质量 \(m_i\)、重力加速度 \(g\)；求：加修正前后重力势能之差。
 
 
 
-- 用到 a 式 \(U_c(z)=\min_w\Pi(\Phi z+\Psi w)-\Pi(\Phi z)\)，\(\Pi\) 含重力势能（本节开头的定义；原代码 <code>nipc/validation/gravity_projection_check.py:94-96</code> 的 <code>total</code> 把弹性能、接触能与 <code>g * (m * X[:, 1]).sum()</code> 相加后对修正量最小化）：这个式子说的是 \(U_c\) 是「加上局部修正前后总势能之差」。
-- 用到 b 式 重力势能 \(\sum_i m_i g\,y_i\) 对位置线性（同一行代码 <code>g * (m * X[:, 1]).sum()</code>）：这个式子说的是每个节点的重力势能只看它有多高，高度加一点，势能就按固定比例加一点。
-- 得到 c 式 两者相减只剩修正量那部分：\(g\sum_i m_i(\Psi w)_{y,i}\)。修正把质量往下挪得越多 → 重力项越负，因为线性函数之差只和挪动量有关、和粗形状 \(\Phi z\) 无关。
+<p>\[\begin{cases}\color{#c0392b}{U_c(z)=\min_w\Pi(\Phi z+\Psi w)-\Pi(\Phi z)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{E_{\text{重}}=\sum_i m_i\,g\,y_i} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ E_{\text{重}}(\Phi z+\Psi w)-E_{\text{重}}(\Phi z)=g\sum_i m_i(\Psi w)_{y,i}}\]</p>
+
+
+
+式 (1)：\(U_c\) 是加上局部修正前后总势能之差，总势能含重力势能（本节开头的定义；原代码 <code>nipc/validation/gravity_projection_check.py:94-96</code> 的 <code>total</code> 把弹性能、接触能与 <code>g * (m * X[:, 1]).sum()</code> 相加后对修正量最小化）。
+
+式 (2)：每个节点的重力势能只看它有多高，高度加一点，势能就按固定比例加一点（同一行代码 <code>g * (m * X[:, 1]).sum()</code>）。
+
+结果：(2) 对位置线性，两者相减只剩修正量那部分。修正把质量往下挪得越多 → 重力项越负，因为线性函数之差只和挪动量有关、和粗形状无关。
 
 <details><summary>推导</summary><ul>
 <li>重力势能 \(\sum_i m_i g\,y_i\) 对位置线性，代入定义后重力项之差为 \(g\sum_i m_i(\Psi w)_{y,i}\)</li>
 </ul></details>
 <p><strong>② 质量加权拟合：局部修正不移动质心</strong></p>
-<p>\[\color{#c0392b}{\sum_i m_i(\Psi w)_i=0}\]</p>
-<ul>
-<li>用到 a 式 粗状态 \(z\) 取全网格位置按节点质量加权的仿射拟合，平移部分 \(\mathbf t=\sum_i \tfrac{m_i}{\sum m}\mathbf x_i\)（原代码 <code>gravity_projection_check.py:68-78</code> 的 <code>AffineSplit</code>：权重 <code>w = mvert / sum</code>、<code>fit</code> 中 <code>t = (w * X).sum(0)</code>；调用处 <code>:123</code> 用节点质量 <code>mvert</code>）：这个式子说的是粗模型的平移就是质心的位置。</li>
-<li>用到 b 式 修正 = 位置减去它自己的质量加权仿射拟合（<code>gravity_projection_check.py:83-86</code> 的 <code>project_t</code>：先减加权平均 <code>s</code>，再减以加权质心为原点的线性部分，二者加权平均都为 0）：这个式子说的是修正里任何整体平移的成分都被先拿走、交给粗模型。</li>
-<li>得到 c 式 \(\sum_i m_i(\Psi w)_i=0\)：局部修正只在质心附近来回挪，质心一点不动；粗模型能表示的整体运动越完整（含平移的刚体、仿射体）→ 修正里剩下的越只是局部凹陷，因为所有能被拟合的部分都已归入 \(\Phi z\)。</li>
-</ul>
+<p>已知：全网格节点位置 \(\mathbf x_i\) 与质量 \(m_i\)；求：局部修正的质量加权和。</p>
+<p>\[\begin{cases}\color{#c0392b}{\mathbf t=\displaystyle\sum_i \frac{m_i}{\sum_j m_j}\,\mathbf x_i} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\Psi w=\mathbf x-\text{质量加权仿射拟合}(\mathbf x)} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \sum_i m_i(\Psi w)_i=0}\]</p>
+<p>式 (1)：粗状态取全网格位置按节点质量加权的仿射拟合，它的平移部分就是质心的位置（原代码 <code>gravity_projection_check.py:68-78</code> 的 <code>AffineSplit</code>：权重 <code>w = mvert / sum</code>、<code>fit</code> 中 <code>t = (w * X).sum(0)</code>；调用处 <code>:123</code> 用节点质量 <code>mvert</code>）。</p>
+<p>式 (2)：修正 = 位置减去它自己的质量加权仿射拟合，修正里任何整体平移的成分都被先拿走、交给粗模型（<code>gravity_projection_check.py:83-86</code> 的 <code>project_t</code>：先减加权平均 <code>s</code>，再减以加权质心为原点的线性部分，二者加权平均都为 0）。</p>
+<p>结果：局部修正只在质心附近来回挪，质心一点不动。粗模型能表示的整体运动越完整（含平移的刚体、仿射体）→ 修正里剩下的越只是局部凹陷，因为所有能被拟合的部分都已归入粗形状。</p>
 <details><summary>推导</summary><ul>
 <li>条件：粗模型含整体平移自由度（刚体、仿射体等），且粗状态 \(z\) 取全网格位置按节点质量加权的拟合。此时质心平移全部归入 \(\Phi z\)，局部修正不移动质心：\(\sum_i m_i(\Psi w)_i=0\)</li>
 </ul></details>
 <p><strong>③ 重力项恒为 0</strong></p>
-<p>\[\color{#c0392b}{U_c\ \text{与}\ g\ \text{无关}}\]</p>
-<ul>
-<li>用到 a 式 ① 的重力项之差 \(g\sum_i m_i(\Psi w)_{y,i}\)。</li>
-<li>用到 b 式 ② 的 \(\sum_i m_i(\Psi w)_i=0\)，取 \(y\) 分量即 \(\sum_i m_i(\Psi w)_{y,i}=0\)（原代码 <code>gravity_projection_check.py:108</code> 记录这一量 <code>mass_moment</code> 以核对）。</li>
-<li>得到 c：重力项恒为 0，\(U_c\) 和最优修正都与 \(g\) 无关；所以生成标签时可以关掉重力（原代码 <code>nipc/teacher/gen3d_press.py:94</code> 设 <code>cfg["gravity"] = [[0.0], [0.0], [0.0]]</code>），重力由粗模型通过质心承担。重力再大 → \(U_c\) 也不变，因为重力在修正方向上做功为 0。</li>
-</ul>
+<p>已知：① 与 ② 的结果；求：重力对 \(U_c\) 的影响。</p>
+<p>\[\begin{cases}\color{#c0392b}{\Delta E_{\text{重}}=g\sum_i m_i(\Psi w)_{y,i}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\sum_i m_i(\Psi w)_i=0} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \Delta E_{\text{重}}=0,\quad U_c\ \text{与}\ g\ \text{无关}}\]</p>
+<p>式 (1)：① 的结果，加修正前后的重力势能之差。</p>
+<p>式 (2)：② 的结果，取竖直分量即 (1) 中的求和（原代码 <code>gravity_projection_check.py:108</code> 记录这一量 <code>mass_moment</code> 以核对）。</p>
+<p>结果：重力项恒为 0，\(U_c\) 和最优修正都与 \(g\) 无关；所以生成标签时可以关掉重力（原代码 <code>nipc/teacher/gen3d_press.py:94</code> 设 <code>cfg["gravity"] = [[0.0], [0.0], [0.0]]</code>），重力由粗模型通过质心承担。重力再大 → \(U_c\) 也不变，因为重力在修正方向上做功为 0。</p>
 <details><summary>推导</summary><ul>
 <li>所以重力项恒为 0，\(U_c\) 与 \(g\) 无关；重力由粗模型通过质心承担，标签可关闭重力生成</li>
 </ul></details>
