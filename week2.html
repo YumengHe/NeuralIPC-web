@@ -184,17 +184,36 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <h3>1.2 Masterjohn et al. 2022：速度层面近似</h3>
 
 <p>Elandt 的模型配合加速度层面的变步长积分器使用（每步由力求加速度再积分，接触刚度大时步长须很小，无法实时）。1.1 的接触面由许多平面多边形拼成，本文把每块多边形改写为一根弹簧，使其可用于速度层面求解器（每步隐式求下一时刻速度，可取大步长），hydro 因此可实时运行，已在 Drake 开源。</p>
-<details><summary>推导：一块多边形 → 一根弹簧</summary><p><strong>第 1 步：一块多边形的力 = 面积 × 形心压强。</strong></p>
-<ul>
+<details><summary>推导：一块多边形 → 一根弹簧</summary>
+
+<b>① 一块多边形的力 = 面积 × 形心压强</b>
+
+
+
+<p>\[\color{#c0392b}{f_n=\int p\,dA=A\,p_c}\]</p>
+
+
+
+- 用到 a 式 力 = 压强在多边形上的积分 \(\mathbf f_e=\hat{\mathbf n}\int_A p_e\,dA\)（论文 §IV 式 (11)，多边形是平面，法向处处相同可提到积分外）：这个式子说的是把多边形上每一小块的推力加起来，就是这块多边形给的力。
+- 用到 b 式 压强在多边形上线性 \(p=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)\)（论文 §III-B 末「equilibrium pressure field is linear」）与形心定义 \(\int(\mathbf x-\mathbf x_c)\,dA=0\)（几何定义，论文未写出）：这两个式子说的是压强在多边形上是一块斜坡，形心是多边形的「平衡点」，斜坡在形心两侧多出来的和少掉的正好相等。
+- 得到 c 式 \(f_n=A\,p_c\)（论文 §IV 式 (12)，并说明在形心取一点积分是精确的）：多边形越大、形心处压强越大 → 力越大，因为斜坡的线性部分在形心两侧正负抵消，只剩「平均压强 × 面积」，而线性函数的平均值就是形心处的值。
+
+<details><summary>推导</summary><ul>
 <li>压强在多边形上是线性的：1.1 中每个四面体内压强按顶点值线性插值，多边形落在一对四面体内，所以压强可写成 \(p(\mathbf x)=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)\)，其中 \(\mathbf x_c\) 为形心，\(p_c\) 为形心处压强</li>
 <li>形心的定义：\(\mathbf x_c=\dfrac{1}{A}\displaystyle\int\mathbf x\,dA\)，两边乘 \(A\) 移项得 \(\displaystyle\int(\mathbf x-\mathbf x_c)\,dA=0\)</li>
 <li>
 <p>力 = 压强在多边形上的积分，把 \(p(\mathbf x)\) 代入：</p>
 <p>\[f_n=\int p\,dA=\int p_c\,dA+\nabla p\cdot\int(\mathbf x-\mathbf x_c)\,dA=p_c\,A+\nabla p\cdot0=p_c\,A\]</p>
 </li>
-</ul>
-<p><strong>第 2 步：压强与重叠量的关系，得到梯度串联。</strong></p>
+</ul></details>
+<p><strong>② 压强与重叠量：梯度串联</strong></p>
+<p>\[\color{#c0392b}{p=g\,d=-g\,\phi,\qquad g=\frac{g_A\,g_B}{g_A+g_B}}\]</p>
 <ul>
+<li>用到 a 式 每侧压强沿法向线性 \(p_A=g_A\,d_A\)、\(p_B=g_B\,d_B\)（论文 §IV-A 式 (17)(18) 把两侧压强沿法向近似为线性，\(g_A\)、\(g_B\) 为法向斜率，见 Fig. 2 图注；\(g_A=E_{h,A}/D_A\) 这一取法来自 1.1 的实现，不是本文）：这个式子说的是每一侧被压得越深，压强按固定斜率越大。</li>
+<li>用到 b 式 两侧等压 \(p_A=p_B\)（论文 §III-A「\(L_a\) 等于 \(L_b\) 的面为平衡面」；§IV-A 式 (19)）：这个式子说的是接触面停在两边压强打平的地方，所以总重叠 \(d\) 按两侧软硬分给两边，软的一侧分得多。</li>
+<li>得到 c 式 \(g=g_Ag_B/(g_A+g_B)\)（与论文 §IV-A 式 (23) 的系数相同；论文是对式 (19) 求时间导数、用式 (20)–(22) 的速度推出，本页用静态的深度分配推出，结果一致）：任一侧越软（梯度越小）→ 合成梯度 \(g\) 越小，而且 \(g\) 比两侧中较软的那个还小，因为这就是两根弹簧串联，总刚度由软的一根主导。</li>
+</ul>
+<details><summary>推导</summary><ul>
 <li>沿法向，A、B 在该处重叠的总深度为 \(d\)。记有符号距离 \(\phi=-d\)（两表面分开为正、穿透为负）</li>
 <li>接触面把 \(d\) 分成两段：进入 A 的深度 \(d_A\)、进入 B 的深度 \(d_B\)，\(d_A+d_B=d\)</li>
 <li>
@@ -209,18 +228,30 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>解出 \(p\)：\(p=\dfrac{d}{1/g_A+1/g_B}\)。分子分母同乘 \(g_Ag_B\)：\(p=\dfrac{g_Ag_B}{g_A+g_B}\,d\)。记</p>
 <p>\[g=\frac{g_A\,g_B}{g_A+g_B},\qquad p=g\,d=-g\,\phi\]</p>
 </li>
-</ul>
-<p><strong>第 3 步：一个时间步内重叠量的变化。</strong></p>
+</ul></details>
+<p><strong>③ 一个时间步内重叠量的变化</strong></p>
+<p>\[\color{#c0392b}{p_c=p_{c,0}-g\,\delta t\,v_n}\]</p>
 <ul>
+<li>用到 a 式 步首替代有符号距离 \(\phi_0=-p_{c,0}/g\)（论文 §IV 式 (16)；有符号距离穿透为负，§II-A）：这个式子说的是把步首的形心压强换算成「相当于重叠了多深」。</li>
+<li>用到 b 式 一阶近似 \(\phi=\phi_0+\delta t\,v_n\)（论文 §II-B 式 (3) 前、§IV 式 (16)；\(v_n\) 分离为正，§IV-A 式 (23) 后「\(v_n&gt;0\) 时两物体分开、压强下降」）：这个式子说的是一步之内重叠量按当前的相对速度匀速变化。</li>
+<li>得到 c 式 \(p_c=p_{c,0}-g\,\delta t\,v_n\)（即论文 §IV 式 (13)(14) 去掉正部）：分开得越快（\(v_n\) 越大）或步长越大 → 压强降得越多；合成梯度 \(g\) 越大 → 同样的速度下压强变化越快，因为压强 = \(g\) × 重叠深度，重叠变了多少，压强就按 \(g\) 倍跟着变。</li>
+</ul>
+<details><summary>推导</summary><ul>
 <li>步首形心处压强为 \(p_{c,0}\)，由第 2 步 \(p=-g\phi\) 得步首有符号距离 \(\phi_0=-\dfrac{p_{c,0}}{g}\)</li>
 <li>法向相对速度 \(v_n\)（分离为正）是 \(\phi\) 的变化率，经过一步 \(\delta t\)：\(\phi=\phi_0+\delta t\,v_n\)</li>
 <li>
 <p>代入第 2 步 \(p_c=-g\phi\)：\(p_c=-g(\phi_0+\delta t\,v_n)=-g\phi_0-g\,\delta t\,v_n\)；再代入 \(-g\phi_0=p_{c,0}\)：</p>
 <p>\[p_c=p_{c,0}-g\,\delta t\,v_n\]</p>
 </li>
-</ul>
-<p><strong>第 4 步：得到弹簧。</strong></p>
+</ul></details>
+<p><strong>④ 得到弹簧</strong></p>
+<p>\[\color{#c0392b}{f_n=(-k\phi)_+,\qquad k=g\,A_0}\]</p>
 <ul>
+<li>用到 a 式 \(f_n=A\,p_c\)（①，论文式 (12)）且面积固定为步首值 \(A_0\)（论文 §IV 式 (16) 后「froze geometric quantities at the previous time step」）：这个式子说的是一步之内把多边形当成大小不变的一块。</li>
+<li>用到 b 式 \(p_c=-g\phi\)（②）与正部 \((\cdot)_+\)（论文 §IV 式 (13) 后：物体外压强为零，分开时须取正部）：这个式子说的是压强只能推不能拉。</li>
+<li>得到 c 式 \(f_n=(-k\phi)_+\)、\(k=gA_0\)（论文 §IV 式 (15)(16)，与 §II-B 式 (1) 的点接触弹簧同形）：多边形越大、合成梯度越大 → 弹簧越硬，因为同样的重叠下面积大、压强升得快，力都更大；每块多边形各自一根弹簧，刚度只看自己的面积和梯度。</li>
+</ul>
+<details><summary>推导</summary><ul>
 <li>面积在一步内变化很小，固定为步首值 \(A_0\)。代入第 1 步 \(f_n=A\,p_c\)，再代入第 2 步 \(p_c=-g\phi\)：\(f_n=A_0\cdot(-g\phi)=-gA_0\,\phi\)</li>
 <li>记 \(k=gA_0\)，得 \(f_n=-k\phi\)</li>
 <li>
@@ -228,6 +259,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[f_n=(-k\phi)_+,\qquad k=g\,A_0\]</p>
 </li>
 </ul></details>
+</details>
 <p><strong>实现</strong></p>
 <ul>
 <li>Drake：刚体侧梯度取无穷大</li>
