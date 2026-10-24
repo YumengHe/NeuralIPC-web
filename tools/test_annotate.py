@@ -19,6 +19,7 @@
 页面用仓库根目录下已生成的 week3_4.html、week2.html（先跑 tools/build_site.py --execute）。不改任何仓库文件。
 """
 import argparse
+import base64
 import json
 import pathlib
 import sys
@@ -478,6 +479,166 @@ def test_drift(browser, rep, out, text, tgt, ids, ref):
     ctx.close()
 
 
+# ---------- GitHub 同步：内存里的假 Contents API ----------
+
+SYNC_INIT_JS = ("localStorage.setItem('nipc-notes-sync', JSON.stringify("
+                "{token: 'test-token', repo: 'delluluwxy/neural-ipc-notes'}))")
+CORS = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Methods": "GET, PUT, OPTIONS"}
+
+
+class FakeGitHub:
+    """假的 GitHub REST Contents API（按路径存 base64 内容和 sha）。PUT 带的 sha 与当前不符返回 409；
+    inject 可设一个函数，在下一次 GET 应答后立刻改动文件，模拟「读完被别的设备抢先写了」。"""
+
+    def __init__(self):
+        self.files, self.calls, self.inject, self.n = {}, [], None, 0
+
+    def _reply(self, route, status, obj):
+        route.fulfill(status=status, headers={**CORS, "Content-Type": "application/json"}, body=json.dumps(obj))
+
+    def handle(self, route, request):
+        if request.method == "OPTIONS":
+            route.fulfill(status=204, headers=CORS)
+            return
+        path = request.url.split("/contents/", 1)[1]
+        if request.method == "GET":
+            cur = self.files.get(path)
+            self.calls.append(("GET", path, 200 if cur else 404))
+            self._reply(route, 200, {"content": cur[0], "sha": cur[1], "encoding": "base64"}) if cur else \
+                self._reply(route, 404, {"message": "Not Found"})
+            if self.inject:
+                f, self.inject = self.inject, None
+                f(self, path)
+            return
+        body = json.loads(request.post_data)
+        cur = self.files.get(path)
+        if (cur and body.get("sha") != cur[1]) or (not cur and body.get("sha")):
+            self.calls.append(("PUT", path, 409))
+            self._reply(route, 409, {"message": "sha does not match"})
+            return
+        self.calls.append(("PUT", path, 201))
+        self.write(path, body["content"])
+        self._reply(route, 201, {"content": {"sha": self.files[path][1]}})
+
+    def write(self, path, content_b64):
+        self.n += 1
+        self.files[path] = (content_b64, f"sha{self.n}")
+
+    def data(self, path):
+        return json.loads(base64.b64decode(self.files[path][0]).decode("utf-8"))
+
+
+def sync_context(browser, fake, token=True):
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900})
+    ctx.route("https://api.github.com/**", fake.handle)
+    if token:
+        ctx.add_init_script(SYNC_INIT_JS)
+    return ctx
+
+
+def wait_synced(page):
+    page.wait_for_function("window.__nipcNotes && window.__nipcNotes.status().sync === '已同步'", timeout=15000)
+
+
+def sync_now(page):
+    page.evaluate("window.__nipcNotes.syncNow()")
+    wait_synced(page)
+
+
+def ids_of(page):
+    return sorted(s["id"] for s in strokes(page))
+
+
+def draw_on_image(page, cdp, src, fx=0.3, fy=0.4):
+    scroll_to(page, img_js(src))
+    r = page.evaluate(f"(() => {{ const q = ({img_js(src)}).getBoundingClientRect(); return {{x: q.left, y: q.top, w: q.width, h: q.height}}; }})()")
+    pen_stroke(cdp, zigzag(r["x"] + fx * r["w"], r["y"] + fy * r["h"]), [0.5] * 12)
+    page.wait_for_timeout(200)
+
+
+def draw_on_text(page, cdp, needle):
+    scroll_to(page, needle_parent_js(needle))
+    c = char_rect(page, needle)
+    pen_stroke(cdp, [(c["x"] + c["w"] / 2 + 8 * i, c["y"] + c["h"] / 2 + 4) for i in range(12)], [0.6] * 12)
+    page.wait_for_timeout(200)
+
+
+def test_sync(browser, rep):
+    """g) GitHub 同步：A 写 B 看到并对齐；两边各加一笔后都有；A 删除传到 B；sha 冲突后重读合并成功；没 token 不联网。"""
+    fake = FakeGitHub()
+    path = "notes/week3_4.json"
+    ctx_a, ctx_b = sync_context(browser, fake), sync_context(browser, fake)
+    a = open_page(ctx_a, "week3_4.html")
+    cdp_a = ctx_a.new_cdp_session(a)
+    wait_synced(a)
+    tgt = a.evaluate(PICK_JS)
+    toolbar_pen(a)
+    draw_on_image(a, cdp_a, tgt["src"])
+    sid = strokes(a)[0]["id"]
+    a.wait_for_timeout(3600)   # 约 3 s 防抖后自动推送
+    wait_synced(a)
+    pushed = path in fake.files and [s["id"] for s in fake.data(path)["strokes"]] == [sid]
+    ref = a.evaluate(MEASURE_JS, {"id": sid, "kind": "img", "src": tgt["src"]})
+    b = open_page(ctx_b, "week3_4.html")
+    cdp_b = ctx_b.new_cdp_session(b)
+    wait_synced(b)
+    got = b.evaluate(MEASURE_JS, {"id": sid, "kind": "img", "src": tgt["src"]}) if ids_of(b) == [sid] else {"error": "B 没有这一笔"}
+    rep.check("g1 A 写一笔后约 3 s 自动推送", pushed, f"仓库文件 {path} 笔画 {fake.data(path)['strokes'][0]['id'] if pushed else '无'}")
+    compare(rep, "g1 B 打开即拉到这一笔且对齐", ref, got)
+
+    draw_on_text(a, cdp_a, tgt["needle"])
+    toolbar_pen(b, "blue")
+    draw_on_image(b, cdp_b, tgt["src"], 0.6, 0.6)
+    sync_now(a)
+    sync_now(b)
+    sync_now(a)
+    ia, ib = ids_of(a), ids_of(b)
+    rep.check("g2 两边各加一笔，同步后两边都有全部 3 笔", len(ia) == 3 and ia == ib,
+              f"A {ia}，B {ib}；文字锚点 exact={next(s['anchor'].get('exact') for s in strokes(b) if s['anchor']['type'] == 'text')!r}")
+
+    a.click('[data-tool="eraser"]')
+    scroll_to(a, img_js(tgt["src"]))
+    r = a.evaluate(f"(() => {{ const q = ({img_js(tgt['src'])}).getBoundingClientRect(); return {{x: q.left, y: q.top, w: q.width, h: q.height}}; }})()")
+    pen_stroke(cdp_a, [(r["x"] + 0.3 * r["w"] + 30, r["y"] + 0.4 * r["h"] - 20 + 4 * k) for k in range(12)], [0.5] * 12)
+    a.wait_for_timeout(200)
+    gone = [i for i in ia if i not in ids_of(a)]
+    sync_now(a)
+    sync_now(b)
+    tomb = fake.data(path).get("tombstones", {})
+    rep.check("g3 A 删除一笔，同步后 B 也没了（墓碑）", gone == [sid] and sid not in ids_of(b) and sid in tomb,
+              f"A 删除 {gone}，B 现有 {ids_of(b)}，仓库墓碑 {sorted(tomb)}")
+
+    def foreign_write(fk, p):
+        d = fk.data(p)
+        extra = dict(d["strokes"][0], id="foreign1", updatedAt=1)
+        d["strokes"].append(extra)
+        fk.write(p, base64.b64encode(json.dumps(d).encode("utf-8")).decode())
+    fake.inject = foreign_write
+    a.click('[data-tool="pen"][data-color="black"]')
+    draw_on_text(a, cdp_a, tgt["needle"])
+    n409 = sum(1 for c in fake.calls if c[2] == 409)
+    sync_now(a)
+    conflicts = sum(1 for c in fake.calls if c[2] == 409) - n409
+    final = [s["id"] for s in fake.data(path)["strokes"]]
+    rep.check("g4 sha 过期（409）后重读、合并、写入成功", conflicts >= 1 and "foreign1" in ids_of(a) and set(ids_of(a)) == set(final),
+              f"409 次数 {conflicts}，A {len(ids_of(a))} 笔含 foreign1={'foreign1' in ids_of(a)}，仓库 {len(final)} 笔")
+    ctx_a.close()
+    ctx_b.close()
+
+    lone = FakeGitHub()
+    ctx = sync_context(browser, lone, token=False)
+    p = open_page(ctx, "week3_4.html")
+    cdp = ctx.new_cdp_session(p)
+    toolbar_pen(p)
+    draw_on_image(p, cdp, tgt["src"])
+    p.wait_for_timeout(3600)
+    st = p.evaluate("window.__nipcNotes.status()")
+    rep.check("g5 没填 token 不联网", not lone.calls and len(strokes(p)) == 1 and not st["sync"],
+              f"请求 {len(lone.calls)} 次，本机 {len(strokes(p))} 笔，同步状态 {st['sync']!r}")
+    ctx.close()
+
+
 # ---------- 滚动稳定性探针：逐帧记 scrollY，找「没有输入却在动」和「与输入方向相反」的帧 ----------
 
 # 页面内装记录器：每帧 [时间 ms, scrollY]；输入事件、html 类名 / style、main.style、resize、图片加载、笔迹图层变化都记时间
@@ -676,6 +837,7 @@ def main():
         test_week2_details(browser, rep, args.out)
         test_video_click(browser, rep)
         test_drift(browser, rep, args.out, text, tgt, ids, ref)
+        test_sync(browser, rep)
         run_scroll_probe(browser, rep, args.out, [(1440, 900), (820, 1180)], ["strokes_off", "notes_on"])
         browser.close()
     print(f"== 失败 {rep.fails} 项；截图与 JSON 在 {args.out}")

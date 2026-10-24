@@ -65,6 +65,10 @@ html.annot-on #annot-capture { display: block; }
 #annot-status .warn { color: var(--warn); }
 #annot-choice { margin-top: 8px; padding: 8px; background: var(--soft); border-radius: 8px; }
 #annot-choice p { margin: 0 0 6px; }
+#annot-sync-panel { margin-top: 8px; padding: 8px; background: var(--soft); border-radius: 8px; }
+#annot-sync-panel label { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted); }
+#annot-sync-panel input { display: block; width: 100%; font: inherit; font-size: 13px; padding: 6px 8px; margin-top: 2px;
+                          border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: #fff; }
 #annot-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 /* ===== 打印 / 生成 PDF：笔迹跟着各自的块走，正文保持 920px 排版再整体缩到纸宽 ===== */
@@ -113,6 +117,7 @@ ANNOT_JS = r"""
     strokes: [], on: false, tool: 'pen', color: 'red', undo: [],
     domVersion: 0, index: null, cache: new Map(), drawn: new Map(),
     drawing: null, erasing: null, moving: null, printing: false, orphans: 0, hidden: 0,
+    tombs: {}, lastIds: new Set(),
   };
 
   /* ---------- 2. 小工具 ---------- */
@@ -148,20 +153,23 @@ ANNOT_JS = r"""
   }
 
   /* ---------- 3. 本机保存（每页一个 localStorage 键） ---------- */
+  /** 本页笔记的完整 JSON（本机保存、导出、同步共用）。tombstones = {被删笔画 id: 删除时刻 ms}，让删除能同步到别的设备。 */
   function payload() {
     return { format: 'nipc-notes', version: CFG.version, page: PAGE_NAME, path: location.pathname,
-             colWidth: CFG.colWidth, saved: new Date().toISOString(), strokes: S.strokes };
+             colWidth: CFG.colWidth, saved: new Date().toISOString(), strokes: S.strokes, tombstones: S.tombs };
   }
   function validStroke(s) {
     return !!(s && typeof s.id === 'string' && Array.isArray(s.pts) && s.pts.length && s.anchor && s.orig &&
               (s.frame === 'px' || s.frame === 'norm'));
   }
+  function validTombs(t) { return t && typeof t === 'object' && !Array.isArray(t) ? t : {}; }
+  /** 本机存的 {strokes, tombs}。 */
   function loadStored() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
       const d = raw ? JSON.parse(raw) : null;
-      return d && Array.isArray(d.strokes) ? d.strokes.filter(validStroke) : [];
-    } catch (e) { return []; }
+      return { strokes: d && Array.isArray(d.strokes) ? d.strokes.filter(validStroke) : [], tombs: validTombs(d && d.tombstones) };
+    } catch (e) { return { strokes: [], tombs: {} }; }
   }
   function saveStored() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(payload())); }
@@ -644,8 +652,18 @@ ANNOT_JS = r"""
   /* ---------- 10. 操作：书写、橡皮擦、移动、撤销、清空 ---------- */
   function snapshot() { return JSON.stringify(S.strokes); }
   function pushUndo(snap) { S.undo.push(snap); if (S.undo.length > CFG.undoLimit) S.undo.shift(); }
-  /** 笔画集合变了：存本机、更新版式（第一笔会锁定版式）、重画。 */
-  function commit() { saveStored(); applyLayout(); S.cache.clear(); scheduleRender(); }
+  /** 笔画集合变了：记删除（墓碑）、存本机、更新版式（第一笔会锁定版式）、重画，并安排同步。 */
+  function commit() { trackDeletions(); saveStored(); applyLayout(); S.cache.clear(); scheduleRender(); schedulePush(); }
+  /** 与上次提交相比消失的笔记墓碑；被撤销恢复、但已有墓碑的笔换新 id（否则同步时会被墓碑删掉）。 */
+  function trackDeletions() {
+    const now = Date.now(), ids = new Set();
+    for (const s of S.strokes) {
+      if (S.tombs[s.id]) { s.id = newId(); s.updatedAt = now; }
+      ids.add(s.id);
+    }
+    for (const id of S.lastIds) if (!ids.has(id)) S.tombs[id] = now;
+    S.lastIds = ids;
+  }
   function forget(id) { S.cache.delete(id); const d = S.drawn.get(id); if (d) d.key = ''; }
 
   function eventPoints(e) {
@@ -685,7 +703,7 @@ ANNOT_JS = r"""
     dr.path.remove();
     const f = frame(), c = toClient(dr.abs[0][0], dr.abs[0][1], f);
     const got = anchorAt(c.x, c.y);
-    const s = Object.assign(dr.s, { id: newId(), anchor: got.anchor, frame: got.frame,
+    const s = Object.assign(dr.s, { id: newId(), updatedAt: Date.now(), anchor: got.anchor, frame: got.frame,
                                     orig: roundRect(got.R), pts: framePoints(dr.abs, got.R, got.frame) });
     pushUndo(snapshot());
     S.strokes.push(s);
@@ -721,7 +739,8 @@ ANNOT_JS = r"""
     const abs = d.abs.map(p => [p[0] + mv.dx, p[1] + mv.dy, p[2]]);
     const f = frame(), c = toClient(abs[0][0], abs[0][1], f);
     const got = anchorAt(Math.min(Math.max(c.x, 1), innerWidth - 1), Math.min(Math.max(c.y, 1), innerHeight - 1));
-    Object.assign(mv.s, { anchor: got.anchor, frame: got.frame, orig: roundRect(got.R), pts: framePoints(abs, got.R, got.frame) });
+    Object.assign(mv.s, { updatedAt: Date.now(), anchor: got.anchor, frame: got.frame, orig: roundRect(got.R),
+                          pts: framePoints(abs, got.R, got.frame) });
     forget(mv.s.id);
     pushUndo(mv.snap);
     commit();
@@ -811,6 +830,138 @@ ANNOT_JS = r"""
     setStatus(`已导入 ${incoming.length} 笔（${mode === 'replace' ? '替换' : '合并'}）`);
   }
 
+  /* ---------- 12b. 同步到 GitHub 私有仓库（填了 token 才启用；没填一切照旧只存本机） ----------
+   * 每页一个文件 notes/<页名>.json，内容 = payload()（含墓碑）。用 GitHub REST Contents API：
+   * GET /repos/{owner}/{repo}/contents/{path} 取 base64 内容和 sha；PUT 同一路径（message、base64 content、sha；新建不带 sha）。
+   * https://docs.github.com/en/rest/repos/contents
+   * 合并而不覆盖：按 id 取并集，同一 id 取 updatedAt 新的；墓碑（id → 删除时刻）胜过同 id 的笔。
+   * token 只存在 localStorage 的 SYNC_KEY 下，不写进日志、不进导出文件。 */
+  const SYNC_KEY = 'nipc-notes-sync';
+  const DEFAULT_REPO = 'delluluwxy/neural-ipc-notes';
+  const PUSH_DELAY_MS = 3000;
+  const SYNC_RETRIES = 3;
+  const SY = { sha: null, timer: null, busy: false, again: false, dirty: false, state: '', warn: false };
+
+  function syncCfg() {
+    try { const c = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}') || {}; return { token: c.token || '', repo: c.repo || DEFAULT_REPO }; }
+    catch (e) { return { token: '', repo: DEFAULT_REPO }; }
+  }
+  function saveSyncCfg(cfg) {
+    try { localStorage.setItem(SYNC_KEY, JSON.stringify(cfg)); return true; } catch (e) { return false; }
+  }
+  const notesPath = () => 'notes/' + PAGE_NAME.replace(/\.html?$/, '') + '.json';
+  /** UTF-8 安全的 base64（笔记里有中文锚点文字，btoa 不能直接处理）。 */
+  function b64EncodeUtf8(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  function b64DecodeUtf8(b64) {
+    const bin = atob(String(b64).replace(/\s/g, ''));
+    return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+  }
+  function ghRequest(cfg, init) {
+    return fetch(`https://api.github.com/repos/${cfg.repo}/contents/${notesPath()}`, Object.assign({
+      cache: 'no-store',
+      headers: { Authorization: 'Bearer ' + cfg.token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
+    }, init));
+  }
+  /** 远端文件：{data（解析后的 JSON 或 null）, sha（不存在为 null）}。 */
+  async function ghGet(cfg) {
+    const r = await ghRequest(cfg, { method: 'GET' });
+    if (r.status === 404) return { data: null, sha: null };
+    if (!r.ok) throw new Error('读取 ' + r.status);
+    const j = await r.json();
+    return { data: JSON.parse(b64DecodeUtf8(j.content)), sha: j.sha };
+  }
+  /** 写远端文件；sha 过期（409 / 422）返回 {conflict: true}。 */
+  async function ghPut(cfg, data, sha, keepalive) {
+    const body = { message: `notes: ${PAGE_NAME} ${new Date().toISOString()}`, content: b64EncodeUtf8(JSON.stringify(data)) };
+    if (sha) body.sha = sha;
+    const r = await ghRequest(cfg, { method: 'PUT', body: JSON.stringify(body), keepalive: !!keepalive });
+    if (r.status === 409 || r.status === 422) return { conflict: true };
+    if (!r.ok) throw new Error('写入 ' + r.status);
+    const j = await r.json();
+    return { sha: j.content && j.content.sha };
+  }
+  /** 合并本机与远端：并集；同 id 取 updatedAt 新的；墓碑取较晚的删除时刻且胜过同 id 的笔。 */
+  function mergeNotes(local, remote) {
+    const tombs = Object.assign({}, validTombs(remote && remote.tombstones));
+    for (const [id, t] of Object.entries(local.tombs)) tombs[id] = Math.max(tombs[id] || 0, t);
+    const byId = new Map();
+    const remoteStrokes = remote && Array.isArray(remote.strokes) ? remote.strokes.filter(validStroke) : [];
+    for (const s of local.strokes.concat(remoteStrokes)) {
+      const o = byId.get(s.id);
+      if (!o || (s.updatedAt || 0) > (o.updatedAt || 0)) byId.set(s.id, s);
+    }
+    return { strokes: [...byId.values()].filter(s => !tombs[s.id]), tombs };
+  }
+  /** 只比笔画和墓碑（忽略保存时间），判断远端是否已经是这个内容。 */
+  function sameNotes(a, b) {
+    const key = d => JSON.stringify([d.strokes.map(s => s.id + ':' + (s.updatedAt || 0)).sort(),
+                                     Object.keys(validTombs(d.tombstones || d.tombs)).sort()]);
+    return key(a) === key(b);
+  }
+  /** 把合并结果装进页面（不触发再次同步）。 */
+  function applyMerged(m) {
+    S.strokes = m.strokes; S.tombs = m.tombs; S.lastIds = new Set(m.strokes.map(s => s.id));
+    saveStored(); applyLayout(); S.cache.clear(); scheduleRender();
+  }
+  function setSync(state, warn) { SY.state = state; SY.warn = !!warn; updateStatus(); }
+  /** 拉取 → 合并 → 需要时推送；sha 冲突时重新拉取合并再推，最多重试 SYNC_RETRIES 次。 */
+  async function syncNow() {
+    const cfg = syncCfg();
+    if (!cfg.token) return;
+    if (SY.busy) { SY.again = true; return; }
+    SY.busy = true; SY.dirty = false;
+    setSync('同步中');
+    try {
+      for (let attempt = 0; attempt <= SYNC_RETRIES; attempt++) {
+        const remote = await ghGet(cfg);
+        const merged = mergeNotes({ strokes: S.strokes, tombs: S.tombs }, remote.data);
+        applyMerged(merged);
+        if (remote.data && sameNotes(remote.data, merged)) { SY.sha = remote.sha; setSync('已同步'); return; }
+        const put = await ghPut(cfg, payload(), remote.sha, false);
+        if (!put.conflict) { SY.sha = put.sha; setSync('已同步'); return; }
+      }
+      throw new Error(`冲突重试 ${SYNC_RETRIES} 次仍失败`);
+    } catch (e) {
+      SY.dirty = true;
+      setSync('失败（' + (e && e.message ? e.message : '网络错误') + '）', true);
+    } finally {
+      SY.busy = false;
+      if (SY.again) { SY.again = false; schedulePush(); }
+    }
+  }
+  /** 本机改动后约 3 s 推送（连续改动只推一次）。 */
+  function schedulePush() {
+    if (!syncCfg().token) return;
+    SY.dirty = true;
+    clearTimeout(SY.timer);
+    SY.timer = setTimeout(syncNow, PUSH_DELAY_MS);
+  }
+  /** 页面切到后台：有没推的改动就立刻用 keepalive 推一次（按已知 sha；冲突留给下次打开时合并）。 */
+  function pushOnHide() {
+    const cfg = syncCfg();
+    if (document.visibilityState !== 'hidden' || !cfg.token || !SY.dirty || SY.busy) return;
+    clearTimeout(SY.timer);
+    ghPut(cfg, payload(), SY.sha, true).then(r => { if (!r.conflict) { SY.dirty = false; SY.sha = r.sha; } }, () => {});
+  }
+  function wireSync() {
+    const cfg = syncCfg();
+    $('#annot-token').value = cfg.token;
+    $('#annot-repo').value = cfg.repo;
+    $('#annot-sync').addEventListener('click', () => { $('#annot-sync-panel').hidden = !$('#annot-sync-panel').hidden; });
+    $('#annot-sync-save').addEventListener('click', () => {
+      const ok = saveSyncCfg({ token: $('#annot-token').value.trim(), repo: $('#annot-repo').value.trim() || DEFAULT_REPO });
+      setSync(ok ? (syncCfg().token ? '设置已保存' : '已清除 token，只存本机') : '设置保存失败（浏览器存储不可用）', !ok);
+      if (syncCfg().token) syncNow();
+    });
+    $('#annot-sync-now').addEventListener('click', syncNow);
+    document.addEventListener('visibilitychange', pushOnHide);
+  }
+
   /* ---------- 13. 打印：每一笔挪进它所在的块，分页后仍跟着内容 ---------- */
   function hostFor(el) {
     if (!el || el === main) return main;
@@ -872,7 +1023,14 @@ ANNOT_JS = r"""
         <button type="button" id="annot-clear">清空本页</button>
         <button type="button" id="annot-export">导出</button>
         <button type="button" id="annot-import">导入</button>
+        <button type="button" id="annot-sync">同步</button>
         <input type="file" id="annot-file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+      </div>
+      <div id="annot-sync-panel" hidden>
+        <label>GitHub token <input type="password" id="annot-token" autocomplete="off" spellcheck="false"></label>
+        <label>仓库 <input type="text" id="annot-repo" autocomplete="off" spellcheck="false"></label>
+        <button type="button" id="annot-sync-save">保存</button>
+        <button type="button" id="annot-sync-now">立即同步</button>
       </div>
       <div id="annot-choice" hidden><p></p>
         <button type="button" data-import="replace">替换</button>
@@ -892,6 +1050,13 @@ ANNOT_JS = r"""
     const line = document.createElement('div');
     line.textContent = `本页 ${S.strokes.length} 笔` + (S.hidden ? `（${S.hidden} 笔在收起的折叠框里）` : '');
     box.appendChild(line);
+    if (SY.state) {
+      const s = document.createElement('div');
+      s.id = 'annot-sync-state';
+      if (SY.warn) s.className = 'warn';
+      s.textContent = SY.state;
+      box.appendChild(s);
+    }
     if (S.orphans) {
       const w = document.createElement('div');
       w.className = 'warn';
@@ -973,9 +1138,12 @@ ANNOT_JS = r"""
     ui.dataset.collapsed = pref.collapsed === false ? '0' : '1';
     selectTool('pen', 'red');
     setOn(false);
-    S.strokes = loadStored();
+    const stored = loadStored();
+    S.strokes = stored.strokes; S.tombs = stored.tombs; S.lastIds = new Set(S.strokes.map(s => s.id));
+    wireSync();
     applyLayout();
     renderAll();
+    syncNow();   // 填了 token 才会联网：打开页面先拉取合并
 
     capture.addEventListener('pointerdown', onDown);
     capture.addEventListener('pointermove', onMove);
@@ -1000,7 +1168,8 @@ ANNOT_JS = r"""
     window.__nipcNotes = {
       strokes: () => S.strokes, render: renderAll, frame,
       placed: id => { const d = S.drawn.get(id); return d ? { state: d.state, abs: d.abs } : null; },
-      status: () => ({ orphans: S.orphans, hidden: S.hidden, on: S.on }),
+      status: () => ({ orphans: S.orphans, hidden: S.hidden, on: S.on, sync: SY.state, tombs: Object.keys(S.tombs).length }),
+      syncNow,
     };
   }
   whenMathReady(start);
