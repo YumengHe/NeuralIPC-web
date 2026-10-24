@@ -541,6 +541,7 @@ def sync_context(browser, fake, token=True):
 
 def wait_synced(page):
     page.wait_for_function("window.__nipcNotes && window.__nipcNotes.status().sync === '已同步'", timeout=15000)
+    page.wait_for_timeout(300)   # 合并结果在下一帧才画出来
 
 
 def sync_now(page):
