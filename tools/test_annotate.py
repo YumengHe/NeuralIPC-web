@@ -9,10 +9,13 @@
   d) 标注关闭时：点击落在视频上（能解码时还检查真的在播放）；点击折叠框标题能展开。
   e) 内容改动：在两个目标之前插入一个新段落和一张图，并改掉起笔段落开头几个字，导入后两笔仍落在原来的图 / 字上（≤ 2px）。
   f) 删掉目标图、整段改写目标段落：两笔标灰显示（不丢），工具栏提示「有 2 笔对应的内容已变」。
+  s) 滚动稳定性（回归）：1440 / 820 宽、有笔迹关标注 / 开标注时，滚轮、PageDown、手指拖动、跳到页中静置，
+     逐帧记 scrollY：没有输入时不许动（> 2px），滚轮 / 手指滚动不许反向。
+     --scroll-probe 只跑这一项的完整矩阵（1440 / 1024 / 820 × 对照 / 有笔迹关标注 / 开标注），逐帧记录写到 --out。
 截图与导出的 JSON 写到 --out（默认 /nas/xiaoyingwang/Neural-IPC/outputs/web_annotate_test/，每次原路覆盖）。
 
 用法：
-    /bin/python tools/test_annotate.py [--out DIR]
+    /bin/python tools/test_annotate.py [--out DIR] [--scroll-probe]
 页面用仓库根目录下已生成的 week3_4.html、week2.html（先跑 tools/build_site.py --execute）。不改任何仓库文件。
 """
 import argparse
@@ -467,21 +470,190 @@ def test_drift(browser, rep, out, text, tgt, ids, ref):
     ctx.close()
 
 
+# ---------- 滚动稳定性探针：逐帧记 scrollY，找「没有输入却在动」和「与输入方向相反」的帧 ----------
+
+# 页面内装记录器：每帧 [时间 ms, scrollY]；输入事件、html 类名 / style、main.style、resize、图片加载、笔迹图层变化都记时间
+PROBE_INSTALL_JS = """() => {
+  const t0 = performance.now(), now = () => Math.round(performance.now() - t0);
+  const log = window.__probe = {frames: [], events: []};
+  const ev = (k, extra) => log.events.push(Object.assign({t: now(), k}, extra || {}));
+  window.__probeMark = (name) => { ev('action', {name}); return now(); };
+  window.__probeNow = now;
+  addEventListener('wheel', e => ev('wheel', {d: e.deltaY}), {capture: true, passive: true});
+  addEventListener('keydown', e => ev('key', {key: e.key}), true);
+  addEventListener('pointermove', e => { if (e.pointerType === 'touch') ev('touchmove', {y: Math.round(e.clientY)}); }, true);
+  addEventListener('touchmove', () => ev('touchmove-native', {}), {capture: true, passive: true});
+  addEventListener('resize', () => ev('resize', {w: innerWidth, h: innerHeight}));
+  document.addEventListener('load', e => {
+    if (e.target.tagName === 'IMG') ev('imgload', {src: e.target.getAttribute('src').split('/').pop(),
+                                                    top: Math.round(e.target.getBoundingClientRect().top)});
+  }, true);
+  const root = document.documentElement, main = document.querySelector('main');
+  new MutationObserver(() => ev('html-attr', {cls: root.className, style: root.getAttribute('style') || ''}))
+    .observe(root, {attributes: true, attributeFilter: ['class', 'style']});
+  new MutationObserver(() => ev('main-style', {zoom: main.style.zoom}))
+    .observe(main, {attributes: true, attributeFilter: ['style']});
+  const layer = document.getElementById('annot-layer');
+  if (layer) new MutationObserver(ms => ev('layer', {n: ms.length})).observe(layer, {subtree: true, childList: true, attributes: true});
+  (function tick() { log.frames.push([now(), Math.round(scrollY * 10) / 10]); requestAnimationFrame(tick); })();
+}"""
+
+INPUT_KINDS = {"wheel", "key", "touchmove", "touchmove-native"}
+QUIET_MS = 600       # 最近一次输入之后超过这么久还在动，算「没有输入却在动」（平滑滚动动画一般 < 500 ms）
+KEY_QUIET_MS = 1000  # PageDown 的平滑滚动动画更长
+
+
+def probe_actions(page, cdp, notes_on):
+    """依次做：静置、滚轮向下 20 次、PageDown 5 次、手指向下拖 3 次、跳到页中静置、滚轮向上 10 次；每段后静置 2 s。
+    返回每段的 (名字, 开始 ms, 结束 ms, 期望方向 +1 向下 / -1 向上 / 0 静置)，时间与记录器同一时钟。"""
+    segs = []
+
+    def seg(name, direction, fn):
+        t0 = page.evaluate(f"window.__probeMark({json.dumps(name)})")
+        fn()
+        segs.append((name, t0, page.evaluate("window.__probeNow()"), direction))
+        page.wait_for_timeout(2000)
+
+    def wheel(n, dy):
+        page.mouse.move(640, 400)
+        for _ in range(n):
+            page.mouse.wheel(0, dy)
+            page.wait_for_timeout(60)
+
+    def keys():
+        page.evaluate("document.activeElement && document.activeElement.blur()")
+        for _ in range(5):
+            page.keyboard.press("PageDown")
+            page.wait_for_timeout(400)
+
+    def touch():
+        for _ in range(3):
+            if notes_on:   # 标注打开：手指事件落在输入层上，由页面 JS 滚动
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": 500, "y": 600}]})
+                for k in range(1, 21):
+                    cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": 500, "y": 600 - 20 * k}]})
+                    page.wait_for_timeout(16)
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+            else:          # 标注关闭：浏览器原生的手指滚动手势
+                cdp.send("Input.synthesizeScrollGesture", {"x": 500, "y": 600, "yDistance": -400, "gestureSourceType": "touch"})
+            page.wait_for_timeout(300)
+
+    def jump_middle():
+        page.evaluate("window.scrollTo({top: document.documentElement.scrollHeight / 2, behavior: 'instant'})")
+        page.wait_for_timeout(2000)
+
+    seg("静置", 0, lambda: page.wait_for_timeout(2000))
+    seg("滚轮向下", 1, lambda: wheel(20, 120))
+    seg("PageDown", 1, keys)
+    seg("手指向下拖", 1, touch)
+    seg("跳到页中后静置", 0, jump_middle)
+    seg("滚轮向上", -1, lambda: wheel(10, -120))
+    return segs
+
+
+def probe_analyze(log, segs):
+    """逐帧找异常：|Δy| > 2 但距最近一次输入超过 QUIET_MS（按键后 KEY_QUIET_MS）；或在有方向的段里 Δy 与期望方向相反。
+    「跳到页中」那一下 scrollTo 是测试自己做的，紧随其后 100 ms 内的帧不算。"""
+    frames, events = log["frames"], log["events"]
+    inputs = [e for e in events if e["k"] in INPUT_KINDS]
+    jump_t = [t0 for n, t0, _, _ in segs if n == "跳到页中后静置"]
+    bad = []
+    for i in range(1, len(frames)):
+        t, y = frames[i]
+        dy = y - frames[i - 1][1]
+        if abs(dy) <= 2 or any(0 <= t - j <= 100 for j in jump_t):
+            continue
+        last_in = max((e for e in inputs if e["t"] <= t), key=lambda e: e["t"], default=None)
+        quiet = KEY_QUIET_MS if last_in and last_in["k"] == "key" else QUIET_MS
+        seg = max((s for s in segs if s[1] <= t), key=lambda s: s[1], default=None)
+        name, direction = (seg[0], seg[3]) if seg else ("开始前", 0)
+        if last_in is None or t - last_in["t"] > quiet:
+            bad.append({"i": i, "t": t, "dy": round(dy, 1), "kind": "无输入却在动", "seg": name})
+        elif direction and dy * direction < 0:
+            bad.append({"i": i, "t": t, "dy": round(dy, 1), "kind": "与输入方向相反", "seg": name})
+    return bad
+
+
+def probe_excerpt(log, item, k=4):
+    """异常帧前后 k 帧的原始 [t, scrollY]，以及这段时间（含前 300 ms）内的事件。"""
+    frames, i = log["frames"], item["i"]
+    lo, hi = max(0, i - k), min(len(frames), i + k + 1)
+    t_lo, t_hi = frames[lo][0], frames[hi - 1][0]
+    return frames[lo:hi], [e for e in log["events"] if t_lo - 300 <= e["t"] <= t_hi][:12]
+
+
+def probe_case(browser, rep, out, width, height, mode):
+    """一个视口 × 一种状态跑完整动作并检查。mode：control（无笔迹、标注关）、strokes_off（有 1 笔、标注关，
+    即 Mac 投屏讲课的状态）、notes_on（有 1 笔、标注开）。原始逐帧记录写到 out/scroll_probe_<mode>_<宽>.json。"""
+    ctx = browser.new_context(viewport={"width": width, "height": height}, has_touch=True)
+    page = open_page(ctx, "week3_4.html")
+    cdp = ctx.new_cdp_session(page)
+    if mode != "control":
+        tgt = page.evaluate(PICK_JS)
+        toolbar_pen(page)
+        scroll_to(page, img_js(tgt["src"]))
+        r = page.evaluate(f"(() => {{ const q = ({img_js(tgt['src'])}).getBoundingClientRect(); return {{x: q.left, y: q.top, w: q.width, h: q.height}}; }})()")
+        pen_stroke(cdp, zigzag(r["x"] + 0.3 * r["w"], r["y"] + 0.4 * r["h"]), [0.5] * 12)
+        page.wait_for_timeout(300)
+        if mode == "strokes_off":
+            set_annotation(page, False)
+    page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
+    page.wait_for_timeout(500)
+    page.evaluate(PROBE_INSTALL_JS)
+    segs = probe_actions(page, cdp, mode == "notes_on")
+    log = page.evaluate("window.__probe")
+    ctx.close()
+    (out / f"scroll_probe_{mode}_{width}.json").write_text(json.dumps({"segments": segs, **log}), encoding="utf-8")
+    bad = probe_analyze(log, segs)
+    ends = []
+    for n, t0, t1, _ in segs:
+        ys = [y for t, y in log["frames"] if t0 <= t <= t1 + 2000]
+        ends.append(f"{n} {ys[0] if ys else '?'}→{ys[-1] if ys else '?'}")
+    jumps = [b for b in bad if b["kind"] == "无输入却在动"]
+    back = [b for b in bad if b["kind"] == "与输入方向相反"]
+    rep.check(f"s {width}px {mode}：没有输入时 scrollY 不动", not jumps,
+              f"{len(log['frames'])} 帧，异常 {len(jumps)} 帧" + (f"，最大 |Δy| {max(abs(b['dy']) for b in jumps)}" if jumps else ""))
+    rep.check(f"s {width}px {mode}：滚轮 / 手指滚动方向单调", not back, f"反向 {len(back)} 帧；各段 scrollY：" + "；".join(ends))
+    for b in (jumps + back)[:5]:
+        fr, evs = probe_excerpt(log, b)
+        print(f"      异常 {b['kind']} 段「{b['seg']}」t={b['t']}ms Δy={b['dy']}：帧 {fr}")
+        print(f"        同时段事件 {evs}")
+
+
+def run_scroll_probe(browser, rep, out, widths, modes):
+    """滚动探针矩阵：每个 (宽, 高) × 每种 mode 跑一次 probe_case。"""
+    for w, h in widths:
+        for mode in modes:
+            probe_case(browser, rep, out, w, h, mode)
+
+
+PROBE_WIDTHS = [(1440, 900), (1024, 768), (820, 1180)]
+PROBE_MODES = ["control", "strokes_off", "notes_on"]
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT)
+    ap.add_argument("--scroll-probe", action="store_true",
+                    help="只跑滚动稳定性探针：1440/1024/820 宽 × 对照/有笔迹关标注/开标注，逐帧记录写到 --out")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     rep = Report()
     with sync_playwright() as p:
         browser = p.chromium.launch()
         print("chromium", browser.version)
+        if args.scroll_probe:
+            run_scroll_probe(browser, rep, args.out, PROBE_WIDTHS, PROBE_MODES)
+            browser.close()
+            print(f"== 失败 {rep.fails} 项；逐帧记录在 {args.out}/scroll_probe_*.json")
+            sys.exit(1 if rep.fails else 0)
         text, tgt, ids, ref = test_ipad_draw(browser, rep, args.out)
         print(f"      目标：图 {tgt['src']}，字 needle={tgt['needle']!r}")
         test_mac_import(browser, rep, args.out, text, tgt, ids, ref)
         test_week2_details(browser, rep, args.out)
         test_video_click(browser, rep)
         test_drift(browser, rep, args.out, text, tgt, ids, ref)
+        run_scroll_probe(browser, rep, args.out, [(1440, 900), (820, 1180)], ["strokes_off", "notes_on"])
         browser.close()
     print(f"== 失败 {rep.fails} 项；截图与 JSON 在 {args.out}")
     sys.exit(1 if rep.fails else 0)
