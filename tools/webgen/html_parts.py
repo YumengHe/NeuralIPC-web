@@ -113,8 +113,8 @@ img.initframe { max-width: 640px; }
 .demo video { margin: 0; }
 .novideo { padding: 22px 12px; background: var(--soft); color: var(--muted); border-radius: 6px; font-size: 13px; }
 
-/* 公式：MathJax 客户端渲染，宽公式按列宽缩小 */
-mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
+/* 公式：MathJax 客户端渲染，保持正文字号；超宽的在讲稿里手动断行，这里只留横向滚动兜底 */
+mjx-container[display="true"] { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
 
 /* 表格：带边框的滚动框 + 斑马纹 */
 .tablewrap { max-width: 100%; overflow: auto; margin: 24px 0; border: 1px solid var(--line); border-radius: 7px; }
