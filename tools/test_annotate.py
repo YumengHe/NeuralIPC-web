@@ -276,6 +276,12 @@ def test_mac_import(browser, rep, out, text, tgt, ids, ref):
     shot_around(page, out, "b_mac_image.png", img_js(tgt["src"]))
     import_notes(page, text, "merge")
     rep.check("b2 合并同一文件不重复", len(strokes(page)) == 2, f"合并后 {len(strokes(page))} 笔")
+    page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
+    link = page.evaluate("(() => { const a = document.querySelectorAll('#contents a')[3]; return {href: a.getAttribute('href'), text: a.textContent}; })()")
+    page.click(f'#contents a[href="{link["href"]}"]')
+    page.wait_for_timeout(1500)
+    top = page.evaluate("(id) => document.getElementById(id).getBoundingClientRect().top", link["href"][1:])
+    rep.check("b6 有笔记时点目录链接照常跳转", 0 <= top <= 200, f"点「{link['text']}」后该节标题距视口顶 {top:.0f}px")
 
     page.emulate_media(media="print")
     page.wait_for_timeout(400)
