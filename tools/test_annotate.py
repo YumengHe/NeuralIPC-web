@@ -495,7 +495,26 @@ PROBE_INSTALL_JS = """() => {
     .observe(main, {attributes: true, attributeFilter: ['style']});
   const layer = document.getElementById('annot-layer');
   if (layer) new MutationObserver(ms => ev('layer', {n: ms.length})).observe(layer, {subtree: true, childList: true, attributes: true});
-  (function tick() { log.frames.push([now(), Math.round(scrollY * 10) / 10]); requestAnimationFrame(tick); })();
+  // 参照元素：视口正中的正文元素，记它每帧在屏幕上的位置（scrollY 会被滚动锚定修正，屏上位置才是人看到的）；
+  // 它离开视口或测试自己跳转（__probeMark）时重选，编号 refId 加一
+  let ref = null, refId = 0;
+  const pickRef = () => {
+    const m = main.getBoundingClientRect(), x = m.left + m.width / 2, y = innerHeight / 2;
+    for (const el of document.elementsFromPoint(x, y)) {
+      if (el.closest('#annot-capture, .annot-ui, #annot-layer')) continue;
+      if (main.contains(el) && el !== main) return el;
+    }
+    return null;
+  };
+  const mark = window.__probeMark;
+  window.__probeMark = (name) => { ref = null; return mark(name); };
+  (function tick() {
+    if (ref) { const r = ref.getBoundingClientRect(); if (!ref.isConnected || r.bottom < 0 || r.top > innerHeight) ref = null; }
+    if (!ref) { ref = pickRef(); if (ref) refId++; }
+    const top = ref ? Math.round(ref.getBoundingClientRect().top * 10) / 10 : null;
+    log.frames.push([now(), Math.round(scrollY * 10) / 10, ref ? refId : 0, top]);
+    requestAnimationFrame(tick);
+  })();
 }"""
 
 INPUT_KINDS = {"wheel", "key", "touchmove", "touchmove-native"}
@@ -552,16 +571,19 @@ def probe_actions(page, cdp, notes_on):
 
 
 def probe_analyze(log, segs):
-    """逐帧找异常：|Δy| > 2 但距最近一次输入超过 QUIET_MS（按键后 KEY_QUIET_MS）；或在有方向的段里 Δy 与期望方向相反。
-    「跳到页中」那一下 scrollTo 是测试自己做的，紧随其后 100 ms 内的帧不算。"""
+    """逐帧找异常，按人眼看到的移动算：参照元素（同一个 refId）在屏上上移 dy = -Δtop 像素即「内容向下滚了 dy」。
+    |dy| > 2 但距最近一次输入超过 QUIET_MS（按键后 KEY_QUIET_MS）→「无输入却在动」；在有方向的段里 dy 与期望方向相反 →
+    「与输入方向相反」。滚动锚定修正 scrollY 时参照元素在屏上不动，不算异常。"""
     frames, events = log["frames"], log["events"]
     inputs = [e for e in events if e["k"] in INPUT_KINDS]
-    jump_t = [t0 for n, t0, _, _ in segs if n == "跳到页中后静置"]
     bad = []
     for i in range(1, len(frames)):
-        t, y = frames[i]
-        dy = y - frames[i - 1][1]
-        if abs(dy) <= 2 or any(0 <= t - j <= 100 for j in jump_t):
+        t, _, rid, top = frames[i]
+        _, _, rid0, top0 = frames[i - 1]
+        if not rid or rid != rid0 or top is None or top0 is None:
+            continue
+        dy = -(top - top0)
+        if abs(dy) <= 2:
             continue
         last_in = max((e for e in inputs if e["t"] <= t), key=lambda e: e["t"], default=None)
         quiet = KEY_QUIET_MS if last_in and last_in["k"] == "key" else QUIET_MS
@@ -607,7 +629,7 @@ def probe_case(browser, rep, out, width, height, mode):
     bad = probe_analyze(log, segs)
     ends = []
     for n, t0, t1, _ in segs:
-        ys = [y for t, y in log["frames"] if t0 <= t <= t1 + 2000]
+        ys = [y for t, y, *_ in log["frames"] if t0 <= t <= t1 + 2000]
         ends.append(f"{n} {ys[0] if ys else '?'}→{ys[-1] if ys else '?'}")
     jumps = [b for b in bad if b["kind"] == "无输入却在动"]
     back = [b for b in bad if b["kind"] == "与输入方向相反"]
