@@ -137,11 +137,6 @@ def display_width(name, w, h):
     return round(w * s)
 
 
-def mark_numbered_headings(html):
-    """标题文字已自带「1.1」这类编号的 h3 加 class="numbered"，样式表据此不再用计数器重复加前缀。"""
-    return re.sub(r"<h3>(?=\d+\.\d+)", '<h3 class="numbered">', html)
-
-
 def size_media(html):
     """配图按最短边定尺寸：每个 <img src="assets/images/…"> / <video src="assets/videos/…"> 加行内样式，
     显示宽度 = SHORT_SIDE × 宽 / min(宽, 高)（宽 ≤ 高时宽 = SHORT_SIDE，否则高 = SHORT_SIDE），再加 max-width: 100%、
@@ -314,8 +309,7 @@ def main():
         if p.stem in TRIM_WEEKS:
             pages[p] = trim_copies(pages[p], TRIM_WEEKS[p.stem])
         if p.stem in FIXED_SIZE_WEEKS:
-            pages[p] = size_media(pages[p])
-        pages[p] = mark_numbered_headings(pages[p])
+            pages[p] = size_media(pages[p])   # 标题编号与目录在 html_parts.page 里做（outline）
     # 讲稿里引用的 NAS 图（draft_md.notion_image / week2_hydro.setup_figure 在生成页面时登记）；留白副本另列，复制后 trim
     ijobs = c["ijobs"] + [{"src": src, "dst": IMAGE_DIR / src.name, "size": src.stat().st_size} for src in NOTION_IMAGES]
     ijobs += [{"src": src, "dst": IMAGE_DIR / name, "size": src.stat().st_size, "trim": True}

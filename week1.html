@@ -4,99 +4,195 @@
 <title>Neural-IPC 周汇报 · Week 1（TODO 2026-09-26）</title>
 <style>
 :root {
-  --bg: #fafaf8; --fg: #1f2328; --muted: #646b74; --border: #dcdfe3; --soft: #f1f3f5;
-  --accent: #245f96; --good: #1f6b3a; --warn: #8a5a0b; --key: #b3261e;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-          "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #16191d; --fg: #e4e7eb; --muted: #9ba3ad; --border: #353b43; --soft: #20252b;
-    --accent: #80b4e6; --good: #8fd3a5; --warn: #e6c27a; --key: #ff8a80;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #16191d; --fg: #e4e7eb; --muted: #9ba3ad; --border: #353b43; --soft: #20252b;
-  --accent: #80b4e6; --good: #8fd3a5; --warn: #e6c27a; --key: #ff8a80;
-  color-scheme: dark;
+  --ink: #202b3a; --muted: #637184; --line: #e2e7ed; --accent: #2563b8; --paper: #fff; --bg: #f7f8fa;
+  --soft: #f0f3f7; --good: #1f6b3a; --warn: #8a5a0b; --key: #354a63;
+  --font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+          "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { overflow-x: hidden; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font);
-       font-size: 15px; line-height: 1.65; }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px;
+       line-height: 1.9; overflow-x: clip; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
-header.top { padding: 28px 0 8px; }
-h1 { font-size: 1.85rem; margin: 0 0 8px; font-weight: 650; letter-spacing: 0.01em; }
-.summary { margin: 8px 0 0; }
-nav.toc { font-size: 0.9rem; margin: 14px 0 0; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-nav.toc { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-nav.weeks { display: grid; gap: 14px; margin: 18px 0 40px; }
-a.weekcard { display: block; padding: 14px 16px; border-radius: 6px; background: var(--soft);
-             border-left: 5px solid var(--accent); color: var(--fg); }
-a.weekcard:hover { text-decoration: none; filter: brightness(0.97); }
-a.weekcard b { font-size: 1.25rem; color: var(--accent); }
-a.weekcard span { display: block; font-size: 0.86rem; color: var(--muted); margin: 2px 0 6px; }
-h2 { font-size: 1.6rem; margin: 64px 0 14px; font-weight: 650; }
-h3 { font-size: 1rem; margin: 22px 0 4px; font-weight: 600; }
-h3.sub { font-size: 1.08rem; margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--border); }
-h4 { font-size: 1.15rem; margin: 26px 0 8px; font-weight: 650; }
-h5 { font-size: 1.05rem; margin: 20px 0 6px; font-weight: 650; }
+a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid #4b91ec; outline-offset: 4px; }
+#progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--accent); width: 0; z-index: 30; }
+.skip { position: fixed; top: -100px; left: 10px; background: #fff; padding: 10px; z-index: 40; }
+.skip:focus { top: 10px; }
+
+/* 顶栏 */
+.topbar { height: 74px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between;
+          gap: 16px; padding: 0 5%; background: #ffffffed; backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10; }
+.brand { display: flex; gap: 12px; align-items: center; font-weight: 750; color: var(--ink); letter-spacing: .01em; white-space: nowrap; }
+.brand:hover { text-decoration: none; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--ink); color: #fff; display: grid; place-items: center;
+              font-size: 17px; line-height: 1; }
+.brand-separator { font-weight: 400; color: #bac3ce; }
+.brand-note { font-size: 13px; font-weight: 500; color: var(--muted); }
+.topbar nav { display: flex; gap: 25px; font-size: 13px; white-space: nowrap; }
+.topbar nav a { color: var(--muted); }
+.topbar nav a[aria-current="page"] { color: var(--accent); font-weight: 600; }
+
+/* 左目录 + 正文卡片 */
+.layout { display: grid; grid-template-columns: 245px minmax(0, 1276px); gap: 50px; max-width: 1635px; margin: 0 auto; padding: 45px 32px 0; }
+.layout.single { grid-template-columns: minmax(0, 1276px); justify-content: center; }
+aside { position: sticky; top: 110px; align-self: start; max-height: calc(100vh - 140px); overflow: auto; padding-right: 16px;
+        font-size: 13px; scrollbar-width: thin; }
+#contents > summary { font-weight: 700; font-size: 12px; letter-spacing: .1em; color: var(--muted); margin-bottom: 18px; cursor: pointer; }
+#contents nav { display: flex; flex-direction: column; }
+#contents a { color: #5d6b7c; line-height: 1.65; padding: 6px 10px; border-left: 2px solid var(--line); }
+#contents a.toc-level-3 { font-size: 12px; padding-left: 22px; }
+#contents a.active { border-color: var(--accent); color: var(--accent); background: #eaf1fb; font-weight: 600; }
+#contents a:hover { color: var(--accent); background: #eef2f7; text-decoration: none; }
+main { min-width: 0; background: var(--paper); padding: 44px 54px 24px; border: 1px solid var(--line); border-radius: 12px;
+       box-shadow: 0 4px 30px #22354b03; }
+.eyebrow { font-size: 10px; letter-spacing: .17em; color: var(--muted); font-weight: 650; }
+.eyebrow span { color: #91a7c2; padding: 0 9px; }
+article { overflow-wrap: break-word; }
+footer.pagefoot { border-top: 1px solid var(--line); margin-top: 52px; padding-top: 22px; font-size: 11px; color: var(--muted);
+                  display: flex; justify-content: space-between; gap: 16px; }
+
+/* 标题与正文 */
+h1 { font-size: 31px; line-height: 1.45; letter-spacing: -.035em; margin: 17px 0 0; }
+header.top { margin-bottom: 42px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+article .summary { color: var(--muted); margin: 12px 0 0; }
+h2 { font-size: 24px; line-height: 1.55; letter-spacing: -.02em; margin: 56px 0 20px; padding-top: 12px; }
+h3 { font-size: 19px; line-height: 1.6; margin: 32px 0 17px; }
+h4 { font-size: 17px; line-height: 1.6; margin: 26px 0 8px; font-weight: 650; }
+h5 { font-size: 16px; line-height: 1.6; margin: 20px 0 6px; font-weight: 650; }
 section h4, section h5 { color: var(--accent); }
-.kp { color: var(--key); font-weight: 600; margin: 10px 0 14px; }
-pre.log { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.76rem;
-          line-height: 1.45; background: var(--soft); border-radius: 4px; padding: 10px 12px; margin: 6px 0;
-          max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
-details.repro { margin: 10px 0 26px; }
-details.repro summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }
-p.concl { font-size: 1.05rem; color: var(--good); }
-p.expect { font-size: 1.08rem; color: var(--accent); }
-p.setting { font-size: 0.8rem; color: var(--fg); }
-section { scroll-margin-top: 12px; }
-p { margin: 6px 0; }
+article { counter-reset: sec; }
+article section > h2 { counter-increment: sec; counter-reset: sub; }
+article section > h2::before { content: counter(sec) ". "; }
+article section > h3 { counter-increment: sub; }
+article section > h3::before { content: counter(sec) "." counter(sub) " "; }
+article section > h3.numbered::before { content: none; }
+p { margin: 16px 0; }
+li { margin: 6px 0; }
+ul, ol { padding-left: 1.5em; }
+strong, b { font-weight: 650; }
+code { font-size: .87em; background: var(--soft); padding: 2px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre { overflow: auto; padding: 16px; background: var(--soft); border-radius: 8px; }
+pre code { padding: 0; }
+pre.log { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5;
+          padding: 10px 12px; margin: 6px 0; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+article .lead { padding: 8px 20px; margin: 24px 0; background: #f3f7fc; border: 1px solid #e1eaf6; border-radius: 8px; }
+article .kp { font-weight: 600; color: var(--key); }
+p.concl { color: var(--good); }
+p.expect { color: var(--accent); }
+p.setting { font-size: 13px; }
 .muted { color: var(--muted); }
-code { font-size: 0.95em; word-break: break-all; }
-.small { font-size: 0.86rem; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-        gap: 22px 18px; }
+.small { font-size: 13px; }
+blockquote { font-size: 13px; line-height: 1.85; margin: 12px 0 32px; padding: 4px 18px; border-left: 3px solid #b5cbe5;
+             background: #f7f9fc; color: #5a6879; border-radius: 0 5px 5px 0; }
+ul.obs { font-weight: 600; } ul.findings li { margin: 8px 0; }
+
+/* 配图与视频：没有行内宽度的占满所在列；有行内宽度的（build_site.size_media 按子图面积定）以行内宽度为准 */
+article img, article video { display: block; width: 100%; height: auto; max-width: 100%; margin: 26px auto 12px; }
+article img { border: 1px solid #edf0f4; border-radius: 6px; cursor: zoom-in; }
+article video { background: #101722; border-radius: 8px; }
+article figure { margin: 26px 0 32px !important; min-width: 0; }
+article figure img, article figure video { margin: 0 auto 12px; }
+article figcaption { font-size: 13px; line-height: 1.85; margin: 12px 0 0; padding: 12px 18px; border-left: 3px solid #b5cbe5;
+                     background: #f7f9fc; color: #5a6879; border-radius: 0 5px 5px 0; }
+img.initframe { max-width: 640px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 22px 18px; }
 .demo { min-width: 0; }
-.demo h3 { margin: 0 0 6px; font-size: 0.95rem; }
-.demo h3 .key { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
-.demo p { font-size: 0.86rem; color: var(--muted); margin-top: 6px; }
-video, img { display: block; width: 100%; height: auto; border-radius: 4px; background: var(--soft); }
-img.plot { margin-top: 8px; }
-.novideo { padding: 22px 12px; background: var(--soft); color: var(--muted); border-radius: 4px;
-           font-size: 0.86rem; }
-.tablewrap { max-width: 100%; margin: 6px 0 4px; }
-table { border-collapse: collapse; font-size: 0.88rem; width: 100%; table-layout: auto; }
-th, td { text-align: left; padding: 5px 14px 5px 0; border-bottom: 1px solid var(--border);
-         white-space: normal; overflow-wrap: anywhere; vertical-align: top; }
-th { font-weight: 600; color: var(--muted); font-size: 0.82rem; border-bottom-color: var(--fg); }
-td { font-variant-numeric: tabular-nums; }
+.demo h3 { margin: 0 0 6px; font-size: 15px; }
+.demo h3 .key { color: var(--muted); font-weight: 400; font-size: 13px; }
+.demo p { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.demo video { margin: 0; }
+.novideo { padding: 22px 12px; background: var(--soft); color: var(--muted); border-radius: 6px; font-size: 13px; }
+
+/* 公式：MathJax 客户端渲染，宽公式按列宽缩小 */
+mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
+
+/* 表格：带边框的滚动框 + 斑马纹 */
+.tablewrap { max-width: 100%; overflow: auto; margin: 24px 0; border: 1px solid var(--line); border-radius: 7px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; line-height: 1.75; }
+th { background: #f1f5fa; text-align: left; font-weight: 650; color: #354a63; }
+td, th { padding: 11px 14px; border-bottom: 1px solid var(--line); min-width: 90px; vertical-align: top; text-align: left; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) { background: #fafbfd; }
+td { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 td.good { color: var(--good); }
 td.warn { color: var(--warn); }
-ul.obs { font-size: 1.02rem; font-weight: 600; margin: 8px 0; padding-left: 22px; } ul.obs li { margin: 3px 0; }
-main.wrap { counter-reset: sec; } main.wrap section > h2 { counter-increment: sec; counter-reset: sub; } main.wrap section > h2::before { content: counter(sec) ". "; } main.wrap section > h3 { counter-increment: sub; } main.wrap section > h3::before { content: counter(sec) "." counter(sub) " "; } main.wrap section > h3.numbered::before { content: none; }
-main.wrap section > h3 { font-size: 1.3rem; margin: 56px 0 10px; padding-top: 20px; border-top: 1px solid var(--border); }
-img.initframe { display: block; max-width: 640px; width: 100%; margin: 6px 0; }
-mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
-ul.findings { padding-left: 20px; }
-ul.findings li { margin: 8px 0; }
-.next { }
-footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border);
-              margin-top: 40px; padding: 12px 16px 28px; }
-@media (max-width: 480px) {
-  body { font-size: 14px; }
-  th, td { padding-right: 10px; }
+
+/* 折叠推导 */
+article details { margin: 22px 0; border: 1px solid var(--line); padding: 16px 18px; border-radius: 8px; }
+article details > summary { font-size: 14px; color: var(--accent); margin: 0; font-weight: 600; cursor: pointer; }
+article details[open] > summary { margin-bottom: 16px; }
+article details > :last-child { margin-bottom: 0; }
+
+/* 首页各周卡片 */
+nav.weeks { display: grid; gap: 14px; margin: 0 0 24px; }
+a.weekcard { display: block; padding: 16px 20px; border-radius: 8px; background: #f7f9fc; border: 1px solid var(--line);
+             border-left: 4px solid var(--accent); color: var(--ink); }
+a.weekcard:hover { text-decoration: none; background: #eef3fa; }
+a.weekcard b { font-size: 19px; color: var(--accent); }
+a.weekcard span { display: block; font-size: 13px; color: var(--muted); margin: 2px 0 6px; line-height: 1.7; }
+a.weekcard p { margin: 6px 0 0; }
+
+/* 点图放大 */
+dialog { border: 0; border-radius: 10px; max-width: 95vw; max-height: 94vh; padding: 40px 18px 8px; overflow: auto; background: #fff; }
+dialog::backdrop { background: #111c30c9; backdrop-filter: blur(3px); }
+dialog img { display: block; max-width: 88vw; max-height: 78vh; object-fit: contain; margin: auto; }
+dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10px; }
+#close-viewer { position: absolute; right: 12px; top: 8px; background: #edf1f7; border: 0; padding: 6px 12px; border-radius: 5px;
+                cursor: pointer; color: var(--ink); }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 200px minmax(0, 1fr); gap: 24px; padding: 28px 20px 0; }
+  .layout.single { grid-template-columns: minmax(0, 1fr); }
+  main { padding: 32px 28px; } h1 { font-size: 27px; }
+}
+@media (max-width: 720px) {
+  body { font-size: 15px; }
+  .topbar { height: 62px; padding: 0 16px; }
+  .brand { font-size: 15px; gap: 8px; } .brand-note, .brand-separator { display: none; }
+  .topbar nav { gap: 12px; font-size: 12px; overflow-x: auto; }
+  .layout { display: block; padding: 18px 12px 0; }
+  aside { position: static; max-height: none; padding: 0; margin-bottom: 16px; }
+  #contents { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 12px 14px; }
+  #contents > summary { margin: 0; } #contents[open] > summary { margin-bottom: 10px; }
+  #contents nav { max-height: 45vh; overflow: auto; }
+  main { padding: 28px 16px; border-radius: 8px; }
+  h1 { font-size: 25px; } header.top { margin-bottom: 30px; } h2 { font-size: 21px; margin-top: 40px; } h3 { font-size: 18px; }
+  td, th { padding: 9px 11px; } .eyebrow { font-size: 9px; letter-spacing: .1em; }
+  article figcaption { padding: 10px 12px; } article .lead { padding: 6px 14px; } article details { padding: 12px; }
+  footer.pagefoot { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  .topbar, aside, #progress, .eyebrow, dialog { display: none; }
+  .layout { display: block; margin: 0; padding: 0; } main { border: 0; padding: 0; box-shadow: none; }
+  body { background: #fff; font-size: 11pt; } h2, h3 { break-after: avoid; } img, video, table { break-inside: avoid; }
+  a { color: inherit; } .tablewrap { overflow: visible; }
 }
 </style>
 <script>window.MathJax = {tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]}, svg: {fontCache: "global"}};</script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
-<main class="wrap">
-<header class="top"><a href="index.html">← 所有周</a><h1>Week 1（TODO 2026-09-26）</h1><p class="summary">在服务器上跑通了 Genesis + lib IPC（Genesis 的 IPC 接触底层由 libuipc 计算）：5 个 Genesis IPC 例子和 4 个 Genesis 官方 IPC 测试场景，共 9 段视频（官方测试 4 个跑完，其中官方断言通过 2 个）。然后做了「一堆物体扔进盒子」（官方 ipc_objects_falling 场景加一个盒子），对 8 个 IPC 参数做了单变量扫描，共 25 个配置。主要发现：初始穿插会被拒绝开跑；表面全程没有穿透；\(\hat d\) 越小越难解，且不能大于软体表面网格的边长；Genesis 默认 κ 1e9 会被 libuipc 夹到区间上界；官方软球 E = 1 kPa 太软，会被压塌，所以主结果用 E = 1e5。</p><nav class="toc"><a href="#w1">IPC 的接触能量</a><a href="#w2">Demo：Genesis + libuipc 官方例子</a><a href="#w3">Demo：官方 IPC 测试</a><a href="#w4">盒子实验与参数扫描</a><a href="#w5">对生成训练数据的意义</a></nav></header>
+<a class="skip" href="#content">跳转到正文</a><div id="progress" aria-hidden="true"></div>
+<header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">N</span> Neural-IPC <span class="brand-separator">/</span> <span class="brand-note">研究记录</span></a><nav aria-label="各周页面"><a href="index.html">所有周</a><a href="week3_4.html">Week 3–4</a><a href="week2.html">Week 2</a><a href="week1.html" aria-current="page">Week 1</a></nav></header>
+<div class="layout"><aside><details id="contents" open><summary>本页目录</summary><nav aria-label="章节目录"><a class="toc-level-2" href="#w1">1. IPC 的接触能量</a>
+<a class="toc-level-3" href="#w1-1">1.1 原版 IPC 的 barrier 能量</a>
+<a class="toc-level-3" href="#w1-2">1.2 libuipc 的写法与 κ 截断区间</a>
+<a class="toc-level-2" href="#w2">2. Demo：Genesis + libuipc 官方例子</a>
+<a class="toc-level-2" href="#w3">3. Demo：官方 IPC 测试</a>
+<a class="toc-level-3" href="#w3-1">3.1 离地间隙随接触刚度变化（未通过）</a>
+<a class="toc-level-3" href="#w3-2">3.2 斜向重力下的地面滑动（未通过）</a>
+<a class="toc-level-3" href="#w3-3">3.3 布料盖在物体上（通过）</a>
+<a class="toc-level-3" href="#w3-4">3.4 夹住布料一角拖动（通过）</a>
+<a class="toc-level-2" href="#w4">4. 盒子实验与参数扫描</a>
+<a class="toc-level-3" href="#w4-1">4.1 对照档：官方默认参数</a>
+<a class="toc-level-3" href="#w4-2">4.2 作用距离 \(\hat d\)</a>
+<a class="toc-level-3" href="#w4-3">4.3 时间步长 \(\Delta t\)</a>
+<a class="toc-level-3" href="#w4-4">4.4 接触刚度 κ</a>
+<a class="toc-level-3" href="#w4-5">4.5 初始穿插</a>
+<a class="toc-level-3" href="#w4-6">4.6 网格分辨率</a>
+<a class="toc-level-2" href="#w5">5. 对生成训练数据的意义</a></nav></details></aside><main id="content"><div class="eyebrow">NEURAL-IPC <span>·</span> WEEKLY REPORT</div><article>
+<header class="top"><h1>Week 1（TODO 2026-09-26）</h1><p class="summary">在服务器上跑通了 Genesis + lib IPC（Genesis 的 IPC 接触底层由 libuipc 计算）：5 个 Genesis IPC 例子和 4 个 Genesis 官方 IPC 测试场景，共 9 段视频（官方测试 4 个跑完，其中官方断言通过 2 个）。然后做了「一堆物体扔进盒子」（官方 ipc_objects_falling 场景加一个盒子），对 8 个 IPC 参数做了单变量扫描，共 25 个配置。主要发现：初始穿插会被拒绝开跑；表面全程没有穿透；\(\hat d\) 越小越难解，且不能大于软体表面网格的边长；Genesis 默认 κ 1e9 会被 libuipc 夹到区间上界；官方软球 E = 1 kPa 太软，会被压塌，所以主结果用 E = 1e5。</p></header>
 <div class="lead"><p>IPC 原理、Genesis + libuipc 官方例子与官方测试、盒子实验与参数扫描、对生成训练数据的意义。</p>
 <p>本项目的训练标签由 IPC 仿真生成。IPC（Incremental Potential Contact）在两个表面接近时加一项随距离减小而急剧增大的能量，把它们推开。本周跑通了 Genesis + libuipc：Genesis 是物理仿真平台，其 IPC 接触由底层的 libuipc（GPU 上的 IPC 求解库）计算。</p>
 <ul>
@@ -106,7 +202,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">本页结论：用 Genesis + libuipc 生成数据时，接触刚度必须显式设定并确认未被截断，作用距离要记录且不大于最短表面边长，初始状态必须无穿插，求解要真正收敛。</p></div>
 <section id="w1"><h2>IPC 的接触能量</h2>
 <p>后面的实验现象都由本节两个式子解释：接触能量，以及 libuipc 对接触刚度的截断区间。</p>
-<h3 class="numbered">1.1 原版 IPC 的 barrier 能量</h3>
+<h3 id="w1-1" class="numbered">1.1 原版 IPC 的 barrier 能量</h3>
 
 <p><strong>每一对靠得足够近的图元都加一项 barrier 能量，距离为 0 时能量无穷大。</strong> 图元对指点–三角形或边–边这两种可能发生接触的最小单位。</p>
 <p>\[b(d)=-(d-\hat d)^2\ln\dfrac{d}{\hat d}\ \ (0&lt;d&lt;\hat d),\qquad b(d)=0\ \ (d\ge\hat d),\qquad E_{\text{contact}}=\kappa\sum_{k\in C} b(d_k)\]</p>
@@ -117,7 +213,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>\(C\)：所有距离小于 \(\hat d\) 的图元对，\(k\) 是其中一对；总接触能量是逐对求和，<strong>不按面积加权</strong></li>
 </ul>
 <p><strong>静止时物体停在作用层里</strong>：托住重力的推力只在 \(d&lt;\hat d\) 时存在，所以接触面之间会留一条比 \(\hat d\) 略小的缝。</p>
-<h3 class="numbered">1.2 libuipc 的写法与 κ 截断区间</h3>
+<h3 id="w1-2" class="numbered">1.2 libuipc 的写法与 κ 截断区间</h3>
 
 <p><strong>libuipc 用距离平方写 barrier，并乘了时间步长平方。</strong></p>
 <p>\[B(D)=\kappa\,\Delta t^{2}\,(D-\hat d^{2})^{2}\Big[\ln\frac{D}{\hat d^{2}}\Big]^{2},\qquad 0&lt;D&lt;\hat d^{2}\]</p>
@@ -164,7 +260,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">Genesis + libuipc 的官方例子可在服务器上原样复现，刚体、软体、布料之间的双向接触均能正常求解。</p></section>
 <section id="w3"><h2>Demo：官方 IPC 测试</h2>
 <p>官方例子只看画面，官方测试带有断言，能检验结果是否符合预期。4 个场景原样运行：2 个通过，2 个未通过，未通过的原因都已查清。</p>
-<h3 class="numbered">3.1 离地间隙随接触刚度变化（未通过）</h3>
+<h3 id="w3-1" class="numbered">3.1 离地间隙随接触刚度变化（未通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_ground_clearance_0_fit.mp4"></video></figure>
 <ul>
@@ -173,7 +269,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>原因是 κ 截断</strong>：前 3 个方块设定的刚度低于 \(\kappa_{\min}\)，被截断成同一个值（1.2）</li>
 </ul>
 <p><strong>设置</strong>：5 个方块落地，接触刚度从 \(10^2\) 到 \(10^6\)；断言：不横向漂移、最终停住、刚度越大离地间隙越大。</p>
-<h3 class="numbered">3.2 斜向重力下的地面滑动（未通过）</h3>
+<h3 id="w3-2" class="numbered">3.2 斜向重力下的地面滑动（未通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_ground_sliding_0_fit.mp4"></video></figure>
 <ul>
@@ -182,14 +278,14 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>原因是求解提前终止</strong>：libuipc 默认开启半隐式提前终止，Newton 迭代未收敛就停止，误差逐步积累导致翻倒。只关掉这一项，最大倾角 0.24°，断言通过；步长减半也能通过，最大倾角 0.31°</li>
 </ul>
 <p><strong>设置</strong>：重力带水平分量，5 个方块摩擦系数 0–0.16；断言：不穿地、离地高度与摩擦无关、摩擦越小滑得越远。</p>
-<h3 class="numbered">3.3 布料盖在物体上（通过）</h3>
+<h3 id="w3-3" class="numbered">3.3 布料盖在物体上（通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_objects_colliding_0_fit.mp4"></video></figure>
 <ul>
 <li><strong>布料确实软</strong>：蓝色布料初始是平的，最终高低差 127 mm，中间被方块和球顶起、四周垂下</li>
 </ul>
 <p><strong>设置</strong>：物体和布料落地；断言：全部落到地面且不穿地、没有飞走、最终静止、布料盖在所有物体上面。</p>
-<h3 class="numbered">3.4 夹住布料一角拖动（通过）</h3>
+<h3 id="w3-4" class="numbered">3.4 夹住布料一角拖动（通过）</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_cloth_corner_drag_0_fit.mp4"></video></figure>
 <ul>
@@ -200,7 +296,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <section id="w4"><h2>盒子实验与参数扫描</h2>
 <p>在盒子场景里每次只改一个量，看停住时接触面之间的最短距离（下称间隙）、每帧 Newton 迭代次数（求解难度）和总耗时。除初始穿插一组外，各档 libuipc 的穿透检查均未报告穿透。</p>
 <p><strong>设置</strong>：对照档取官方本例与 Genesis 默认：\(\Delta t=0.02\) s、\(\hat d=10\) mm、接触刚度设定 \(10^9\) Pa、摩擦系数 0.1、软球用官方球网格；软球杨氏模量取 \(10^5\) Pa（官方 \(10^3\) Pa 过软，在盒子里会被压塌）。物理时长 2 s。盒子墙画成半透明。</p>
-<h3 class="numbered">4.1 对照档：官方默认参数</h3>
+<h3 id="w4-1" class="numbered">4.1 对照档：官方默认参数</h3>
 
 <figure><video controls muted playsinline preload="metadata" src="assets/videos/box_stiffball_baseline_default.mp4"></video></figure>
 <div class="tablewrap"><table>
@@ -232,7 +328,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：静止时接触面之间留有 0.7–1 倍 \(\hat d\) 的间隙，间隙大小随接触载荷变化。</p>
 
-<h3 class="numbered">4.2 作用距离 \(\hat d\)</h3>
+<h3 id="w4-2" class="numbered">4.2 作用距离 \(\hat d\)</h3>
 
 <ul>
 <li><strong>期待</strong>：间隙跟着 \(\hat d\) 变；\(\kappa_{\min}\propto1/\hat d^{4}\)，\(\hat d\) 越小接触越硬、越难解</li>
@@ -297,7 +393,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：\(\hat d\) 决定接触的尺度，越小越精确、越难解，且必须小于最短表面边长。</p>
 
-<h3 class="numbered">4.3 时间步长 \(\Delta t\)</h3>
+<h3 id="w4-3" class="numbered">4.3 时间步长 \(\Delta t\)</h3>
 
 <ul>
 <li><strong>期待</strong>：\(\kappa_{\min}\propto1/\Delta t^{2}\)，步长越小接触越硬；总步数成倍增加</li>
@@ -362,7 +458,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：步长不仅影响耗时，也通过 κ 区间改变接触刚度。</p>
 
-<h3 class="numbered">4.4 接触刚度 κ</h3>
+<h3 id="w4-4" class="numbered">4.4 接触刚度 κ</h3>
 
 <ul>
 <li><strong>期待</strong>：区间 \([1.57\times10^{5},\,1.57\times10^{7}]\) Pa 内 κ 越大间隙越接近 \(\hat d\)；区间外的值被截断到边界，结果与边界值相同</li>
@@ -435,7 +531,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：接触刚度只有落在 libuipc 按场景算出的区间内才生效；Genesis 默认的 \(10^9\) Pa 实际被截断到上限。</p>
 
-<h3 class="numbered">4.5 初始穿插</h3>
+<h3 id="w4-5" class="numbered">4.5 初始穿插</h3>
 
 <ul>
 <li><strong>期待</strong>：barrier 只在距离为正时有定义，一开始就穿插时能量没有意义，libuipc 应拒绝开跑</li>
@@ -476,7 +572,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>设置</strong>：多放一个半径 80 mm 的软球，与官方软球初始互相穿进 0.5 倍半径；上图为第 0 帧侧视图；强行运行时关闭开跑前的相交检查，跑满 2 s。</p>
 <p class="kp">结论：IPC 必须从无穿插的状态开始；初始穿插时即使强行运行，结果在物理上也是错误的。</p>
 
-<h3 class="numbered">4.6 网格分辨率</h3>
+<h3 id="w4-6" class="numbered">4.6 网格分辨率</h3>
 
 <ul>
 <li><strong>期待</strong>：网格越细越慢；只要初始无穿插，网格粗细不影响是否穿透</li>
@@ -547,4 +643,52 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p><strong>待决定：数据生成采用的固定 \(\hat d\)、\(\Delta t\)、κ 取值，以及收敛判据。</strong></p>
 <p class="kp">Genesis + libuipc 可以作为标签生成器，前提是固定并记录 \(\hat d\)、\(\Delta t\) 与实际生效的 κ，保证初始无穿插，并确认每一步求解收敛。</p></section>
-</main>
+</article><footer class="pagefoot"><span>Neural-IPC 周汇报</span><a href="#content">返回顶部 ↑</a></footer></main></div>
+<dialog id="image-viewer" aria-label="放大查看图片"><button type="button" id="close-viewer" aria-label="关闭大图">关闭 ×</button><img alt=""><p>点击图片外区域或按 Esc 关闭</p></dialog>
+<script>
+(() => {
+  const contents = document.querySelector('#contents');
+  const desktop = matchMedia('(min-width: 721px)');
+  if (contents) {
+    const syncMenu = () => { contents.open = desktop.matches; };
+    syncMenu();
+    desktop.addEventListener('change', syncMenu);
+    contents.addEventListener('click', e => { if (e.target.closest('a') && !desktop.matches) contents.open = false; });
+  }
+  const links = [...document.querySelectorAll('#contents a[href^="#"]')];
+  const targets = links.map(a => document.getElementById(decodeURIComponent(a.hash.slice(1))));
+  const progress = document.querySelector('#progress');
+  let scheduled = false;
+  function update() {
+    scheduled = false;
+    const h = document.documentElement.scrollHeight - innerHeight;
+    progress.style.width = (h > 0 ? 100 * scrollY / h : 0) + '%';
+    let cur = 0;
+    targets.forEach((t, i) => { if (t && t.getBoundingClientRect().top <= 150) cur = i; });
+    links.forEach((a, i) => {
+      a.classList.toggle('active', i === cur);
+      if (i === cur) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+    });
+  }
+  addEventListener('scroll', () => { if (!scheduled) { scheduled = true; requestAnimationFrame(update); } }, { passive: true });
+  addEventListener('resize', update);
+  update();
+  const viewer = document.querySelector('#image-viewer');
+  let opener;
+  function openImage(img) {
+    opener = img;
+    viewer.querySelector('img').src = img.currentSrc || img.src;
+    viewer.querySelector('img').alt = img.alt;
+    viewer.showModal();
+  }
+  document.querySelectorAll('article img').forEach(img => {
+    img.tabIndex = 0;
+    img.setAttribute('role', 'button');
+    img.addEventListener('click', () => openImage(img));
+    img.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openImage(img); } });
+  });
+  document.querySelector('#close-viewer').addEventListener('click', () => viewer.close());
+  viewer.addEventListener('click', e => { if (e.target === viewer) viewer.close(); });
+  viewer.addEventListener('close', () => opener && opener.focus({ preventScroll: true }));
+})();
+</script>

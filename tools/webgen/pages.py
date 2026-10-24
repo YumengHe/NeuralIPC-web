@@ -45,11 +45,9 @@ def build_pages(demos, tests, hydro, hydro_more, gsweeps, hy):
                     f'<span>{esc(" · ".join(n for _, n in toc[wid]))}</span><p>{esc(summary[wid])}</p></a>'
                     for wid, title, _ in WEEKS)
     pages = {WEB / "index.html": page(f'<header class="top"><h1>{esc(PAGE_TITLE)}</h1></header>\n'
-                                      f'<nav class="weeks">{cards}</nav>', PAGE_TITLE)}
-    for wid, title, _ in WEEKS:
-        nav = "".join(f'<a href="#{h}">{esc(n)}</a>' for h, n in toc[wid])
-        body = (f'<header class="top"><a href="index.html">← 所有周</a><h1>{esc(title)}</h1>'
-                f'<p class="summary">{esc(summary[wid])}</p><nav class="toc">{nav}</nav></header>\n'
+                                      f'<nav class="weeks">{cards}</nav>', PAGE_TITLE, "index.html")}
+    for wid, title, _ in WEEKS:   # 章节目录和各周链接由 html_parts.page 放在左栏和顶栏
+        body = (f'<header class="top"><h1>{esc(title)}</h1><p class="summary">{esc(summary[wid])}</p></header>\n'
                 + "\n".join(sections[wid]))
-        pages[WEB / f"{wid}.html"] = page(body, f"{PAGE_TITLE} · {title}")
+        pages[WEB / f"{wid}.html"] = page(body, f"{PAGE_TITLE} · {title}", f"{wid}.html")
     return pages

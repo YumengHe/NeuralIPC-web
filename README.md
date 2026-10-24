@@ -40,7 +40,7 @@ Neural-IPC 项目的组会网页：每周一页，内容是文献讲解、原代
 | `catalog.py` | 页面上放哪些 demo、官方测试、用户录屏、hydro 测试、标签视频（纯数据清单） |
 | `collect.py` | 读 NAS 结果文件，整理成统一的记录（状态、原因、视频源文件） |
 | `media.py` | 决定哪些视频要压缩、哪些图片要复制，调用 ffmpeg |
-| `html_parts.py` | 整页模板（CSS、MathJax）、表格、视频卡片 |
+| `html_parts.py` | 整页模板（顶栏、左侧目录、CSS / JS、MathJax）、标题编号与目录（outline）、表格、视频卡片 |
 | `draft_md.py` | 讲稿 Markdown → HTML 的转换器 |
 | `drafts.py` | 整页讲稿 → 页面各节（`page_from_draft`） |
 | `week1_box.py` | week1 盒子实验的结果收集：选结果集、各档记录、每档视频 / 硬跑视频 / 初始穿插图（讲稿引用的视频图片由它找到源文件） |

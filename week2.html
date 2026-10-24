@@ -4,99 +4,211 @@
 <title>Neural-IPC 周汇报 · Week 2（TODO 2026-10-04）</title>
 <style>
 :root {
-  --bg: #fafaf8; --fg: #1f2328; --muted: #646b74; --border: #dcdfe3; --soft: #f1f3f5;
-  --accent: #245f96; --good: #1f6b3a; --warn: #8a5a0b; --key: #b3261e;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-          "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #16191d; --fg: #e4e7eb; --muted: #9ba3ad; --border: #353b43; --soft: #20252b;
-    --accent: #80b4e6; --good: #8fd3a5; --warn: #e6c27a; --key: #ff8a80;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #16191d; --fg: #e4e7eb; --muted: #9ba3ad; --border: #353b43; --soft: #20252b;
-  --accent: #80b4e6; --good: #8fd3a5; --warn: #e6c27a; --key: #ff8a80;
-  color-scheme: dark;
+  --ink: #202b3a; --muted: #637184; --line: #e2e7ed; --accent: #2563b8; --paper: #fff; --bg: #f7f8fa;
+  --soft: #f0f3f7; --good: #1f6b3a; --warn: #8a5a0b; --key: #354a63;
+  --font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+          "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { overflow-x: hidden; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font);
-       font-size: 15px; line-height: 1.65; }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px;
+       line-height: 1.9; overflow-x: clip; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
-header.top { padding: 28px 0 8px; }
-h1 { font-size: 1.85rem; margin: 0 0 8px; font-weight: 650; letter-spacing: 0.01em; }
-.summary { margin: 8px 0 0; }
-nav.toc { font-size: 0.9rem; margin: 14px 0 0; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-nav.toc { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-nav.weeks { display: grid; gap: 14px; margin: 18px 0 40px; }
-a.weekcard { display: block; padding: 14px 16px; border-radius: 6px; background: var(--soft);
-             border-left: 5px solid var(--accent); color: var(--fg); }
-a.weekcard:hover { text-decoration: none; filter: brightness(0.97); }
-a.weekcard b { font-size: 1.25rem; color: var(--accent); }
-a.weekcard span { display: block; font-size: 0.86rem; color: var(--muted); margin: 2px 0 6px; }
-h2 { font-size: 1.6rem; margin: 64px 0 14px; font-weight: 650; }
-h3 { font-size: 1rem; margin: 22px 0 4px; font-weight: 600; }
-h3.sub { font-size: 1.08rem; margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--border); }
-h4 { font-size: 1.15rem; margin: 26px 0 8px; font-weight: 650; }
-h5 { font-size: 1.05rem; margin: 20px 0 6px; font-weight: 650; }
+a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid #4b91ec; outline-offset: 4px; }
+#progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--accent); width: 0; z-index: 30; }
+.skip { position: fixed; top: -100px; left: 10px; background: #fff; padding: 10px; z-index: 40; }
+.skip:focus { top: 10px; }
+
+/* 顶栏 */
+.topbar { height: 74px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between;
+          gap: 16px; padding: 0 5%; background: #ffffffed; backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10; }
+.brand { display: flex; gap: 12px; align-items: center; font-weight: 750; color: var(--ink); letter-spacing: .01em; white-space: nowrap; }
+.brand:hover { text-decoration: none; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--ink); color: #fff; display: grid; place-items: center;
+              font-size: 17px; line-height: 1; }
+.brand-separator { font-weight: 400; color: #bac3ce; }
+.brand-note { font-size: 13px; font-weight: 500; color: var(--muted); }
+.topbar nav { display: flex; gap: 25px; font-size: 13px; white-space: nowrap; }
+.topbar nav a { color: var(--muted); }
+.topbar nav a[aria-current="page"] { color: var(--accent); font-weight: 600; }
+
+/* 左目录 + 正文卡片 */
+.layout { display: grid; grid-template-columns: 245px minmax(0, 1276px); gap: 50px; max-width: 1635px; margin: 0 auto; padding: 45px 32px 0; }
+.layout.single { grid-template-columns: minmax(0, 1276px); justify-content: center; }
+aside { position: sticky; top: 110px; align-self: start; max-height: calc(100vh - 140px); overflow: auto; padding-right: 16px;
+        font-size: 13px; scrollbar-width: thin; }
+#contents > summary { font-weight: 700; font-size: 12px; letter-spacing: .1em; color: var(--muted); margin-bottom: 18px; cursor: pointer; }
+#contents nav { display: flex; flex-direction: column; }
+#contents a { color: #5d6b7c; line-height: 1.65; padding: 6px 10px; border-left: 2px solid var(--line); }
+#contents a.toc-level-3 { font-size: 12px; padding-left: 22px; }
+#contents a.active { border-color: var(--accent); color: var(--accent); background: #eaf1fb; font-weight: 600; }
+#contents a:hover { color: var(--accent); background: #eef2f7; text-decoration: none; }
+main { min-width: 0; background: var(--paper); padding: 44px 54px 24px; border: 1px solid var(--line); border-radius: 12px;
+       box-shadow: 0 4px 30px #22354b03; }
+.eyebrow { font-size: 10px; letter-spacing: .17em; color: var(--muted); font-weight: 650; }
+.eyebrow span { color: #91a7c2; padding: 0 9px; }
+article { overflow-wrap: break-word; }
+footer.pagefoot { border-top: 1px solid var(--line); margin-top: 52px; padding-top: 22px; font-size: 11px; color: var(--muted);
+                  display: flex; justify-content: space-between; gap: 16px; }
+
+/* 标题与正文 */
+h1 { font-size: 31px; line-height: 1.45; letter-spacing: -.035em; margin: 17px 0 0; }
+header.top { margin-bottom: 42px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+article .summary { color: var(--muted); margin: 12px 0 0; }
+h2 { font-size: 24px; line-height: 1.55; letter-spacing: -.02em; margin: 56px 0 20px; padding-top: 12px; }
+h3 { font-size: 19px; line-height: 1.6; margin: 32px 0 17px; }
+h4 { font-size: 17px; line-height: 1.6; margin: 26px 0 8px; font-weight: 650; }
+h5 { font-size: 16px; line-height: 1.6; margin: 20px 0 6px; font-weight: 650; }
 section h4, section h5 { color: var(--accent); }
-.kp { color: var(--key); font-weight: 600; margin: 10px 0 14px; }
-pre.log { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.76rem;
-          line-height: 1.45; background: var(--soft); border-radius: 4px; padding: 10px 12px; margin: 6px 0;
-          max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
-details.repro { margin: 10px 0 26px; }
-details.repro summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }
-p.concl { font-size: 1.05rem; color: var(--good); }
-p.expect { font-size: 1.08rem; color: var(--accent); }
-p.setting { font-size: 0.8rem; color: var(--fg); }
-section { scroll-margin-top: 12px; }
-p { margin: 6px 0; }
+article { counter-reset: sec; }
+article section > h2 { counter-increment: sec; counter-reset: sub; }
+article section > h2::before { content: counter(sec) ". "; }
+article section > h3 { counter-increment: sub; }
+article section > h3::before { content: counter(sec) "." counter(sub) " "; }
+article section > h3.numbered::before { content: none; }
+p { margin: 16px 0; }
+li { margin: 6px 0; }
+ul, ol { padding-left: 1.5em; }
+strong, b { font-weight: 650; }
+code { font-size: .87em; background: var(--soft); padding: 2px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre { overflow: auto; padding: 16px; background: var(--soft); border-radius: 8px; }
+pre code { padding: 0; }
+pre.log { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5;
+          padding: 10px 12px; margin: 6px 0; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+article .lead { padding: 8px 20px; margin: 24px 0; background: #f3f7fc; border: 1px solid #e1eaf6; border-radius: 8px; }
+article .kp { font-weight: 600; color: var(--key); }
+p.concl { color: var(--good); }
+p.expect { color: var(--accent); }
+p.setting { font-size: 13px; }
 .muted { color: var(--muted); }
-code { font-size: 0.95em; word-break: break-all; }
-.small { font-size: 0.86rem; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-        gap: 22px 18px; }
+.small { font-size: 13px; }
+blockquote { font-size: 13px; line-height: 1.85; margin: 12px 0 32px; padding: 4px 18px; border-left: 3px solid #b5cbe5;
+             background: #f7f9fc; color: #5a6879; border-radius: 0 5px 5px 0; }
+ul.obs { font-weight: 600; } ul.findings li { margin: 8px 0; }
+
+/* 配图与视频：没有行内宽度的占满所在列；有行内宽度的（build_site.size_media 按子图面积定）以行内宽度为准 */
+article img, article video { display: block; width: 100%; height: auto; max-width: 100%; margin: 26px auto 12px; }
+article img { border: 1px solid #edf0f4; border-radius: 6px; cursor: zoom-in; }
+article video { background: #101722; border-radius: 8px; }
+article figure { margin: 26px 0 32px !important; min-width: 0; }
+article figure img, article figure video { margin: 0 auto 12px; }
+article figcaption { font-size: 13px; line-height: 1.85; margin: 12px 0 0; padding: 12px 18px; border-left: 3px solid #b5cbe5;
+                     background: #f7f9fc; color: #5a6879; border-radius: 0 5px 5px 0; }
+img.initframe { max-width: 640px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 22px 18px; }
 .demo { min-width: 0; }
-.demo h3 { margin: 0 0 6px; font-size: 0.95rem; }
-.demo h3 .key { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
-.demo p { font-size: 0.86rem; color: var(--muted); margin-top: 6px; }
-video, img { display: block; width: 100%; height: auto; border-radius: 4px; background: var(--soft); }
-img.plot { margin-top: 8px; }
-.novideo { padding: 22px 12px; background: var(--soft); color: var(--muted); border-radius: 4px;
-           font-size: 0.86rem; }
-.tablewrap { max-width: 100%; margin: 6px 0 4px; }
-table { border-collapse: collapse; font-size: 0.88rem; width: 100%; table-layout: auto; }
-th, td { text-align: left; padding: 5px 14px 5px 0; border-bottom: 1px solid var(--border);
-         white-space: normal; overflow-wrap: anywhere; vertical-align: top; }
-th { font-weight: 600; color: var(--muted); font-size: 0.82rem; border-bottom-color: var(--fg); }
-td { font-variant-numeric: tabular-nums; }
+.demo h3 { margin: 0 0 6px; font-size: 15px; }
+.demo h3 .key { color: var(--muted); font-weight: 400; font-size: 13px; }
+.demo p { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.demo video { margin: 0; }
+.novideo { padding: 22px 12px; background: var(--soft); color: var(--muted); border-radius: 6px; font-size: 13px; }
+
+/* 公式：MathJax 客户端渲染，宽公式按列宽缩小 */
+mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
+
+/* 表格：带边框的滚动框 + 斑马纹 */
+.tablewrap { max-width: 100%; overflow: auto; margin: 24px 0; border: 1px solid var(--line); border-radius: 7px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; line-height: 1.75; }
+th { background: #f1f5fa; text-align: left; font-weight: 650; color: #354a63; }
+td, th { padding: 11px 14px; border-bottom: 1px solid var(--line); min-width: 90px; vertical-align: top; text-align: left; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) { background: #fafbfd; }
+td { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 td.good { color: var(--good); }
 td.warn { color: var(--warn); }
-ul.obs { font-size: 1.02rem; font-weight: 600; margin: 8px 0; padding-left: 22px; } ul.obs li { margin: 3px 0; }
-main.wrap { counter-reset: sec; } main.wrap section > h2 { counter-increment: sec; counter-reset: sub; } main.wrap section > h2::before { content: counter(sec) ". "; } main.wrap section > h3 { counter-increment: sub; } main.wrap section > h3::before { content: counter(sec) "." counter(sub) " "; } main.wrap section > h3.numbered::before { content: none; }
-main.wrap section > h3 { font-size: 1.3rem; margin: 56px 0 10px; padding-top: 20px; border-top: 1px solid var(--border); }
-img.initframe { display: block; max-width: 640px; width: 100%; margin: 6px 0; }
-mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
-ul.findings { padding-left: 20px; }
-ul.findings li { margin: 8px 0; }
-.next { }
-footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border);
-              margin-top: 40px; padding: 12px 16px 28px; }
-@media (max-width: 480px) {
-  body { font-size: 14px; }
-  th, td { padding-right: 10px; }
+
+/* 折叠推导 */
+article details { margin: 22px 0; border: 1px solid var(--line); padding: 16px 18px; border-radius: 8px; }
+article details > summary { font-size: 14px; color: var(--accent); margin: 0; font-weight: 600; cursor: pointer; }
+article details[open] > summary { margin-bottom: 16px; }
+article details > :last-child { margin-bottom: 0; }
+
+/* 首页各周卡片 */
+nav.weeks { display: grid; gap: 14px; margin: 0 0 24px; }
+a.weekcard { display: block; padding: 16px 20px; border-radius: 8px; background: #f7f9fc; border: 1px solid var(--line);
+             border-left: 4px solid var(--accent); color: var(--ink); }
+a.weekcard:hover { text-decoration: none; background: #eef3fa; }
+a.weekcard b { font-size: 19px; color: var(--accent); }
+a.weekcard span { display: block; font-size: 13px; color: var(--muted); margin: 2px 0 6px; line-height: 1.7; }
+a.weekcard p { margin: 6px 0 0; }
+
+/* 点图放大 */
+dialog { border: 0; border-radius: 10px; max-width: 95vw; max-height: 94vh; padding: 40px 18px 8px; overflow: auto; background: #fff; }
+dialog::backdrop { background: #111c30c9; backdrop-filter: blur(3px); }
+dialog img { display: block; max-width: 88vw; max-height: 78vh; object-fit: contain; margin: auto; }
+dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10px; }
+#close-viewer { position: absolute; right: 12px; top: 8px; background: #edf1f7; border: 0; padding: 6px 12px; border-radius: 5px;
+                cursor: pointer; color: var(--ink); }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 200px minmax(0, 1fr); gap: 24px; padding: 28px 20px 0; }
+  .layout.single { grid-template-columns: minmax(0, 1fr); }
+  main { padding: 32px 28px; } h1 { font-size: 27px; }
+}
+@media (max-width: 720px) {
+  body { font-size: 15px; }
+  .topbar { height: 62px; padding: 0 16px; }
+  .brand { font-size: 15px; gap: 8px; } .brand-note, .brand-separator { display: none; }
+  .topbar nav { gap: 12px; font-size: 12px; overflow-x: auto; }
+  .layout { display: block; padding: 18px 12px 0; }
+  aside { position: static; max-height: none; padding: 0; margin-bottom: 16px; }
+  #contents { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 12px 14px; }
+  #contents > summary { margin: 0; } #contents[open] > summary { margin-bottom: 10px; }
+  #contents nav { max-height: 45vh; overflow: auto; }
+  main { padding: 28px 16px; border-radius: 8px; }
+  h1 { font-size: 25px; } header.top { margin-bottom: 30px; } h2 { font-size: 21px; margin-top: 40px; } h3 { font-size: 18px; }
+  td, th { padding: 9px 11px; } .eyebrow { font-size: 9px; letter-spacing: .1em; }
+  article figcaption { padding: 10px 12px; } article .lead { padding: 6px 14px; } article details { padding: 12px; }
+  footer.pagefoot { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  .topbar, aside, #progress, .eyebrow, dialog { display: none; }
+  .layout { display: block; margin: 0; padding: 0; } main { border: 0; padding: 0; box-shadow: none; }
+  body { background: #fff; font-size: 11pt; } h2, h3 { break-after: avoid; } img, video, table { break-inside: avoid; }
+  a { color: inherit; } .tablewrap { overflow: visible; }
 }
 </style>
 <script>window.MathJax = {tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]}, svg: {fontCache: "global"}};</script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
-<main class="wrap">
-<header class="top"><a href="index.html">← 所有周</a><h1>Week 2（TODO 2026-10-04）</h1><p class="summary">文献（hydroelastic、神经网络接触模型）、NeuralIPC 代码、Genesis + hydroelastic demo、实验方案、问题与待决定。</p><nav class="toc"><a href="#w1">文献：Hydroelastic</a><a href="#w2">文献：神经网络接触模型</a><a href="#w3">看代码</a><a href="#w4">Demo</a><a href="#w5">实验方案</a><a href="#w6">问题与待决定</a></nav></header>
+<a class="skip" href="#content">跳转到正文</a><div id="progress" aria-hidden="true"></div>
+<header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">N</span> Neural-IPC <span class="brand-separator">/</span> <span class="brand-note">研究记录</span></a><nav aria-label="各周页面"><a href="index.html">所有周</a><a href="week3_4.html">Week 3–4</a><a href="week2.html" aria-current="page">Week 2</a><a href="week1.html">Week 1</a></nav></header>
+<div class="layout"><aside><details id="contents" open><summary>本页目录</summary><nav aria-label="章节目录"><a class="toc-level-2" href="#w1">1. 文献：Hydroelastic 与 Hertz 解析解</a>
+<a class="toc-level-3" href="#w1-1">1.1 Elandt et al. 2019：压力场模型</a>
+<a class="toc-level-3" href="#w1-2">1.2 Masterjohn et al. 2022：速度层面近似</a>
+<a class="toc-level-3" href="#w1-3">1.3 Castro et al. 2023：SAP 求解器</a>
+<a class="toc-level-3" href="#w1-4">1.4 Hertz 1882：解析裁判</a>
+<a class="toc-level-2" href="#w2">2. 文献：神经网络接触模型</a>
+<a class="toc-level-3" href="#w2-1">2.1 Romero et al. 2021：Handle-Based Subspace Contact Corrections</a>
+<a class="toc-level-3" href="#w2-2">2.2 Romero et al. 2022：Contact-Centric Deformation Learning</a>
+<a class="toc-level-3" href="#w2-3">2.3 Romero et al. 2023：General Collider Descriptors</a>
+<a class="toc-level-3" href="#w2-4">2.4 Dou et al. 2026：RigidFormer</a>
+<a class="toc-level-3" href="#w2-5">2.5 对比</a>
+<a class="toc-level-2" href="#w3">3. 原代码：碰撞能量 U_c</a>
+<a class="toc-level-3" href="#w3-1">3.1 思路</a>
+<a class="toc-level-3" href="#w3-2">3.2 训练数据</a>
+<a class="toc-level-3" href="#w3-3">3.3 标签：BEM</a>
+<a class="toc-level-3" href="#w3-4">3.4 输入</a>
+<a class="toc-level-3" href="#w3-5">3.5 网络</a>
+<a class="toc-level-3" href="#w3-6">3.6 缺陷</a>
+<a class="toc-level-2" href="#w4">4. Demo：Genesis 中的 hydro</a>
+<a class="toc-level-3" href="#w4-1">4.1 官方用例</a>
+<a class="toc-level-3" href="#w4-2">4.2 Genesis 的 hydro 与受控场景</a>
+<a class="toc-level-3" href="#w4-3">4.3 参数扫描：每次只改一个量</a>
+<a class="toc-level-2" href="#w5">5. 实验方案：在原理层面与 hydro 对比</a>
+<a class="toc-level-3" href="#w5-1">5.0 设定</a>
+<a class="toc-level-3" href="#w5-2">E0 前提：标签与解析解一致</a>
+<a class="toc-level-3" href="#w5-3">E1 球压厚块：球半径 ×2</a>
+<a class="toc-level-3" href="#w5-4">E2 平底压头：半径 ×1、×2、×4</a>
+<a class="toc-level-3" href="#w5-5">E3 两个平底凸台：只改间距</a>
+<a class="toc-level-3" href="#w5-6">E4 粘结薄层、近似不可压：球半径 ×2</a>
+<a class="toc-level-3" href="#w5-7">E5 粗模型：刚体 → 仿射体</a>
+<a class="toc-level-3" href="#w5-8">5.6 小结</a>
+<a class="toc-level-3" href="#w5-9">5.7 尚未完成的验证</a>
+<a class="toc-level-2" href="#w6">6. 问题与待决定</a></nav></details></aside><main id="content"><div class="eyebrow">NEURAL-IPC <span>·</span> WEEKLY REPORT</div><article>
+<header class="top"><h1>Week 2（TODO 2026-10-04）</h1><p class="summary">文献（hydroelastic、神经网络接触模型）、NeuralIPC 代码、Genesis + hydroelastic demo、实验方案、问题与待决定。</p></header>
 <div class="lead"><p>文献（hydroelastic、神经网络接触模型）、NeuralIPC 代码、Genesis + hydroelastic demo、实验方案、问题与待决定。</p>
 <p>精细仿真（IPC 接触 + FEM）准确但慢。粗模型（刚体 6 自由度、3D 仿射体 12 自由度）快，但不能表达接触区局部变形，接触时两物体会重叠。需要一条规则：给定重叠，产生多大接触力。</p>
 <ul>
@@ -110,7 +222,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">本页结论：hydro 的压强只取决于局部穿入深度；E1–E5 从不同角度说明该假设在弹性体上不成立，且比值判据下调参无法弥补。本项目的 IPC 标签在 E0–E3、E5 与 E4（\(\nu\le0.45\)）与裁判一致；网络能否复现是下一步。</p></div>
 <section id="w1"><h2>文献：Hydroelastic 与 Hertz 解析解</h2>
 <p>本节梳理 hydro 从"重叠"到"接触力"的计算链条（1.1 压强怎么来，1.2 压强怎么变成求解器用的力，1.3 怎么求解），提取其建模假设；1.4 给出用于比较的解析解。</p>
-<h3 class="numbered">1.1 Elandt et al. 2019：压力场模型</h3>
+<h3 id="w1-1" class="numbered">1.1 Elandt et al. 2019：压力场模型</h3>
 
 <p><strong>做法</strong></p>
 <details><summary>推导：压力场模型（预设压强场 → 等压接触面 → 接触力）</summary>
@@ -201,7 +313,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论（假设一）：hydro 每点压强只取决于该点穿入深度。论文自身结果已显示该假设在点状接触时有偏差。</p>
 
-<h3 class="numbered">1.2 Masterjohn et al. 2022：速度层面近似</h3>
+<h3 id="w1-2" class="numbered">1.2 Masterjohn et al. 2022：速度层面近似</h3>
 
 <p>Elandt 的模型配合加速度层面的变步长积分器使用（每步由力求加速度再积分，接触刚度大时步长须很小，无法实时）。1.1 的接触面由许多平面多边形拼成，本文把每块多边形改写为一根弹簧，使其可用于速度层面求解器（每步隐式求下一时刻速度，可取大步长），hydro 因此可实时运行，已在 Drake 开源。</p>
 <details><summary>推导：一块多边形 → 一根弹簧</summary>
@@ -314,7 +426,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论（假设二）：每块接触多边形为一根独立弹簧，刚度只由该块面积和压强梯度决定（式 (14)），相邻接触区互不影响。</p>
 
-<h3 class="numbered">1.3 Castro et al. 2023：SAP 求解器</h3>
+<h3 id="w1-3" class="numbered">1.3 Castro et al. 2023：SAP 求解器</h3>
 
 <p>带接触的时间步进通常要解"不接触则无力、有力则必须贴紧"的二选一条件，难以稳健求解。本文把柔顺接触的一步时间积分写成只含速度的强凸无约束优化，求解器称为 SAP，解唯一，牛顿法可证收敛。Drake 与 Genesis 的 hydro 都用它。</p>
 <p><strong>做法</strong></p>
@@ -400,7 +512,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：SAP 按 1.2 的刚度求解；接触刚度大到触发近刚性处理时，力改由数值参数决定，不再是压力场给出的值。</p>
 
-<h3 class="numbered">1.4 Hertz 1882：解析裁判</h3>
+<h3 id="w1-4" class="numbered">1.4 Hertz 1882：解析裁判</h3>
 
 <p>两个光滑弹性曲面接触的闭式解，不依赖任何仿真代码，作为比较 hydro 与本项目的裁判。</p>
 <figure style="margin:12px 0"><img src="assets/images/hz00_contact_profile.png" style="width:534px;max-width:100%;height:auto" alt="hz00_contact_profile"></figure>
@@ -566,7 +678,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <section id="w2"><h2>文献：神经网络接触模型</h2>
 <p>本节回答三个问题：同类方法学什么、数据从哪来、与本项目的关系。用于说明本项目选择学习能量的理由、可借鉴的做法，以及标签需要自行生成。</p>
 <p><strong>共同背景</strong>：子空间模型用少量控制量（把手，handle）通过插值驱动全网格，求解快，但做不出局部接触凹陷。三篇 Romero 都在子空间模型上补回接触凹陷，标签构造相同：固定把手 → 求全网格的平衡解 → 减去子空间形状 → 差值为标签。</p>
-<h3 class="numbered">2.1 Romero et al. 2021：Handle-Based Subspace Contact Corrections</h3>
+<h3 id="w2-1" class="numbered">2.1 Romero et al. 2021：Handle-Based Subspace Contact Corrections</h3>
 
 <p><strong>学什么</strong>：全网格位移修正</p>
 <p>\[\color{#c0392b}{\mathbf{x} = \mathbf{U}\mathbf{q} + \mathbf{F}\left[\mathbf{r}_{\text{int}}(\mathbf{q}) + \mathbf{r}_{\text{ext}}(\text{碰撞体相对把手的位姿})\right]}\]</p>
@@ -666,7 +778,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：学位移，没有可求导的能量；每个组合单独训练。</p>
 <p class="kp">结论：在子空间上叠加学习的位移修正，学的是形状。</p>
 
-<h3 class="numbered">2.2 Romero et al. 2022：Contact-Centric Deformation Learning</h3>
+<h3 id="w2-2" class="numbered">2.2 Romero et al. 2022：Contact-Centric Deformation Learning</h3>
 
 <p><strong>学什么</strong>：在碰撞体坐标系（固定在碰撞体上、随其运动的坐标系）中学习每个点的位移。该坐标系下凹坑随物体姿态变化平滑，少量数据即可泛化。接触力来自人工罚函数：网格点穿入碰撞体（用碰撞体的 SDF，即空间中每点到碰撞体表面的有符号距离来判断）时，能量按穿入深度的三次方增长，没穿入时为 0。</p>
 <p><strong>输入 → 输出</strong>：一个网络，逐点调用（网格上每个需要位移的点调用一次）</p>
@@ -710,7 +822,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：标签构造与我们相同（固定粗自由度 → 精细解 → 取差）。它存位移、力来自人工罚函数，每个碰撞体单独训练；我们存能量、力由能量求导得到。</p>
 <p class="kp">结论：在碰撞体坐标系中学习接触位移，少量姿态即可获得实时接触细节。</p>
 
-<h3 class="numbered">2.3 Romero et al. 2023：General Collider Descriptors</h3>
+<h3 id="w2-3" class="numbered">2.3 Romero et al. 2023：General Collider Descriptors</h3>
 
 <p><strong>学什么</strong>：以碰撞体局部形状为条件的位移，泛化到训练时未见过的碰撞体。局部形状用 65 个探针描述：以接触点为原点、一根轴沿接触法向建立接触坐标系，在单位球内取 65 个点，读取每点的 SDF 值（到碰撞体表面的有符号距离）。压入越深，落在碰撞体内部的探针越多。</p>
 <p><strong>输入 → 输出</strong>：一个网络，逐点调用</p>
@@ -760,7 +872,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：泛化方向不同。它固定被压物体、泛化到新碰撞体；我们的目标是覆盖多种被压物体。SDF 探针可借用于编码我们的穿透状态。</p>
 <p class="kp">结论：以 SDF 探针描述碰撞体局部形状，接触位移可泛化到未见碰撞体。</p>
 
-<h3 class="numbered">2.4 Dou et al. 2026：RigidFormer</h3>
+<h3 id="w2-4" class="numbered">2.4 Dou et al. 2026：RigidFormer</h3>
 
 <p><strong>学什么</strong>：刚体运动本身，网络替代整个物理求解器。</p>
 <p><strong>输入 → 输出</strong>：一个网络，一次处理整个场景</p>
@@ -961,7 +1073,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>和我们的关系</strong>：没有局部形变，也没有可加入仿真的能量项；换到未训练过的数据集时，6 组中 3 组不如 HopNet。我们保留粗模型仿真，只学一项能量。</p>
 <p class="kp">结论：从点云学习刚体运动，替代整个求解器。</p>
 
-<h3 class="numbered">2.5 对比</h3>
+<h3 id="w2-5" class="numbered">2.5 对比</h3>
 
 <div class="tablewrap"><table>
 <thead>
@@ -1019,7 +1131,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p class="kp">结论：前三篇学位移，RigidFormer 学运动，本项目学能量；能量求导即接触力，可直接接入现有仿真器。三篇 Romero 均未公开数据生成代码，本项目标签需自行生成。</p></section>
 <section id="w3"><h2>原代码：碰撞能量 U_c</h2>
-<h3 class="numbered">3.1 思路</h3>
+<h3 id="w3-1" class="numbered">3.1 思路</h3>
 
 <p>\[\color{#c0392b}{U_c(z)=\min_w \Pi(\Phi z+\Psi w)-\Pi(\Phi z)}\]</p>
 <ol>
@@ -1107,7 +1219,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[\color{#c0392b}{U_c^{\text{仿射}}=E_{\text{总}}-\psi(\bar{\mathbf F})\,V_0}\]</p>
 </li>
 </ul>
-<h3 class="numbered">3.2 训练数据</h3>
+<h3 id="w3-2" class="numbered">3.2 训练数据</h3>
 
 <p>刚性压头压弹性<strong>半空间</strong>（表面为平面、向下无限延伸的弹性体），等效模量取 1，即无量纲化；\(E\) 是杨氏模量，\(\nu\) 是泊松比：</p>
 <p>\[\color{#c0392b}{E^*=\frac{E}{1-\nu^2}=1}\]</p>
@@ -1136,7 +1248,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p><strong>压深扫描</strong>：同一形状取 \(d=0.003、0.006、0.009、0.012\) 四个压深，各算一个标签。同一形状只有一个压深时，网络无法分辨能量变化来自形状还是压深，会记住样本；扫描压深使网络看到每个形状的能量–压深曲线。</p>
 <p><strong>划分</strong>：520 组形状 × 4 个压深 = 2080 个样本；按形状留出 1/4 测试，测试形状未在训练中出现。</p>
-<h3 class="numbered">3.3 标签：BEM</h3>
+<h3 id="w3-3" class="numbered">3.3 标签：BEM</h3>
 
 <p><strong>BEM（边界元法）</strong>：只在基体表面划网格，内部变形由半空间解析解给出。对 3.2 的每个样本求弹性能作为标签。</p>
 <p><strong>网格</strong>：原表面 \(z=0\) 上间距 \(h=0.008\) 的方格，取 \(r\le0.18\) 的圆盘（覆盖所有可能接触处），共 1597 格；每格压强取常数 \(p_j\)。网格建在变形前的表面上：线弹性小变形下，表面点的水平移动和表面倾斜忽略不计。</p>
@@ -1221,7 +1333,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><em>第 3 组的场景，画法同上：压头下表面有 3 个凸起，左幅剖面里压头底面有几处凸起同时压进半空间。右幅三个红点各带一块深蓝接触区，三块互不相连，每块都偏在凸起中心的一侧，说明凸起上的凹坑和压头的倾斜决定了实际接触落在哪里。</em></p>
 <figure style="margin:12px 0"><img src="assets/images/nipc_training_samples_K3.png" style="width:875px;max-width:100%;height:auto" alt="nipc_training_samples_K3"></figure>
 <p><em>第 3 组样本，画法同第 1 组：左格三个凸起处各有一片穿透，右格白线围出三块互不相连的接触区，与上面场景图的深蓝色块一致。标签 \(U=1.00\times10^{-5}\)。三组压深相同，这三组里接触区越多，标签能量越大。</em></p>
-<h3 class="numbered">3.4 输入</h3>
+<h3 id="w3-4" class="numbered">3.4 输入</h3>
 
 <p><strong>高度图</strong></p>
 <ol>
@@ -1238,7 +1350,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[\color{#c0392b}{U=c\,\delta^{p},\qquad \log U=\log c+p\log\delta,\qquad \text{Hertz：}\ c=\tfrac{8}{15}E^*R^{1/2},\ p=\tfrac52}\]</p>
 <p><strong>曲率</strong>：耦合项另需每区一个标量曲率 \(\kappa_k\)，取两个方向曲率的几何平均，取自生成器：</p>
 <p>\[\color{#c0392b}{\kappa_k=\sqrt{\kappa_x\kappa_y}}\]</p>
-<h3 class="numbered">3.5 网络</h3>
+<h3 id="w3-5" class="numbered">3.5 网络</h3>
 
 <p>\[\color{#c0392b}{U_c=\sum_k U_k+\sum_{i&lt;j}U_{ij}}\]</p>
 <p>每个接触区一个单区能量 \(U_k\)，每对接触区一个耦合项 \(U_{ij}\)。</p>
@@ -1346,7 +1458,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\(r\) 不作为网络输入，而以 \(1/r\) 的形式固定在网络外，使训练范围以外的间距仍按 1/距离 衰减。依据是 Boussinesq 点力解（1.4）：半空间表面一点受力 \(P\)，距离 \(r\) 处表面下沉与距离成反比，见下面第一式。衰减系数取决于接触区尺寸，而由 Hertz 解，接触区尺寸由穿透深度和曲率决定，见第二式，所以网络输入 \(\delta\)、\(\kappa\)。</p>
 <p>\[\color{#c0392b}{u(r)=\frac{P}{\pi E^*r}\propto\frac1r,\qquad a^2=R\delta,\ R=\frac1\kappa\ \Rightarrow\ a=\sqrt{\delta/\kappa}}\]</p>
 <p><strong>训练</strong>：单区网络与耦合网络一起训练。损失为相对误差平方的均值 \(\big((U_{\text{pred}}-U)/U\big)^2\)，只拟合能量；力由<strong>自动求导</strong>（框架按计算图自动求梯度）得到。Adam 优化，学习率 \(2\times10^{-3}\)，3000 步。</p>
-<h3 class="numbered">3.6 缺陷</h3>
+<h3 id="w3-6" class="numbered">3.6 缺陷</h3>
 
 <p>当前阶段在半空间合成数据上拟合能量，以下为这一阶段的问题。</p>
 <ul>
@@ -1357,7 +1469,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p class="kp">结论：方案已有 \(U_c\) 定义、单区 + 耦合的网络结构和半空间合成数据；当前主要限制是输入特征。</p></section>
 <section id="w4"><h2>Demo：Genesis 中的 hydro</h2>
 <p>第 1 节所述 hydro 在 Genesis 中的实际运行；第 5 节的对比对象就是它。</p>
-<h3 class="numbered">4.1 官方用例</h3>
+<h3 id="w4-1" class="numbered">4.1 官方用例</h3>
 
 <p>Genesis 用 SAP 求解器的官方用例共 10 个场景，接触默认全部走压力场，覆盖刚体–刚体、刚体–地面、刚体–软体、软体–地面、软体–软体五类接触对。以下四个原样运行，官方检查均通过。</p>
 <p><strong>两条关节链落到盒子上</strong>（<code>test_sap_rigid_rigid_hydroelastic_contact</code>，全为刚体）</p>
@@ -1376,7 +1488,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_franka_panda_grasp_fem_entity_64_sphere_official_cam.mp4" style="width:560px;max-width:100%;height:auto"></video></figure>
 <p><em>这段视频展示靠接触力夹起软体。白色小球是 FEM 软球，上方是 Franka 机械臂的夹爪。第 0 秒到约第 1 秒夹爪两指合拢夹住小球，约第 1.5 秒起小球随夹爪一起上移，之后一直夹在两指之间。</em></p>
 <p>Franka 机械臂夹起半径 2 cm 的 FEM 软球（\(E=10^5\) Pa、\(\nu=0.4\)）后上提；接触对：手指–软球、软球–地面；等待 15 步、夹 10 步、上提 65 步、保持 25 步。检查：软球随夹爪上移 5 cm、误差 &lt; 5 mm。</p>
-<h3 class="numbered">4.2 Genesis 的 hydro 与受控场景</h3>
+<h3 id="w4-2" class="numbered">4.2 Genesis 的 hydro 与受控场景</h3>
 
 <p><strong>Genesis 与原论文的差别</strong>（第 1 节各"实现"汇总）</p>
 <ul>
@@ -1448,7 +1560,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>令其等于式 (8) \(F=mg\)，解出 \(\delta\)：</p>
 <p>\[\delta\approx\sqrt{\frac{mgD}{\pi E_hR}}\ \propto R^{-1/2}\qquad(10)\]</p></details>
 </details>
-<h3 class="numbered">4.3 参数扫描：每次只改一个量</h3>
+<h3 id="w4-3" class="numbered">4.3 参数扫描：每次只改一个量</h3>
 
 <p>下面两张表的「公式」一列，按 4.2 节的力 \(F=E_hV/D\) 与球冠体积式 (7) \(V=\pi R\delta^2\big(1-\delta/(3R)\big)\)（不略去括号里的修正项），令 \(F=mg\) 解出压深；\(D\) 取 Genesis 由块网格算出的块内最大距离 0.0970 m。4.2 节的式 (10) \(\delta\approx\sqrt{mgD/(\pi E_hR)}\) 是略去修正项后的近似，\(R=0.05\) 时比按式 (7) 解出的小约 3%。</p>
 <p><strong>刚球压 FEM 块：改球半径（同为 1 kg）</strong>（预期：压深随球半径的 −1/2 次方变化；Hertz 为 −1/3 次方）</p>
@@ -1573,7 +1685,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>\(H\) 不影响压深，静力只由块的压力场模量决定。</strong></p>
 <p class="kp">结论：Genesis 中刚体压软体的结果符合压力场公式（块足够硬时实测/预测 0.99–1.12），对半径的依赖为 \(R^{-1/2}\)，与弹性解 \(R^{-1/3}\) 不同，调参无法消除；全局刚度 \(H\) 不影响静止力，压深只由块的压力场模量决定。</p></section>
 <section id="w5"><h2>实验方案：在原理层面与 hydro 对比</h2>
-<h3 class="numbered">5.0 设定</h3>
+<h3 id="w5-1" class="numbered">5.0 设定</h3>
 
 <p><strong>检验对象</strong>：第 1 节提取的 hydro 两个假设。</p>
 <ul>
@@ -1692,7 +1804,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>三项修正量相加：最终值 = 块外推值 + 网格外推值 − 中等网格大块的读数（各项都从同一个基准读数出发修正，修正量叠加）</li>
 </ul>
 </details>
-<h3>E0 前提：标签与解析解一致</h3>
+<h3 id="w5-2" class="numbered">E0 前提：标签与解析解一致</h3>
 
 <p><strong>设置</strong>：半径 1 刚球压长方体（下称块），杨氏模量 \(E=10^5\)、泊松比 \(\nu=0.3\)，压深 0.004–0.024，比较标签弹性能与 Hertz 弹性能（1.4 ⑤）之比，1 为一致：</p>
 <p>\[\color{#c0392b}{U_{\text{Hertz}}=\frac{8}{15}E^{*}R^{1/2}\delta^{5/2},\qquad E^{*}=\frac{E}{1-\nu^{2}}=\frac{10^5}{1-0.09}\approx1.099\times10^5}\]</p>
@@ -1705,7 +1817,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>结果</strong>：用 Richardson 外推（见 5.0「方法」）：网格取 0.025、0.0125、0.00625 三档，实测收敛阶 \(p=1.8\text{–}2.0\)；\(\hat d\)、块大小各两档、\(p=1\)。外推后压深 0.004–0.024 处比值为 1.003–1.012（第 2 周的网格外推结果；第 3–4 周改用同组共用收敛阶后，现行标签只做了压深 0.004–0.013 四档，值为 0.997–1.008，见 week3–4 页 9.1 节）。</p>
 <p class="kp">结论：标签与 Hertz 一致，标签可信。</p>
 
-<h3>E1 球压厚块：球半径 ×2</h3>
+<h3 id="w5-3" class="numbered">E1 球压厚块：球半径 ×2</h3>
 
 <p><strong>设置</strong>：刚球压厚块（基体远大于接触区，可按半空间处理），同一压深 \(\delta\)，球半径 \(R\to2R\)。</p>
 <figure style="margin:12px 0"><img src="assets/images/E1_a.png" style="width:420px;max-width:100%;height:auto" alt="E1_a"></figure>
@@ -1844,7 +1956,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>偏差 −0.9% 至 +0.8%，通过。表中是第 2 周的网格外推结果；第 3–4 周改用同组共用收敛阶后，现行标签的能量比为 1.4148–1.4184，见 week3–4 页 9.1 节。</p>
 <p class="kp">结论：球半径 ×2，解析 ×1.41，标签 ×1.40–1.43，hydro (A) 恒为 ×2。</p>
 
-<h3>E2 平底压头：半径 ×1、×2、×4</h3>
+<h3 id="w5-4" class="numbered">E2 平底压头：半径 ×1、×2、×4</h3>
 
 <p><strong>设置</strong>：刚性平底圆柱压头（半径 \(a\)）压厚块，同一压深 \(\delta\)，\(a\) 取 1、2、4 倍。hydro 用 (A)。</p>
 <figure style="margin:12px 0"><img src="assets/images/E2_a.png" style="width:519px;max-width:100%;height:auto" alt="E2_a"></figure>
@@ -1914,7 +2026,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>标签验证</strong>：半径 0.25、0.5、1.0，网格随半径缩放，用 Richardson 外推（见 5.0「方法」）到 \(\hat d\to0\)、块无限大、网格无限细。压深 0.003–0.024 处，半径 ×2 时标签能量比 2.000–2.002，×4 时 4.000–4.076（解析 2、4），全部在 2% 内；各半径标签与 Boussinesq 能量之比 1.000–1.022。</p>
 <p class="kp">结论：半径 ×4，解析力与标签均 ×4，hydro ×16。</p>
 
-<h3>E3 两个平底凸台：只改间距</h3>
+<h3 id="w5-5" class="numbered">E3 两个平底凸台：只改间距</h3>
 
 <p><strong>设置</strong>：一个刚体，下方两个半径 \(a\) 的平底凸台，顶上一根细杆连成一体，同深压入厚块（可按半空间处理），压深 \(\delta\)，中心距 \(L=4a\)、\(10a\)、∞。</p>
 <figure style="margin:12px 0"><img src="assets/images/E3_a.png" style="width:526px;max-width:100%;height:auto" alt="E3_a"></figure>
@@ -2012,7 +2124,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p class="kp">结论：相邻接触区经基体相互卸载，中心距 \(4a\) 时裁判与标签都给出每个凸台的力降到 0.86 倍；hydro 不变。原代码耦合项针对的正是该效应。</p>
 
-<h3>E4 粘结薄层、近似不可压：球半径 ×2</h3>
+<h3 id="w5-6" class="numbered">E4 粘结薄层、近似不可压：球半径 ×2</h3>
 
 <p><strong>设置</strong>：厚 \(b\) 的弹性层底面粘结于刚性底座，泊松比 \(\nu\to0.5\)。刚球（半径 \(R\)）压入，同一压深 \(\delta\)，球半径 ×2。hydro 用 (A)。</p>
 <figure style="margin:12px 0"><img src="assets/images/E4_a.png" style="width:666px;max-width:100%;height:auto" alt="E4_a"></figure>
@@ -2226,7 +2338,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p class="kp">结论：近不可压薄层中压强由整个接触区决定，球半径 ×2 时力随 \(\nu\to0.5\) 由 ×2 增向 ×4，hydro 恒为 ×2。标签在 \(\nu\le0.45\) 时与裁判差 ≤ 1.9%（\(\nu=0.45\) 时比值 2.21，裁判 2.24），已表现出 hydro 没有的效应；更接近不可压时线性四面体锁死，标签偏硬。</p>
 
-<h3>E5 粗模型：刚体 → 仿射体</h3>
+<h3 id="w5-7" class="numbered">E5 粗模型：刚体 → 仿射体</h3>
 
 <p><strong>设置</strong>：同一软物体被压，粗模型取刚体或仿射体，物体由矮胖到细长。裁判为线弹性轴对称 FEM。</p>
 <figure style="margin:12px 0"><img src="assets/images/E5_a.png" style="width:420px;max-width:100%;height:auto" alt="E5_a"></figure>
@@ -2243,7 +2355,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p class="kp">结论：正确的碰撞能量随粗模型柔度减小，标签与裁判一致；hydro 不随粗模型改变，物体越细长偏差越大。</p>
 
-<h3 class="numbered">5.6 小结</h3>
+<h3 id="w5-8" class="numbered">5.6 小结</h3>
 
 <div class="tablewrap"><table>
 <thead>
@@ -2316,7 +2428,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </table></div>
 <p class="kp">结论：hydro "压强只取决于局部穿入深度、各接触区互不影响"的假设在弹性体上不成立，比值判据下调参无法弥补。本项目标签在 E0–E3、E5 与 E4（\(\nu\le0.45\)）与裁判一致。</p>
 
-<h3 class="numbered">5.7 尚未完成的验证</h3>
+<h3 id="w5-9" class="numbered">5.7 尚未完成的验证</h3>
 
 <p>论证链：</p>
 <ol>
@@ -2334,4 +2446,52 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>网络输入</strong>：耦合项使用真值曲率；高度图不含倾斜</li>
 </ul>
 <p><strong>待决定：标签用 pyuipc 0.0.25 直接生成，还是改用 Genesis（预先换算材料参数）；低成本批量生成设置；近不可压材料的单元选择。</strong></p></section>
-</main>
+</article><footer class="pagefoot"><span>Neural-IPC 周汇报</span><a href="#content">返回顶部 ↑</a></footer></main></div>
+<dialog id="image-viewer" aria-label="放大查看图片"><button type="button" id="close-viewer" aria-label="关闭大图">关闭 ×</button><img alt=""><p>点击图片外区域或按 Esc 关闭</p></dialog>
+<script>
+(() => {
+  const contents = document.querySelector('#contents');
+  const desktop = matchMedia('(min-width: 721px)');
+  if (contents) {
+    const syncMenu = () => { contents.open = desktop.matches; };
+    syncMenu();
+    desktop.addEventListener('change', syncMenu);
+    contents.addEventListener('click', e => { if (e.target.closest('a') && !desktop.matches) contents.open = false; });
+  }
+  const links = [...document.querySelectorAll('#contents a[href^="#"]')];
+  const targets = links.map(a => document.getElementById(decodeURIComponent(a.hash.slice(1))));
+  const progress = document.querySelector('#progress');
+  let scheduled = false;
+  function update() {
+    scheduled = false;
+    const h = document.documentElement.scrollHeight - innerHeight;
+    progress.style.width = (h > 0 ? 100 * scrollY / h : 0) + '%';
+    let cur = 0;
+    targets.forEach((t, i) => { if (t && t.getBoundingClientRect().top <= 150) cur = i; });
+    links.forEach((a, i) => {
+      a.classList.toggle('active', i === cur);
+      if (i === cur) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+    });
+  }
+  addEventListener('scroll', () => { if (!scheduled) { scheduled = true; requestAnimationFrame(update); } }, { passive: true });
+  addEventListener('resize', update);
+  update();
+  const viewer = document.querySelector('#image-viewer');
+  let opener;
+  function openImage(img) {
+    opener = img;
+    viewer.querySelector('img').src = img.currentSrc || img.src;
+    viewer.querySelector('img').alt = img.alt;
+    viewer.showModal();
+  }
+  document.querySelectorAll('article img').forEach(img => {
+    img.tabIndex = 0;
+    img.setAttribute('role', 'button');
+    img.addEventListener('click', () => openImage(img));
+    img.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openImage(img); } });
+  });
+  document.querySelector('#close-viewer').addEventListener('click', () => viewer.close());
+  viewer.addEventListener('click', e => { if (e.target === viewer) viewer.close(); });
+  viewer.addEventListener('close', () => opener && opener.focus({ preventScroll: true }));
+})();
+</script>
