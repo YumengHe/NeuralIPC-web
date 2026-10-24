@@ -7,7 +7,7 @@
 
 import re
 
-from .annotate import ANNOT_CSS, ANNOT_JS
+from .annotate import ANNOT_CSS, ANNOT_JS, renames_script
 from .common import MISSING, esc, pct
 from .config import PAGE_TITLE, WEEKS
 
@@ -278,7 +278,7 @@ def page(body, title, current):
     body, toc = outline(body.replace("d̂", r"\(\hat d\)"))
     notes = current != "index.html"
     notes_css = f"<style>{ANNOT_CSS}</style>\n" if notes else ""
-    notes_js = f"<script>{ANNOT_JS}</script>\n" if notes else ""
+    notes_js = f"{renames_script(current)}<script>{ANNOT_JS}</script>\n" if notes else ""
     aside = ""
     if toc:
         items = "\n".join(f'<a class="toc-level-{lv}" href="#{a}">{text}</a>' for lv, a, text in toc)

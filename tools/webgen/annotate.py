@@ -16,6 +16,24 @@
 不依赖任何外部库；只用 iPad Safari 支持的 Pointer Events、Blob + a[download]、localStorage（读写都包 try/catch）。
 """
 
+import json
+from pathlib import Path
+
+from .config import DRAFTS
+
+
+def renames_script(page_file):
+    """记号改名表，嵌成 <script type="application/json" id="annot-renames">，供笔记把旧写法的锚点迁到新写法。
+    读讲稿目录里的 notation_renames_<页名>.json（{"tex": {旧 TeX: 新 TeX}, "text": {旧文字: 新文字}}，由改讲稿的人维护）；
+    没有这个文件时用空表。文件不是合法 JSON 时直接报错停止生成。"""
+    path = DRAFTS / f"notation_renames_{Path(page_file).stem}.json"
+    data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    table = {k: {o: n for o, n in (data.get(k) or {}).items() if isinstance(o, str) and isinstance(n, str)}
+             for k in ("tex", "text")}
+    body = json.dumps(table, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/json" id="annot-renames">{body}</script>\n'
+
+
 ANNOT_CSS = """
 /* ===== 手写标注：版式固定（有笔迹或标注打开时，各设备正文排版一致） ===== */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -455,11 +473,74 @@ ANNOT_JS = r"""
     }
     return best;
   }
-  /** 正文锚点：① exact+prefix+suffix 全文精确匹配 → ② 种子找候选 + 前后文相似度打分 → ③ 块开头相似 + 块内偏移。 */
+  /* ---------- 7b. 记号改名表：内容只是换了写法（如 d → δ），笔记跟着改名后的内容走 ----------
+   * build_site 把 docs/drafts/notation_renames_<页>.json 嵌进页面 <script id="annot-renames">：
+   * {"tex": {旧 TeX: 新 TeX}, "text": {旧文字: 新文字}}。锚点按原样找不到时，先按改名表（可连续改名）换成新写法再精确找；
+   * 找到就把存的锚点改成新写法（之后同步）。改名表里没有的改动照旧走模糊匹配，再找不到就标灰。 */
+  const collapse = s => (s || '').replace(/\s+/g, ' ');
+  function renameMap() {
+    const el = document.getElementById('annot-renames');
+    const raw = el ? el.textContent : '';
+    if (renameMap.raw !== raw) {
+      let m = {};
+      try { m = JSON.parse(raw || '{}') || {}; } catch (e) { m = {}; }
+      const pick = (o, fn) => new Map(Object.entries(o && typeof o === 'object' ? o : {})
+        .filter(([k, v]) => k && typeof v === 'string').map(([k, v]) => [fn(k), fn(v)]));
+      renameMap.raw = raw;
+      renameMap.val = { tex: pick(m.tex, norm), text: pick(m.text, collapse) };
+    }
+    return renameMap.val;
+  }
+  /** TeX 沿改名表走到底（a→b→c；有环就停）；没改名返回 null。 */
+  function renamedTex(tex) {
+    const m = renameMap().tex, seen = new Set([tex]);
+    let t = tex;
+    while (m.has(t) && !seen.has(m.get(t))) { t = m.get(t); seen.add(t); }
+    return t === tex ? null : t;
+  }
+  /** 文字按改名表逐个替换、重复到不再变化（最多 20 轮）；mark = 被锚字在 s 里的位置，随替换平移
+   * （被锚字本身被替换时落到替换后的第一个字）。没有任何替换返回 null。 */
+  function renamedText(s, mark) {
+    const m = renameMap().text;
+    let changed = false;
+    for (let pass = 0; pass < 20 && m.size; pass++) {
+      let any = false;
+      for (const [o, n] of m) {
+        if (o === n) continue;
+        for (let i = s.indexOf(o); i >= 0; i = s.indexOf(o, i + n.length)) {
+          if (i + o.length <= mark) mark += n.length - o.length; else if (i <= mark) mark = i;
+          s = s.slice(0, i) + n + s.slice(i + o.length);
+          any = changed = true;
+        }
+      }
+      if (!any) break;
+    }
+    return changed ? { s, mark } : null;
+  }
+  /** TextQuote 按改名表换成新写法后的锚点（prefix / suffix 仍各取 quoteLen 字）；没改名返回 null。 */
+  function renamedQuote(a) {
+    const r = renamedText(a.prefix + a.exact + a.suffix, a.prefix.length);
+    if (!r || r.mark >= r.s.length) return null;
+    return Object.assign({}, a, { prefix: r.s.slice(Math.max(0, r.mark - CFG.quoteLen), r.mark), exact: r.s[r.mark],
+                                  suffix: r.s.slice(r.mark + 1, r.mark + 1 + CFG.quoteLen) });
+  }
+
+  function exactQuote(a, orig, f) {
+    const hits = allIndexes(S.index.text, a.prefix + a.exact + a.suffix).map(i => i + a.prefix.length);
+    return hits.length ? nearestPos(hits, orig, f) : -1;
+  }
+  /** 正文锚点：① 原文精确匹配 → ② 按改名表换写法后精确匹配（返回 migrated = 新锚点）→ ③ 种子找候选 + 前后文相似度打分
+   * → ④ 块开头相似 + 块内偏移。返回 {pos, migrated?} 或 null。 */
   function findQuote(a, orig, f) {
+    let p = exactQuote(a, orig, f);
+    if (p >= 0) return { pos: p };
+    const ra = renamedQuote(a);
+    if (ra && (p = exactQuote(ra, orig, f)) >= 0) return { pos: p, migrated: ra };
+    p = fuzzyQuote(ra || a, orig, f);
+    return p >= 0 ? { pos: p } : null;
+  }
+  function fuzzyQuote(a, orig, f) {
     const t = S.index.text;
-    const exact = allIndexes(t, a.prefix + a.exact + a.suffix).map(i => i + a.prefix.length);
-    if (exact.length) return nearestPos(exact, orig, f);
     const cands = new Set();
     const pSeed = a.prefix.slice(-CFG.seedLen) + a.exact, sSeed = a.exact + a.suffix.slice(0, CFG.seedLen);
     for (const i of allIndexes(t, pSeed)) cands.add(i + pSeed.length - a.exact.length);
@@ -487,40 +568,63 @@ ANNOT_JS = r"""
     }
     return bestBlk;
   }
-  /** 按锚点类型在当前页面找目标；返回 {el} 或 {pos}，找不到返回 null。 */
+  /** 按锚点类型在当前页面找目标；返回 {el} 或 {pos}（按改名表迁移了的另带 migrated = 新锚点），找不到返回 null。 */
   function findTarget(a, orig, f) {
     if (a.type === 'page') return { el: main };
-    if (a.type === 'text') { const p = findQuote(a, orig, f); return p >= 0 ? { pos: p } : null; }
-    let cands = [];
+    if (a.type === 'text') return findQuote(a, orig, f);
+    let cands = [], migrated = null;
+    const renamedOr = (s, fn) => { const r = fn(s); return r === null ? s : r; };
+    const rt = s => { const r = renamedText(s, -1); return r ? r.s : null; };
     if (a.type === 'media') {
       cands = [...article.querySelectorAll('img, video')].filter(e => srcKey(e) === a.src);
     } else if (a.type === 'math') {
       const all = displayMath();
       cands = all.filter(m => m.tex === a.tex).map(m => m.el);
+      const t2 = cands.length ? null : renamedTex(a.tex);
+      if (t2) {
+        cands = all.filter(m => m.tex === t2).map(m => m.el);
+        if (cands.length) migrated = Object.assign({}, a, { tex: t2 });
+      }
       if (!cands.length) {
         let bestSim = CFG.texFuzzy;
-        for (const m of all) { const sc = similarity(a.tex, m.tex); if (sc >= bestSim) { bestSim = sc; cands = [m.el]; } }
+        for (const m of all) { const sc = similarity(t2 || a.tex, m.tex); if (sc >= bestSim) { bestSim = sc; cands = [m.el]; } }
       }
     } else if (a.type === 'cell') {
-      const cells = [...article.querySelectorAll('td, th')].filter(c => plainText(c) === a.cell);
-      const withHead = cells.filter(c => headerText(c) === a.head);
-      cands = withHead.length ? withHead : cells;
+      const findCells = (cell, head) => {
+        const cells = [...article.querySelectorAll('td, th')].filter(c => plainText(c) === cell);
+        const withHead = cells.filter(c => headerText(c) === head);
+        return withHead.length ? withHead : cells;
+      };
+      cands = findCells(a.cell, a.head);
+      if (!cands.length && (rt(a.cell) !== null || rt(a.head) !== null)) {
+        const cell = renamedOr(a.cell, rt), head = renamedOr(a.head, rt);
+        cands = findCells(cell, head);
+        if (cands.length) migrated = Object.assign({}, a, { cell, head });
+      }
     } else if (a.type === 'heading') {
       const hs = [...article.querySelectorAll('h1, h2, h3, h4, h5, h6')];
       cands = hs.filter(h => plainText(h) === a.text);
+      const t2 = cands.length ? null : rt(a.text);
+      if (t2 !== null) {
+        cands = hs.filter(h => plainText(h) === t2);
+        if (cands.length) migrated = Object.assign({}, a, { text: t2 });
+      }
       if (!cands.length) {
         let bestSim = CFG.headingFuzzy;
-        for (const h of hs) { const sc = similarity(a.text, plainText(h)); if (sc >= bestSim) { bestSim = sc; cands = [h]; } }
+        for (const h of hs) { const sc = similarity(t2 || a.text, plainText(h)); if (sc >= bestSim) { bestSim = sc; cands = [h]; } }
       }
     }
     const el = pickCandidate(cands, a, orig, f);
-    return el ? { el } : null;
+    return el ? (migrated ? { el, migrated } : { el }) : null;
   }
   /** 一笔当前该画在哪：{state: 'ok' | 'hidden' | 'orphan', R（正文卡片内坐标的参考矩形）, el（所在元素）}。 */
   function place(s, f) {
     let c = S.cache.get(s.id);
     if (!c) { c = { target: findTarget(s.anchor, s.orig, f) }; S.cache.set(s.id, c); }
     const t = c.target;
+    if (t && t.migrated) {   // 按改名表迁到新写法：改存的锚点，渲染完统一保存并同步
+      s.anchor = t.migrated; s.updatedAt = Date.now(); delete t.migrated; S.migrated = true;
+    }
     if (!t) return { state: 'orphan', R: s.orig, el: main };
     if (t.el === main) return { state: 'ok', R: s.orig, el: main };
     if (t.pos !== undefined) {
@@ -646,6 +750,7 @@ ANNOT_JS = r"""
     }
     for (const [id, d] of S.drawn) if (!alive.has(id)) { d.path.remove(); S.drawn.delete(id); }
     S.orphans = orphans; S.hidden = hidden;
+    if (S.migrated) { S.migrated = false; saveStored(); schedulePush(); }
     updateStatus();
   }
 

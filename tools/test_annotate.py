@@ -38,6 +38,10 @@ MEASURE_JS = """(spec) => {
   if (spec.kind === 'img') {
     const img = [...article.querySelectorAll('img')].find(i => i.getAttribute('src').split('/').pop() === spec.src);
     T = img && img.getBoundingClientRect();
+  } else if (spec.kind === 'math') {
+    const m = [...MathJax.startup.document.math].find(m => m.display && m.typesetRoot && m.typesetRoot.isConnected &&
+                                                         m.math.replace(/\\s+/g, ' ').trim() === spec.tex);
+    T = m && m.typesetRoot.getBoundingClientRect();
   } else {
     const w = document.createTreeWalker(article, NodeFilter.SHOW_TEXT);
     for (let n = w.nextNode(); n; n = w.nextNode()) {
@@ -642,6 +646,93 @@ def test_sync(browser, rep):
     ctx.close()
 
 
+# ---------- 记号改名：内容只换写法时笔记跟着走 ----------
+
+# 选三个目标：一个陈列公式（TeX ≥ 10 字）、两段第一个文本节点够长的正文（各取第 40 个字起 16 字作 needle）
+PICK_RENAME_JS = """() => {
+  const norm = s => s.replace(/\\s+/g, ' ').trim();
+  const m = [...MathJax.startup.document.math].find(m => m.display && m.typesetRoot && norm(m.math).length >= 10);
+  const ps = [...document.querySelectorAll('article section > p')].filter(p =>
+      !p.querySelector('mjx-container') && p.firstChild && p.firstChild.nodeType === 3 && p.firstChild.data.trim().length > 120);
+  const pick = p => p.firstChild.data.slice(40, 56);
+  return {tex: norm(m.math), moved: pick(ps[2]), changed: pick(ps[5]), renamed: pick(ps[8]),
+          old: ps[8].firstChild.data.slice(37, 40)};
+}"""
+
+# 在 B 页上做「改讲稿」：公式按两步改名表换写法并重排；一段搬到最后一节末尾；一段整段改写（不在表里）；
+# 一段把起笔字前的 3 个字全段换成新写法（在表里）。改名表写进 #annot-renames。
+EDIT_FOR_RENAME_JS = """async ([tex, mid, t2, moved, changed, renamed, oldTxt, newTxt]) => {
+  const article = document.querySelector('article');
+  const nodeWith = s => { const w = document.createTreeWalker(article, NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) if (n.data.includes(s)) return n; return null; };
+  document.getElementById('annot-renames').textContent =
+    JSON.stringify({tex: {[tex]: mid, [mid]: t2}, text: {[oldTxt]: newTxt}});
+  const item = [...MathJax.startup.document.math].find(m => m.display && m.typesetRoot &&
+                                                             m.math.replace(/\\s+/g, ' ').trim() === tex);
+  const span = document.createElement('span');
+  span.textContent = '\\\\[' + t2 + '\\\\]';
+  item.typesetRoot.replaceWith(span);
+  await MathJax.typesetPromise([span]);
+  const p = nodeWith(moved).parentElement.closest('p');
+  const sections = article.querySelectorAll('section');
+  sections[sections.length - 1].appendChild(p);
+  nodeWith(changed).parentElement.closest('p').textContent = '这一段内容本身改写了，原来的字都不在了，也不在改名表里，所以笔记应该标灰。';
+  const rn = nodeWith(renamed);
+  rn.data = rn.data.split(oldTxt).join(newTxt);
+}"""
+
+
+def test_renames(browser, rep, out):
+    """h) 记号改名：公式换写法（改名表两步链）→ 笔仍在公式上；段落搬家 → 跟着走；整段改写（不在表里）→ 标灰；
+    文字换写法（在表里）→ 跟着新写法走，存的锚点也改成新写法。"""
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900})
+    a = open_page(ctx, "week3_4.html")
+    cdp = ctx.new_cdp_session(a)
+    tg = a.evaluate(PICK_RENAME_JS)
+    toolbar_pen(a)
+    mjs = f"[...MathJax.startup.document.math].find(m => m.display && m.typesetRoot && m.math.replace(/\\s+/g, ' ').trim() === {json.dumps(tg['tex'])}).typesetRoot"
+    scroll_to(a, mjs)
+    svg = a.evaluate(f"(() => {{ const q = ({mjs}).querySelector('svg').getBoundingClientRect(); return {{x: q.left, y: q.top, w: q.width, h: q.height}}; }})()")
+    pen_stroke(cdp, zigzag(svg["x"] + 0.4 * svg["w"], svg["y"] + 0.3 * svg["h"], 8, 6, 8), [0.5] * 8)
+    for key in ("moved", "changed", "renamed"):
+        draw_on_text(a, cdp, tg[key])
+    st = strokes(a)
+    ids = {k: s["id"] for k, s in zip(("math", "moved", "changed", "renamed"), st)}
+    ref = {"math": a.evaluate(MEASURE_JS, {"id": ids["math"], "kind": "math", "tex": tg["tex"]}),
+           "moved": a.evaluate(MEASURE_JS, {"id": ids["moved"], "kind": "char", "needle": tg["moved"]}),
+           "renamed": a.evaluate(MEASURE_JS, {"id": ids["renamed"], "kind": "char", "needle": tg["renamed"]})}
+    notes = a.evaluate("localStorage.getItem('nipc-notes:' + location.pathname)")
+    ctx.close()
+
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900})
+    b = open_page(ctx, "week3_4.html")
+    t2, mid, new_txt = tg["tex"] + " \\quad", tg["tex"] + " \\;", "改名后"
+    b.evaluate(EDIT_FOR_RENAME_JS, [tg["tex"], mid, t2, tg["moved"], tg["changed"], tg["renamed"], tg["old"], new_txt])
+    b.wait_for_timeout(500)
+    import_notes(b, notes)
+    b.wait_for_timeout(300)
+    after = {s["id"]: s for s in strokes(b)}
+    got_math = b.evaluate(MEASURE_JS, {"id": ids["math"], "kind": "math", "tex": t2})
+    compare(rep, "h1 公式按改名表（两步链）换写法后，笔仍在公式上", ref["math"], got_math)
+    rep.check("h1 存的公式锚点已改成新写法", after[ids["math"]]["anchor"].get("tex") == t2,
+              f"anchor.tex={after[ids['math']]['anchor'].get('tex')!r}")
+    got_moved = b.evaluate(MEASURE_JS, {"id": ids["moved"], "kind": "char", "needle": tg["moved"]})
+    compare(rep, "h2 段落搬到最后一节后，笔跟着走", ref["moved"], got_moved)
+    rep.check("h2 目标段落确实搬远了", got_moved.get("targetTop", 0) - ref["moved"]["targetTop"] > 1000,
+              f"目标字在卡片内 y {ref['moved']['targetTop']:.0f} → {got_moved.get('targetTop', 0):.0f}")
+    cls = b.evaluate(f"document.querySelector('#annot-layer path[data-id=\"{ids['changed']}\"]').getAttribute('class')")
+    rep.check("h3 内容本身改写（不在改名表）→ 标灰", "orphan" in (cls or ""), f"class={cls!r}")
+    new_needle = tg["renamed"].replace(tg["old"], new_txt)
+    got_ren = b.evaluate(MEASURE_JS, {"id": ids["renamed"], "kind": "char", "needle": new_needle})
+    compare(rep, f"h4 文字换写法（{tg['old']!r}→{new_txt!r}，在表里）后笔跟着走", ref["renamed"], got_ren)
+    pre = after[ids["renamed"]]["anchor"].get("prefix", "")
+    rep.check("h4 存的文字锚点已改成新写法", pre.endswith(new_txt), f"prefix 末尾 {pre[-8:]!r}")
+    b.evaluate(f"document.querySelector('#annot-layer path[data-id=\"{ids['math']}\"]').scrollIntoView({{block: 'center', behavior: 'instant'}})")
+    b.wait_for_timeout(300)
+    b.screenshot(path=str(out / "h_rename_math.png"))
+    ctx.close()
+
+
 # ---------- 滚动稳定性探针：逐帧记 scrollY，找「没有输入却在动」和「与输入方向相反」的帧 ----------
 
 # 页面内装记录器：每帧 [时间 ms, scrollY]；输入事件、html 类名 / style、main.style、resize、图片加载、笔迹图层变化都记时间
@@ -841,6 +932,7 @@ def main():
         test_video_click(browser, rep)
         test_drift(browser, rep, args.out, text, tgt, ids, ref)
         test_sync(browser, rep)
+        test_renames(browser, rep, args.out)
         run_scroll_probe(browser, rep, args.out, [(1440, 900), (820, 1180)], ["strokes_off", "notes_on"])
         browser.close()
     print(f"== 失败 {rep.fails} 项；截图与 JSON 在 {args.out}")
