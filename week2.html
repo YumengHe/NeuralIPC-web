@@ -105,8 +105,8 @@ img.initframe { max-width: 640px; }
 .demo video { margin: 0; }
 .novideo { padding: 22px 12px; background: var(--soft); color: var(--muted); border-radius: 6px; font-size: 13px; }
 
-/* 公式：MathJax 客户端渲染，宽公式按列宽缩小 */
-mjx-container { max-width: 100%; } mjx-container svg { max-width: 100%; height: auto; }
+/* 公式：MathJax 客户端渲染，保持正文字号；超宽的在讲稿里手动断行，这里只留横向滚动兜底 */
+mjx-container[display="true"] { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
 
 /* 表格：带边框的滚动框 + 斑马纹 */
 .tablewrap { max-width: 100%; overflow: auto; margin: 24px 0; border: 1px solid var(--line); border-radius: 7px; }
@@ -955,7 +955,7 @@ dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10p
 
 <p>已知：① 给出的 4 个预测锚点 \(\hat{\mathbf q}_{t+1}^{k}\)、参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\)；求：一个刚体变换 \((\mathbf R,\mathbf t)\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\hat{\mathbf q}_{t+1}^{k}=\mathbf a_t\,\Delta t^2+2\mathbf q_t^{k}-\mathbf q_{t-1}^{k}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{(\mathbf R,\mathbf t)=\arg\min\displaystyle\sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{\mathbf R^{T}\mathbf R=\mathbf I,\quad \det\mathbf R=1} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\ \ (6),\qquad \mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}\ \ (7)}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{\hat{\mathbf q}_{t+1}^{k}=\mathbf a_t\,\Delta t^2+2\mathbf q_t^{k}-\mathbf q_{t-1}^{k}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{(\mathbf R,\mathbf t)=\arg\min\displaystyle\sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{\mathbf R^{T}\mathbf R=\mathbf I,\quad \det\mathbf R=1} &amp; \color{#c0392b}{(5)}\end{cases}\\[8pt] \color{#c0392b}{\Longrightarrow\ \mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\ \ (6)}\\[4pt] \color{#c0392b}{\mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}\ \ (7)}\end{gathered}\]</p>
 <p>式 (3)：① 推出的锚点新位置，\(k\) 是锚点编号，每个物体 4 个。网络对每个锚点各自预测，彼此间距不一定保持，即不一定是一个刚体。</p>
 
 <p>式 (4)：最佳刚体摆放的定义。\(\mathbf q_{\text{ref}}^{k}\) 是参考姿态下第 \(k\) 个锚点，\(\mathbf R\) 是旋转，\(\mathbf t\) 是平移。它说的是：在所有「只转、只挪、不变形」的摆放里，找一个让参考锚点离预测锚点最近的，距离用平方和来量。</p>
@@ -1157,7 +1157,7 @@ dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10p
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{U_c(z)=\min_w\Pi(\Phi z+\Psi w)-\Pi(\Phi z)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{E_{\text{重}}=\sum_i m_i\,g\,y_i} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \Delta E_{\text{重}}=E_{\text{重}}(\Phi z+\Psi w)-E_{\text{重}}(\Phi z)=g\sum_i m_i(\Psi w)_{y,i}\quad(3)}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{U_c(z)=\min_w\Pi(\Phi z+\Psi w)-\Pi(\Phi z)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{E_{\text{重}}=\sum_i m_i\,g\,y_i} &amp; \color{#c0392b}{(2)}\end{cases}\\[8pt] \color{#c0392b}{\Longrightarrow\ \Delta E_{\text{重}}=E_{\text{重}}(\Phi z+\Psi w)-E_{\text{重}}(\Phi z)=g\sum_i m_i(\Psi w)_{y,i}\quad(3)}\end{gathered}\]</p>
 
 
 
@@ -1389,7 +1389,7 @@ dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10p
 
 <p>已知：单区能量的写法、网络的结构；求：\(\delta\to0\) 时的力。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{U=\delta^2\exp(g)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{g=\mathrm{NN}(\text{特征},\ \log\delta)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{|\tanh(x)|\le1,\quad 0&lt;\tanh&#x27;(x)\le1} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{dU}{d\delta}=\delta\exp(g)\Big(2+\frac{\partial g}{\partial\log\delta}\Big)\to0\quad(\delta\to0)\quad(6)}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{U=\delta^2\exp(g)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{g=\mathrm{NN}(\text{特征},\ \log\delta)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{|\tanh(x)|\le1,\quad 0&lt;\tanh&#x27;(x)\le1} &amp; \color{#c0392b}{(5)}\end{cases}\\[8pt] \color{#c0392b}{\Longrightarrow\ \frac{dU}{d\delta}=\delta\exp(g)\Big(2+\frac{\partial g}{\partial\log\delta}\Big)\to0\quad(\delta\to0)\quad(6)}\end{gathered}\]</p>
 <p>式 (1)：同 ① 的单区能量 \(U=\delta^2\exp(g)\)。</p>
 
 <p>式 (4)：网络的定义。\(g\) 由一个全连接网络算出，输入是形状特征和 \(\log\delta\)，网络为「线性层 → tanh → 线性层 → tanh → 线性层」。</p>
@@ -2166,7 +2166,7 @@ dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10p
 
 <p>已知：层厚 \(b\)、球半径 \(R\)、压深 \(\delta\)；求：材料原地压缩时的力。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\sigma_z=M\,\varepsilon_z} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{\varepsilon_z=\dfrac wb} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(9)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p_c=\frac{M\delta}{b}\ \ (10),\quad V=\int w\,dA=\pi R\delta^2\ \ (11),\quad F=\pi M\frac{R\,\delta^{2}}{b}\ \ (12)}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{\sigma_z=M\,\varepsilon_z} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{\varepsilon_z=\dfrac wb} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(9)}\end{cases}\\[8pt] \color{#c0392b}{\Longrightarrow\ p_c=\frac{M\delta}{b}\ \ (10)}\\[4pt] \color{#c0392b}{V=\int w\,dA=\pi R\delta^2\ \ (11)}\\[4pt] \color{#c0392b}{F=\pi M\frac{R\,\delta^{2}}{b}\ \ (12)}\end{gathered}\]</p>
 <p>式 (4)：① 推出的侧限关系，竖直应力 = 侧限模量 × 竖直应变。</p>
 
 <p>式 (5)：勾股定理。\(r\) 是离接触中心的距离，\(h\) 是该处球面比球底高出的量。</p>
@@ -2201,7 +2201,7 @@ dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10p
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{V=\pi R\delta^2} &amp; \color{#c0392b}{(11)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{w(a)=0} &amp; \color{#c0392b}{(13)}\\[4pt] \color{#c0392b}{\bar u=\dfrac{V}{2\pi ab}} &amp; \color{#c0392b}{(14)}\\[4pt] \color{#c0392b}{\gamma\approx\dfrac{\bar u}{b},\quad \tau=G\gamma} &amp; \color{#c0392b}{(15)}\\[4pt] \color{#c0392b}{(p_1-p_2)\,b\,w_e=2\tau\,\Delta r\,w_e} &amp; \color{#c0392b}{(16)}\\[4pt] \color{#c0392b}{p(a)=0,\quad F\approx\tfrac12\,p_s\cdot\pi a^2} &amp; \color{#c0392b}{(17)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=2R\delta\ \ (18),\quad p_s\propto\frac{G\,a^2\delta}{b^3}\ \ (19),\quad F\propto\frac{G\,R^2\delta^3}{b^3}\ \ (20)}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{V=\pi R\delta^2} &amp; \color{#c0392b}{(11)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{w(a)=0} &amp; \color{#c0392b}{(13)}\\[4pt] \color{#c0392b}{\bar u=\dfrac{V}{2\pi ab}} &amp; \color{#c0392b}{(14)}\\[4pt] \color{#c0392b}{\gamma\approx\dfrac{\bar u}{b},\quad \tau=G\gamma} &amp; \color{#c0392b}{(15)}\\[4pt] \color{#c0392b}{(p_1-p_2)\,b\,w_e=2\tau\,\Delta r\,w_e} &amp; \color{#c0392b}{(16)}\\[4pt] \color{#c0392b}{p(a)=0,\quad F\approx\tfrac12\,p_s\cdot\pi a^2} &amp; \color{#c0392b}{(17)}\end{cases}\\[8pt] \color{#c0392b}{\Longrightarrow\ a^2=2R\delta\ \ (18)}\\[4pt] \color{#c0392b}{p_s\propto\frac{G\,a^2\delta}{b^3}\ \ (19)}\\[4pt] \color{#c0392b}{F\propto\frac{G\,R^2\delta^3}{b^3}\ \ (20)}\end{gathered}\]</p>
 
 
 
