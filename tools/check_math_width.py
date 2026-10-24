@@ -31,8 +31,8 @@ JS = """() => {
 
 def check(page, rel):
     """打开一页、等公式排完，返回超宽公式列表。"""
-    page.goto((ROOT / rel).as_uri())
-    page.wait_for_function("window.MathJax && MathJax.startup && MathJax.startup.promise")
+    page.goto((ROOT / rel).as_uri(), wait_until="domcontentloaded", timeout=120000)   # 只等公式，不等图片视频（共享机负载高时 load 会超时）
+    page.wait_for_function("window.MathJax && MathJax.startup && MathJax.startup.promise", timeout=120000)
     page.evaluate("MathJax.startup.promise")
     return page.evaluate(JS)
 

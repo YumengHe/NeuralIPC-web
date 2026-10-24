@@ -108,7 +108,8 @@ SUBFIGS = {
     "nipc_scene_K1.png": 2, "nipc_scene_K2.png": 2, "nipc_scene_K3.png": 2,
     "nipc_training_samples_K1.png": 2, "nipc_training_samples_K2.png": 2, "nipc_training_samples_K3.png": 2,
     "e0_press.mp4": 2, "e0_scene_L1.2.png": 2, "e1_press_R2.mp4": 2, "e0_label_convergence.png": 2,
-    "core_1.1_b.png": 2, "core_1.2_e.png": 2, "core_2.1_l.png": 3, "core_3.3_u.png": 2, "core_3.3_v.png": 3, "core_w34_3.4_c.png": 2,   # 核心式配图，同 concept_figs.N_SUB
+    "core_1.1_b.png": 2, "core_1.2_e.png": 2, "core_2.1_l.png": 3, "core_3.3_u.png": 2, "core_3.3_v.png": 3, "core_w34_3.4_c.png": 2,
+    "core_w34_2.2_flat0.png": 2, "core_w34_2.2_flat2.png": 2, "core_w34_2.2_flat4.png": 2, "core_w34_2.2_flat6.png": 2,   # 核心式配图，同 concept_figs.N_SUB
     # week3_4
     "fig01_collision_energy.png": 2, "fig02_two_soft_equals_rigid_flat.png": 2, "fig04_mdr_springs.png": 2,
     "WikipediabilderKap_4.jpg": 2, "s31_indenters_scene.png": 4, "s31_indenters_pressed.png": 4,
