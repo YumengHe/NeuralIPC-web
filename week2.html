@@ -295,11 +295,11 @@ html.annot-on #annot-capture { display: block; }
 
 <p><b>① 预设压强场</b></p>
 
-<p>已知：物体的形状、材料模量 \(E\)；求：物体内每一点的预设压强 \(p_0\)。</p>
+<p>已知：物体的形状、材料模量 \(E_h\)；求：物体内每一点的预设压强 \(p_0\)。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{\nabla^2\epsilon=0\ \ \text{（物体内）}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\epsilon=0\ \text{（表面）},\quad \epsilon=1\ \text{（中轴）}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_0=E\,\epsilon} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \text{固定在物体上的压强场 } p_0(\mathbf x)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{\nabla^2\epsilon=0\ \ \text{（物体内）}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\epsilon=0\ \text{（表面）},\quad \epsilon=1\ \text{（中轴）}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p_0=E_h\,\epsilon} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \text{固定在物体上的压强场 } p_0(\mathbf x)}\]</p>
 
 
 
@@ -307,7 +307,7 @@ html.annot-on #annot-capture { display: block; }
 
 <p>式 (2)：边界条件。中轴是物体内离表面最远的点组成的集合，球的中轴就是球心。这两个条件把 \(\epsilon\) 钉住：表面上为 0，最里面为 1。</p>
 
-<p>式 (3)：预设压强的定义。\(E\) 是材料的杨氏模量，即单轴拉压时应力与应变之比，材料越硬越大；\(p_0\) 是这一点的预设压强。它说的是：一点的压强 = 材料硬度 × 这一点的穿入程度；这是人为规定的，不来自力学平衡，目的是让压得越深、材料越硬，推得越狠。</p>
+<p>式 (3)：预设压强的定义。\(E_h\) 是材料的杨氏模量，即单轴拉压时应力与应变之比，材料越硬越大；\(p_0\) 是这一点的预设压强。它说的是：一点的压强 = 材料硬度 × 这一点的穿入程度；这是人为规定的，不来自力学平衡，目的是让压得越深、材料越硬，推得越狠。</p>
 
 <p>结果：这个场离线算好后固定在物体上，与对面压进来的是什么无关，这正是下面「假设一」的来源。离表面越深 → 压强越大，因为 \(\epsilon\) 从表面 0 一路升到中轴 1。</p>
 
@@ -318,14 +318,14 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<details><summary>推导</summary><p>解式 (1) \(\nabla^2\epsilon=0\)，边界条件取式 (2) 表面 \(\epsilon=0\)、中轴 \(\epsilon=1\)，得到物体内每点的 \(\epsilon(\mathbf x)\)；代入式 (3) \(p_0=E\epsilon\)：</p>
-<p>\[p_0(\mathbf x)=E\,\epsilon(\mathbf x)\]</p></details>
+<details><summary>推导</summary><p>解式 (1) \(\nabla^2\epsilon=0\)，边界条件取式 (2) 表面 \(\epsilon=0\)、中轴 \(\epsilon=1\)，得到物体内每点的 \(\epsilon(\mathbf x)\)；代入式 (3) \(p_0=E_h\epsilon\)：</p>
+<p>\[p_0(\mathbf x)=E_h\,\epsilon(\mathbf x)\]</p></details>
 <p><b>② 等压接触面</b></p>
 
 <p>已知：两物体 A、B 各自的压强场，物体用四面体网格表示；求：两物体重叠时的接触面。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{p_0=E\,\epsilon} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{p_{0_A}(\mathbf x)=p_{0_B}(\mathbf x)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{\epsilon(\mathbf x)=\boldsymbol\epsilon\cdot\zeta(\mathbf x)} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ (\mathbf a-\mathbf b)\cdot\mathbf x+(a_0-b_0)=0\quad(6)}\]</p>
-<p>式 (3)：① 定义的预设压强 \(p_0=E\epsilon\)，对 A、B 两个物体各用一次。</p>
+<p>\[\begin{cases}\color{#c0392b}{p_0=E_h\,\epsilon} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{p_{0_A}(\mathbf x)=p_{0_B}(\mathbf x)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{\epsilon(\mathbf x)=\boldsymbol\epsilon\cdot\zeta(\mathbf x)} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ (\mathbf a-\mathbf b)\cdot\mathbf x+(a_0-b_0)=0\quad(6)}\]</p>
+<p>式 (3)：① 定义的预设压强 \(p_0=E_h\epsilon\)，对 A、B 两个物体各用一次。</p>
 
 <p>式 (4)：接触面的定义。\(\mathbf x\) 是重叠区里的一点，\(p_{0_A}\)、\(p_{0_B}\) 是 A、B 在这一点的预设压强。它说的是：接触面取两边压强正好相等的那些点；之所以取相等处，是因为接触面两侧受力必须平衡，作用力等于反作用力。</p>
 
@@ -335,7 +335,7 @@ html.annot-on #annot-capture { display: block; }
 
 <figure style="margin:12px 0"><img src="assets/images/core_1.1_a.png" width="1551" height="615" style="width:667px;max-width:100%;height:auto" alt="二维里把 A、B 各一个相交的单元画成三角形。式 (5) 让单元内的压强按顶点值线性插值，所以每个单元里压强都是一块斜坡：蓝线是 A 的等压线，往上越来越大；绿线是 B 的等压线，往下越来越大，而且更密，表示 B 的斜坡更陡。两组等压线取同一串压强值，同值的蓝线和绿线正好交在红虚线上，这条线就是式 (4) 要的「两边压强相等」，因为两个线性函数相等的地方只能是一条直线，到三维里就是式 (6) 的平面。真正算数的只是它落在两个单元交集（灰色）里的那一段红实线，这一段在三维里就是一块平面多边形；整张接触面就是逐对单元这样切出来的多边形拼起来的。" loading="lazy"><figcaption class="small">二维里把 A、B 各一个相交的单元画成三角形。式 (5) 让单元内的压强按顶点值线性插值，所以每个单元里压强都是一块斜坡：蓝线是 A 的等压线，往上越来越大；绿线是 B 的等压线，往下越来越大，而且更密，表示 B 的斜坡更陡。两组等压线取同一串压强值，同值的蓝线和绿线正好交在红虚线上，这条线就是式 (4) 要的「两边压强相等」，因为两个线性函数相等的地方只能是一条直线，到三维里就是式 (6) 的平面。真正算数的只是它落在两个单元交集（灰色）里的那一段红实线，这一段在三维里就是一块平面多边形；整张接触面就是逐对单元这样切出来的多边形拼起来的。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/Elandt2019_p3_Fig1_contact_surface_crop.png" width="1097" height="890" style="width:518px;max-width:100%;height:auto" alt="Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。" loading="lazy"><figcaption class="small">Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。</figcaption></figure>
-<details><summary>推导</summary><p>式 (5) \(\epsilon=\boldsymbol\epsilon\cdot\zeta(\mathbf x)\) 中重心坐标 \(\zeta\) 是 \(\mathbf x\) 的线性函数，代入式 (3) \(p_0=E\epsilon\)，A、B 两侧的压强都是 \(\mathbf x\) 的线性函数：</p>
+<details><summary>推导</summary><p>式 (5) \(\epsilon=\boldsymbol\epsilon\cdot\zeta(\mathbf x)\) 中重心坐标 \(\zeta\) 是 \(\mathbf x\) 的线性函数，代入式 (3) \(p_0=E_h\epsilon\)，A、B 两侧的压强都是 \(\mathbf x\) 的线性函数：</p>
 <p>\[p_{0_A}(\mathbf x)=\mathbf a\cdot\mathbf x+a_0,\qquad p_{0_B}(\mathbf x)=\mathbf b\cdot\mathbf x+b_0\]</p>
 <p>代入式 (4) \(p_{0_A}=p_{0_B}\)，移项：</p>
 <p>\[(\mathbf a-\mathbf b)\cdot\mathbf x+(a_0-b_0)=0\qquad(6)\]</p>
@@ -357,10 +357,10 @@ html.annot-on #annot-capture { display: block; }
 </details>
 <p><strong>实现</strong></p>
 <p>Drake 与 Genesis 取 \(\epsilon\) = 到表面距离 ÷ 物体内最大距离，因此</p>
-<p>\[\color{#c0392b}{p=\frac{E_h}{D}\times\text{深度}}\]</p>
+<p>\[\color{#c0392b}{p=\frac{E_h}{D_h}\times\text{深度}}\]</p>
 <ul>
 <li>\(E_h\)：压力场模量（Pa），人工设定。Genesis 中刚体共用 \(H\)（默认 \(10^8\) Pa），FEM 软体按材料设置（默认 \(10^7\) Pa）</li>
-<li>\(D\)：物体内到表面的最大距离；\(E_h/D\) 为压强梯度（Pa/m）</li>
+<li>\(D_h\)：物体内到表面的最大距离；\(E_h/D_h\) 为压强梯度（Pa/m）</li>
 </ul>
 <p>两者对刚体的处理不同：</p>
 <ul>
@@ -416,49 +416,49 @@ html.annot-on #annot-capture { display: block; }
 <p>\[f_n=p_c\,A+\nabla p\cdot0=A\,p_c\qquad(4)\]</p></details>
 <p><b>② 压强与重叠量：梯度串联</b></p>
 
-<p>已知：A、B 两侧的压强梯度 \(g_A\)、\(g_B\)，该处两物体重叠的总深度 \(d\)；求：接触面上的压强 \(p\) 与合成梯度 \(g\)。</p>
+<p>已知：A、B 两侧的压强梯度 \(\Gamma_A\)、\(\Gamma_B\)，该处两物体重叠的总深度 \(\delta\)；求：接触面上的压强 \(p\) 与合成梯度 \(\Gamma\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{p_A=g_A\,d_A} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{p_B=g_B\,d_B} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{p_A=p_B=p} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{d_A+d_B=d=-\phi} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=g\,d=-g\,\phi,\quad g=\dfrac{g_A\,g_B}{g_A+g_B}\quad(9)}\]</p>
-<p>式 (5)：A 侧的压强场。\(p_A\) 是 A 侧在接触面处的压强，\(g_A\) 是 A 侧的压强梯度，即每深入单位长度压强增加多少，\(d_A\) 是接触面进入 A 的深度。它说的是：A 侧被压进去越深，A 侧压强越大，而且按固定斜率 \(g_A\) 线性增大：压进 1 mm，压强就增加 \(g_A\times\)1 mm。原因是 1.1 的压强场随深度线性增长，\(g_A\) 等于压力场模量除以物体内到表面的最大距离。</p>
+<p>\[\begin{cases}\color{#c0392b}{p_A=\Gamma_A\,s_A} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{p_B=\Gamma_B\,s_B} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{p_A=p_B=p} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{s_A+s_B=\delta=-\phi} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=\Gamma\,\delta=-\Gamma\,\phi,\quad \Gamma=\dfrac{\Gamma_A\,\Gamma_B}{\Gamma_A+\Gamma_B}\quad(9)}\]</p>
+<p>式 (5)：A 侧的压强场。\(p_A\) 是 A 侧在接触面处的压强，\(\Gamma_A\) 是 A 侧的压强梯度，即每深入单位长度压强增加多少，\(s_A\) 是接触面进入 A 的深度。它说的是：A 侧被压进去越深，A 侧压强越大，而且按固定斜率 \(\Gamma_A\) 线性增大：压进 1 mm，压强就增加 \(\Gamma_A\times\)1 mm。原因是 1.1 的压强场随深度线性增长，\(\Gamma_A\) 等于压力场模量除以物体内到表面的最大距离。</p>
 
-<p>式 (6)：B 侧同理，\(p_B\) 是 B 侧压强，\(g_B\) 是 B 侧压强梯度，\(d_B\) 是接触面进入 B 的深度。</p>
+<p>式 (6)：B 侧同理，\(p_B\) 是 B 侧压强，\(\Gamma_B\) 是 B 侧压强梯度，\(s_B\) 是接触面进入 B 的深度。</p>
 
 <p>式 (7)：接触面的定义。\(p\) 是接触面上的压强。它说的是：接触面停在两边压强打平的地方，因为接触面两侧受力必须平衡，作用力等于反作用力。</p>
 
-<p>式 (8)：几何关系。\(d\) 是两物体在该处重叠的总深度，\(\phi\) 是有符号距离，两表面分开为正、穿透为负。它说的是：接触面把总重叠分成进入 A 和进入 B 两段，两段加起来就是总重叠。</p>
+<p>式 (8)：几何关系。\(\delta\) 是两物体在该处重叠的总深度，\(\phi\) 是有符号距离，两表面分开为正、穿透为负。它说的是：接触面把总重叠分成进入 A 和进入 B 两段，两段加起来就是总重叠。</p>
 
-<p>结果：\(g\) 是合成梯度。任一侧越软，即梯度越小 → \(g\) 越小，而且比两侧中较软的那个还小，因为这就是两根弹簧串联，总刚度由软的一根主导；软的一侧分到的重叠深度也更多。</p>
+<p>结果：\(\Gamma\) 是合成梯度。任一侧越软，即梯度越小 → \(\Gamma\) 越小，而且比两侧中较软的那个还小，因为这就是两根弹簧串联，总刚度由软的一根主导；软的一侧分到的重叠深度也更多。</p>
 
-<figure style="margin:12px 0"><img src="assets/images/core_1.2_e.png" width="2015" height="1034" style="width:818px;max-width:100%;height:auto" alt="左边是沿法向切的一条线：A 在左、表面在右端，B 在右、表面在左端，两者重叠了 d。蓝线是 A 侧压强，从 A 的表面往 A 里走越来越大，斜率是 \(g_A\)；绿线是 B 侧压强，往 B 里走越来越大，斜率 \(g_B\) 更小，表示 B 更软。两条线的交点就是式 (7) 的接触面，这里两边压强相等。交点把 d 分成两段，软的 B 分到的 \(d_B\) 明显比硬的 A 分到的 \(d_A\) 长，因为同样的压强在软的一侧要压得更深才能达到。右边把这件事换成两根串联的弹簧：同一个力穿过两根，软的那根压缩得多，总刚度就是式 (9) 的 \(g=g_Ag_B/(g_A+g_B)\)，比软的那根还小。" loading="lazy"><figcaption class="small">左边是沿法向切的一条线：A 在左、表面在右端，B 在右、表面在左端，两者重叠了 d。蓝线是 A 侧压强，从 A 的表面往 A 里走越来越大，斜率是 \(g_A\)；绿线是 B 侧压强，往 B 里走越来越大，斜率 \(g_B\) 更小，表示 B 更软。两条线的交点就是式 (7) 的接触面，这里两边压强相等。交点把 d 分成两段，软的 B 分到的 \(d_B\) 明显比硬的 A 分到的 \(d_A\) 长，因为同样的压强在软的一侧要压得更深才能达到。右边把这件事换成两根串联的弹簧：同一个力穿过两根，软的那根压缩得多，总刚度就是式 (9) 的 \(g=g_Ag_B/(g_A+g_B)\)，比软的那根还小。</figcaption></figure>
-<details><summary>推导</summary><p>由式 (5) \(p_A=g_Ad_A\)、式 (6) \(p_B=g_Bd_B\) 与式 (7) \(p_A=p_B=p\) 解出两段深度：</p>
-<p>\[d_A=\frac{p}{g_A},\qquad d_B=\frac{p}{g_B}\]</p>
-<p>代入式 (8) \(d_A+d_B=d\)：</p>
-<p>\[p\Big(\frac1{g_A}+\frac1{g_B}\Big)=d\]</p>
-<p>解出 \(p\)，分子分母同乘 \(g_Ag_B\)，再用式 (8) \(d=-\phi\)：</p>
-<p>\[p=\frac{g_A\,g_B}{g_A+g_B}\,d=g\,d=-g\,\phi\qquad(9)\]</p></details>
+<figure style="margin:12px 0"><img src="assets/images/core_1.2_e.png" width="2015" height="1034" style="width:818px;max-width:100%;height:auto" alt="左边是沿法向切的一条线：A 在左、表面在右端，B 在右、表面在左端，两者重叠了 d。蓝线是 A 侧压强，从 A 的表面往 A 里走越来越大，斜率是 \(\Gamma_A\)；绿线是 B 侧压强，往 B 里走越来越大，斜率 \(\Gamma_B\) 更小，表示 B 更软。两条线的交点就是式 (7) 的接触面，这里两边压强相等。交点把 d 分成两段，软的 B 分到的 \(s_B\) 明显比硬的 A 分到的 \(s_A\) 长，因为同样的压强在软的一侧要压得更深才能达到。右边把这件事换成两根串联的弹簧：同一个力穿过两根，软的那根压缩得多，总刚度就是式 (9) 的 \(\Gamma=\Gamma_A\Gamma_B/(\Gamma_A+\Gamma_B)\)，比软的那根还小。" loading="lazy"><figcaption class="small">左边是沿法向切的一条线：A 在左、表面在右端，B 在右、表面在左端，两者重叠了 d。蓝线是 A 侧压强，从 A 的表面往 A 里走越来越大，斜率是 \(\Gamma_A\)；绿线是 B 侧压强，往 B 里走越来越大，斜率 \(\Gamma_B\) 更小，表示 B 更软。两条线的交点就是式 (7) 的接触面，这里两边压强相等。交点把 d 分成两段，软的 B 分到的 \(s_B\) 明显比硬的 A 分到的 \(s_A\) 长，因为同样的压强在软的一侧要压得更深才能达到。右边把这件事换成两根串联的弹簧：同一个力穿过两根，软的那根压缩得多，总刚度就是式 (9) 的 \(\Gamma=\Gamma_A\Gamma_B/(\Gamma_A+\Gamma_B)\)，比软的那根还小。</figcaption></figure>
+<details><summary>推导</summary><p>由式 (5) \(p_A=\Gamma_As_A\)、式 (6) \(p_B=\Gamma_Bs_B\) 与式 (7) \(p_A=p_B=p\) 解出两段深度：</p>
+<p>\[s_A=\frac{p}{\Gamma_A},\qquad s_B=\frac{p}{\Gamma_B}\]</p>
+<p>代入式 (8) \(s_A+s_B=\delta\)：</p>
+<p>\[p\Big(\frac1{\Gamma_A}+\frac1{\Gamma_B}\Big)=\delta\]</p>
+<p>解出 \(p\)，分子分母同乘 \(\Gamma_A\Gamma_B\)，再用式 (8) \(\delta=-\phi\)：</p>
+<p>\[p=\frac{\Gamma_A\,\Gamma_B}{\Gamma_A+\Gamma_B}\,\delta=\Gamma\,\delta=-\Gamma\,\phi\qquad(9)\]</p></details>
 <p><b>③ 一个时间步内重叠量的变化</b></p>
 
-<p>已知：步首形心处压强 \(p_{c,0}\)、合成梯度 \(g\)、步长 \(\delta t\)、法向相对速度 \(v_n\)；求：步末形心处压强 \(p_c\)。</p>
+<p>已知：步首形心处压强 \(p_{c,0}\)、合成梯度 \(\Gamma\)、步长 \(\Delta t\)、法向相对速度 \(v_n\)；求：步末形心处压强 \(p_c\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{p=-g\,\phi} &amp; \color{#c0392b}{(9)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\delta t\,v_n} &amp; \color{#c0392b}{(10)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p_c=p_{c,0}-g\,\delta t\,v_n\quad(11)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{p=-\Gamma\,\phi} &amp; \color{#c0392b}{(9)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\Delta t\,v_n} &amp; \color{#c0392b}{(10)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p_c=p_{c,0}-\Gamma\,\Delta t\,v_n\quad(11)}\]</p>
 <p>式 (9)：② 推出的压强 = 合成梯度 × 重叠深度，\(\phi\) 是有符号距离，穿透为负；这里用在形心上，步首和步末各用一次。</p>
 
-<p>式 (10)：一步内的运动学关系。\(\phi_0\) 是步首的有符号距离，\(\delta t\) 是一个时间步的长度，\(v_n\) 是两物体在法向的相对速度，分开为正。它说的是：一步之内重叠量按当前的相对速度匀速变化，这就是「速度 = 距离变化 ÷ 时间」；例如以 1 m/s 分开、步长 1 ms，有符号距离增加 1 mm。</p>
+<p>式 (10)：一步内的运动学关系。\(\phi_0\) 是步首的有符号距离，\(\Delta t\) 是一个时间步的长度，\(v_n\) 是两物体在法向的相对速度，分开为正。它说的是：一步之内重叠量按当前的相对速度匀速变化，这就是「速度 = 距离变化 ÷ 时间」；例如以 1 m/s 分开、步长 1 ms，有符号距离增加 1 mm。</p>
 
-<p>结果：\(p_{c,0}\) 是步首形心处压强。分开得越快或步长越大 → 压强降得越多；合成梯度 \(g\) 越大 → 同样的速度下压强变化越快，因为压强 = \(g\) × 重叠深度，重叠变了多少，压强就按 \(g\) 倍跟着变。</p>
+<p>结果：\(p_{c,0}\) 是步首形心处压强。分开得越快或步长越大 → 压强降得越多；合成梯度 \(\Gamma\) 越大 → 同样的速度下压强变化越快，因为压强 = \(\Gamma\) × 重叠深度，重叠变了多少，压强就按 \(\Gamma\) 倍跟着变。</p>
 
-<figure style="margin:12px 0"><img src="assets/images/core_1.2_f.png" width="1270" height="925" style="width:577px;max-width:100%;height:auto" alt="还是沿法向的那条剖面线，B 不动，A 在这一步里以法向速度 \(v_n\) 往外退了 \(\delta t\,v_n\)：虚线是步首 A 侧的压强，实线是步末的。重叠从 \(-\phi_0\) 缩成 \(-\phi\)，正是式 (10)。两条蓝线和绿线的交点就是接触面上的压强，步首在 \(p_{c,0}\)，步末降到 \(p_c\)。因为式 (9) 说交点高度等于合成梯度 \(g\) 乘重叠，重叠少了 \(\delta t\,v_n\)，压强就少 \(g\,\delta t\,v_n\)，这就是式 (11)。这样一来，步末的压强只差一个与下一步速度成正比的修正，求解器才能把它当成速度的线性函数来隐式求解。" loading="lazy"><figcaption class="small">还是沿法向的那条剖面线，B 不动，A 在这一步里以法向速度 \(v_n\) 往外退了 \(\delta t\,v_n\)：虚线是步首 A 侧的压强，实线是步末的。重叠从 \(-\phi_0\) 缩成 \(-\phi\)，正是式 (10)。两条蓝线和绿线的交点就是接触面上的压强，步首在 \(p_{c,0}\)，步末降到 \(p_c\)。因为式 (9) 说交点高度等于合成梯度 \(g\) 乘重叠，重叠少了 \(\delta t\,v_n\)，压强就少 \(g\,\delta t\,v_n\)，这就是式 (11)。这样一来，步末的压强只差一个与下一步速度成正比的修正，求解器才能把它当成速度的线性函数来隐式求解。</figcaption></figure>
-<details><summary>推导</summary><p>式 (9) \(p=-g\phi\) 用在步首形心，已知步首压强 \(p_{c,0}\)，反解步首有符号距离：</p>
-<p>\[\phi_0=-\frac{p_{c,0}}{g}\]</p>
-<p>式 (9) 用在步末形心，代入式 (10) \(\phi=\phi_0+\delta t\,v_n\)：</p>
-<p>\[p_c=-g\,\phi_0-g\,\delta t\,v_n\]</p>
-<p>代入 \(-g\,\phi_0=p_{c,0}\)：</p>
-<p>\[p_c=p_{c,0}-g\,\delta t\,v_n\qquad(11)\]</p></details>
+<figure style="margin:12px 0"><img src="assets/images/core_1.2_f.png" width="1270" height="925" style="width:577px;max-width:100%;height:auto" alt="还是沿法向的那条剖面线，B 不动，A 在这一步里以法向速度 \(v_n\) 往外退了 \(\Delta t\,v_n\)：虚线是步首 A 侧的压强，实线是步末的。重叠从 \(-\phi_0\) 缩成 \(-\phi\)，正是式 (10)。两条蓝线和绿线的交点就是接触面上的压强，步首在 \(p_{c,0}\)，步末降到 \(p_c\)。因为式 (9) 说交点高度等于合成梯度 \(\Gamma\) 乘重叠，重叠少了 \(\Delta t\,v_n\)，压强就少 \(\Gamma\,\Delta t\,v_n\)，这就是式 (11)。这样一来，步末的压强只差一个与下一步速度成正比的修正，求解器才能把它当成速度的线性函数来隐式求解。" loading="lazy"><figcaption class="small">还是沿法向的那条剖面线，B 不动，A 在这一步里以法向速度 \(v_n\) 往外退了 \(\Delta t\,v_n\)：虚线是步首 A 侧的压强，实线是步末的。重叠从 \(-\phi_0\) 缩成 \(-\phi\)，正是式 (10)。两条蓝线和绿线的交点就是接触面上的压强，步首在 \(p_{c,0}\)，步末降到 \(p_c\)。因为式 (9) 说交点高度等于合成梯度 \(\Gamma\) 乘重叠，重叠少了 \(\Delta t\,v_n\)，压强就少 \(\Gamma\,\Delta t\,v_n\)，这就是式 (11)。这样一来，步末的压强只差一个与下一步速度成正比的修正，求解器才能把它当成速度的线性函数来隐式求解。</figcaption></figure>
+<details><summary>推导</summary><p>式 (9) \(p=-\Gamma\phi\) 用在步首形心，已知步首压强 \(p_{c,0}\)，反解步首有符号距离：</p>
+<p>\[\phi_0=-\frac{p_{c,0}}{\Gamma}\]</p>
+<p>式 (9) 用在步末形心，代入式 (10) \(\phi=\phi_0+\Delta t\,v_n\)：</p>
+<p>\[p_c=-\Gamma\,\phi_0-\Gamma\,\Delta t\,v_n\]</p>
+<p>代入 \(-\Gamma\,\phi_0=p_{c,0}\)：</p>
+<p>\[p_c=p_{c,0}-\Gamma\,\Delta t\,v_n\qquad(11)\]</p></details>
 <p><b>④ 得到弹簧</b></p>
 
-<p>已知：步首面积 \(A_0\)、合成梯度 \(g\)、有符号距离 \(\phi\)；求：这块多边形的法向力 \(f_n\)。</p>
+<p>已知：步首面积 \(A_0\)、合成梯度 \(\Gamma\)、有符号距离 \(\phi\)；求：这块多边形的法向力 \(f_n\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{f_n=A\,p_c} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{p=-g\,\phi} &amp; \color{#c0392b}{(9)}\\[4pt] \color{#c0392b}{A=A_0} &amp; \color{#c0392b}{(12)}\\[4pt] \color{#c0392b}{f_n\ge0} &amp; \color{#c0392b}{(13)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ f_n=(-k\phi)_+,\quad k=g\,A_0\quad(14)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{f_n=A\,p_c} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{p=-\Gamma\,\phi} &amp; \color{#c0392b}{(9)}\\[4pt] \color{#c0392b}{A=A_0} &amp; \color{#c0392b}{(12)}\\[4pt] \color{#c0392b}{f_n\ge0} &amp; \color{#c0392b}{(13)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ f_n=(-k\phi)_+,\quad k=\Gamma\,A_0\quad(14)}\]</p>
 <p>式 (4)：① 推出的力 = 面积 × 形心压强，\(f_n\) 是法向力，\(A\) 是多边形面积，\(p_c\) 是形心处压强。</p>
 
 <p>式 (9)：② 推出的压强 = 合成梯度 × 重叠深度，用在形心上。</p>
@@ -470,24 +470,24 @@ html.annot-on #annot-capture { display: block; }
 <p>结果：\(k\) 是这根弹簧的刚度，\((\cdot)_+=\max(\cdot,0)\) 表示负数取 0。多边形越大、合成梯度越大 → 弹簧越硬，因为同样的重叠下面积大、压强升得快，力都更大；每块多边形各自一根弹簧，刚度只看自己的面积和梯度。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/core_1.2_g.png" width="1309" height="938" style="width:586px;max-width:100%;height:auto" alt="横轴是有符号距离 \(\phi\)，往左是穿透越来越深，往右是两物体分开；纵轴是这块多边形给的法向力。穿透时力随穿透深度直线增长，斜率是 \(-k=-gA_0\)；一旦分开，力立刻变成 0，因为式 (13) 规定接触只推不拉，这就是 \((\cdot)_+\) 取正部的意思。两条线是同一个合成梯度、不同面积的多边形：面积大的那根更陡，也就是更硬的弹簧。整张接触面在 hydro 里就是这样一堆各自独立的弹簧，每根的刚度只看自己那块的面积和梯度，这正是本节结论里的「假设二」。" loading="lazy"><figcaption class="small">横轴是有符号距离 \(\phi\)，往左是穿透越来越深，往右是两物体分开；纵轴是这块多边形给的法向力。穿透时力随穿透深度直线增长，斜率是 \(-k=-gA_0\)；一旦分开，力立刻变成 0，因为式 (13) 规定接触只推不拉，这就是 \((\cdot)_+\) 取正部的意思。两条线是同一个合成梯度、不同面积的多边形：面积大的那根更陡，也就是更硬的弹簧。整张接触面在 hydro 里就是这样一堆各自独立的弹簧，每根的刚度只看自己那块的面积和梯度，这正是本节结论里的「假设二」。</figcaption></figure>
-<details><summary>推导</summary><p>式 (9) \(p=-g\phi\) 用在形心，与式 (12) \(A=A_0\) 一起代入式 (4) \(f_n=A\,p_c\)：</p>
-<p>\[f_n=-g\,A_0\,\phi\]</p>
-<p>记 \(k=g\,A_0\)，按式 (13) 力不能为负，取正部：</p>
-<p>\[f_n=(-k\phi)_+,\qquad k=g\,A_0\qquad(14)\]</p></details>
+<details><summary>推导</summary><p>式 (9) \(p=-\Gamma\phi\) 用在形心，与式 (12) \(A=A_0\) 一起代入式 (4) \(f_n=A\,p_c\)：</p>
+<p>\[f_n=-\Gamma\,A_0\,\phi\]</p>
+<p>记 \(k=\Gamma\,A_0\)，按式 (13) 力不能为负，取正部：</p>
+<p>\[f_n=(-k\phi)_+,\qquad k=\Gamma\,A_0\qquad(14)\]</p></details>
 </details>
 <p><strong>实现</strong></p>
 <ul>
 <li>Drake：刚体侧梯度取无穷大</li>
 <li>Genesis 刚体–刚体：两侧真实梯度串联，与论文一致</li>
-<li>Genesis 刚体–地面：地面不带压力场，合成梯度取刚体的真实梯度，即全局刚度 \(H\) 除以刚体尺寸 \(D\)，自洽</li>
+<li>Genesis 刚体–地面：地面不带压力场，合成梯度取刚体的真实梯度，即全局刚度 \(H\) 除以刚体尺寸 \(D_h\)，自洽</li>
 <li>
-<p>Genesis 刚体–FEM 软体：刚体一侧的梯度直接取全局刚度 \(H\)（单位 Pa，按 Pa/m 使用），不随刚体尺寸 \(D\) 变化，与 FEM 侧真实梯度串联得合成梯度 \(g\)；弹簧刚度 \(k\) 和步首有符号距离 \(\phi_0\) 用同一个 \(g\)。把式 (11) \(p_c=p_{c,0}-g\,\delta t\,v_n\) 代入式 (4) \(f_n=A\,p_c\)，面积取步首值 \(A_0\)，得到下式。静止时法向速度 \(v_n=0\)，力只剩 \(A_0\) 乘 \(p_{c,0}\)，与 \(H\) 无关；\(H\) 只影响一步内力随速度的变化</p>
-<p>\[\color{#c0392b}{f_n=A_0\,p_{c,0}-A_0\,g\,\delta t\,v_n}\]</p>
+<p>Genesis 刚体–FEM 软体：刚体一侧的梯度直接取全局刚度 \(H\)（单位 Pa，按 Pa/m 使用），不随刚体尺寸 \(D_h\) 变化，与 FEM 侧真实梯度串联得合成梯度 \(\Gamma\)；弹簧刚度 \(k\) 和步首有符号距离 \(\phi_0\) 用同一个 \(\Gamma\)。把式 (11) \(p_c=p_{c,0}-\Gamma\,\Delta t\,v_n\) 代入式 (4) \(f_n=A\,p_c\)，面积取步首值 \(A_0\)，得到下式。静止时法向速度 \(v_n=0\)，力只剩 \(A_0\) 乘 \(p_{c,0}\)，与 \(H\) 无关；\(H\) 只影响一步内力随速度的变化</p>
+<p>\[\color{#c0392b}{f_n=A_0\,p_{c,0}-A_0\,\Gamma\,\Delta t\,v_n}\]</p>
 </li>
 <li>
-<p>Genesis FEM–FEM：穿入量按两侧真实梯度 \(g_A\)、\(g_B\) 算，刚度却取全局刚度 \(H\) 乘面积 \(A_0\)，见下面第一式。这样算出的静止力见第二式，它随 \(H\) 变化，而且单位是 Pa·m²·m，不是力，量纲不一致。论文的静止力按式 (9)(14) 是 \(A_0\) 乘 \(p_{c,0}\)；Genesis 把刚度里的 \(g\) 换成了 \(H\)，静止力变为论文值的 \(H/g\) 倍。该接触对未做单独实验验证</p>
-<p>\[\color{#c0392b}{\phi_0=-\frac{p_{c,0}}{g_A}-\frac{p_{c,0}}{g_B},\qquad k=A_0H}\]</p>
-<p>\[\color{#c0392b}{k(-\phi_0)=A_0H\,p_{c,0}\Big(\frac1{g_A}+\frac1{g_B}\Big)=\frac{H}{g}\,A_0\,p_{c,0}}\]</p>
+<p>Genesis FEM–FEM：穿入量按两侧真实梯度 \(\Gamma_A\)、\(\Gamma_B\) 算，刚度却取全局刚度 \(H\) 乘面积 \(A_0\)，见下面第一式。这样算出的静止力见第二式，它随 \(H\) 变化，而且单位是 Pa·m²·m，不是力，量纲不一致。论文的静止力按式 (9)(14) 是 \(A_0\) 乘 \(p_{c,0}\)；Genesis 把刚度里的 \(\Gamma\) 换成了 \(H\)，静止力变为论文值的 \(H/\Gamma\) 倍。该接触对未做单独实验验证</p>
+<p>\[\color{#c0392b}{\phi_0=-\frac{p_{c,0}}{\Gamma_A}-\frac{p_{c,0}}{\Gamma_B},\qquad k=A_0H}\]</p>
+<p>\[\color{#c0392b}{k(-\phi_0)=A_0H\,p_{c,0}\Big(\frac1{\Gamma_A}+\frac1{\Gamma_B}\Big)=\frac{H}{\Gamma}\,A_0\,p_{c,0}}\]</p>
 </li>
 </ul>
 <p class="kp">结论（假设二）：每块接触多边形为一根独立弹簧，刚度只由该块面积和压强梯度决定（式 (14)），相邻接触区互不影响。</p>
@@ -500,15 +500,15 @@ html.annot-on #annot-capture { display: block; }
 
 <p><b>① 每个接触是一根带阻尼的弹簧</b></p>
 
-<p>已知：接触刚度 \(k\)、耗散时间尺度 \(\tau_d\)、步长 \(\delta t\)、步首有符号距离 \(\phi_0\)；求：一步内的法向冲量 \(\gamma_n\)，用下一步法向速度 \(v_n\) 表示。</p>
+<p>已知：接触刚度 \(k\)、耗散时间尺度 \(\tau_\delta\)、步长 \(\Delta t\)、步首有符号距离 \(\phi_0\)；求：一步内的法向冲量 \(\gamma_n\)，用下一步法向速度 \(v_n\) 表示。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{\gamma_n/\delta t=(-k\phi-\tau_d\,k\,v_n)_+} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\delta t\,v_n} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+\quad(3)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{\gamma_n/\Delta t=(-k\phi-\tau_d\,k\,v_n)_+} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\Delta t\,v_n} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \gamma_n=\Delta t\big(-k\phi_0-k(\Delta t+\tau_d)\,v_n\big)_+\quad(3)}\]</p>
 
 
 
-<p>式 (1)：带阻尼弹簧的接触模型。\(\gamma_n\) 是一步内的法向冲量，即力乘步长；\(k\) 是接触刚度；\(\phi\) 是下一步的有符号距离，穿透为负；\(\tau_d\) 是耗散时间尺度，单位秒，阻尼系数为 \(\tau_dk\)；\(v_n\) 是法向相对速度，分开为正；\((\cdot)_+\) 表示负数取 0。它说的是：接触力 = 弹簧力 + 阻尼力，穿得越深推得越大，相互靠近得越快推得越大，只推不拉；\(\tau_d\) 越大，碰后反弹越小。</p>
+<p>式 (1)：带阻尼弹簧的接触模型。\(\gamma_n\) 是一步内的法向冲量，即力乘步长；\(k\) 是接触刚度；\(\phi\) 是下一步的有符号距离，穿透为负；\(\tau_\delta\) 是耗散时间尺度，单位秒，阻尼系数为 \(\tau_dk\)；\(v_n\) 是法向相对速度，分开为正；\((\cdot)_+\) 表示负数取 0。它说的是：接触力 = 弹簧力 + 阻尼力，穿得越深推得越大，相互靠近得越快推得越大，只推不拉；\(\tau_\delta\) 越大，碰后反弹越小。</p>
 
 <p>式 (2)：一步内的运动学关系。\(\phi_0\) 是步首的有符号距离。它说的是：一步之内重叠量按下一步的速度匀速变化，下一步的穿透量 = 步首穿透量 + 一步内走过的量。</p>
 
@@ -516,34 +516,34 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<figure style="margin:12px 0"><img src="assets/images/core_1.3_h.png" width="1294" height="910" style="width:597px;max-width:100%;height:auto" alt="横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\delta t\,k(\delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_d\)：\(\tau_d\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_d\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。" loading="lazy"><figcaption class="small">横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\delta t\,k(\delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_d\)：\(\tau_d\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_d\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/core_1.3_h.png" width="1294" height="910" style="width:597px;max-width:100%;height:auto" alt="横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\Delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\Delta t\,k(\Delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_\delta\)：\(\tau_\delta\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_\delta\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。" loading="lazy"><figcaption class="small">横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\Delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\Delta t\,k(\Delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_\delta\)：\(\tau_\delta\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_\delta\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。</figcaption></figure>
 
 
 
-<details><summary>推导</summary><p>把式 (2) \(\phi=\phi_0+\delta t\,v_n\) 代入式 (1) \(\gamma_n=\delta t(-k\phi-\tau_dk\,v_n)_+\)：</p>
-<p>\[\gamma_n=\delta t\big(-k\phi_0-k\,\delta t\,v_n-\tau_d\,k\,v_n\big)_+\]</p>
+<details><summary>推导</summary><p>把式 (2) \(\phi=\phi_0+\Delta t\,v_n\) 代入式 (1) \(\gamma_n=\Delta t(-k\phi-\tau_dk\,v_n)_+\)：</p>
+<p>\[\gamma_n=\Delta t\big(-k\phi_0-k\,\Delta t\,v_n-\tau_d\,k\,v_n\big)_+\]</p>
 <p>合并 \(v_n\) 项：</p>
-<p>\[\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+\qquad(3)\]</p></details>
+<p>\[\gamma_n=\Delta t\big(-k\phi_0-k(\Delta t+\tau_d)\,v_n\big)_+\qquad(3)\]</p></details>
 <p><b>② 动量方程 = 一个碗形函数的最低点</b></p>
 
 <p>已知：质量矩阵 \(\mathbf M\)、不计接触时的下一步速度 \(\mathbf v^*\)、每个接触的冲量；求：下一步速度 \(\mathbf v\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf v=\arg\min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2\quad(6)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{\gamma_n=\Delta t\big(-k\phi_0-k(\Delta t+\tau_d)\,v_n\big)_+} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{R=\dfrac{1}{\Delta t\,k(\Delta t+\tau_d)}} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf v=\arg\min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2\quad(6)}\]</p>
 <p>式 (3)：① 推出的每个接触的冲量，随下一步速度线性变化后取正部。</p>
 
 <p>式 (4)：牛顿第二定律的一步形式，即隐式欧拉的动量方程。\(\mathbf M\) 是质量矩阵，\(\mathbf v\) 是下一步所有自由度的速度，\(\mathbf v^*\) 是不计接触时的下一步速度，\(\boldsymbol\gamma\) 是所有接触的冲量，\(\mathbf J\) 把接触冲量换成各自由度上的冲量。它说的是：质量 × 速度的改变量，全部来自接触冲量，就是冲量 = 动量变化。</p>
 
 <p>式 (5)：记号定义。\(R\) 是 (3) 中冲量随下一步速度变化的斜率的倒数：下一步速度每增加一点，冲量按固定比例减少。</p>
 
-<p>结果：解动量方程等价于找 (6) 中函数的最低点。\(k\)、\(\delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
+<p>结果：解动量方程等价于找 (6) 中函数的最低点。\(k\)、\(\Delta t\)、\(\tau_\delta\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/core_1.3_i.png" width="1237" height="942" style="width:552px;max-width:100%;height:auto" alt="把式 (6) 的目标函数降到一维来看。灰虚线只有惯性项 \(\tfrac12M(v-v^*)^2\)，碗底在 \(v^*\)，也就是不计接触时物体下一步会有的速度，这里它朝着对方撞过去。蓝实线加上了接触项 \(\tfrac12R\gamma_n^2\)：越往靠近一侧走，冲量越大，这一项涨得越快，于是整只碗被往分开一侧抬起来，碗底挪到了 \(v\)。这个 \(v\) 就是式 (4) 动量方程的解，接触冲量正好把速度从 \(v^*\) 推到这里。两项都是向上弯的，合起来的曲线只有一个碗底，所以解唯一，牛顿法每一步往下走都会走到它。" loading="lazy"><figcaption class="small">把式 (6) 的目标函数降到一维来看。灰虚线只有惯性项 \(\tfrac12M(v-v^*)^2\)，碗底在 \(v^*\)，也就是不计接触时物体下一步会有的速度，这里它朝着对方撞过去。蓝实线加上了接触项 \(\tfrac12R\gamma_n^2\)：越往靠近一侧走，冲量越大，这一项涨得越快，于是整只碗被往分开一侧抬起来，碗底挪到了 \(v\)。这个 \(v\) 就是式 (4) 动量方程的解，接触冲量正好把速度从 \(v^*\) 推到这里。两项都是向上弯的，合起来的曲线只有一个碗底，所以解唯一，牛顿法每一步往下走都会走到它。</figcaption></figure>
 <details><summary>推导</summary><p>记目标函数：</p>
 <p>\[\ell(\mathbf v)=\tfrac12(\mathbf v-\mathbf v^*)^T\mathbf M(\mathbf v-\mathbf v^*)+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2\]</p>
 <p>第一项对 \(\mathbf v\) 求导：</p>
 <p>\[\frac{\partial}{\partial\mathbf v}\tfrac12(\mathbf v-\mathbf v^*)^T\mathbf M(\mathbf v-\mathbf v^*)=\mathbf M(\mathbf v-\mathbf v^*)\]</p>
-<p>\(\gamma_n&gt;0\) 时，由式 (3) \(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)\) 与式 (5) \(R=1/(\delta t\,k(\delta t+\tau_d))\)：</p>
-<p>\[\frac{d\gamma_n}{dv_n}=-\delta t\,k(\delta t+\tau_d)=-\frac1R\]</p>
+<p>\(\gamma_n&gt;0\) 时，由式 (3) \(\gamma_n=\Delta t\big(-k\phi_0-k(\Delta t+\tau_d)v_n\big)\) 与式 (5) \(R=1/(\Delta t\,k(\Delta t+\tau_d))\)：</p>
+<p>\[\frac{d\gamma_n}{dv_n}=-\Delta t\,k(\Delta t+\tau_d)=-\frac1R\]</p>
 <p>第二项对 \(v_n\) 求导：</p>
 <p>\[\frac{d}{dv_n}\Big(\tfrac12R\gamma_n^2\Big)=R\,\gamma_n\cdot\Big(-\frac1R\Big)=-\gamma_n\]</p>
 <p>经 \(\mathbf J\) 换到所有自由度上，令总导数为 0，正是式 (4)：</p>
@@ -552,29 +552,29 @@ html.annot-on #annot-capture { display: block; }
 <p>\[\mathbf v=\arg\min_{\mathbf v}\ \ell(\mathbf v)\qquad(6)\]</p></details>
 <p><b>③ 近刚性处理：刚度封顶</b></p>
 
-<p>已知：接触刚度 \(k\)、质量 \(m\)、步长 \(\delta t\)、数值参数 \(\beta\)；求：SAP 实际使用的 \(R_n\)。</p>
+<p>已知：接触刚度 \(k\)、质量 \(m\)、步长 \(\Delta t\)、数值参数 \(\beta\)；求：SAP 实际使用的 \(R_n\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{\omega_n^2=\dfrac km,\quad T_n=\dfrac{2\pi}{\omega_n}} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{T_n=\beta\,\delta t,\quad \tau_d=\dfrac{\beta}{\pi}\delta t} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)\quad(9)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{R=\dfrac{1}{\Delta t\,k(\Delta t+\tau_d)}} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{\omega_n^2=\dfrac km,\quad T_n=\dfrac{2\pi}{\omega_n}} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{T_n=\beta\,\Delta t,\quad \tau_d=\dfrac{\beta}{\pi}\Delta t} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\Delta t\,k(\Delta t+\tau_d)}\Big)\quad(9)}\]</p>
 <p>式 (5)：② 定义的 \(R\)，冲量对速度斜率的倒数；\(R\) 越小，接触越硬。</p>
 
 <p>式 (7)：简谐振子定律。\(m\) 是质量，\(\omega_n\) 是接触振动的角频率，\(T_n\) 是振动周期。它说的是：接触像一个质量挂在弹簧上振动，弹簧越硬、质量越小，振得越快。</p>
 
-<p>式 (8)：近刚性的界限。\(\beta\) 是数值参数，默认 1。它说的是：步长能分辨的最快振动，周期大约是一个步长；把周期取到这个界限，就得到步长允许的最硬弹簧；阻尼取成正好不反弹也不拖沓的临界阻尼，由此得到 \(\tau_d=(\beta/\pi)\delta t\)。若真实周期比一步还短，一步之内振动就完成了，步长看不清它，这叫近刚性。</p>
+<p>式 (8)：近刚性的界限。\(\beta\) 是数值参数，默认 1。它说的是：步长能分辨的最快振动，周期大约是一个步长；把周期取到这个界限，就得到步长允许的最硬弹簧；阻尼取成正好不反弹也不拖沓的临界阻尼，由此得到 \(\tau_d=(\beta/\pi)\Delta t\)。若真实周期比一步还短，一步之内振动就完成了，步长看不清它，这叫近刚性。</p>
 
-<p>结果：真实刚度给的 \(R\) 太小，即弹簧太硬时，就用步长允许的下限顶住。\(k\) 越大、\(\delta t\) 越大 → 越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、步长、质量决定，与压力场给的 \(k\) 无关。</p>
+<p>结果：真实刚度给的 \(R\) 太小，即弹簧太硬时，就用步长允许的下限顶住。\(k\) 越大、\(\Delta t\) 越大 → 越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、步长、质量决定，与压力场给的 \(k\) 无关。</p>
 
-<figure style="margin:12px 0"><img src="assets/images/core_1.3_j.png" width="1320" height="940" style="width:590px;max-width:100%;height:auto" alt="横轴是接触刚度 \(k\)，纵轴是 SAP 实际使用的 \(R_n\)，两轴都取对数；\(R_n\) 越小，接触越硬。\(k\) 不大时，\(R_n\) 就按真实刚度算，等于 \(1/(\delta t\,k(\delta t+\tau_d))\)，随 \(k\) 增大一路往下走。走到 \(\beta^2/(4\pi^2m)\) 这条线时被托住，之后无论 \(k\) 再大都不再变，虚线是按真实刚度本该继续走下去、但已经不用的部分。平台的高度只由 \(\beta\) 和质量决定，和压力场给出的 \(k\) 无关。绿线和蓝线是两种步长：步长大的那根整体更低，在更小的 \(k\) 就碰到平台。所以在大步长、硬接触时，hydro 的接触刚度实际上由这个数值下限决定，而不是由压力场决定。" loading="lazy"><figcaption class="small">横轴是接触刚度 \(k\)，纵轴是 SAP 实际使用的 \(R_n\)，两轴都取对数；\(R_n\) 越小，接触越硬。\(k\) 不大时，\(R_n\) 就按真实刚度算，等于 \(1/(\delta t\,k(\delta t+\tau_d))\)，随 \(k\) 增大一路往下走。走到 \(\beta^2/(4\pi^2m)\) 这条线时被托住，之后无论 \(k\) 再大都不再变，虚线是按真实刚度本该继续走下去、但已经不用的部分。平台的高度只由 \(\beta\) 和质量决定，和压力场给出的 \(k\) 无关。绿线和蓝线是两种步长：步长大的那根整体更低，在更小的 \(k\) 就碰到平台。所以在大步长、硬接触时，hydro 的接触刚度实际上由这个数值下限决定，而不是由压力场决定。</figcaption></figure>
-<details><summary>推导</summary><p>由式 (7) \(T_n=2\pi\sqrt{m/k}\) 与式 (8) \(T_n=\beta\,\delta t\)：</p>
-<p>\[2\pi\sqrt{\frac mk}=\beta\,\delta t\quad\Longrightarrow\quad k=\frac{4\pi^2m}{\beta^2\delta t^2}\]</p>
-<p>代入式 (5) \(R=1/(\delta t\,k(\delta t+\tau_d))\)；这一步是 SAP 论文采用的近似 \(\delta t+\tau_d\approx\delta t\)（\(\beta=1\) 时精确值是近似值的 0.76 倍，量级相同）：</p>
-<p>\[R\approx\frac{1}{\delta t^2k}=\frac{\beta^2}{4\pi^2}\,\frac1m\]</p>
+<figure style="margin:12px 0"><img src="assets/images/core_1.3_j.png" width="1320" height="940" style="width:590px;max-width:100%;height:auto" alt="横轴是接触刚度 \(k\)，纵轴是 SAP 实际使用的 \(R_n\)，两轴都取对数；\(R_n\) 越小，接触越硬。\(k\) 不大时，\(R_n\) 就按真实刚度算，等于 \(1/(\Delta t\,k(\Delta t+\tau_d))\)，随 \(k\) 增大一路往下走。走到 \(\beta^2/(4\pi^2m)\) 这条线时被托住，之后无论 \(k\) 再大都不再变，虚线是按真实刚度本该继续走下去、但已经不用的部分。平台的高度只由 \(\beta\) 和质量决定，和压力场给出的 \(k\) 无关。绿线和蓝线是两种步长：步长大的那根整体更低，在更小的 \(k\) 就碰到平台。所以在大步长、硬接触时，hydro 的接触刚度实际上由这个数值下限决定，而不是由压力场决定。" loading="lazy"><figcaption class="small">横轴是接触刚度 \(k\)，纵轴是 SAP 实际使用的 \(R_n\)，两轴都取对数；\(R_n\) 越小，接触越硬。\(k\) 不大时，\(R_n\) 就按真实刚度算，等于 \(1/(\Delta t\,k(\Delta t+\tau_d))\)，随 \(k\) 增大一路往下走。走到 \(\beta^2/(4\pi^2m)\) 这条线时被托住，之后无论 \(k\) 再大都不再变，虚线是按真实刚度本该继续走下去、但已经不用的部分。平台的高度只由 \(\beta\) 和质量决定，和压力场给出的 \(k\) 无关。绿线和蓝线是两种步长：步长大的那根整体更低，在更小的 \(k\) 就碰到平台。所以在大步长、硬接触时，hydro 的接触刚度实际上由这个数值下限决定，而不是由压力场决定。</figcaption></figure>
+<details><summary>推导</summary><p>由式 (7) \(T_n=2\pi\sqrt{m/k}\) 与式 (8) \(T_n=\beta\,\Delta t\)：</p>
+<p>\[2\pi\sqrt{\frac mk}=\beta\,\Delta t\quad\Longrightarrow\quad k=\frac{4\pi^2m}{\beta^2\Delta t^2}\]</p>
+<p>代入式 (5) \(R=1/(\Delta t\,k(\Delta t+\tau_d))\)；这一步是 SAP 论文采用的近似 \(\Delta t+\tau_d\approx\Delta t\)（\(\beta=1\) 时精确值是近似值的 0.76 倍，量级相同）：</p>
+<p>\[R\approx\frac{1}{\Delta t^2k}=\frac{\beta^2}{4\pi^2}\,\frac1m\]</p>
 <p>真实刚度给的值小于这个下限时取下限：</p>
-<p>\[R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)\qquad(9)\]</p></details>
+<p>\[R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\Delta t\,k(\Delta t+\tau_d)}\Big)\qquad(9)\]</p></details>
 </details>
 <p><strong>实现</strong></p>
 <ul>
-<li>Drake：每次牛顿迭代用稀疏 Cholesky 分解；\(\tau_d\) 取接触两侧几何体各自的值之和，每侧默认 0.1 s</li>
-<li>Genesis：每步最多 5 次牛顿迭代，方向用预条件共轭梯度求；\(\tau_d\) 全局一个值，默认 0.1 s</li>
+<li>Drake：每次牛顿迭代用稀疏 Cholesky 分解；\(\tau_\delta\) 取接触两侧几何体各自的值之和，每侧默认 0.1 s</li>
+<li>Genesis：每步最多 5 次牛顿迭代，方向用预条件共轭梯度求；\(\tau_\delta\) 全局一个值，默认 0.1 s</li>
 </ul>
 <p class="kp">结论：SAP 按 1.2 的刚度求解；接触刚度大到触发近刚性处理时，力改由数值参数决定，不再是压力场给出的值。</p>
 
@@ -690,8 +690,8 @@ html.annot-on #annot-capture { display: block; }
 <figure style="margin:12px 0"><img src="assets/images/hz04_force_rings.png" width="1349" height="990" style="width:572px;max-width:100%;height:auto" alt="从正上方看接触圆，半径 a，蓝色越深表示压强越大（中心最深，按 ③ 的半椭圆变浅）。把它切成一圈圈细圆环：红色这一圈半径 t（黑箭头）、宽 dt（两个小箭头夹住的宽度），面积是周长乘宽度 2πt·dt，受力是压强乘面积 p(t)·2πt·dt。把从中心到边缘所有圈的力加起来（积分）就是合力 F = (2/3)πa²p₀，再代入 ③ 的 a、p₀ 得 F = (4/3)E*R^{1/2}δ^{3/2}。" loading="lazy"><figcaption class="small">从正上方看接触圆，半径 a，蓝色越深表示压强越大（中心最深，按 ③ 的半椭圆变浅）。把它切成一圈圈细圆环：红色这一圈半径 t（黑箭头）、宽 dt（两个小箭头夹住的宽度），面积是周长乘宽度 2πt·dt，受力是压强乘面积 p(t)·2πt·dt。把从中心到边缘所有圈的力加起来（积分）就是合力 F = (2/3)πa²p₀，再代入 ③ 的 a、p₀ 得 F = (4/3)E*R^{1/2}δ^{3/2}。</figcaption></figure>
 <details><summary>推导</summary><p>把式 (8) \(p=p_0\sqrt{1-t^2/a^2}\) 代入式 (11)：</p>
 <p>\[F=2\pi p_0\int_0^a\sqrt{1-\frac{t^2}{a^2}}\;t\,dt\]</p>
-<p>换元 \(w=1-t^2/a^2\)，\(t\,dt=-\dfrac{a^2}{2}dw\)，\(t\) 从 0 到 \(a\) 对应 \(w\) 从 1 到 0：</p>
-<p>\[F=2\pi p_0\cdot\frac{a^2}{2}\int_0^1w^{1/2}\,dw=\frac23\pi a^2p_0\]</p>
+<p>换元 \(\tau=1-t^2/a^2\)，\(t\,dt=-\dfrac{a^2}{2}d\tau\)，\(t\) 从 0 到 \(a\) 对应 \(\tau\) 从 1 到 0：</p>
+<p>\[F=2\pi p_0\cdot\frac{a^2}{2}\int_0^1\tau^{1/2}\,d\tau=\frac23\pi a^2p_0\]</p>
 <p>代入式 (9) \(p_0=\dfrac{2aE^*}{\pi R}\)：</p>
 <p>\[F=\frac{4E^*a^3}{3R}\]</p>
 <p>代入式 (9) \(a^2=R\delta\)，\(a^3=R^{3/2}\delta^{3/2}\)：</p>
@@ -963,7 +963,7 @@ html.annot-on #annot-capture { display: block; }
 </tr>
 <tr>
 <td>条件输入</td>
-<td>\([s,s^2]\)：\(s\) 为步长，即调用一次网络前进几帧（训练取 1、5、10 帧），经 FiLM 输入网络，见表下</td>
+<td>\([n_s,n_s^2]\)：\(n_s\) 为步长，即调用一次网络前进几帧（训练取 1、5、10 帧），经 FiLM 输入网络，见表下</td>
 <td>2</td>
 </tr>
 <tr>
@@ -1007,7 +1007,7 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<figure style="margin:12px 0"><img src="assets/images/core_2.4_m.png" width="1260" height="655" style="width:583px;max-width:100%;height:auto" alt="一个锚点在上一帧和这一帧的位置是两个黑点，灰色实线是它这一帧的速度。如果没有任何力，它会按同样的速度再走一步，落到空心圈 \(2\mathbf q_t-\mathbf q_{t-1}\)。网络给出的加速度乘上 \(\Delta t^2\) 是红箭头，把空心圈拉到蓝点 \(\hat{\mathbf q}_{t+1}\)，这就是式 (3)。可以看出网络只负责「偏离直走多少」这一部分；步长越大，同样的加速度拉得越远，按步长的平方增长，这也是 FiLM 那里要把 \(s^2\) 喂给网络的原因。" loading="lazy"><figcaption class="small">一个锚点在上一帧和这一帧的位置是两个黑点，灰色实线是它这一帧的速度。如果没有任何力，它会按同样的速度再走一步，落到空心圈 \(2\mathbf q_t-\mathbf q_{t-1}\)。网络给出的加速度乘上 \(\Delta t^2\) 是红箭头，把空心圈拉到蓝点 \(\hat{\mathbf q}_{t+1}\)，这就是式 (3)。可以看出网络只负责「偏离直走多少」这一部分；步长越大，同样的加速度拉得越远，按步长的平方增长，这也是 FiLM 那里要把 \(s^2\) 喂给网络的原因。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/core_2.4_m.png" width="1260" height="655" style="width:583px;max-width:100%;height:auto" alt="一个锚点在上一帧和这一帧的位置是两个黑点，灰色实线是它这一帧的速度。如果没有任何力，它会按同样的速度再走一步，落到空心圈 \(2\mathbf q_t-\mathbf q_{t-1}\)。网络给出的加速度乘上 \(\Delta t^2\) 是红箭头，把空心圈拉到蓝点 \(\hat{\mathbf q}_{t+1}\)，这就是式 (3)。可以看出网络只负责「偏离直走多少」这一部分；步长越大，同样的加速度拉得越远，按步长的平方增长，这也是 FiLM 那里要把 \(n_s^2\) 喂给网络的原因。" loading="lazy"><figcaption class="small">一个锚点在上一帧和这一帧的位置是两个黑点，灰色实线是它这一帧的速度。如果没有任何力，它会按同样的速度再走一步，落到空心圈 \(2\mathbf q_t-\mathbf q_{t-1}\)。网络给出的加速度乘上 \(\Delta t^2\) 是红箭头，把空心圈拉到蓝点 \(\hat{\mathbf q}_{t+1}\)，这就是式 (3)。可以看出网络只负责「偏离直走多少」这一部分；步长越大，同样的加速度拉得越远，按步长的平方增长，这也是 FiLM 那里要把 \(n_s^2\) 喂给网络的原因。</figcaption></figure>
 
 
 
@@ -1061,28 +1061,28 @@ html.annot-on #annot-capture { display: block; }
 
 <p><b>① 用步长调制特征</b></p>
 
-<p>已知：每个物体的 768 维特征 \(h\)、步长 \(s\)；求：被步长调制后的特征。</p>
+<p>已知：每个物体的 768 维特征 \(h\)、步长 \(n_s\)；求：被步长调制后的特征。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{h_i\leftarrow\gamma_i\,h_i+\beta_i} &amp; \color{#c0392b}{(10)}\\[4pt] \color{#c0392b}{\big(\gamma,\beta\big)=\mathrm{MLP}\big([s,s^2]\big)} &amp; \color{#c0392b}{(11)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s)\quad(12)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{h_i\leftarrow\gamma_i\,h_i+\beta_i} &amp; \color{#c0392b}{(10)}\\[4pt] \color{#c0392b}{\big(\gamma,\beta\big)=\mathrm{MLP}\big([n_s,n_s^2]\big)} &amp; \color{#c0392b}{(11)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ h_i\leftarrow\gamma_i(n_s)\,h_i+\beta_i(n_s)\quad(12)}\]</p>
 
 
 
 <p>式 (10)：FiLM 的定义。\(h\) 是网络某一层里一个物体的特征，是一个 768 维向量，\(h_i\) 是它的第 \(i\) 维；\(\gamma_i\) 是第 \(i\) 维的缩放，\(\beta_i\) 是偏移。它说的是：每一维特征先乘一个系数、再加一个偏移，由外部条件决定乘多少、加多少；这样同一套网络权重可以按条件改变行为。</p>
 
-<p>式 (11)：步长条件的定义。\(s\) 是步长，即一次预测跨过的帧数，MLP 是一个两层的小网络。它说的是：步长只以 \(s\) 和 \(s^2\) 两个数进入网络，由它们生成每一层的 \(\gamma\)、\(\beta\)；用 \(s^2\) 是因为式 (3) 里位置的修正按步长的平方涨。</p>
+<p>式 (11)：步长条件的定义。\(n_s\) 是步长，即一次预测跨过的帧数，MLP 是一个两层的小网络。它说的是：步长只以 \(n_s\) 和 \(n_s^2\) 两个数进入网络，由它们生成每一层的 \(\gamma\)、\(\beta\)；用 \(n_s^2\) 是因为式 (3) 里位置的修正按步长的平方涨。</p>
 
-<p>结果：同一个网络按不同 \(s\) 输出不同步长的预测。\(s\) 不同 → \(\gamma\)、\(\beta\) 不同 → 同一场景得到不同步长的一步；步长越大 → 走完同样时长要滚动预测的次数越少、误差累积越少。调制系数只由 \(s\) 决定、对所有物体相同，所以不破坏物体顺序的对称性。</p>
-
-
-
-<figure style="margin:12px 0"><img src="assets/images/core_2.4_p.png" width="1521" height="590" style="width:674px;max-width:100%;height:auto" alt="每一行是一次调制：步长 \(s\) 以 \([s,s^2]\) 两个数进入一个两层的小网络，小网络为特征的每一维各给出一个缩放 \(\gamma_i\)（橙）和一个偏移 \(\beta_i\)（绿）；中间蓝色是网络某一层里一个物体的特征 h，768 维这里只画 8 格，颜色深浅只是示意大小。式 (10) 把每一维先乘 \(\gamma_i\)、再加 \(\beta_i\)，得到右边调制后的特征。上下两行的 h 完全一样，只是步长分别取训练里用的 1 和 10，于是 \(\gamma\)、\(\beta\) 不同，调制结果也不同。同一套网络权重就这样按步长改变行为；而且调制系数只由 \(s\) 决定、对所有物体相同，不会打乱物体之间的对称性。" loading="lazy"><figcaption class="small">每一行是一次调制：步长 \(s\) 以 \([s,s^2]\) 两个数进入一个两层的小网络，小网络为特征的每一维各给出一个缩放 \(\gamma_i\)（橙）和一个偏移 \(\beta_i\)（绿）；中间蓝色是网络某一层里一个物体的特征 h，768 维这里只画 8 格，颜色深浅只是示意大小。式 (10) 把每一维先乘 \(\gamma_i\)、再加 \(\beta_i\)，得到右边调制后的特征。上下两行的 h 完全一样，只是步长分别取训练里用的 1 和 10，于是 \(\gamma\)、\(\beta\) 不同，调制结果也不同。同一套网络权重就这样按步长改变行为；而且调制系数只由 \(s\) 决定、对所有物体相同，不会打乱物体之间的对称性。</figcaption></figure>
+<p>结果：同一个网络按不同 \(n_s\) 输出不同步长的预测。\(n_s\) 不同 → \(\gamma\)、\(\beta\) 不同 → 同一场景得到不同步长的一步；步长越大 → 走完同样时长要滚动预测的次数越少、误差累积越少。调制系数只由 \(n_s\) 决定、对所有物体相同，所以不破坏物体顺序的对称性。</p>
 
 
 
-<details><summary>推导</summary><p>把式 (11) 给出的 \(\gamma(s)\)、\(\beta(s)\) 代入式 (10)：</p>
-<p>\[h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s),\qquad i=1,\dots,768\qquad(12)\]</p></details>
+<figure style="margin:12px 0"><img src="assets/images/core_2.4_p.png" width="1521" height="590" style="width:674px;max-width:100%;height:auto" alt="每一行是一次调制：步长 \(n_s\) 以 \([n_s,n_s^2]\) 两个数进入一个两层的小网络，小网络为特征的每一维各给出一个缩放 \(\gamma_i\)（橙）和一个偏移 \(\beta_i\)（绿）；中间蓝色是网络某一层里一个物体的特征 h，768 维这里只画 8 格，颜色深浅只是示意大小。式 (10) 把每一维先乘 \(\gamma_i\)、再加 \(\beta_i\)，得到右边调制后的特征。上下两行的 h 完全一样，只是步长分别取训练里用的 1 和 10，于是 \(\gamma\)、\(\beta\) 不同，调制结果也不同。同一套网络权重就这样按步长改变行为；而且调制系数只由 \(n_s\) 决定、对所有物体相同，不会打乱物体之间的对称性。" loading="lazy"><figcaption class="small">每一行是一次调制：步长 \(n_s\) 以 \([n_s,n_s^2]\) 两个数进入一个两层的小网络，小网络为特征的每一维各给出一个缩放 \(\gamma_i\)（橙）和一个偏移 \(\beta_i\)（绿）；中间蓝色是网络某一层里一个物体的特征 h，768 维这里只画 8 格，颜色深浅只是示意大小。式 (10) 把每一维先乘 \(\gamma_i\)、再加 \(\beta_i\)，得到右边调制后的特征。上下两行的 h 完全一样，只是步长分别取训练里用的 1 和 10，于是 \(\gamma\)、\(\beta\) 不同，调制结果也不同。同一套网络权重就这样按步长改变行为；而且调制系数只由 \(n_s\) 决定、对所有物体相同，不会打乱物体之间的对称性。</figcaption></figure>
+
+
+
+<details><summary>推导</summary><p>把式 (11) 给出的 \(\gamma(n_s)\)、\(\beta(n_s)\) 代入式 (10)：</p>
+<p>\[h_i\leftarrow\gamma_i(n_s)\,h_i+\beta_i(n_s),\qquad i=1,\dots,768\qquad(12)\]</p></details>
 <p>结构细节：每个 FiLM 是一个独立的两层 MLP，编码器输出处一个、解码器每层各一个；最后一层零初始化，所以训练开始时调制是恒等，官方代码写成 \((1+\gamma)h+\beta\)，即同一调制把 \(\gamma\) 平移 1。作用位置是编码器输出处一次，之后每层 Transformer 内注意力（含与 register token 的交叉注意力）之后、逐物体全连接层之前各一次，所以每层的注意力结果都被步长调制。训练时步长在 1、5、10 中随机取，步长 10 的 100 帧误差最低。</p>
 </details>
 <p><strong>数据</strong>：MOVi 数据集（PyBullet 刚体仿真），1200 个场景，每个 3–10 个物体抛落互撞，2 s、480 帧。分三个子集：MOVi-Sphere（只有球）、MOVi-A（基本几何体）、MOVi-B（复杂形状）。RigidFormer 官方代码已公开（github.com/Frank-ZY-Dou/Dynamics-Modeling 的 RigidFormer 目录，项目页 people.csail.mit.edu/frankzydou/projects/RigidFormer 有链接）；数据生成脚本在 HopNet（此前最强的学习型刚体仿真方法，基于网格）的仓库。</p>
@@ -1229,7 +1229,7 @@ html.annot-on #annot-capture { display: block; }
 
 <p>式 (1)：碰撞能量的定义。\(z\) 是粗自由度；\(\Phi z\) 是粗模型给出的形状；\(\Psi w\) 是接触处的局部修正，\(\Psi\) 是局部变形的模板，\(w\) 是每个模板用多少；\(\Pi\) 是总势能，含弹性能、重力势能；\(U_c\) 是碰撞能量。它说的是：\(U_c\) 是「加上局部修正、找到最省力的凹法之后」与「只用粗形状」两种状态的总势能之差。</p>
 
-<p>式 (2)：重力势能。\(m_i\) 是第 \(i\) 个节点的质量，\(g\) 是重力加速度，\(y_i\) 是该节点的高度。它说的是：每个节点的重力势能只看它有多高，高度加 1 mm，势能就加 \(m_ig\times\)1 mm，所以重力势能是位置的线性函数。</p>
+<p>式 (2)：重力势能。\(m_i\) 是第 \(i\) 个节点的质量，\(\mathrm g\) 是重力加速度，\(y_i\) 是该节点的高度。它说的是：每个节点的重力势能只看它有多高，高度加 1 mm，势能就加 \(m_i\mathrm g\times\)1 mm，所以重力势能是位置的线性函数。</p>
 
 <p>结果：\((\Psi w)_{y,i}\) 是修正让第 \(i\) 个节点在竖直方向挪动的量。修正把质量往下挪得越多 → 重力项越负，因为线性函数之差只和挪动量有关、和粗形状无关。</p>
 
@@ -1239,9 +1239,9 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<details><summary>推导</summary><p>由式 (2) \(E_{\text{重}}=\sum_im_ig\,y_i\)，加修正后每个节点的高度是粗形状的高度加修正的竖直分量：</p>
-<p>\[E_{\text{重}}(\Phi z+\Psi w)=\sum_im_ig\big((\Phi z)_{y,i}+(\Psi w)_{y,i}\big)\]</p>
-<p>减去只有粗形状时的 \(E_{\text{重}}(\Phi z)=\sum_im_ig\,(\Phi z)_{y,i}\)：</p>
+<details><summary>推导</summary><p>由式 (2) \(E_{\text{重}}=\sum_im_i\mathrm g\,y_i\)，加修正后每个节点的高度是粗形状的高度加修正的竖直分量：</p>
+<p>\[E_{\text{重}}(\Phi z+\Psi w)=\sum_im_i\mathrm g\big((\Phi z)_{y,i}+(\Psi w)_{y,i}\big)\]</p>
+<p>减去只有粗形状时的 \(E_{\text{重}}(\Phi z)=\sum_im_i\mathrm g\,(\Phi z)_{y,i}\)：</p>
 <p>\[\Delta E_{\text{重}}=g\sum_im_i(\Psi w)_{y,i}\qquad(3)\]</p>
 <p>这一项就是式 (1) 的总势能之差里重力贡献的部分。</p></details>
 <p><b>② 质量加权拟合：局部修正不移动质心</b></p>
@@ -1265,11 +1265,11 @@ html.annot-on #annot-capture { display: block; }
 <p>已知：① 与 ② 的结果；求：重力对 \(U_c\) 的影响。</p>
 
 <p>\[\begin{cases}\color{#c0392b}{\Delta E_{\text{重}}=g\displaystyle\sum_i m_i(\Psi w)_{y,i}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{\displaystyle\sum_i m_i(\Psi w)_i=0} &amp; \color{#c0392b}{(6)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \Delta E_{\text{重}}=0,\quad U_c\ \text{与}\ g\ \text{无关}\quad(7)}\]</p>
-<p>式 (3)：① 推出的加修正前后的重力势能之差，等于 \(g\) 乘修正在竖直方向挪动质量的总量。</p>
+<p>式 (3)：① 推出的加修正前后的重力势能之差，等于 \(\mathrm g\) 乘修正在竖直方向挪动质量的总量。</p>
 
 <p>式 (6)：② 推出的修正的质量加权和为 0。</p>
 
-<p>结果：重力项恒为 0，\(U_c\) 和最优修正都与 \(g\) 无关；所以生成标签时可以关掉重力，重力由粗模型通过质心承担。重力再大 → \(U_c\) 也不变，因为重力在修正方向上做功为 0。</p>
+<p>结果：重力项恒为 0，\(U_c\) 和最优修正都与 \(\mathrm g\) 无关；所以生成标签时可以关掉重力，重力由粗模型通过质心承担。重力再大 → \(U_c\) 也不变，因为重力在修正方向上做功为 0。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/core_3.1_s.png" width="1576" height="867" style="width:566px;max-width:100%;height:auto" alt="这张图用一次实跑来检验 ③。一个软球在重力下静止压在刚性地面上，g 从 0.5 取到 10；对每个平衡态先拟合出粗状态，然后把粗状态钉住不动，求两遍最省力的局部修正，一遍带重力、一遍不带，纵轴是两遍得到的 \(U_c\) 之差占不带重力那一遍的比例，也就是重力漏进 \(U_c\) 的那部分。粗状态按节点质量加权拟合时（蓝线），这个比例只在 \(10^{-11}\) 到 \(10^{-9}\) 之间正负来回跳，已经是数值求解本身的噪声；原因就是式 (6)：实测修正的竖直质量矩 \(\sum_i m_i(\Psi w)_{y,i}\) 只有 \(10^{-15}\) 量级，重力在修正上一点功也不做。换成只用表面顶点、不按质量加权的拟合（橙线），修正里混进了整体平移，竖直质量矩变成 4 到 77，重力在修正上做了功，\(U_c\) 跟着偏了 2.8% 到 14%，而且 g 越大偏得越多。所以生成标签时可以放心关掉重力，前提是粗状态一定要按质量加权来拟合。" loading="lazy"><figcaption class="small">这张图用一次实跑来检验 ③。一个软球在重力下静止压在刚性地面上，g 从 0.5 取到 10；对每个平衡态先拟合出粗状态，然后把粗状态钉住不动，求两遍最省力的局部修正，一遍带重力、一遍不带，纵轴是两遍得到的 \(U_c\) 之差占不带重力那一遍的比例，也就是重力漏进 \(U_c\) 的那部分。粗状态按节点质量加权拟合时（蓝线），这个比例只在 \(10^{-11}\) 到 \(10^{-9}\) 之间正负来回跳，已经是数值求解本身的噪声；原因就是式 (6)：实测修正的竖直质量矩 \(\sum_i m_i(\Psi w)_{y,i}\) 只有 \(10^{-15}\) 量级，重力在修正上一点功也不做。换成只用表面顶点、不按质量加权的拟合（橙线），修正里混进了整体平移，竖直质量矩变成 4 到 77，重力在修正上做了功，\(U_c\) 跟着偏了 2.8% 到 14%，而且 g 越大偏得越多。所以生成标签时可以放心关掉重力，前提是粗状态一定要按质量加权来拟合。</figcaption></figure>
 <details><summary>推导</summary><p>式 (6) \(\sum_im_i(\Psi w)_i=0\) 取竖直分量：</p>
@@ -1290,16 +1290,16 @@ html.annot-on #annot-capture { display: block; }
 <p>刚性压头压弹性<strong>半空间</strong>（表面为平面、向下无限延伸的弹性体），等效模量取 1，即无量纲化；\(E\) 是杨氏模量，\(\nu\) 是泊松比：</p>
 <p>\[\color{#c0392b}{E^*=\frac{E}{1-\nu^2}=1}\]</p>
 <p><strong>压头形状</strong>（基体原表面为高度 0 的平面，压头在曲面上方）：</p>
-<p>\[\color{#c0392b}{z_{\text{压头}}(x,y)=a_h+\min_k z_k(x,y)+t_y\,x-t_x\,y}\]</p>
+<p>\[\color{#c0392b}{z_{\text{压头}}(x,y)=H+\min_k z_k(x,y)+t_y\,x-t_x\,y}\]</p>
 <ul>
-<li>\(z_k\)：第 \(k\) 个凸起（每个样本 1–3 个），中心 \(\mathbf c_k\) 在边长 0.2 的正方形内随机、两两间距不小于 0.08。多个凸起取最小值，即哪个更低用哪个</li>
+<li>\(z_k\)：第 \(k\) 个凸起（每个样本 1–3 个），中心 \(\mathbf x_k\) 在边长 0.2 的正方形内随机、两两间距不小于 0.08。多个凸起取最小值，即哪个更低用哪个</li>
 <li>
 <p>每个凸起的表面高度 \(z_k\) 由两部分相加：</p>
 <ol>
-<li><strong>抛物面</strong>（凸起主体）。由 1.4，球面在离最低点水平距离 \(r\) 处比最低点高出的量写成曲率 \(\kappa\)（半径的倒数）的形式，最低点放在 \(\mathbf c=(c_x,c_y)\)；x、y 两个方向用不同曲率 \(\kappa_x\)、\(\kappa_y\)，取值在 0.5 到 3 之间。沿 x 方向截面是曲率 \(\kappa_x\) 的抛物线，沿 y 方向截面曲率为 \(\kappa_y\)；两者不等时俯视等高线是椭圆而非圆</li>
+<li><strong>抛物面</strong>（凸起主体）。由 1.4，球面在离最低点水平距离 \(r\) 处比最低点高出的量写成曲率 \(\kappa\)（半径的倒数）的形式，最低点放在 \(\mathbf x_0=(x_0,y_0)\)；x、y 两个方向用不同曲率 \(\kappa_x\)、\(\kappa_y\)，取值在 0.5 到 3 之间。沿 x 方向截面是曲率 \(\kappa_x\) 的抛物线，沿 y 方向截面曲率为 \(\kappa_y\)；两者不等时俯视等高线是椭圆而非圆</li>
 <li>
-<p><strong>高斯项</strong>（凹坑，2–3 个，叠加在抛物面上）：\(\mathbf x_0\) 是凹坑中心，\(A\) 是高度，\(s\) 是宽度。在 \(\mathbf x_0\) 处高度为 \(A\)；离 \(\mathbf x_0\) 距离 \(s\) 处降为 \(A\) 的 0.61 倍，距离 \(3s\) 外接近 0，即高度在 \(\mathbf x_0\) 附近、宽约 \(s\) 的范围内局部增大。\(A\) 取 0.004–0.012，\(s\) 取 0.015–0.03，\(\mathbf x_0\) 离凸起中心 0.01–0.05。压头在曲面上方、朝下压，高度增大即该处压头表面抬高、离基体更远（相对压头本身是一个凹坑），此处接触变浅或脱开</p>
-<p>\[\color{#c0392b}{\frac{r^2}{2R}=\tfrac12\kappa r^2,\qquad z_{\text{抛物}}=\tfrac12\big(\kappa_x(x-c_x)^2+\kappa_y(y-c_y)^2\big),\qquad z_{\text{高斯}}=A\exp\!\Big(-\frac{|\mathbf x-\mathbf x_0|^2}{2s^2}\Big)}\]</p>
+<p><strong>高斯项</strong>（凹坑，2–3 个，叠加在抛物面上）：\(\mathbf x_0\) 是凹坑中心，\(A_g\) 是高度，\(s\) 是宽度。在 \(\mathbf x_0\) 处高度为 \(A_g\)；离 \(\mathbf x_0\) 距离 \(s\) 处降为 \(A_g\) 的 0.61 倍，距离 \(3s\) 外接近 0，即高度在 \(\mathbf x_0\) 附近、宽约 \(s\) 的范围内局部增大。\(A_g\) 取 0.004–0.012，\(s\) 取 0.015–0.03，\(\mathbf x_0\) 离凸起中心 0.01–0.05。压头在曲面上方、朝下压，高度增大即该处压头表面抬高、离基体更远（相对压头本身是一个凹坑），此处接触变浅或脱开</p>
+<p>\[\color{#c0392b}{\frac{r^2}{2R}=\tfrac12\kappa r^2,\qquad z_{\text{抛物}}=\tfrac12\big(\kappa_x(x-x_0)^2+\kappa_y(y-y_0)^2\big),\qquad z_{\text{高斯}}=A_g\exp\!\Big(-\frac{|\mathbf x-\mathbf x_0|^2}{2s^2}\Big)}\]</p>
 </li>
 </ol>
 </li>
@@ -1308,8 +1308,8 @@ html.annot-on #annot-capture { display: block; }
 </li>
 <li>\(t_x\)、\(t_y\)：压头绕 x 轴、y 轴的小倾角，范围 ±0.02 rad。倾角很小时，转动引起的表面升高近似与坐标成正比，见下式第一项（这里转角的正方向与右手定则相反，倾角在 ±0.02 对称取样，不影响结果）</li>
 <li>
-<p>\(a_h\)：压头整体高度。先求刚接触时的高度 \(m\)，再取下式，使全场最深穿透恰为 \(d\)</p>
-<p>\[\color{#c0392b}{x\sin t_y\approx t_y\,x,\qquad m=\min\big(\min_k z_k+t_yx-t_xy\big),\qquad a_h=-m-d}\]</p>
+<p>\(H\)：压头整体高度。先求刚接触时的高度 \(m\)，再取下式，使全场最深穿透恰为 \(\delta\)</p>
+<p>\[\color{#c0392b}{x\sin t_y\approx t_y\,x,\qquad m=\min\big(\min_k z_k+t_yx-t_xy\big),\qquad H=-m-\delta}\]</p>
 </li>
 </ul>
 <p><strong>压深扫描</strong>：同一形状取 \(d=0.003、0.006、0.009、0.012\) 四个压深，各算一个标签。同一形状只有一个压深时，网络无法分辨能量变化来自形状还是压深，会记住样本；扫描压深使网络看到每个形状的能量–压深曲线。</p>
@@ -1317,12 +1317,12 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w3-3" class="numbered">3.3 标签：BEM</h3>
 
 <p><strong>BEM（边界元法）</strong>：只在基体表面划网格，内部变形由半空间解析解给出。对 3.2 的每个样本求弹性能作为标签。</p>
-<p><strong>网格</strong>：原表面 \(z=0\) 上间距 \(h=0.008\) 的方格，取 \(r\le0.18\) 的圆盘（覆盖所有可能接触处），共 1597 格；每格压强取常数 \(p_j\)。网格建在变形前的表面上：线弹性小变形下，表面点的水平移动和表面倾斜忽略不计。</p>
+<p><strong>网格</strong>：原表面 \(z=0\) 上间距 \(\ell=0.008\) 的方格，取 \(r\le0.18\) 的圆盘（覆盖所有可能接触处），共 1597 格；每格压强取常数 \(p_j\)。网格建在变形前的表面上：线弹性小变形下，表面点的水平移动和表面倾斜忽略不计。</p>
 <details><summary>推导：BEM 标签（下沉与压强 → 求压强 → 弹性能）</summary>
 
 <p><b>① 下沉与压强：柔度矩阵</b></p>
 
-<p>已知：表面方格网（间距 \(h\)）、各格压强 \(p_j\)、模量 \(E^*\)；求：各格下沉 \(u_i\)。</p>
+<p>已知：表面方格网（间距 \(\ell\)）、各格压强 \(p_j\)、模量 \(E^*\)；求：各格下沉 \(u_i\)。</p>
 
 
 
@@ -1334,13 +1334,13 @@ html.annot-on #annot-capture { display: block; }
 
 <p>式 (2)：线弹性的叠加原理。\(u_{i\leftarrow j}\) 是第 \(j\) 格的压强在第 \(i\) 格造成的下沉，\(u_i\) 是第 \(i\) 格的总下沉。它说的是：线弹性下各处载荷造成的下沉可以直接相加。</p>
 
-<p>式 (3)：柔度系数的定义。\(h\) 是方格边长，\(s_i\) 是第 \(j\) 格里一点到第 \(i\) 格中心的距离，\(C_{ij}\) 是第 \(j\) 格受单位均匀压强时第 \(i\) 格中心的下沉。它说的是：一格均匀压强可以看成格里许多小点力，按式 (1) 在这一格上积分；这个数只由网格和材料决定，算一次即可。</p>
+<p>式 (3)：柔度系数的定义。\(\ell\) 是方格边长，\(s_i\) 是第 \(j\) 格里一点到第 \(i\) 格中心的距离，\(C_{ij}\) 是第 \(j\) 格受单位均匀压强时第 \(i\) 格中心的下沉。它说的是：一格均匀压强可以看成格里许多小点力，按式 (1) 在这一格上积分；这个数只由网格和材料决定，算一次即可。</p>
 
 <p>结果：\(C\) 是柔度矩阵。某格压强越大 → 所有格都陷得越多，离它越近的格陷得越多，因为 \(C_{ij}\) 大约与两格距离成反比；\(E^*\) 越大 → \(C\) 越小，同样压强陷得越少。</p>
 
 
 
-<figure style="margin:12px 0"><img src="assets/images/core_3.3_t.png" width="1302" height="884" style="width:619px;max-width:100%;height:auto" alt="从上往下看基体表面的方格网，格距是 \(h\)。中间红色那一格受单位均匀压强，其余每一格按它中心沉下去多少着色，颜色越深沉得越多；这些颜色是按式 (3) 把式 (1) 的点力解在受压格上积分实算出来的。可以看到受压格周围一圈沉得最多，越往外越浅，大约按 1/距离 衰减，远处的格子也并不是一点不动。右上那一格离受压格的距离是 \(s\)，它沉下去的量就是柔度系数 \(C_{ij}\)。把每一格都轮流当受压格算一遍，就得到整个柔度矩阵 \(C\)，再由式 (2) 的叠加得到 \(u=Cp\)。" loading="lazy"><figcaption class="small">从上往下看基体表面的方格网，格距是 \(h\)。中间红色那一格受单位均匀压强，其余每一格按它中心沉下去多少着色，颜色越深沉得越多；这些颜色是按式 (3) 把式 (1) 的点力解在受压格上积分实算出来的。可以看到受压格周围一圈沉得最多，越往外越浅，大约按 1/距离 衰减，远处的格子也并不是一点不动。右上那一格离受压格的距离是 \(s\)，它沉下去的量就是柔度系数 \(C_{ij}\)。把每一格都轮流当受压格算一遍，就得到整个柔度矩阵 \(C\)，再由式 (2) 的叠加得到 \(u=Cp\)。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/core_3.3_t.png" width="1302" height="884" style="width:619px;max-width:100%;height:auto" alt="从上往下看基体表面的方格网，格距是 \(\ell\)。中间红色那一格受单位均匀压强，其余每一格按它中心沉下去多少着色，颜色越深沉得越多；这些颜色是按式 (3) 把式 (1) 的点力解在受压格上积分实算出来的。可以看到受压格周围一圈沉得最多，越往外越浅，大约按 1/距离 衰减，远处的格子也并不是一点不动。右上那一格离受压格的距离是 \(s\)，它沉下去的量就是柔度系数 \(C_{ij}\)。把每一格都轮流当受压格算一遍，就得到整个柔度矩阵 \(C\)，再由式 (2) 的叠加得到 \(u=Cp\)。" loading="lazy"><figcaption class="small">从上往下看基体表面的方格网，格距是 \(\ell\)。中间红色那一格受单位均匀压强，其余每一格按它中心沉下去多少着色，颜色越深沉得越多；这些颜色是按式 (3) 把式 (1) 的点力解在受压格上积分实算出来的。可以看到受压格周围一圈沉得最多，越往外越浅，大约按 1/距离 衰减，远处的格子也并不是一点不动。右上那一格离受压格的距离是 \(s\)，它沉下去的量就是柔度系数 \(C_{ij}\)。把每一格都轮流当受压格算一遍，就得到整个柔度矩阵 \(C\)，再由式 (2) 的叠加得到 \(u=Cp\)。</figcaption></figure>
 
 
 
@@ -1372,20 +1372,20 @@ html.annot-on #annot-capture { display: block; }
 <p>求解用有效集法：先猜哪些格接触，初值取压入量为正的格；在这些格上要求贴合，解线性方程组得它们的压强；压强为负的格其实没接触，移出；用解出的压强算所有格的下沉，集合外有格穿进压头的，其实接触，加入；两项检查都通过时即为解。</p>
 <p><b>③ 弹性能：标签</b></p>
 
-<p>已知：② 解出的压强 \(p\)、① 的柔度矩阵 \(C\)、格距 \(h\)；求：弹性能标签 \(U\)。</p>
+<p>已知：② 解出的压强 \(p\)、① 的柔度矩阵 \(C\)、格距 \(\ell\)；求：弹性能标签 \(U\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{u=C\,p} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{U=\displaystyle\sum_i\tfrac12\,(p_ih^2)\,u_i} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\tfrac12h^2\,p^TCp\quad(9)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{u=C\,p} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{U=\displaystyle\sum_i\tfrac12\,(p_i\ell^2)\,u_i} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\tfrac12\ell^2\,p^TCp\quad(9)}\]</p>
 <p>式 (4)：① 推出的下沉与压强的关系。</p>
 
-<p>式 (8)：线弹性做功。\(U\) 是弹性能，\(p_ih^2\) 是第 \(i\) 格的力，即压强乘格面积，\(u_i\) 是该格下沉。它说的是：线弹性下力从 0 线性涨到终值，平均只有一半在做功，所以每格存的能量是 ½ × 力 × 位移。</p>
+<p>式 (8)：线弹性做功。\(U\) 是弹性能，\(p_i\ell^2\) 是第 \(i\) 格的力，即压强乘格面积，\(u_i\) 是该格下沉。它说的是：线弹性下力从 0 线性涨到终值，平均只有一半在做功，所以每格存的能量是 ½ × 力 × 位移。</p>
 
 <p>结果：\(U\) 就是标签。压得越深 → 压强和下沉都更大 → 标签能量增长得比压深快，因为能量是两者之积。</p>
 
-<figure style="margin:12px 0"><img src="assets/images/core_3.3_v.png" width="2525" height="966" style="width:1098px;max-width:100%;height:auto" alt="三张小图各是一格的力与下沉的关系：中心格、中间格、靠边格。线弹性下，这一格的力从 0 开始，随着下沉线性地涨到终值 \(p_ih^2\)，下沉同时涨到 \(u_i\)，所以这一格存下的能量是直线下面那块三角形的面积，即 \(\tfrac12p_ih^2u_i\)，而不是力乘位移的整块矩形，这就是式 (8) 里那个 ½ 的来历。中心格压强大、沉得也多，三角形最大，越靠边越小。把所有格的三角形加起来就是标签能量 \(U\)，写成矩阵形式就是式 (9)。三张图的取值只是示意大小关系。" loading="lazy"><figcaption class="small">三张小图各是一格的力与下沉的关系：中心格、中间格、靠边格。线弹性下，这一格的力从 0 开始，随着下沉线性地涨到终值 \(p_ih^2\)，下沉同时涨到 \(u_i\)，所以这一格存下的能量是直线下面那块三角形的面积，即 \(\tfrac12p_ih^2u_i\)，而不是力乘位移的整块矩形，这就是式 (8) 里那个 ½ 的来历。中心格压强大、沉得也多，三角形最大，越靠边越小。把所有格的三角形加起来就是标签能量 \(U\)，写成矩阵形式就是式 (9)。三张图的取值只是示意大小关系。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/core_3.3_v.png" width="2525" height="966" style="width:1098px;max-width:100%;height:auto" alt="三张小图各是一格的力与下沉的关系：中心格、中间格、靠边格。线弹性下，这一格的力从 0 开始，随着下沉线性地涨到终值 \(p_i\ell^2\)，下沉同时涨到 \(u_i\)，所以这一格存下的能量是直线下面那块三角形的面积，即 \(\tfrac12p_i\ell^2u_i\)，而不是力乘位移的整块矩形，这就是式 (8) 里那个 ½ 的来历。中心格压强大、沉得也多，三角形最大，越靠边越小。把所有格的三角形加起来就是标签能量 \(U\)，写成矩阵形式就是式 (9)。三张图的取值只是示意大小关系。" loading="lazy"><figcaption class="small">三张小图各是一格的力与下沉的关系：中心格、中间格、靠边格。线弹性下，这一格的力从 0 开始，随着下沉线性地涨到终值 \(p_i\ell^2\)，下沉同时涨到 \(u_i\)，所以这一格存下的能量是直线下面那块三角形的面积，即 \(\tfrac12p_i\ell^2u_i\)，而不是力乘位移的整块矩形，这就是式 (8) 里那个 ½ 的来历。中心格压强大、沉得也多，三角形最大，越靠边越小。把所有格的三角形加起来就是标签能量 \(U\)，写成矩阵形式就是式 (9)。三张图的取值只是示意大小关系。</figcaption></figure>
 <details><summary>推导</summary><p>式 (8) 写成向量形式：</p>
-<p>\[U=\tfrac12h^2\sum_ip_iu_i=\tfrac12h^2\,p^Tu\]</p>
+<p>\[U=\tfrac12\ell^2\sum_ip_iu_i=\tfrac12\ell^2\,p^Tu\]</p>
 <p>代入式 (4) \(u=Cp\)：</p>
-<p>\[U=\tfrac12h^2\,p^TCp\qquad(9)\]</p></details>
+<p>\[U=\tfrac12\ell^2\,p^TCp\qquad(9)\]</p></details>
 </details>
 <figure style="margin:12px 0"><img src="assets/images/nipc_scene_K1.png" width="1832" height="824" style="width:934px;max-width:100%;height:auto" alt="nipc_scene_K1"></figure>
 <p><em>这张图是下面第 1 组训练样本的场景：一个下表面带 1 个凸起的刚性压头（深灰）压在弹性半空间（浅蓝）上，竖直方向放大 4 倍。左幅沿样本图里的白色虚线（过凸起中心）剖开，只留后一半，斜着看剖面：凸起往下压进半空间，半空间表面被压出一个坑贴住它；压头往外越来越高，只画到原表面以上 0.03。右幅把压头拿开，从斜上方看整片半空间：深蓝是精细解里压强大于 0 的接触区，红点是凸起中心（最低点）。这一组的接触区是围着凸起中心的一圈，中心那一小块没有接触，因为凸起上的凹坑让那里的压头表面抬高了，和样本图里凸起中心的暗斑是同一回事。</em></p>
@@ -1405,13 +1405,13 @@ html.annot-on #annot-capture { display: block; }
 <ol>
 <li>x、y 沿基体表面（方向固定），z 沿法向</li>
 <li>以每个凸起中心为原点，取 ±0.05 窗口，20×20 格点</li>
-<li>只用该凸起自身的曲面 \(z_k\)（含其高斯项，不含相邻凸起、\(a_h\)、倾斜），减去窗口内最小值</li>
+<li>只用该凸起自身的曲面 \(z_k\)（含其高斯项，不含相邻凸起、\(H\)、倾斜），减去窗口内最小值</li>
 </ol>
 <p>高度图描述局部形状，压深单独输入。</p>
 <p><strong>倾斜</strong>：小角度线性化，只取法向高度变化，记为倾斜项，水平位移为二阶小量。压在平面上时，6 个刚体自由度中只有竖直平移与两轴倾斜影响间隙。\(\theta\) 是转角，\(t_x\)、\(t_y\) 是绕 x、y 轴的倾角：</p>
 <p>\[\color{#c0392b}{\sin\theta\approx\theta,\qquad \text{倾斜项}=t_y\,x-t_x\,y}\]</p>
-<p><strong>压深</strong>：见下式。\(z_k\) 是第 \(k\) 个凸起自身的形状；\(a_h\) 与倾斜项是整个压头的竖直位置与倾斜，所有凸起共用：倾角全压头相同，倾斜引起的高度变化随位置变化，离转轴越远升降越多，\(x\)、\(y\) 为全局坐标。括号内即该凸起表面的实际高度，在第 \(k\) 个窗口的 20×20 点上取最小再取负，即该凸起最深点的穿透量；压深不为正表示未接触，该区不计入。</p>
-<p>\[\color{#c0392b}{\delta_k=-\min_{\text{窗口}}\big(a_h+z_k+t_y x-t_x y\big)}\]</p>
+<p><strong>压深</strong>：见下式。\(z_k\) 是第 \(k\) 个凸起自身的形状；\(H\) 与倾斜项是整个压头的竖直位置与倾斜，所有凸起共用：倾角全压头相同，倾斜引起的高度变化随位置变化，离转轴越远升降越多，\(x\)、\(y\) 为全局坐标。括号内即该凸起表面的实际高度，在第 \(k\) 个窗口的 20×20 点上取最小再取负，即该凸起最深点的穿透量；压深不为正表示未接触，该区不计入。</p>
+<p>\[\color{#c0392b}{\delta_k=-\min_{\text{窗口}}\big(H+z_k+t_y x-t_x y\big)}\]</p>
 <p><strong>取 \(\log\delta\)</strong>：接触能随压深的变化通常接近<strong>幂律</strong>：能量正比于压深的 \(p\) 次方，系数 \(c\) 和幂次 \(p\) 由形状决定；Hertz 球的 \(c\)、\(p\) 见 1.4 ⑤。两边取对数，能量的对数是 \(\log\delta\) 的线性函数，所以输入 \(\log\delta\) 便于网络表示；\(\delta\) 量级跨 \(10^{-3}\)–\(10^{-2}\)，取对数后数值范围也更均匀。</p>
 <p>\[\color{#c0392b}{U=c\,\delta^{p},\qquad \log U=\log c+p\log\delta,\qquad \text{Hertz：}\ c=\tfrac{8}{15}E^*R^{1/2},\ p=\tfrac52}\]</p>
 <p><strong>曲率</strong>：耦合项另需每区一个标量曲率 \(\kappa_k\)，取两个方向曲率的几何平均，取自生成器：</p>
@@ -1545,7 +1545,7 @@ html.annot-on #annot-capture { display: block; }
 <p><strong>刚体十字架压软球</strong>（<code>test_sap_fem_vs_robot</code>）</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_sap_fem_vs_robot_64_readable.mp4" style="width:560px;max-width:100%;height:auto"></video></figure>
 <p><em>这段视频展示刚体压软体。白色是 FEM 软球，灰色是刚体十字架。开头十字架的四条腿水平伸开，落到球顶后腿绕关节向下垂，约第 2 秒起十字架停在球顶不再动。</em></p>
-<p>FEM 软球半径 0.2 m（\(E=10^5\) Pa、\(\nu=0.4\)）放在地上，自由刚体十字架（四条带关节的腿）落在球顶；接触对：刚体–软球、软球–地面；\(\delta t=1/60\) s、每步 2 个子步、50 步。检查：球心下沉超过 2 cm，十字架停在球顶。</p>
+<p>FEM 软球半径 0.2 m（\(E=10^5\) Pa、\(\nu=0.4\)）放在地上，自由刚体十字架（四条带关节的腿）落在球顶；接触对：刚体–软球、软球–地面；\(\Delta t=1/60\) s、每步 2 个子步、50 步。检查：球心下沉超过 2 cm，十字架停在球顶。</p>
 <p><strong>软方块停在软球顶上</strong>（<code>test_implicit_sap_coupler_collide_sphere_box</code>）</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/genesis_test_test_implicit_sap_coupler_collide_sphere_box_64_readable.mp4" style="width:560px;max-width:100%;height:auto"></video></figure>
 <p><em>这段视频展示软体压软体。白色大球是 FEM 软球，顶上深灰色小方块是 FEM 软方块。整段视频里方块一直停在球顶，两者几乎不动：两个物体各自的压力场在等压面上互相推，托住了方块。</em></p>
@@ -1558,7 +1558,7 @@ html.annot-on #annot-capture { display: block; }
 
 <p><strong>Genesis 与原论文的差别</strong>（第 1 节各"实现"汇总）</p>
 <ul>
-<li>压力场：压强 = 全局刚度 \(H\) 除以物体内最大距离 \(D\) 再乘深度（1.1），斜率随物体尺寸 \(D\) 变小；细长或薄处压强偏低</li>
+<li>压力场：压强 = 全局刚度 \(H\) 除以物体内最大距离 \(D_h\) 再乘深度（1.1），斜率随物体尺寸 \(D_h\) 变小；细长或薄处压强偏低</li>
 <li>刚度：全部刚体共用 \(H\)，FEM 软体单独设 \(E_h\)，二者都与杨氏模量无关（1.1）</li>
 <li>离散：每块接触多边形只在形心取一点（1.2）</li>
 </ul>
@@ -1567,15 +1567,15 @@ html.annot-on #annot-capture { display: block; }
 
 <p><b>① 合力 = 压强斜率 × 球压进块的体积</b></p>
 
-<p>已知：块的压力场模量 \(E_h\)、块内到表面的最大距离 \(D\)、球面进入块的深度 \(d(\mathbf x)\)；求：合力 \(F\)。</p>
+<p>已知：块的压力场模量 \(E_h\)、块内到表面的最大距离 \(D_h\)、球面进入块的深度 \(s(\mathbf x)\)；求：合力 \(F\)。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{p(\mathbf x)=\dfrac{E_h}{D}\,d(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{V=\displaystyle\int d(\mathbf x)\,dA} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac{E_h}{D}\,V\quad(4)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{p(\mathbf x)=\dfrac{E_h}{D_h}\,s(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{V=\displaystyle\int s(\mathbf x)\,dA} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac{E_h}{D_h}\,V\quad(4)}\]</p>
 
 
 
-<p>式 (1)：Genesis 的压力场。\(\mathbf x\) 是接触面上一点，\(d(\mathbf x)\) 是那里球面进入块的深度，\(E_h\) 是压力场模量，\(D\) 是块内到表面的最大距离，\(E_h/D\) 是压强随深度的斜率。它说的是：块内某点的压强 = 斜率 × 该点深度；刚球几乎不变形，接触面就是球面落在块内的部分。</p>
+<p>式 (1)：Genesis 的压力场。\(\mathbf x\) 是接触面上一点，\(s(\mathbf x)\) 是那里球面进入块的深度，\(E_h\) 是压力场模量，\(D_h\) 是块内到表面的最大距离，\(E_h/D_h\) 是压强随深度的斜率。它说的是：块内某点的压强 = 斜率 × 该点深度；刚球几乎不变形，接触面就是球面落在块内的部分。</p>
 
 <p>式 (2)：合力的定义，把接触面上每小块面积的推力加起来。</p>
 
@@ -1584,9 +1584,9 @@ html.annot-on #annot-capture { display: block; }
 <p>结果：力只看球压进块的体积，与形状细节无关，这是 hydro「按体积算力」的直接后果。</p>
 
 <details><summary>推导</summary><p>把式 (1) 代入式 (2)，斜率是常数，提到积分外：</p>
-<p>\[F=\int\frac{E_h}{D}\,d(\mathbf x)\,dA=\frac{E_h}{D}\int d(\mathbf x)\,dA\]</p>
+<p>\[F=\int\frac{E_h}{D_h}\,s(\mathbf x)\,dA=\frac{E_h}{D_h}\int s(\mathbf x)\,dA\]</p>
 <p>由式 (3)：</p>
-<p>\[F=\frac{E_h}{D}\,V\qquad(4)\]</p></details>
+<p>\[F=\frac{E_h}{D_h}\,V\qquad(4)\]</p></details>
 <p><b>② 球冠体积</b></p>
 
 <p>已知：球半径 \(R\)、压深 \(\delta\)；求：球压进块的体积 \(V\)。</p>
@@ -1606,14 +1606,14 @@ html.annot-on #annot-capture { display: block; }
 <p>\[V=\pi R\delta^2\Big(1-\frac{\delta}{3R}\Big)\qquad(7)\]</p></details>
 <p><b>③ 预测压深</b></p>
 
-<p>已知：球的质量 \(m\)、重力加速度 \(g\)；求：静止时的压深 \(\delta\)。</p>
+<p>已知：球的质量 \(m\)、重力加速度 \(\mathrm g\)；求：静止时的压深 \(\delta\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{F=\dfrac{E_h}{D}\,V} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{V=\pi R\delta^2\Big(1-\dfrac{\delta}{3R}\Big)} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{F=mg} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{\delta\ll R} &amp; \color{#c0392b}{(9)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \delta\approx\sqrt{\frac{mgD}{\pi E_hR}}\ \propto R^{-1/2}\quad(10)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{F=\dfrac{E_h}{D_h}\,V} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{V=\pi R\delta^2\Big(1-\dfrac{\delta}{3R}\Big)} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{F=m\mathrm g} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{\delta\ll R} &amp; \color{#c0392b}{(9)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \delta\approx\sqrt{\frac{m\mathrm gD_h}{\pi E_hR}}\ \propto R^{-1/2}\quad(10)}\]</p>
 <p>式 (4)：① 推出的合力 = 压强斜率 × 侵入体积。</p>
 
 <p>式 (7)：② 推出的球冠体积。</p>
 
-<p>式 (8)：静力平衡。球静止时，接触力正好托住它的重量 \(mg\)。</p>
+<p>式 (8)：静力平衡。球静止时，接触力正好托住它的重量 \(m\mathrm g\)。</p>
 
 <p>式 (9)：压深远小于球半径的条件，此时式 (7) 括号里的修正项可以略去。</p>
 
@@ -1622,13 +1622,13 @@ html.annot-on #annot-capture { display: block; }
 <details><summary>推导</summary><p>由式 (9)，式 (7) 括号约为 1：</p>
 <p>\[V\approx\pi R\delta^2\]</p>
 <p>代入式 (4)：</p>
-<p>\[F\approx\frac{E_h}{D}\,\pi R\,\delta^2\]</p>
-<p>令其等于式 (8) \(F=mg\)，解出 \(\delta\)：</p>
-<p>\[\delta\approx\sqrt{\frac{mgD}{\pi E_hR}}\ \propto R^{-1/2}\qquad(10)\]</p></details>
+<p>\[F\approx\frac{E_h}{D_h}\,\pi R\,\delta^2\]</p>
+<p>令其等于式 (8) \(F=m\mathrm g\)，解出 \(\delta\)：</p>
+<p>\[\delta\approx\sqrt{\frac{m\mathrm gD_h}{\pi E_hR}}\ \propto R^{-1/2}\qquad(10)\]</p></details>
 </details>
 <h3 id="w4-3" class="numbered">4.3 参数扫描：每次只改一个量</h3>
 
-<p>下面两张表的「公式」一列，按 4.2 节的力 \(F=E_hV/D\) 与球冠体积式 (7) \(V=\pi R\delta^2\big(1-\delta/(3R)\big)\)（不略去括号里的修正项），令 \(F=mg\) 解出压深；\(D\) 取 Genesis 由块网格算出的块内最大距离 0.0970 m。4.2 节的式 (10) \(\delta\approx\sqrt{mgD/(\pi E_hR)}\) 是略去修正项后的近似，\(R=0.05\) 时比按式 (7) 解出的小约 3%。</p>
+<p>下面两张表的「公式」一列，按 4.2 节的力 \(F=E_hV/D_h\) 与球冠体积式 (7) \(V=\pi R\delta^2\big(1-\delta/(3R)\big)\)（不略去括号里的修正项），令 \(F=m\mathrm g\) 解出压深；\(D_h\) 取 Genesis 由块网格算出的块内最大距离 0.0970 m。4.2 节的式 (10) \(\delta\approx\sqrt{m\mathrm gD_h/(\pi E_hR)}\) 是略去修正项后的近似，\(R=0.05\) 时比按式 (7) 解出的小约 3%。</p>
 <p><strong>刚球压 FEM 块：改球半径（同为 1 kg）</strong>（预期：压深随球半径的 −1/2 次方变化；Hertz 为 −1/3 次方）</p>
 <div class="tablewrap"><table>
 <thead>
@@ -1768,7 +1768,7 @@ html.annot-on #annot-capture { display: block; }
 </ul>
 <p><strong>hydro 搭法</strong></p>
 <ul>
-<li>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 = 压力场模量 \(E_h\) 除以基体内到表面的最大距离 \(D\)，再乘深度<ul>
+<li>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 = 压力场模量 \(E_h\) 除以基体内到表面的最大距离 \(D_h\)，再乘深度<ul>
 <li>力 = 压力场斜率 × 重叠体积，推导见下</li>
 </ul>
 </li>
@@ -1778,26 +1778,26 @@ html.annot-on #annot-capture { display: block; }
 
 <p><b>① hydro (A) 的力</b></p>
 
-<p>已知：基体的压力场模量 \(E_h\)、基体内到表面的最大距离 \(D\)、压头进入基体的深度 \(d(\mathbf x)\)；求：hydro (A) 给出的力。</p>
+<p>已知：基体的压力场模量 \(E_h\)、基体内到表面的最大距离 \(D_h\)、压头进入基体的深度 \(s(\mathbf x)\)；求：hydro (A) 给出的力。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{p(\mathbf x)=\dfrac{E_h}{D}\,d(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{V=\displaystyle\int d(\mathbf x)\,dA} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_{\text{hydro}}=\frac{E_h}{D}\,V\quad(4)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{p(\mathbf x)=\dfrac{E_h}{D_h}\,s(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{V=\displaystyle\int s(\mathbf x)\,dA} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_{\text{hydro}}=\frac{E_h}{D_h}\,V\quad(4)}\]</p>
 
 
 
-<p>式 (1)：hydro (A) 的压力场。\(\mathbf x\) 是接触面上的水平位置，\(d(\mathbf x)\) 是那里压头进入基体的深度，\(E_h/D\) 是压强随深度的斜率。它说的是：压头不带压力场，压强全来自基体，每点压强 = 斜率 × 该点深度。</p>
+<p>式 (1)：hydro (A) 的压力场。\(\mathbf x\) 是接触面上的水平位置，\(s(\mathbf x)\) 是那里压头进入基体的深度，\(E_h/D_h\) 是压强随深度的斜率。它说的是：压头不带压力场，压强全来自基体，每点压强 = 斜率 × 该点深度。</p>
 
 <p>式 (2)：合力的定义，把接触面上每小块面积的推力加起来。</p>
 
 <p>式 (3)：重叠体积的定义：每个位置的重叠深度乘以面积再相加，就是压头与基体重叠部分的体积。</p>
 
-<p>结果：hydro (A) 的力只看重叠体积，所以下面各实验里 hydro 的倍数都可以直接从重叠体积的倍数读出来；\(E_h\)、\(D\) 在倍数里约掉，调参改变不了倍数。</p>
+<p>结果：hydro (A) 的力只看重叠体积，所以下面各实验里 hydro 的倍数都可以直接从重叠体积的倍数读出来；\(E_h\)、\(D_h\) 在倍数里约掉，调参改变不了倍数。</p>
 
 <details><summary>推导</summary><p>把式 (1) 代入式 (2)，斜率提到积分外：</p>
-<p>\[F_{\text{hydro}}=\frac{E_h}{D}\int d(\mathbf x)\,dA\]</p>
+<p>\[F_{\text{hydro}}=\frac{E_h}{D_h}\int s(\mathbf x)\,dA\]</p>
 <p>由式 (3)：</p>
-<p>\[F_{\text{hydro}}=\frac{E_h}{D}\,V\qquad(4)\]</p></details>
+<p>\[F_{\text{hydro}}=\frac{E_h}{D_h}\,V\qquad(4)\]</p></details>
 </details>
 <p><strong>判据</strong>：同一物体、同一压深，只改一个量，比较力的倍数。\(E_h\) 在比值中约掉，调参无法改变倍数。hydro 刚度用训练数据拟合一次，另报取杨氏模量时的结果。</p>
 <p><strong>标签验证</strong>：每个实验另用 IPC + FEM 造标签（3.1 的 \(U_c\)，粗模型为刚体时即精细解弹性能），与裁判比，判据为偏差 ≤ 2%。标签数值依赖三个离散参数，均用下面的 Richardson 外推推到极限：</p>
@@ -1810,17 +1810,17 @@ html.annot-on #annot-capture { display: block; }
 
 <p><b>① 外推值</b></p>
 
-<p>已知：中等档与细档两次计算的读数 \(X_m\)、\(X_f\)，两档尺寸比 \(r\)，收敛阶 \(p\)；求：离散无限细时的真值 \(X^*\)。</p>
+<p>已知：中等档与细档两次计算的读数 \(X^{(m)}\)、\(X^{(f)}\)，两档尺寸比 \(\rho\)，收敛阶 \(p\)；求：离散无限细时的真值 \(X_\infty\)。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(6)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ X^*=X_f+\frac{X_f-X_m}{r^p-1}\quad(7)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{X(h)=X_\infty+C\,h^p} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h_m=\rho\,h_f,\quad X^{(m)}=X(h_m),\quad X^{(f)}=X(h_f)} &amp; \color{#c0392b}{(6)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ X_\infty=X^{(f)}+\frac{X^{(f)}-X^{(m)}}{\rho^p-1}\quad(7)}\]</p>
 
 
 
-<p>式 (5)：误差模型。\(h\) 是离散的尺寸，可以是网格单元尺寸、接触间隙 \(\hat d\) 或块尺寸的倒数 \(1/L\)；\(X(h)\) 是用这个尺寸算出的值；\(X^*\) 是离散无限细时的真值；\(C\) 是未知常数；\(p\) 是收敛阶。它说的是：算出的值 = 真值 + 一项误差，误差按尺寸的 \(p\) 次方缩小，例如 \(p=1\) 时尺寸减半误差减半，\(p=2\) 时缩成四分之一；这是离散误差在尺寸足够小时的一般形式。</p>
+<p>式 (5)：误差模型。\(h\) 是离散的尺寸，可以是网格单元尺寸、接触间隙 \(\hat d\) 或块尺寸的倒数 \(1/L\)；\(X(h)\) 是用这个尺寸算出的值；\(X_\infty\) 是离散无限细时的真值；\(C\) 是未知常数；\(p\) 是收敛阶。它说的是：算出的值 = 真值 + 一项误差，误差按尺寸的 \(p\) 次方缩小，例如 \(p=1\) 时尺寸减半误差减半，\(p=2\) 时缩成四分之一；这是离散误差在尺寸足够小时的一般形式。</p>
 
-<p>式 (6)：两档读数的定义。\(h_f\) 是细档尺寸，\(h_m\) 是中档尺寸，\(r\) 是两档尺寸比且大于 1，本页网格取 2；\(X_m\)、\(X_f\) 是中档和细档的读数。</p>
+<p>式 (6)：两档读数的定义。\(h_f\) 是细档尺寸，\(h_m\) 是中档尺寸，\(\rho\) 是两档尺寸比且大于 1，本页网格取 2；\(X^{(m)}\)、\(X^{(f)}\) 是中档和细档的读数。</p>
 
 <p>结果：从细档读数出发，再顺着「中 → 细」的方向多走一步就到真值。两档差得越多 → 细档离真值越远，要多走越多；\(p\) 越大 → 细档剩下的误差越小，多走的一步越短。</p>
 
@@ -1831,37 +1831,37 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<details><summary>推导</summary><p>把式 (6) 的两档代入式 (5) \(X(h)=X^*+Ch^p\)：</p>
-<p>\[X_m=X^*+C\,(r h_f)^p,\qquad X_f=X^*+C\,h_f^p\]</p>
+<details><summary>推导</summary><p>把式 (6) 的两档代入式 (5) \(X(h)=X_\infty+Ch^p\)：</p>
+<p>\[X^{(m)}=X_\infty+C\,(\rho  h_f)^p,\qquad X^{(f)}=X_\infty+C\,h_f^p\]</p>
 <p>两式相减：</p>
-<p>\[X_m-X_f=C\,h_f^p\,(r^p-1)\]</p>
+<p>\[X^{(m)}-X^{(f)}=C\,h_f^p\,(\rho^p-1)\]</p>
 <p>解出细档的误差：</p>
-<p>\[C\,h_f^p=\frac{X_m-X_f}{r^p-1}\]</p>
-<p>代回 \(X_f=X^*+Ch_f^p\)：</p>
-<p>\[X^*=X_f-\frac{X_m-X_f}{r^p-1}=X_f+\frac{X_f-X_m}{r^p-1}\qquad(7)\]</p></details>
+<p>\[C\,h_f^p=\frac{X^{(m)}-X^{(f)}}{\rho^p-1}\]</p>
+<p>代回 \(X^{(f)}=X_\infty+Ch_f^p\)：</p>
+<p>\[X_\infty=X^{(f)}-\frac{X^{(m)}-X^{(f)}}{\rho^p-1}=X^{(f)}+\frac{X^{(f)}-X^{(m)}}{\rho^p-1}\qquad(7)\]</p></details>
 <p><b>② 收敛阶 \(p\) 怎么来</b></p>
 
-<p>已知：粗、中、细三档读数 \(X_c\)、\(X_m\)、\(X_f\)，相邻两档尺寸比 \(r\)；求：收敛阶 \(p\)。</p>
+<p>已知：粗、中、细三档读数 \(X^{(c)}\)、\(X^{(m)}\)、\(X^{(f)}\)，相邻两档尺寸比 \(\rho\)；求：收敛阶 \(p\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{h_c=r\,h_m,\quad X_c=X(h_c)} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\quad(9)}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{X(h)=X_\infty+C\,h^p} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h_m=\rho\,h_f,\quad X^{(m)}=X(h_m),\quad X^{(f)}=X(h_f)} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{h_c=\rho\,h_m,\quad X^{(c)}=X(h_c)} &amp; \color{#c0392b}{(8)}\end{cases}\\ \color{#c0392b}{\Longrightarrow\ p=\frac{\ln\big[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})\big]}{\ln \rho}\quad(9)}\end{gathered}\]</p>
 <p>式 (5)：① 的误差模型，算出的值 = 真值 + 按尺寸 \(p\) 次方缩小的误差。</p>
 
 <p>式 (6)：① 的中、细两档读数。</p>
 
-<p>式 (8)：粗档读数的定义。\(h_c\) 是粗档尺寸，\(X_c\) 是粗档读数，相邻两档尺寸比同样是 \(r\)。</p>
+<p>式 (8)：粗档读数的定义。\(h_c\) 是粗档尺寸，\(X^{(c)}\) 是粗档读数，相邻两档尺寸比同样是 \(\rho\)。</p>
 
-<p>结果：看网格每细一档，读数的变化缩小了多少倍，就知道误差按几次方收敛：\(r=2\) 时变化每次缩一半 → \(p=1\)，缩成四分之一 → \(p=2\)。三档差值噪声大时 \(p\) 会跳，所以同一组实验所有压深共用一个 \(p\)，取各压深实测阶的中位数。</p>
+<p>结果：看网格每细一档，读数的变化缩小了多少倍，就知道误差按几次方收敛：\(\rho=2\) 时变化每次缩一半 → \(p=1\)，缩成四分之一 → \(p=2\)。三档差值噪声大时 \(p\) 会跳，所以同一组实验所有压深共用一个 \(p\)，取各压深实测阶的中位数。</p>
 
 <details><summary>推导</summary><p>把式 (6)(8) 的三档代入式 (5)，相邻两档相减：</p>
-<p>\[X_c-X_m=C\,h_m^p\,(r^p-1),\qquad X_m-X_f=C\,h_f^p\,(r^p-1)\]</p>
-<p>两式相除，\(C\) 与 \((r^p-1)\) 约掉，再用式 (6) \(h_m=r\,h_f\)：</p>
-<p>\[\frac{X_c-X_m}{X_m-X_f}=\frac{h_m^p}{h_f^p}=r^p\]</p>
+<p>\[X^{(c)}-X^{(m)}=C\,h_m^p\,(\rho^p-1),\qquad X^{(m)}-X^{(f)}=C\,h_f^p\,(\rho^p-1)\]</p>
+<p>两式相除，\(C\) 与 \((\rho^p-1)\) 约掉，再用式 (6) \(h_m=\rho\,h_f\)：</p>
+<p>\[\frac{X^{(c)}-X^{(m)}}{X^{(m)}-X^{(f)}}=\frac{h_m^p}{h_f^p}=\rho^p\]</p>
 <p>两边取对数：</p>
-<p>\[p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\qquad(9)\]</p></details>
+<p>\[p=\frac{\ln\big[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})\big]}{\ln \rho}\qquad(9)\]</p></details>
 <p><b>③ 本页三项各取什么</b></p>
 
 <ul>
-<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(r=2\)），\(p\) 按式 (9) \(p=\ln[(X_c-X_m)/(X_m-X_f)]/\ln r\) 实测，代入式 (7) \(X^*=X_f+(X_f-X_m)/(r^p-1)\)</li>
+<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(\rho=2\)），\(p\) 按式 (9) \(p=\ln[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})]/\ln \rho\) 实测，代入式 (7) \(X_\infty=X^{(f)}+(X^{(f)}-X^{(m)})/(\rho^p-1)\)</li>
 <li>\(\hat d\)：两档，取 \(p=1\)（偏差与 \(\hat d\) 成正比，\(h\) 换成 \(\hat d\)），即两点连直线延长到 \(\hat d=0\)</li>
 <li>块大小：两档半宽 \(L_s&lt;L_l\)，取 \(h=1/L\)、\(p=1\)，即两点连直线延长到 \(1/L=0\)（块无限大）</li>
 </ul>
@@ -1892,7 +1892,7 @@ html.annot-on #annot-capture { display: block; }
 <p><strong>裁判（Hertz，1.4 ④）</strong>：有效模量 \(E^*\) 与压深 \(\delta\) 不变，力只随球半径的平方根变化，半径 ×2 → <strong>×1.41</strong></p>
 <p>\[\color{#c0392b}{F=\frac43E^*R^{1/2}\delta^{3/2},\qquad \frac{F(2R)}{F(R)}=\frac{(2R)^{1/2}}{R^{1/2}}=\sqrt2\approx1.41}\]</p>
 <p><strong>hydro (A)</strong>：力与球半径成正比，半径 ×2 → <strong>×2</strong></p>
-<p>\[\color{#c0392b}{F_A=\frac{E_h}{D}\,\pi R\,\delta^{2}}\]</p>
+<p>\[\color{#c0392b}{F_A=\frac{E_h}{D_h}\,\pi R\,\delta^{2}}\]</p>
 <details><summary>推导：hydro (A)</summary>
 
 <p><b>① 重叠体积</b></p>
@@ -1919,22 +1919,22 @@ html.annot-on #annot-capture { display: block; }
 <p>\[V=\int_0^\delta2\pi R\,y\,dy=2\pi R\cdot\frac{\delta^2}{2}=\pi R\,\delta^2\qquad(5)\]</p></details>
 <p><b>② hydro (A) 的力随半径 ×2</b></p>
 
-<p>已知：块的压力场模量 \(E_h\)、块内到表面的最大距离 \(D\)；求：hydro (A) 的力及其随球半径的变化。</p>
+<p>已知：块的压力场模量 \(E_h\)、块内到表面的最大距离 \(D_h\)；求：hydro (A) 的力及其随球半径的变化。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{V=\pi R\,\delta^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{p=\dfrac{E_h}{D}\times\text{深度}} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(7)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_A=\frac{E_h}{D}\,\pi R\,\delta^{2}\ \ (8),\qquad \frac{F_A(2R)}{F_A(R)}=2\ \ (9)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{V=\pi R\,\delta^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{p=\dfrac{E_h}{D_h}\times\text{深度}} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(7)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_A=\frac{E_h}{D_h}\,\pi R\,\delta^{2}\ \ (8),\qquad \frac{F_A(2R)}{F_A(R)}=2\ \ (9)}\]</p>
 <p>式 (5)：① 推出的重叠体积。</p>
 
-<p>式 (6)：hydro (A) 的压力场：块内某点压强 = 斜率 \(E_h/D\) × 该点深度。</p>
+<p>式 (6)：hydro (A) 的压力场：块内某点压强 = 斜率 \(E_h/D_h\) × 该点深度。</p>
 
 <p>式 (7)：合力的定义，把接触面上每小块面积的推力加起来。</p>
 
 <p>结果：hydro (A) 的力与球半径成正比，半径 ×2 力就 ×2，而 Hertz 只是 ×1.41。</p>
 
 <details><summary>推导</summary><p>把式 (6) 代入式 (7)，斜率提到积分外；深度对面积积分就是重叠体积：</p>
-<p>\[F_A=\frac{E_h}{D}\int\text{深度}\,dA=\frac{E_h}{D}\,V\]</p>
+<p>\[F_A=\frac{E_h}{D_h}\int\text{深度}\,dA=\frac{E_h}{D_h}\,V\]</p>
 <p>代入式 (5)：</p>
-<p>\[F_A=\frac{E_h}{D}\,\pi R\,\delta^{2}\qquad(8)\]</p>
-<p>\(E_h\)、\(D\)、\(\delta\) 不变，半径换成 \(2R\)：</p>
+<p>\[F_A=\frac{E_h}{D_h}\,\pi R\,\delta^{2}\qquad(8)\]</p>
+<p>\(E_h\)、\(D_h\)、\(\delta\) 不变，半径换成 \(2R\)：</p>
 <p>\[\frac{F_A(2R)}{F_A(R)}=\frac{2R}{R}=2\qquad(9)\]</p></details>
 <p><b>③ 这个结果与压力场的形式无关</b></p>
 
@@ -1957,36 +1957,36 @@ html.annot-on #annot-capture { display: block; }
 <p>\[F=2\pi R\int_0^\delta p(\delta-u)\,du\qquad(11)\]</p>
 <p>积分里不含 \(R\)，所以对任意 \(p\) 都有 \(F\propto R\)。</p></details>
 </details>
-<p><strong>hydro (B)</strong>：半径 ×2 时力的比值介于 1 与 2 之间，\(D\) 是块内到表面的最大距离：</p>
-<p>\[\color{#c0392b}{\frac{F_B(2R)}{F_B(R)}=\frac{2(R+D)}{2R+D}}\]</p>
+<p><strong>hydro (B)</strong>：半径 ×2 时力的比值介于 1 与 2 之间，\(D_h\) 是块内到表面的最大距离：</p>
+<p>\[\color{#c0392b}{\frac{F_B(2R)}{F_B(R)}=\frac{2(R+D_h)}{2R+D_h}}\]</p>
 <details><summary>推导：hydro (B)</summary>
 
 <p><b>④ hydro (B)：球也带压力场</b></p>
 
-<p>已知：压力场常数 \(H\)、球半径 \(R\)、块内最大距离 \(D\)；求：hydro (B) 的力随球半径的变化。</p>
+<p>已知：压力场常数 \(H\)、球半径 \(R\)、块内最大距离 \(D_h\)；求：hydro (B) 的力随球半径的变化。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{V=\pi R\,\delta^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{g_{\text{球}}=\dfrac HR,\quad g_{\text{块}}=\dfrac HD} &amp; \color{#c0392b}{(12)}\\[4pt] \color{#c0392b}{g=\dfrac{g_{\text{球}}\,g_{\text{块}}}{g_{\text{球}}+g_{\text{块}}}} &amp; \color{#c0392b}{(13)}\\[4pt] \color{#c0392b}{p=g\times\text{重叠深度}} &amp; \color{#c0392b}{(14)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_B=\frac{H}{R+D}\,\pi R\delta^2\ \ (15),\qquad \frac{F_B(2R)}{F_B(R)}=\frac{2(R+D)}{2R+D}\ \ (16)}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{V=\pi R\,\delta^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{\Gamma_{\text{球}}=\dfrac HR,\quad \Gamma_{\text{块}}=\dfrac H{D_h}} &amp; \color{#c0392b}{(12)}\\[4pt] \color{#c0392b}{\Gamma=\dfrac{\Gamma_{\text{球}}\,\Gamma_{\text{块}}}{\Gamma_{\text{球}}+\Gamma_{\text{块}}}} &amp; \color{#c0392b}{(13)}\\[4pt] \color{#c0392b}{p=\Gamma\times\text{重叠深度}} &amp; \color{#c0392b}{(14)}\end{cases}\\ \color{#c0392b}{\Longrightarrow\ F_B=\frac{H}{R+D_h}\,\pi R\delta^2\ \ (15),\qquad \frac{F_B(2R)}{F_B(R)}=\frac{2(R+D_h)}{2R+D_h}\ \ (16)}\end{gathered}\]</p>
 
 
 
 <p>式 (5)：① 推出的重叠体积。</p>
 
-<p>式 (12)：两侧压力场的斜率。\(H\) 是压力场模量，球内到表面的最大距离是球半径 \(R\)，块的是 \(D\)，斜率 = 模量 ÷ 最大距离。</p>
+<p>式 (12)：两侧压力场的斜率。\(H\) 是压力场模量，球内到表面的最大距离是球半径 \(R\)，块的是 \(D_h\)，斜率 = 模量 ÷ 最大距离。</p>
 
-<p>式 (13)：hydro 的串联规则。\(g\) 是合成斜率。它说的是：两侧像两根串联的弹簧，接触面停在两侧压强相等处，总斜率由软的一侧主导。</p>
+<p>式 (13)：hydro 的串联规则。\(\Gamma\) 是合成斜率。它说的是：两侧像两根串联的弹簧，接触面停在两侧压强相等处，总斜率由软的一侧主导。</p>
 
 <p>式 (14)：hydro 的压强：每处压强 = 合成斜率 × 该处两物体的重叠深度。</p>
 
-<p>结果：比值介于 1 与 2 之间：块很深、\(D\gg R\) 时趋于 2，退回 hydro (A)；块很浅、\(D\ll R\) 时趋于 1。两种情况都不是 Hertz 的 1.41 这个固定值，而且随块的尺寸变。</p>
+<p>结果：比值介于 1 与 2 之间：块很深、\(D_h\gg R\) 时趋于 2，退回 hydro (A)；块很浅、\(D_h\ll R\) 时趋于 1。两种情况都不是 Hertz 的 1.41 这个固定值，而且随块的尺寸变。</p>
 
 <details><summary>推导</summary><p>把式 (12) 代入式 (13)，分子分母同乘 \(RD/H\)：</p>
-<p>\[g=\frac{(H/R)(H/D)}{H/R+H/D}=\frac{H}{R+D}\]</p>
+<p>\[\Gamma=\frac{(H/R)(H/D_h)}{H/R+H/D_h}=\frac{H}{R+D_h}\]</p>
 <p>由式 (14)，压强对面积积分时斜率提到外面，深度对面积积分是重叠体积；代入式 (5)：</p>
-<p>\[F_B=g\,V=\frac{H}{R+D}\,\pi R\delta^2\qquad(15)\]</p>
+<p>\[F_B=\Gamma\,V=\frac{H}{R+D_h}\,\pi R\delta^2\qquad(15)\]</p>
 <p>半径换成 \(2R\)：</p>
-<p>\[\frac{F_B(2R)}{F_B(R)}=\frac{2R/(2R+D)}{R/(R+D)}=\frac{2(R+D)}{2R+D}\qquad(16)\]</p></details>
+<p>\[\frac{F_B(2R)}{F_B(R)}=\frac{2R/(2R+D_h)}{R/(R+D_h)}=\frac{2(R+D_h)}{2R+D_h}\qquad(16)\]</p></details>
 </details>
 <p><strong>标签验证</strong></p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/e1_press_R2.mp4" style="width:1008px;max-width:100%;height:auto"></video></figure>
@@ -2201,18 +2201,18 @@ html.annot-on #annot-capture { display: block; }
 <li><strong>泊松比</strong> \(\nu\)：单轴压缩时侧向膨胀应变与轴向压缩应变之比，等于 0.5 时体积不变（<strong>不可压</strong>），橡胶约 0.49–0.4999</li>
 <li><strong>应变</strong> \(\varepsilon\)：长度变化 ÷ 原长；<strong>剪切应变</strong> \(\gamma\)：平行于面的错动量 ÷ 厚度</li>
 <li><strong>剪切应力</strong> \(\tau\)：平行于面的单位面积上的力；<strong>压强</strong> \(p\)：垂直于面的单位面积上的力</li>
-<li><strong>剪切模量</strong> \(G\)、<strong>拉梅常数</strong> \(\lambda\)、<strong>侧限模量</strong> \(M\)（侧向被约束时竖直方向的刚度）：定义与推导见下面「推导 1」①；\(\nu\to0.5\) 时 \(M\to\infty\)</li>
+<li><strong>剪切模量</strong> \(G\)、<strong>拉梅常数</strong> \(\lambda\)、<strong>侧限模量</strong> \(M_c\)（侧向被约束时竖直方向的刚度）：定义与推导见下面「推导 1」①；\(\nu\to0.5\) 时 \(M_c\to\infty\)</li>
 </ul>
 <p>材料给球让位有两种方式：原地压缩，或从球底下侧向挤出。下面分别推出两种方式下的力，再比较哪种需要的压强小。</p>
 <details><summary>推导 1：原地压缩，力 ∝ R</summary>
 
 <p><b>① 侧限模量</b></p>
 
-<p>已知：杨氏模量 \(E\)、泊松比 \(\nu\)；求：侧向被挡住时材料竖直方向的刚度 \(M\)。</p>
+<p>已知：杨氏模量 \(E\)、泊松比 \(\nu\)；求：侧向被挡住时材料竖直方向的刚度 \(M_c\)。</p>
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{\sigma_z=\lambda(\varepsilon_x+\varepsilon_y+\varepsilon_z)+2G\varepsilon_z} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{G=\dfrac{E}{2(1+\nu)},\quad \lambda=\dfrac{E\nu}{(1+\nu)(1-2\nu)}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\varepsilon_x=\varepsilon_y=0} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \sigma_z=M\,\varepsilon_z,\quad M=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)}\quad(4)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{\sigma_z=\lambda(\varepsilon_x+\varepsilon_y+\varepsilon_z)+2G\varepsilon_z} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{G=\dfrac{E}{2(1+\nu)},\quad \lambda=\dfrac{E\nu}{(1+\nu)(1-2\nu)}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\varepsilon_x=\varepsilon_y=0} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \sigma_z=M_c\,\varepsilon_z,\quad M_c=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)}\quad(4)}\]</p>
 
 
 
@@ -2222,17 +2222,17 @@ html.annot-on #annot-capture { display: block; }
 
 <p>式 (3)：侧限条件。层薄、接触区宽时，每根竖直材料柱的侧面被相邻柱挡住，只能沿竖直方向压缩，侧向应变为 0。</p>
 
-<p>结果：\(M\) 是侧限模量。\(\nu\to0.5\) 时分母 \(1-2\nu\to0\)，\(M\to\infty\)：近不可压的材料侧面被挡住时，几乎压不动，因为体积不能变而又无处可去。</p>
+<p>结果：\(M_c\) 是侧限模量。\(\nu\to0.5\) 时分母 \(1-2\nu\to0\)，\(M_c\to\infty\)：近不可压的材料侧面被挡住时，几乎压不动，因为体积不能变而又无处可去。</p>
 
 <details><summary>推导</summary><p>把式 (3) 代入式 (1)：</p>
 <p>\[\sigma_z=(\lambda+2G)\,\varepsilon_z\]</p>
 <p>代入式 (2)，通分：</p>
-<p>\[M=\lambda+2G=\frac{E\nu}{(1+\nu)(1-2\nu)}+\frac{E}{1+\nu}=\frac{E\nu+E(1-2\nu)}{(1+\nu)(1-2\nu)}=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)}\qquad(4)\]</p></details>
+<p>\[M_c=\lambda+2G=\frac{E\nu}{(1+\nu)(1-2\nu)}+\frac{E}{1+\nu}=\frac{E\nu+E(1-2\nu)}{(1+\nu)(1-2\nu)}=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)}\qquad(4)\]</p></details>
 <p><b>② 原地压缩时的力</b></p>
 
 <p>已知：层厚 \(b\)、球半径 \(R\)、压深 \(\delta\)；求：材料原地压缩时的力。</p>
 
-<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{\sigma_z=M\,\varepsilon_z} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{\varepsilon_z=\dfrac wb} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(9)}\end{cases}\\[8pt] \color{#c0392b}{\Longrightarrow\ p_c=\frac{M\delta}{b}\ \ (10)}\\[4pt] \color{#c0392b}{V=\int w\,dA=\pi R\delta^2\ \ (11)}\\[4pt] \color{#c0392b}{F=\pi M\frac{R\,\delta^{2}}{b}\ \ (12)}\end{gathered}\]</p>
+<p>\[\begin{gathered}\begin{cases}\color{#c0392b}{\sigma_z=M_c\,\varepsilon_z} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{\varepsilon_z=\dfrac wb} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(9)}\end{cases}\\[8pt] \color{#c0392b}{\Longrightarrow\ p_c=\frac{M_c\delta}{b}\ \ (10)}\\[4pt] \color{#c0392b}{V=\int w\,dA=\pi R\delta^2\ \ (11)}\\[4pt] \color{#c0392b}{F=\pi M_c\frac{R\,\delta^{2}}{b}\ \ (12)}\end{gathered}\]</p>
 <p>式 (4)：① 推出的侧限关系，竖直应力 = 侧限模量 × 竖直应变。</p>
 
 <p>式 (5)：勾股定理。\(r\) 是离接触中心的距离，\(h\) 是该处球面比球底高出的量。</p>
@@ -2250,12 +2250,12 @@ html.annot-on #annot-capture { display: block; }
 <details><summary>推导</summary><p>由式 (5)(6)：</p>
 <p>\[h\approx\frac{r^2}{2R}\]</p>
 <p>代入式 (7)，再由式 (8)(4)，每根柱子的压强：</p>
-<p>\[p=M\,\frac{w}{b}=\frac{M}{b}\Big(\delta-\frac{r^2}{2R}\Big)\]</p>
+<p>\[p=M_c\,\frac{w}{b}=\frac{M_c}{b}\Big(\delta-\frac{r^2}{2R}\Big)\]</p>
 <p>中心 \(r=0\) 处：</p>
-<p>\[p_c=\frac{M\delta}{b}\qquad(10)\]</p>
+<p>\[p_c=\frac{M_c\delta}{b}\qquad(10)\]</p>
 <p>代入式 (9)，模量与层厚提到积分外；\(w\) 在 \(r\) 满足 \(\delta=r^2/(2R)\) 处降到 0，此处 \(r^2=2R\delta\)：</p>
 <p>\[V=\int w\,dA=\int_0^{\sqrt{2R\delta}}\Big(\delta-\frac{r^2}{2R}\Big)2\pi r\,dr=2\pi\Big(R\delta^2-\frac{R\delta^2}{2}\Big)=\pi R\delta^2\qquad(11)\]</p>
-<p>\[F=\frac{M}{b}\,V=\pi M\frac{R\,\delta^{2}}{b}\qquad(12)\]</p></details>
+<p>\[F=\frac{M_c}{b}\,V=\pi M_c\frac{R\,\delta^{2}}{b}\qquad(12)\]</p></details>
 </details>
 <details><summary>推导 2：侧向挤出，力 ∝ R²（量级推导：只保留与 \(a\)、\(b\)、\(\delta\) 的比例关系，略去数值系数）</summary>
 
@@ -2313,7 +2313,7 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{G=\dfrac{E}{2(1+\nu)}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{M=\dfrac{E(1-\nu)}{(1+\nu)(1-2\nu)}} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{p_c=\dfrac{M\delta}{b}} &amp; \color{#c0392b}{(10)}\\[4pt] \color{#c0392b}{p_s\propto\dfrac{G\,a^2\delta}{b^3}} &amp; \color{#c0392b}{(19)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{p_s}{p_c}\ \propto\ \frac{1-2\nu}{2(1-\nu)}\Big(\frac ab\Big)^2\quad(21)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{G=\dfrac{E}{2(1+\nu)}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{M_c=\dfrac{E(1-\nu)}{(1+\nu)(1-2\nu)}} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{p_c=\dfrac{M_c\delta}{b}} &amp; \color{#c0392b}{(10)}\\[4pt] \color{#c0392b}{p_s\propto\dfrac{G\,a^2\delta}{b^3}} &amp; \color{#c0392b}{(19)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{p_s}{p_c}\ \propto\ \frac{1-2\nu}{2(1-\nu)}\Big(\frac ab\Big)^2\quad(21)}\]</p>
 
 
 
@@ -2328,9 +2328,9 @@ html.annot-on #annot-capture { display: block; }
 <p>结果：材料按所需压强小的方式让位。比值 \(\gg1\)：挤出更难，材料原地压缩，力 \(\propto R\)；比值 \(\ll1\)：压缩更难，材料侧向挤出，力 \(\propto R^2\)。数值：\(a/b=5\) 时，\(\nu=0.3\) 得 \(\frac{0.4}{1.4}\times25=7.1\)，原地压缩；\(\nu=0.49\) 得 \(\frac{0.02}{1.02}\times25=0.49\)，处于两者之间；要进入侧向挤出需 \(1-2\nu\ll0.04\)，即 \(\nu\approx0.499\)。</p>
 
 <details><summary>推导</summary><p>式 (19) 除以式 (10)：</p>
-<p>\[\frac{p_s}{p_c}\ \propto\ \frac{G\,a^2\delta/b^3}{M\delta/b}=\frac{G}{M}\Big(\frac ab\Big)^2\]</p>
+<p>\[\frac{p_s}{p_c}\ \propto\ \frac{G\,a^2\delta/b^3}{M_c\delta/b}=\frac{G}{M_c}\Big(\frac ab\Big)^2\]</p>
 <p>代入式 (2)(4)：</p>
-<p>\[\frac{G}{M}=\frac{E/(2(1+\nu))}{E(1-\nu)/((1+\nu)(1-2\nu))}=\frac{1-2\nu}{2(1-\nu)}\]</p>
+<p>\[\frac{G}{M_c}=\frac{E/(2(1+\nu))}{E(1-\nu)/((1+\nu)(1-2\nu))}=\frac{1-2\nu}{2(1-\nu)}\]</p>
 <p>所以：</p>
 <p>\[\frac{p_s}{p_c}\ \propto\ \frac{1-2\nu}{2(1-\nu)}\Big(\frac ab\Big)^2\qquad(21)\]</p></details>
 </details>
@@ -2561,7 +2561,7 @@ html.annot-on #annot-capture { display: block; }
   viewer.addEventListener('close', () => opener && opener.focus({ preventScroll: true }));
 })();
 </script>
-<script type="application/json" id="annot-renames">{"tex": {}, "text": {}}</script>
+<script type="application/json" id="annot-renames">{"tex": {"\\begin{cases}\\color{#c0392b}{\\nabla^2\\epsilon=0\\ \\ \\text{（物体内）}} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{\\epsilon=0\\ \\text{（表面）},\\quad \\epsilon=1\\ \\text{（中轴）}} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{p_0=E\\,\\epsilon} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\text{固定在物体上的压强场 } p_0(\\mathbf x)}": "\\begin{cases}\\color{#c0392b}{\\nabla^2\\epsilon=0\\ \\ \\text{（物体内）}} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{\\epsilon=0\\ \\text{（表面）},\\quad \\epsilon=1\\ \\text{（中轴）}} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{p_0=E_h\\,\\epsilon} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\text{固定在物体上的压强场 } p_0(\\mathbf x)}", "p_0(\\mathbf x)=E\\,\\epsilon(\\mathbf x)": "p_0(\\mathbf x)=E_h\\,\\epsilon(\\mathbf x)", "\\begin{cases}\\color{#c0392b}{p_0=E\\,\\epsilon} & \\color{#c0392b}{(3)}\\\\[4pt] \\color{#c0392b}{p_{0_A}(\\mathbf x)=p_{0_B}(\\mathbf x)} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{\\epsilon(\\mathbf x)=\\boldsymbol\\epsilon\\cdot\\zeta(\\mathbf x)} & \\color{#c0392b}{(5)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ (\\mathbf a-\\mathbf b)\\cdot\\mathbf x+(a_0-b_0)=0\\quad(6)}": "\\begin{cases}\\color{#c0392b}{p_0=E_h\\,\\epsilon} & \\color{#c0392b}{(3)}\\\\[4pt] \\color{#c0392b}{p_{0_A}(\\mathbf x)=p_{0_B}(\\mathbf x)} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{\\epsilon(\\mathbf x)=\\boldsymbol\\epsilon\\cdot\\zeta(\\mathbf x)} & \\color{#c0392b}{(5)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ (\\mathbf a-\\mathbf b)\\cdot\\mathbf x+(a_0-b_0)=0\\quad(6)}", "\\color{#c0392b}{p=\\frac{E_h}{D}\\times\\text{深度}}": "\\color{#c0392b}{p=\\frac{E_h}{D_h}\\times\\text{深度}}", "\\begin{cases}\\color{#c0392b}{p_A=g_A\\,d_A} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{p_B=g_B\\,d_B} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{p_A=p_B=p} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{d_A+d_B=d=-\\phi} & \\color{#c0392b}{(8)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ p=g\\,d=-g\\,\\phi,\\quad g=\\dfrac{g_A\\,g_B}{g_A+g_B}\\quad(9)}": "\\begin{cases}\\color{#c0392b}{p_A=\\Gamma_A\\,s_A} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{p_B=\\Gamma_B\\,s_B} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{p_A=p_B=p} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{s_A+s_B=\\delta=-\\phi} & \\color{#c0392b}{(8)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ p=\\Gamma\\,\\delta=-\\Gamma\\,\\phi,\\quad \\Gamma=\\dfrac{\\Gamma_A\\,\\Gamma_B}{\\Gamma_A+\\Gamma_B}\\quad(9)}", "d_A=\\frac{p}{g_A},\\qquad d_B=\\frac{p}{g_B}": "s_A=\\frac{p}{\\Gamma_A},\\qquad s_B=\\frac{p}{\\Gamma_B}", "p\\Big(\\frac1{g_A}+\\frac1{g_B}\\Big)=d": "p\\Big(\\frac1{\\Gamma_A}+\\frac1{\\Gamma_B}\\Big)=\\delta", "p=\\frac{g_A\\,g_B}{g_A+g_B}\\,d=g\\,d=-g\\,\\phi\\qquad(9)": "p=\\frac{\\Gamma_A\\,\\Gamma_B}{\\Gamma_A+\\Gamma_B}\\,\\delta=\\Gamma\\,\\delta=-\\Gamma\\,\\phi\\qquad(9)", "\\begin{cases}\\color{#c0392b}{p=-g\\,\\phi} & \\color{#c0392b}{(9)}\\\\[4pt] \\color{#c0392b}{\\phi=\\phi_0+\\delta t\\,v_n} & \\color{#c0392b}{(10)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ p_c=p_{c,0}-g\\,\\delta t\\,v_n\\quad(11)}": "\\begin{cases}\\color{#c0392b}{p=-\\Gamma\\,\\phi} & \\color{#c0392b}{(9)}\\\\[4pt] \\color{#c0392b}{\\phi=\\phi_0+\\Delta t\\,v_n} & \\color{#c0392b}{(10)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ p_c=p_{c,0}-\\Gamma\\,\\Delta t\\,v_n\\quad(11)}", "\\phi_0=-\\frac{p_{c,0}}{g}": "\\phi_0=-\\frac{p_{c,0}}{\\Gamma}", "p_c=-g\\,\\phi_0-g\\,\\delta t\\,v_n": "p_c=-\\Gamma\\,\\phi_0-\\Gamma\\,\\Delta t\\,v_n", "p_c=p_{c,0}-g\\,\\delta t\\,v_n\\qquad(11)": "p_c=p_{c,0}-\\Gamma\\,\\Delta t\\,v_n\\qquad(11)", "\\begin{cases}\\color{#c0392b}{f_n=A\\,p_c} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{p=-g\\,\\phi} & \\color{#c0392b}{(9)}\\\\[4pt] \\color{#c0392b}{A=A_0} & \\color{#c0392b}{(12)}\\\\[4pt] \\color{#c0392b}{f_n\\ge0} & \\color{#c0392b}{(13)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ f_n=(-k\\phi)_+,\\quad k=g\\,A_0\\quad(14)}": "\\begin{cases}\\color{#c0392b}{f_n=A\\,p_c} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{p=-\\Gamma\\,\\phi} & \\color{#c0392b}{(9)}\\\\[4pt] \\color{#c0392b}{A=A_0} & \\color{#c0392b}{(12)}\\\\[4pt] \\color{#c0392b}{f_n\\ge0} & \\color{#c0392b}{(13)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ f_n=(-k\\phi)_+,\\quad k=\\Gamma\\,A_0\\quad(14)}", "f_n=-g\\,A_0\\,\\phi": "f_n=-\\Gamma\\,A_0\\,\\phi", "f_n=(-k\\phi)_+,\\qquad k=g\\,A_0\\qquad(14)": "f_n=(-k\\phi)_+,\\qquad k=\\Gamma\\,A_0\\qquad(14)", "\\color{#c0392b}{f_n=A_0\\,p_{c,0}-A_0\\,g\\,\\delta t\\,v_n}": "\\color{#c0392b}{f_n=A_0\\,p_{c,0}-A_0\\,\\Gamma\\,\\Delta t\\,v_n}", "\\color{#c0392b}{\\phi_0=-\\frac{p_{c,0}}{g_A}-\\frac{p_{c,0}}{g_B},\\qquad k=A_0H}": "\\color{#c0392b}{\\phi_0=-\\frac{p_{c,0}}{\\Gamma_A}-\\frac{p_{c,0}}{\\Gamma_B},\\qquad k=A_0H}", "\\color{#c0392b}{k(-\\phi_0)=A_0H\\,p_{c,0}\\Big(\\frac1{g_A}+\\frac1{g_B}\\Big)=\\frac{H}{g}\\,A_0\\,p_{c,0}}": "\\color{#c0392b}{k(-\\phi_0)=A_0H\\,p_{c,0}\\Big(\\frac1{\\Gamma_A}+\\frac1{\\Gamma_B}\\Big)=\\frac{H}{\\Gamma}\\,A_0\\,p_{c,0}}", "\\begin{cases}\\color{#c0392b}{\\gamma_n/\\delta t=(-k\\phi-\\tau_d\\,k\\,v_n)_+} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{\\phi=\\phi_0+\\delta t\\,v_n} & \\color{#c0392b}{(2)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\gamma_n=\\delta t\\big(-k\\phi_0-k(\\delta t+\\tau_d)\\,v_n\\big)_+\\quad(3)}": "\\begin{cases}\\color{#c0392b}{\\gamma_n/\\Delta t=(-k\\phi-\\tau_d\\,k\\,v_n)_+} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{\\phi=\\phi_0+\\Delta t\\,v_n} & \\color{#c0392b}{(2)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\gamma_n=\\Delta t\\big(-k\\phi_0-k(\\Delta t+\\tau_d)\\,v_n\\big)_+\\quad(3)}", "\\gamma_n=\\delta t\\big(-k\\phi_0-k\\,\\delta t\\,v_n-\\tau_d\\,k\\,v_n\\big)_+": "\\gamma_n=\\Delta t\\big(-k\\phi_0-k\\,\\Delta t\\,v_n-\\tau_d\\,k\\,v_n\\big)_+", "\\gamma_n=\\delta t\\big(-k\\phi_0-k(\\delta t+\\tau_d)\\,v_n\\big)_+\\qquad(3)": "\\gamma_n=\\Delta t\\big(-k\\phi_0-k(\\Delta t+\\tau_d)\\,v_n\\big)_+\\qquad(3)", "\\begin{cases}\\color{#c0392b}{\\gamma_n=\\delta t\\big(-k\\phi_0-k(\\delta t+\\tau_d)\\,v_n\\big)_+} & \\color{#c0392b}{(3)}\\\\[4pt] \\color{#c0392b}{\\mathbf M(\\mathbf v-\\mathbf v^*)=\\mathbf J^T\\boldsymbol\\gamma(\\mathbf v)} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{R=\\dfrac{1}{\\delta t\\,k(\\delta t+\\tau_d)}} & \\color{#c0392b}{(5)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\mathbf v=\\arg\\min_{\\mathbf v}\\ \\tfrac12\\|\\mathbf v-\\mathbf v^*\\|_{\\mathbf M}^2+\\sum_{\\text{接触}}\\tfrac12R\\,\\gamma_n^2\\quad(6)}": "\\begin{cases}\\color{#c0392b}{\\gamma_n=\\Delta t\\big(-k\\phi_0-k(\\Delta t+\\tau_d)\\,v_n\\big)_+} & \\color{#c0392b}{(3)}\\\\[4pt] \\color{#c0392b}{\\mathbf M(\\mathbf v-\\mathbf v^*)=\\mathbf J^T\\boldsymbol\\gamma(\\mathbf v)} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{R=\\dfrac{1}{\\Delta t\\,k(\\Delta t+\\tau_d)}} & \\color{#c0392b}{(5)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\mathbf v=\\arg\\min_{\\mathbf v}\\ \\tfrac12\\|\\mathbf v-\\mathbf v^*\\|_{\\mathbf M}^2+\\sum_{\\text{接触}}\\tfrac12R\\,\\gamma_n^2\\quad(6)}", "\\frac{d\\gamma_n}{dv_n}=-\\delta t\\,k(\\delta t+\\tau_d)=-\\frac1R": "\\frac{d\\gamma_n}{dv_n}=-\\Delta t\\,k(\\Delta t+\\tau_d)=-\\frac1R", "\\begin{cases}\\color{#c0392b}{R=\\dfrac{1}{\\delta t\\,k(\\delta t+\\tau_d)}} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{\\omega_n^2=\\dfrac km,\\quad T_n=\\dfrac{2\\pi}{\\omega_n}} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{T_n=\\beta\\,\\delta t,\\quad \\tau_d=\\dfrac{\\beta}{\\pi}\\delta t} & \\color{#c0392b}{(8)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ R_n=\\max\\Big(\\frac{\\beta^2}{4\\pi^2}\\,\\frac1m,\\ \\frac{1}{\\delta t\\,k(\\delta t+\\tau_d)}\\Big)\\quad(9)}": "\\begin{cases}\\color{#c0392b}{R=\\dfrac{1}{\\Delta t\\,k(\\Delta t+\\tau_d)}} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{\\omega_n^2=\\dfrac km,\\quad T_n=\\dfrac{2\\pi}{\\omega_n}} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{T_n=\\beta\\,\\Delta t,\\quad \\tau_d=\\dfrac{\\beta}{\\pi}\\Delta t} & \\color{#c0392b}{(8)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ R_n=\\max\\Big(\\frac{\\beta^2}{4\\pi^2}\\,\\frac1m,\\ \\frac{1}{\\Delta t\\,k(\\Delta t+\\tau_d)}\\Big)\\quad(9)}", "2\\pi\\sqrt{\\frac mk}=\\beta\\,\\delta t\\quad\\Longrightarrow\\quad k=\\frac{4\\pi^2m}{\\beta^2\\delta t^2}": "2\\pi\\sqrt{\\frac mk}=\\beta\\,\\Delta t\\quad\\Longrightarrow\\quad k=\\frac{4\\pi^2m}{\\beta^2\\Delta t^2}", "R\\approx\\frac{1}{\\delta t^2k}=\\frac{\\beta^2}{4\\pi^2}\\,\\frac1m": "R\\approx\\frac{1}{\\Delta t^2k}=\\frac{\\beta^2}{4\\pi^2}\\,\\frac1m", "R_n=\\max\\Big(\\frac{\\beta^2}{4\\pi^2}\\,\\frac1m,\\ \\frac{1}{\\delta t\\,k(\\delta t+\\tau_d)}\\Big)\\qquad(9)": "R_n=\\max\\Big(\\frac{\\beta^2}{4\\pi^2}\\,\\frac1m,\\ \\frac{1}{\\Delta t\\,k(\\Delta t+\\tau_d)}\\Big)\\qquad(9)", "F=2\\pi p_0\\cdot\\frac{a^2}{2}\\int_0^1w^{1/2}\\,dw=\\frac23\\pi a^2p_0": "F=2\\pi p_0\\cdot\\frac{a^2}{2}\\int_0^1\\tau^{1/2}\\,d\\tau=\\frac23\\pi a^2p_0", "\\begin{cases}\\color{#c0392b}{h_i\\leftarrow\\gamma_i\\,h_i+\\beta_i} & \\color{#c0392b}{(10)}\\\\[4pt] \\color{#c0392b}{\\big(\\gamma,\\beta\\big)=\\mathrm{MLP}\\big([s,s^2]\\big)} & \\color{#c0392b}{(11)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ h_i\\leftarrow\\gamma_i(s)\\,h_i+\\beta_i(s)\\quad(12)}": "\\begin{cases}\\color{#c0392b}{h_i\\leftarrow\\gamma_i\\,h_i+\\beta_i} & \\color{#c0392b}{(10)}\\\\[4pt] \\color{#c0392b}{\\big(\\gamma,\\beta\\big)=\\mathrm{MLP}\\big([n_s,n_s^2]\\big)} & \\color{#c0392b}{(11)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ h_i\\leftarrow\\gamma_i(n_s)\\,h_i+\\beta_i(n_s)\\quad(12)}", "h_i\\leftarrow\\gamma_i(s)\\,h_i+\\beta_i(s),\\qquad i=1,\\dots,768\\qquad(12)": "h_i\\leftarrow\\gamma_i(n_s)\\,h_i+\\beta_i(n_s),\\qquad i=1,\\dots,768\\qquad(12)", "E_{\\text{重}}(\\Phi z+\\Psi w)=\\sum_im_ig\\big((\\Phi z)_{y,i}+(\\Psi w)_{y,i}\\big)": "E_{\\text{重}}(\\Phi z+\\Psi w)=\\sum_im_i\\mathrm g\\big((\\Phi z)_{y,i}+(\\Psi w)_{y,i}\\big)", "\\color{#c0392b}{z_{\\text{压头}}(x,y)=a_h+\\min_k z_k(x,y)+t_y\\,x-t_x\\,y}": "\\color{#c0392b}{z_{\\text{压头}}(x,y)=H+\\min_k z_k(x,y)+t_y\\,x-t_x\\,y}", "\\color{#c0392b}{\\frac{r^2}{2R}=\\tfrac12\\kappa r^2,\\qquad z_{\\text{抛物}}=\\tfrac12\\big(\\kappa_x(x-c_x)^2+\\kappa_y(y-c_y)^2\\big),\\qquad z_{\\text{高斯}}=A\\exp\\!\\Big(-\\frac{|\\mathbf x-\\mathbf x_0|^2}{2s^2}\\Big)}": "\\color{#c0392b}{\\frac{r^2}{2R}=\\tfrac12\\kappa r^2,\\qquad z_{\\text{抛物}}=\\tfrac12\\big(\\kappa_x(x-x_0)^2+\\kappa_y(y-y_0)^2\\big),\\qquad z_{\\text{高斯}}=A_g\\exp\\!\\Big(-\\frac{|\\mathbf x-\\mathbf x_0|^2}{2s^2}\\Big)}", "\\color{#c0392b}{x\\sin t_y\\approx t_y\\,x,\\qquad m=\\min\\big(\\min_k z_k+t_yx-t_xy\\big),\\qquad a_h=-m-d}": "\\color{#c0392b}{x\\sin t_y\\approx t_y\\,x,\\qquad m=\\min\\big(\\min_k z_k+t_yx-t_xy\\big),\\qquad H=-m-\\delta}", "\\begin{cases}\\color{#c0392b}{u=C\\,p} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{U=\\displaystyle\\sum_i\\tfrac12\\,(p_ih^2)\\,u_i} & \\color{#c0392b}{(8)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ U=\\tfrac12h^2\\,p^TCp\\quad(9)}": "\\begin{cases}\\color{#c0392b}{u=C\\,p} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{U=\\displaystyle\\sum_i\\tfrac12\\,(p_i\\ell^2)\\,u_i} & \\color{#c0392b}{(8)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ U=\\tfrac12\\ell^2\\,p^TCp\\quad(9)}", "U=\\tfrac12h^2\\sum_ip_iu_i=\\tfrac12h^2\\,p^Tu": "U=\\tfrac12\\ell^2\\sum_ip_iu_i=\\tfrac12\\ell^2\\,p^Tu", "U=\\tfrac12h^2\\,p^TCp\\qquad(9)": "U=\\tfrac12\\ell^2\\,p^TCp\\qquad(9)", "\\color{#c0392b}{\\delta_k=-\\min_{\\text{窗口}}\\big(a_h+z_k+t_y x-t_x y\\big)}": "\\color{#c0392b}{\\delta_k=-\\min_{\\text{窗口}}\\big(H+z_k+t_y x-t_x y\\big)}", "\\begin{cases}\\color{#c0392b}{p(\\mathbf x)=\\dfrac{E_h}{D}\\,d(\\mathbf x)} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{V=\\displaystyle\\int d(\\mathbf x)\\,dA} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ F=\\frac{E_h}{D}\\,V\\quad(4)}": "\\begin{cases}\\color{#c0392b}{p(\\mathbf x)=\\dfrac{E_h}{D_h}\\,s(\\mathbf x)} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{V=\\displaystyle\\int s(\\mathbf x)\\,dA} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ F=\\frac{E_h}{D_h}\\,V\\quad(4)}", "F=\\int\\frac{E_h}{D}\\,d(\\mathbf x)\\,dA=\\frac{E_h}{D}\\int d(\\mathbf x)\\,dA": "F=\\int\\frac{E_h}{D_h}\\,s(\\mathbf x)\\,dA=\\frac{E_h}{D_h}\\int s(\\mathbf x)\\,dA", "F=\\frac{E_h}{D}\\,V\\qquad(4)": "F=\\frac{E_h}{D_h}\\,V\\qquad(4)", "\\begin{cases}\\color{#c0392b}{F=\\dfrac{E_h}{D}\\,V} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{V=\\pi R\\delta^2\\Big(1-\\dfrac{\\delta}{3R}\\Big)} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{F=mg} & \\color{#c0392b}{(8)}\\\\[4pt] \\color{#c0392b}{\\delta\\ll R} & \\color{#c0392b}{(9)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\delta\\approx\\sqrt{\\frac{mgD}{\\pi E_hR}}\\ \\propto R^{-1/2}\\quad(10)}": "\\begin{cases}\\color{#c0392b}{F=\\dfrac{E_h}{D_h}\\,V} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{V=\\pi R\\delta^2\\Big(1-\\dfrac{\\delta}{3R}\\Big)} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{F=m\\mathrm g} & \\color{#c0392b}{(8)}\\\\[4pt] \\color{#c0392b}{\\delta\\ll R} & \\color{#c0392b}{(9)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\delta\\approx\\sqrt{\\frac{m\\mathrm gD_h}{\\pi E_hR}}\\ \\propto R^{-1/2}\\quad(10)}", "F\\approx\\frac{E_h}{D}\\,\\pi R\\,\\delta^2": "F\\approx\\frac{E_h}{D_h}\\,\\pi R\\,\\delta^2", "\\delta\\approx\\sqrt{\\frac{mgD}{\\pi E_hR}}\\ \\propto R^{-1/2}\\qquad(10)": "\\delta\\approx\\sqrt{\\frac{m\\mathrm gD_h}{\\pi E_hR}}\\ \\propto R^{-1/2}\\qquad(10)", "\\begin{cases}\\color{#c0392b}{p(\\mathbf x)=\\dfrac{E_h}{D}\\,d(\\mathbf x)} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{V=\\displaystyle\\int d(\\mathbf x)\\,dA} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ F_{\\text{hydro}}=\\frac{E_h}{D}\\,V\\quad(4)}": "\\begin{cases}\\color{#c0392b}{p(\\mathbf x)=\\dfrac{E_h}{D_h}\\,s(\\mathbf x)} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{V=\\displaystyle\\int s(\\mathbf x)\\,dA} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ F_{\\text{hydro}}=\\frac{E_h}{D_h}\\,V\\quad(4)}", "F_{\\text{hydro}}=\\frac{E_h}{D}\\int d(\\mathbf x)\\,dA": "F_{\\text{hydro}}=\\frac{E_h}{D_h}\\int s(\\mathbf x)\\,dA", "F_{\\text{hydro}}=\\frac{E_h}{D}\\,V\\qquad(4)": "F_{\\text{hydro}}=\\frac{E_h}{D_h}\\,V\\qquad(4)", "\\begin{cases}\\color{#c0392b}{X(h)=X^*+C\\,h^p} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{h_m=r\\,h_f,\\quad X_m=X(h_m),\\quad X_f=X(h_f)} & \\color{#c0392b}{(6)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ X^*=X_f+\\frac{X_f-X_m}{r^p-1}\\quad(7)}": "\\begin{cases}\\color{#c0392b}{X(h)=X_\\infty+C\\,h^p} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{h_m=\\rho\\,h_f,\\quad X^{(m)}=X(h_m),\\quad X^{(f)}=X(h_f)} & \\color{#c0392b}{(6)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ X_\\infty=X^{(f)}+\\frac{X^{(f)}-X^{(m)}}{\\rho^p-1}\\quad(7)}", "X_m=X^*+C\\,(r h_f)^p,\\qquad X_f=X^*+C\\,h_f^p": "X^{(m)}=X_\\infty+C\\,(\\rho  h_f)^p,\\qquad X^{(f)}=X_\\infty+C\\,h_f^p", "X_m-X_f=C\\,h_f^p\\,(r^p-1)": "X^{(m)}-X^{(f)}=C\\,h_f^p\\,(\\rho^p-1)", "C\\,h_f^p=\\frac{X_m-X_f}{r^p-1}": "C\\,h_f^p=\\frac{X^{(m)}-X^{(f)}}{\\rho^p-1}", "X^*=X_f-\\frac{X_m-X_f}{r^p-1}=X_f+\\frac{X_f-X_m}{r^p-1}\\qquad(7)": "X_\\infty=X^{(f)}-\\frac{X^{(m)}-X^{(f)}}{\\rho^p-1}=X^{(f)}+\\frac{X^{(f)}-X^{(m)}}{\\rho^p-1}\\qquad(7)", "\\begin{cases}\\color{#c0392b}{X(h)=X^*+C\\,h^p} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{h_m=r\\,h_f,\\quad X_m=X(h_m),\\quad X_f=X(h_f)} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{h_c=r\\,h_m,\\quad X_c=X(h_c)} & \\color{#c0392b}{(8)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ p=\\frac{\\ln\\big[(X_c-X_m)/(X_m-X_f)\\big]}{\\ln r}\\quad(9)}": "\\begin{gathered}\\begin{cases}\\color{#c0392b}{X(h)=X_\\infty+C\\,h^p} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{h_m=\\rho\\,h_f,\\quad X^{(m)}=X(h_m),\\quad X^{(f)}=X(h_f)} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{h_c=\\rho\\,h_m,\\quad X^{(c)}=X(h_c)} & \\color{#c0392b}{(8)}\\end{cases}\\\\ \\color{#c0392b}{\\Longrightarrow\\ p=\\frac{\\ln\\big[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})\\big]}{\\ln \\rho}\\quad(9)}\\end{gathered}", "X_c-X_m=C\\,h_m^p\\,(r^p-1),\\qquad X_m-X_f=C\\,h_f^p\\,(r^p-1)": "X^{(c)}-X^{(m)}=C\\,h_m^p\\,(\\rho^p-1),\\qquad X^{(m)}-X^{(f)}=C\\,h_f^p\\,(\\rho^p-1)", "\\frac{X_c-X_m}{X_m-X_f}=\\frac{h_m^p}{h_f^p}=r^p": "\\frac{X^{(c)}-X^{(m)}}{X^{(m)}-X^{(f)}}=\\frac{h_m^p}{h_f^p}=\\rho^p", "p=\\frac{\\ln\\big[(X_c-X_m)/(X_m-X_f)\\big]}{\\ln r}\\qquad(9)": "p=\\frac{\\ln\\big[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})\\big]}{\\ln \\rho}\\qquad(9)", "\\color{#c0392b}{F_A=\\frac{E_h}{D}\\,\\pi R\\,\\delta^{2}}": "\\color{#c0392b}{F_A=\\frac{E_h}{D_h}\\,\\pi R\\,\\delta^{2}}", "\\begin{cases}\\color{#c0392b}{V=\\pi R\\,\\delta^2} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{p=\\dfrac{E_h}{D}\\times\\text{深度}} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(7)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ F_A=\\frac{E_h}{D}\\,\\pi R\\,\\delta^{2}\\ \\ (8),\\qquad \\frac{F_A(2R)}{F_A(R)}=2\\ \\ (9)}": "\\begin{cases}\\color{#c0392b}{V=\\pi R\\,\\delta^2} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{p=\\dfrac{E_h}{D_h}\\times\\text{深度}} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(7)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ F_A=\\frac{E_h}{D_h}\\,\\pi R\\,\\delta^{2}\\ \\ (8),\\qquad \\frac{F_A(2R)}{F_A(R)}=2\\ \\ (9)}", "F_A=\\frac{E_h}{D}\\int\\text{深度}\\,dA=\\frac{E_h}{D}\\,V": "F_A=\\frac{E_h}{D_h}\\int\\text{深度}\\,dA=\\frac{E_h}{D_h}\\,V", "F_A=\\frac{E_h}{D}\\,\\pi R\\,\\delta^{2}\\qquad(8)": "F_A=\\frac{E_h}{D_h}\\,\\pi R\\,\\delta^{2}\\qquad(8)", "\\color{#c0392b}{\\frac{F_B(2R)}{F_B(R)}=\\frac{2(R+D)}{2R+D}}": "\\color{#c0392b}{\\frac{F_B(2R)}{F_B(R)}=\\frac{2(R+D_h)}{2R+D_h}}", "\\begin{cases}\\color{#c0392b}{V=\\pi R\\,\\delta^2} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{g_{\\text{球}}=\\dfrac HR,\\quad g_{\\text{块}}=\\dfrac HD} & \\color{#c0392b}{(12)}\\\\[4pt] \\color{#c0392b}{g=\\dfrac{g_{\\text{球}}\\,g_{\\text{块}}}{g_{\\text{球}}+g_{\\text{块}}}} & \\color{#c0392b}{(13)}\\\\[4pt] \\color{#c0392b}{p=g\\times\\text{重叠深度}} & \\color{#c0392b}{(14)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ F_B=\\frac{H}{R+D}\\,\\pi R\\delta^2\\ \\ (15),\\qquad \\frac{F_B(2R)}{F_B(R)}=\\frac{2(R+D)}{2R+D}\\ \\ (16)}": "\\begin{gathered}\\begin{cases}\\color{#c0392b}{V=\\pi R\\,\\delta^2} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{\\Gamma_{\\text{球}}=\\dfrac HR,\\quad \\Gamma_{\\text{块}}=\\dfrac H{D_h}} & \\color{#c0392b}{(12)}\\\\[4pt] \\color{#c0392b}{\\Gamma=\\dfrac{\\Gamma_{\\text{球}}\\,\\Gamma_{\\text{块}}}{\\Gamma_{\\text{球}}+\\Gamma_{\\text{块}}}} & \\color{#c0392b}{(13)}\\\\[4pt] \\color{#c0392b}{p=\\Gamma\\times\\text{重叠深度}} & \\color{#c0392b}{(14)}\\end{cases}\\\\ \\color{#c0392b}{\\Longrightarrow\\ F_B=\\frac{H}{R+D_h}\\,\\pi R\\delta^2\\ \\ (15),\\qquad \\frac{F_B(2R)}{F_B(R)}=\\frac{2(R+D_h)}{2R+D_h}\\ \\ (16)}\\end{gathered}", "g=\\frac{(H/R)(H/D)}{H/R+H/D}=\\frac{H}{R+D}": "\\Gamma=\\frac{(H/R)(H/D_h)}{H/R+H/D_h}=\\frac{H}{R+D_h}", "F_B=g\\,V=\\frac{H}{R+D}\\,\\pi R\\delta^2\\qquad(15)": "F_B=\\Gamma\\,V=\\frac{H}{R+D_h}\\,\\pi R\\delta^2\\qquad(15)", "\\frac{F_B(2R)}{F_B(R)}=\\frac{2R/(2R+D)}{R/(R+D)}=\\frac{2(R+D)}{2R+D}\\qquad(16)": "\\frac{F_B(2R)}{F_B(R)}=\\frac{2R/(2R+D_h)}{R/(R+D_h)}=\\frac{2(R+D_h)}{2R+D_h}\\qquad(16)", "\\begin{cases}\\color{#c0392b}{\\sigma_z=\\lambda(\\varepsilon_x+\\varepsilon_y+\\varepsilon_z)+2G\\varepsilon_z} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{G=\\dfrac{E}{2(1+\\nu)},\\quad \\lambda=\\dfrac{E\\nu}{(1+\\nu)(1-2\\nu)}} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{\\varepsilon_x=\\varepsilon_y=0} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\sigma_z=M\\,\\varepsilon_z,\\quad M=\\frac{E(1-\\nu)}{(1+\\nu)(1-2\\nu)}\\quad(4)}": "\\begin{cases}\\color{#c0392b}{\\sigma_z=\\lambda(\\varepsilon_x+\\varepsilon_y+\\varepsilon_z)+2G\\varepsilon_z} & \\color{#c0392b}{(1)}\\\\[4pt] \\color{#c0392b}{G=\\dfrac{E}{2(1+\\nu)},\\quad \\lambda=\\dfrac{E\\nu}{(1+\\nu)(1-2\\nu)}} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{\\varepsilon_x=\\varepsilon_y=0} & \\color{#c0392b}{(3)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\sigma_z=M_c\\,\\varepsilon_z,\\quad M_c=\\frac{E(1-\\nu)}{(1+\\nu)(1-2\\nu)}\\quad(4)}", "M=\\lambda+2G=\\frac{E\\nu}{(1+\\nu)(1-2\\nu)}+\\frac{E}{1+\\nu}=\\frac{E\\nu+E(1-2\\nu)}{(1+\\nu)(1-2\\nu)}=\\frac{E(1-\\nu)}{(1+\\nu)(1-2\\nu)}\\qquad(4)": "M_c=\\lambda+2G=\\frac{E\\nu}{(1+\\nu)(1-2\\nu)}+\\frac{E}{1+\\nu}=\\frac{E\\nu+E(1-2\\nu)}{(1+\\nu)(1-2\\nu)}=\\frac{E(1-\\nu)}{(1+\\nu)(1-2\\nu)}\\qquad(4)", "\\begin{gathered}\\begin{cases}\\color{#c0392b}{\\sigma_z=M\\,\\varepsilon_z} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{r^2+(R-h)^2=R^2} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{h\\ll R} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{w=\\delta-h} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{\\varepsilon_z=\\dfrac wb} & \\color{#c0392b}{(8)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(9)}\\end{cases}\\\\[8pt] \\color{#c0392b}{\\Longrightarrow\\ p_c=\\frac{M\\delta}{b}\\ \\ (10)}\\\\[4pt] \\color{#c0392b}{V=\\int w\\,dA=\\pi R\\delta^2\\ \\ (11)}\\\\[4pt] \\color{#c0392b}{F=\\pi M\\frac{R\\,\\delta^{2}}{b}\\ \\ (12)}\\end{gathered}": "\\begin{gathered}\\begin{cases}\\color{#c0392b}{\\sigma_z=M_c\\,\\varepsilon_z} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{r^2+(R-h)^2=R^2} & \\color{#c0392b}{(5)}\\\\[4pt] \\color{#c0392b}{h\\ll R} & \\color{#c0392b}{(6)}\\\\[4pt] \\color{#c0392b}{w=\\delta-h} & \\color{#c0392b}{(7)}\\\\[4pt] \\color{#c0392b}{\\varepsilon_z=\\dfrac wb} & \\color{#c0392b}{(8)}\\\\[4pt] \\color{#c0392b}{F=\\displaystyle\\int p\\,dA} & \\color{#c0392b}{(9)}\\end{cases}\\\\[8pt] \\color{#c0392b}{\\Longrightarrow\\ p_c=\\frac{M_c\\delta}{b}\\ \\ (10)}\\\\[4pt] \\color{#c0392b}{V=\\int w\\,dA=\\pi R\\delta^2\\ \\ (11)}\\\\[4pt] \\color{#c0392b}{F=\\pi M_c\\frac{R\\,\\delta^{2}}{b}\\ \\ (12)}\\end{gathered}", "p=M\\,\\frac{w}{b}=\\frac{M}{b}\\Big(\\delta-\\frac{r^2}{2R}\\Big)": "p=M_c\\,\\frac{w}{b}=\\frac{M_c}{b}\\Big(\\delta-\\frac{r^2}{2R}\\Big)", "p_c=\\frac{M\\delta}{b}\\qquad(10)": "p_c=\\frac{M_c\\delta}{b}\\qquad(10)", "F=\\frac{M}{b}\\,V=\\pi M\\frac{R\\,\\delta^{2}}{b}\\qquad(12)": "F=\\frac{M_c}{b}\\,V=\\pi M_c\\frac{R\\,\\delta^{2}}{b}\\qquad(12)", "\\begin{cases}\\color{#c0392b}{G=\\dfrac{E}{2(1+\\nu)}} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{M=\\dfrac{E(1-\\nu)}{(1+\\nu)(1-2\\nu)}} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{p_c=\\dfrac{M\\delta}{b}} & \\color{#c0392b}{(10)}\\\\[4pt] \\color{#c0392b}{p_s\\propto\\dfrac{G\\,a^2\\delta}{b^3}} & \\color{#c0392b}{(19)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\frac{p_s}{p_c}\\ \\propto\\ \\frac{1-2\\nu}{2(1-\\nu)}\\Big(\\frac ab\\Big)^2\\quad(21)}": "\\begin{cases}\\color{#c0392b}{G=\\dfrac{E}{2(1+\\nu)}} & \\color{#c0392b}{(2)}\\\\[4pt] \\color{#c0392b}{M_c=\\dfrac{E(1-\\nu)}{(1+\\nu)(1-2\\nu)}} & \\color{#c0392b}{(4)}\\\\[4pt] \\color{#c0392b}{p_c=\\dfrac{M_c\\delta}{b}} & \\color{#c0392b}{(10)}\\\\[4pt] \\color{#c0392b}{p_s\\propto\\dfrac{G\\,a^2\\delta}{b^3}} & \\color{#c0392b}{(19)}\\end{cases}\\ \\color{#c0392b}{\\Longrightarrow\\ \\frac{p_s}{p_c}\\ \\propto\\ \\frac{1-2\\nu}{2(1-\\nu)}\\Big(\\frac ab\\Big)^2\\quad(21)}", "\\frac{p_s}{p_c}\\ \\propto\\ \\frac{G\\,a^2\\delta/b^3}{M\\delta/b}=\\frac{G}{M}\\Big(\\frac ab\\Big)^2": "\\frac{p_s}{p_c}\\ \\propto\\ \\frac{G\\,a^2\\delta/b^3}{M_c\\delta/b}=\\frac{G}{M_c}\\Big(\\frac ab\\Big)^2", "\\frac{G}{M}=\\frac{E/(2(1+\\nu))}{E(1-\\nu)/((1+\\nu)(1-2\\nu))}=\\frac{1-2\\nu}{2(1-\\nu)}": "\\frac{G}{M_c}=\\frac{E/(2(1+\\nu))}{E(1-\\nu)/((1+\\nu)(1-2\\nu))}=\\frac{1-2\\nu}{2(1-\\nu)}"}, "text": {}}</script>
 <script>
 (() => {
   'use strict';
