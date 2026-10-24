@@ -332,12 +332,12 @@ html.annot-on #annot-capture { display: block; }
 <p><strong>适用范围。</strong> 线弹性、小变形、无摩擦、两侧近似半空间且表面坡度远小于 1。球、椭圆、幂律和任意轴对称缝隙都能直接用。平底这类边缘有直角棱的压头、接触半径相对曲率半径不够小、物体厚度有限、几个接触区相互影响时，要另外处理。</p>
 <h3 id="w2-2" class="numbered">2.2 降维法：三维接触化成一排一维弹簧</h3>
 
-<p><strong>要求的量。</strong> 已知轴对称缝隙 \(h(r)\)（\(r\) 是离接触中心的距离）、合成模量 \(E^*\)、压深 \(d\)，求接触半径 \(a\)、总力 \(F\)、弹性能 \(U_0\)。</p>
-<p><strong>条件。</strong> 接触区内表面贴住压头，\(\color{#c0392b}{u(r)=d-h(r)}\)（\(r\le a\)）；下沉由 2.1 节的点力叠加给出；无粘附，压强在边缘降到零，\(\color{#c0392b}{p(a)=0}\)，接触区外压强为零；总力 \(\color{#c0392b}{F=\int p\,dA}\)；能量是力从零压到 \(d\) 做的功，所以 \(\color{#c0392b}{dU_0/dd=F}\)。</p>
+<p><strong>要求的量。</strong> 已知轴对称缝隙 \(h(r)\)（\(r\) 是离接触中心的距离）、合成模量 \(E^*\)、压深 \(\delta\)，求接触半径 \(a\)、总力 \(F\)、弹性能 \(U_0\)。</p>
+<p><strong>条件。</strong> 接触区内表面贴住压头，\(\color{#c0392b}{u(r)=\delta-h(r)}\)（\(r\le a\)）；下沉由 2.1 节的点力叠加给出；无粘附，压强在边缘降到零，\(\color{#c0392b}{p(a)=0}\)，接触区外压强为零；总力 \(\color{#c0392b}{F=\int p\,dA}\)；能量是力从零压到 \(\delta\) 做的功，所以 \(\color{#c0392b}{dU_0/d\delta=F}\)。</p>
 <p><strong>结论（Popov 降维法）。</strong> 定义等效轮廓</p>
 <p>\[\color{#c0392b}{g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr},\]</p>
-<p>其中 \(h&#x27;\) 是缝隙的斜率。则三维问题的压深、力、能量与「一排互不相干的弹簧压在轮廓 \(g\) 上」完全一致：第 \(x\) 根弹簧被压缩 \(d-g(x)\)，每单位长度刚度为 \(E^*\)，压缩量为零的那根是接触边缘：</p>
-<p>\[\color{#c0392b}{d=g(a),\qquad F=2E^*\int_0^a\big(d-g(x)\big)dx,\qquad U_0=E^*\int_0^a\big(d-g(x)\big)^2dx}.\]</p>
+<p>其中 \(h&#x27;\) 是缝隙的斜率。则三维问题的压深、力、能量与「一排互不相干的弹簧压在轮廓 \(g\) 上」完全一致：第 \(x\) 根弹簧被压缩 \(\delta-g(x)\)，每单位长度刚度为 \(E^*\)，压缩量为零的那根是接触边缘：</p>
+<p>\[\color{#c0392b}{\delta=g(a),\qquad F=2E^*\int_0^a\big(\delta-g(x)\big)dx,\qquad U_0=E^*\int_0^a\big(\delta-g(x)\big)^2dx}.\]</p>
 <p>三维中各点相互牵连的效果全部被 \(h\to g\) 这一换算吸收，换算后弹簧可以各压各的。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_fig04_mdr_springs.png" width="2207" height="1021" style="width:908px;max-width:100%;height:auto" alt="这张图展示了降维法怎样把三维接触换成一排一维弹簧。左边灰色刚体压橙色平面，两者之间的缝隙是 h(r)，平面里各点的变形互相牵连。右边把缝隙换成灰色的等效轮廓 g(x) = x²/R（R 是球的半径），压进一排弹簧，灰色虚线是弹簧没压时的顶端，红色箭头是压深 d。通过对比两条红色点线之间被压短的蓝色弹簧和点线外不受力的灰色弹簧，可以看出红色点线的位置就是接触边缘 a，满足 g(a) = d。每根弹簧只管自己那一格，所以三维里各点互相牵连的问题变成了一维的逐根相加。" loading="lazy"><figcaption class="small">这张图展示了降维法怎样把三维接触换成一排一维弹簧。左边灰色刚体压橙色平面，两者之间的缝隙是 h(r)，平面里各点的变形互相牵连。右边把缝隙换成灰色的等效轮廓 g(x) = x²/R（R 是球的半径），压进一排弹簧，灰色虚线是弹簧没压时的顶端，红色箭头是压深 d。通过对比两条红色点线之间被压短的蓝色弹簧和点线外不受力的灰色弹簧，可以看出红色点线的位置就是接触边缘 a，满足 g(a) = d。每根弹簧只管自己那一格，所以三维里各点互相牵连的问题变成了一维的逐根相加。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/w34_WikipediabilderKap_4.jpg" width="1153" height="409" style="width:1184px;max-width:100%;height:auto" alt="这张图是降维法原作者的示意图。左边是半径 R 的灰色球在力 F 下压进弹性平面，a 是接触半径，d 是压深；箭头右边是换成的一维模型，一个半径 R1 的灰色轮廓在同样的力 F 下压进一排竖直弹簧，R1 = R/2，也就是等效轮廓 g(x) = x²/R。通过对比左右两边标出的 a 和 d，可以看出换成一排各压各的弹簧后，力、接触半径、压深都与三维问题相同，所以能用一维弹簧算三维接触。" loading="lazy"><figcaption class="small">这张图是降维法原作者的示意图。左边是半径 R 的灰色球在力 F 下压进弹性平面，a 是接触半径，d 是压深；箭头右边是换成的一维模型，一个半径 R1 的灰色轮廓在同样的力 F 下压进一排竖直弹簧，R1 = R/2，也就是等效轮廓 g(x) = x²/R。通过对比左右两边标出的 a 和 d，可以看出换成一排各压各的弹簧后，力、接触半径、压深都与三维问题相同，所以能用一维弹簧算三维接触。</figcaption></figure>
@@ -347,26 +347,26 @@ html.annot-on #annot-capture { display: block; }
 <p>把它在底面上积分得到力（面积元 \(dA=2\pi r\,dr\)）：</p>
 <p>\[F_{\text{平底}}=\int_0^{\tilde a}\frac{E^*\delta}{\pi\sqrt{\tilde a^2-r^2}}\,2\pi r\,dr=2E^*\delta\Big[-\sqrt{\tilde a^2-r^2}\Big]_0^{\tilde a}=2E^*\tilde a\,\delta.\]</p>
 <p>同一个经典解给出平底外 \(r\) 处的下沉</p>
-<p>\[w(r)=\frac{2\delta}{\pi}\arcsin\frac{\tilde a}{r}\quad(r&gt;\tilde a).\]</p>
-<p><strong>第二步：把一般压入拆成一串平底。</strong> 接触半径为 \(\tilde a\) 时再多压 \(d\tilde d\)，相当于半径 \(\tilde a\) 的平底多压 \(d\tilde d\)。记压深与接触半径的关系为 \(\tilde d=g(\tilde a)\)，压到最后 \(d=g(a)\)。各步的力相加：</p>
+<p>\[u(r)=\frac{2\delta}{\pi}\arcsin\frac{\tilde a}{r}\quad(r&gt;\tilde a).\]</p>
+<p><strong>第二步：把一般压入拆成一串平底。</strong> 接触半径为 \(\tilde a\) 时再多压 \(d\tilde\delta\)，相当于半径 \(\tilde a\) 的平底多压 \(d\tilde\delta\)（\(\tilde\delta\) 是叠加过程中的中间压深，\(d\) 只作微分号）。记压深与接触半径的关系为 \(\tilde\delta=g(\tilde a)\)，压到最后 \(\delta=g(a)\)。各步的力相加：</p>
 <p>\[F=\int_0^a2E^*\tilde a\,g&#x27;(\tilde a)\,d\tilde a.\]</p>
-<p>分部积分，并用 \(g(a)=d\)：</p>
-<p>\[F=2E^*\Big[\tilde a\,g(\tilde a)\Big]_0^a-2E^*\int_0^ag\,d\tilde a=2E^*\Big(a\,d-\int_0^ag\,d\tilde a\Big)=2E^*\int_0^a\big(d-g(x)\big)dx.\]</p>
+<p>分部积分，并用 \(g(a)=\delta\)：</p>
+<p>\[F=2E^*\Big[\tilde a\,g(\tilde a)\Big]_0^a-2E^*\int_0^ag\,d\tilde a=2E^*\Big(a\,\delta-\int_0^ag\,d\tilde a\Big)=2E^*\int_0^a\big(\delta-g(x)\big)dx.\]</p>
 <p><strong>第三步：用接触边缘的贴合条件定出 \(g\)。</strong> 各步在 \(r=a\) 处的下沉相加：</p>
-<p>\[w(a)=\frac2\pi\int_0^a\arcsin\frac{\tilde a}{a}\;g&#x27;(\tilde a)\,d\tilde a.\]</p>
+<p>\[u(a)=\frac2\pi\int_0^a\arcsin\frac{\tilde a}{a}\;g&#x27;(\tilde a)\,d\tilde a.\]</p>
 <p>分部积分，\(\frac{d}{d\tilde a}\arcsin\frac{\tilde a}{a}=\frac{1}{\sqrt{a^2-\tilde a^2}}\)：</p>
-<p>\[w(a)=\frac2\pi\Big[\arcsin\frac{\tilde a}{a}\,g(\tilde a)\Big]_0^a-\frac2\pi\int_0^a\frac{g(\tilde a)}{\sqrt{a^2-\tilde a^2}}\,d\tilde a.\]</p>
-<p>用 \(g(a)=d\)、\(\arcsin1=\pi/2\)、\(\arcsin0=0\)，第一项是 \(\frac2\pi\cdot\frac\pi2\,d=d\)：</p>
-<p>\[w(a)=d-\frac2\pi\int_0^a\frac{g(\tilde a)}{\sqrt{a^2-\tilde a^2}}\,d\tilde a.\]</p>
-<p>边缘处表面正好贴住压头，\(w(a)=d-h(a)\)，两式比较：</p>
+<p>\[u(a)=\frac2\pi\Big[\arcsin\frac{\tilde a}{a}\,g(\tilde a)\Big]_0^a-\frac2\pi\int_0^a\frac{g(\tilde a)}{\sqrt{a^2-\tilde a^2}}\,d\tilde a.\]</p>
+<p>用 \(g(a)=\delta\)、\(\arcsin1=\pi/2\)、\(\arcsin0=0\)，第一项是 \(\frac2\pi\cdot\frac\pi2\,\delta=\delta\)：</p>
+<p>\[u(a)=\delta-\frac2\pi\int_0^a\frac{g(\tilde a)}{\sqrt{a^2-\tilde a^2}}\,d\tilde a.\]</p>
+<p>边缘处表面正好贴住压头，\(u(a)=\delta-h(a)\)，两式比较：</p>
 <p>\[h(a)=\frac2\pi\int_0^a\frac{g(\tilde a)}{\sqrt{a^2-\tilde a^2}}\,d\tilde a.\]</p>
 <p>这是关于 \(g\) 的 Abel 积分方程，它的解就是上面的 \(g(x)\) 定义式。下面逐步反演（先取 \(x&gt;0\)；把积分变量记成 \(t\)、上限记成 \(r\)，即 \(h(r)=\frac2\pi\int_0^r\frac{g(t)}{\sqrt{r^2-t^2}}dt\)）。</p>
 <p>① 两边乘 \(\dfrac{r}{\sqrt{x^2-r^2}}\)，对 \(r\) 从 0 积到 \(x\)：</p>
 <p>\[\int_0^x\frac{r\,h(r)}{\sqrt{x^2-r^2}}\,dr=\frac2\pi\int_0^x\int_0^r\frac{r\,g(t)}{\sqrt{x^2-r^2}\,\sqrt{r^2-t^2}}\,dt\,dr.\]</p>
 <p>② 交换积分次序（积分区域是 \(0\le t\le r\le x\)）：</p>
 <p>\[\int_0^x\frac{r\,h(r)}{\sqrt{x^2-r^2}}\,dr=\frac2\pi\int_0^xg(t)\Big[\int_t^x\frac{r\,dr}{\sqrt{x^2-r^2}\,\sqrt{r^2-t^2}}\Big]dt.\]</p>
-<p>③ 方括号里的积分：令 \(u=r^2\)，\(r\,dr=\tfrac12du\)；再令 \(u=t^2+(x^2-t^2)\sin^2\theta\)：</p>
-<p>\[\int_t^x\frac{r\,dr}{\sqrt{x^2-r^2}\,\sqrt{r^2-t^2}}=\frac12\int_{t^2}^{x^2}\frac{du}{\sqrt{(x^2-u)(u-t^2)}}=\frac12\int_0^{\pi/2}2\,d\theta=\frac\pi2.\]</p>
+<p>③ 方括号里的积分：令 \(\tau=r^2\)（\(\tau\) 是换元变量），\(r\,dr=\tfrac12d\tau\)；再令 \(\tau=t^2+(x^2-t^2)\sin^2\theta\)：</p>
+<p>\[\int_t^x\frac{r\,dr}{\sqrt{x^2-r^2}\,\sqrt{r^2-t^2}}=\frac12\int_{t^2}^{x^2}\frac{d\tau}{\sqrt{(x^2-\tau)(\tau-t^2)}}=\frac12\int_0^{\pi/2}2\,d\theta=\frac\pi2.\]</p>
 <p>④ 代回②，\(\frac2\pi\cdot\frac\pi2=1\)：</p>
 <p>\[\int_0^x\frac{r\,h(r)}{\sqrt{x^2-r^2}}\,dr=\int_0^xg(t)\,dt.\]</p>
 <p>⑤ 左边分部积分，\(\frac{r}{\sqrt{x^2-r^2}}=-\frac{d}{dr}\sqrt{x^2-r^2}\)，且接触中心缝隙为零，\(h(0)=0\)：</p>
@@ -375,18 +375,18 @@ html.annot-on #annot-capture { display: block; }
 <p>\[g(x)=\frac{d}{dx}\int_0^xh&#x27;(r)\sqrt{x^2-r^2}\,dr=\int_0^xh&#x27;(r)\frac{x}{\sqrt{x^2-r^2}}\,dr=x\int_0^x\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr.\]</p>
 <p>⑦ \(g\) 关于 \(x=0\) 对称（接触左右对称），\(x&lt;0\) 时取 \(|x|\)：</p>
 <p>\[g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr.\]</p>
-<p><strong>第四步：能量。</strong> 对 \(U_0=E^*\int_0^a(d-g)^2dx\) 求导。积分上限 \(a\) 也随 \(d\) 变（含参积分求导）：</p>
-<p>\[\frac{dU_0}{dd}=E^*\big(d-g(a)\big)^2\frac{da}{dd}+E^*\int_0^a2\big(d-g(x)\big)dx.\]</p>
-<p>上限处 \(d-g(a)=0\)，边界项消失：</p>
-<p>\[\frac{dU_0}{dd}=2E^*\int_0^a\big(d-g(x)\big)dx=F.\]</p>
-<p>又 \(d=0\) 时 \(U_0=0\)，所以它就是弹性能。</p>
+<p><strong>第四步：能量。</strong> 对 \(U_0=E^*\int_0^a(\delta-g)^2dx\) 求导。积分上限 \(a\) 也随 \(\delta\) 变（含参积分求导）：</p>
+<p>\[\frac{dU_0}{d\delta}=E^*\big(\delta-g(a)\big)^2\frac{da}{d\delta}+E^*\int_0^a2\big(\delta-g(x)\big)dx.\]</p>
+<p>上限处 \(\delta-g(a)=0\)，边界项消失：</p>
+<p>\[\frac{dU_0}{d\delta}=2E^*\int_0^a\big(\delta-g(x)\big)dx=F.\]</p>
+<p>又 \(\delta=0\) 时 \(U_0=0\)，所以它就是弹性能。</p>
 <h4>越压越硬</h4>
-<p>刚度 \(\color{#c0392b}{K=dF/dd}\) 是力–压深曲线的斜率。对 \(F=2E^*\int_0^a(d-g)dx\) 求导，上限 \(a\) 随 \(d\) 变（含参积分求导）：</p>
-<p>\[K=2E^*\big(d-g(a)\big)\frac{da}{dd}+2E^*\int_0^a1\,dx.\]</p>
-<p>由 \(d=g(a)\)，第一项为零：</p>
+<p>刚度 \(\color{#c0392b}{K=dF/d\delta}\) 是力–压深曲线的斜率。对 \(F=2E^*\int_0^a(\delta-g)dx\) 求导，上限 \(a\) 随 \(\delta\) 变（含参积分求导）：</p>
+<p>\[K=2E^*\big(\delta-g(a)\big)\frac{da}{d\delta}+2E^*\int_0^a1\,dx.\]</p>
+<p>由 \(\delta=g(a)\)，第一项为零：</p>
 <p>\[\color{#c0392b}{K=2aE^*}.\]</p>
-<p>刚度只取决于此刻的接触宽度：再压一点，接触区内每根弹簧都多压一点，多出来的力是 \(E^*\cdot2a\cdot\Delta d\)。压得越深接触越宽，就越硬。压头形状只决定 \(a\) 如何随 \(d\) 变化，不改变这个关系。</p>
-<figure style="margin:12px 0"><img src="assets/images/w34_core_w34_2.2_a.png" width="1333" height="648" style="width:602px;max-width:100%;height:auto" alt="还是降维法那排一维弹簧：灰色压头的下表面就是等效轮廓 \(g(x)\)，压到压深 \(d\) 时，蓝色弹簧在接触区里被压着，宽 \(2a\)，边缘那根压缩量正好为 0，这就是 \(d=g(a)\)。现在压头再往下走一小段 \(\Delta d\)（虚线）：接触区里的每根弹簧都多压了 \(\Delta d\)，合起来就是那条红带，宽 \(2a\)、厚 \(\Delta d\)；每根弹簧每单位长度的刚度是 \(E^*\)，所以多出来的力是 \(E^*\cdot2a\cdot\Delta d\)。边缘新碰上的那几根只被压了一点点，是两个浅色小三角，比红带小一阶，取极限时可以忽略。于是刚度 \(K=dF/dd=2aE^*\)，只看此刻接触区有多宽：压得越深接触越宽，就越硬，而压头是什么形状只决定 \(a\) 怎么随 \(d\) 变，不改变这个关系。" loading="lazy"><figcaption class="small">还是降维法那排一维弹簧：灰色压头的下表面就是等效轮廓 \(g(x)\)，压到压深 \(d\) 时，蓝色弹簧在接触区里被压着，宽 \(2a\)，边缘那根压缩量正好为 0，这就是 \(d=g(a)\)。现在压头再往下走一小段 \(\Delta d\)（虚线）：接触区里的每根弹簧都多压了 \(\Delta d\)，合起来就是那条红带，宽 \(2a\)、厚 \(\Delta d\)；每根弹簧每单位长度的刚度是 \(E^*\)，所以多出来的力是 \(E^*\cdot2a\cdot\Delta d\)。边缘新碰上的那几根只被压了一点点，是两个浅色小三角，比红带小一阶，取极限时可以忽略。于是刚度 \(K=dF/dd=2aE^*\)，只看此刻接触区有多宽：压得越深接触越宽，就越硬，而压头是什么形状只决定 \(a\) 怎么随 \(d\) 变，不改变这个关系。</figcaption></figure>
+<p>刚度只取决于此刻的接触宽度：再压一点，接触区内每根弹簧都多压一点，多出来的力是 \(E^*\cdot2a\cdot\Delta\delta\)。压得越深接触越宽，就越硬。压头形状只决定 \(a\) 如何随 \(\delta\) 变化，不改变这个关系。</p>
+<figure style="margin:12px 0"><img src="assets/images/w34_core_w34_2.2_a.png" width="1333" height="648" style="width:602px;max-width:100%;height:auto" alt="还是降维法那排一维弹簧：灰色压头的下表面就是等效轮廓 \(g(x)\)，压到压深 \(\delta\) 时，蓝色弹簧在接触区里被压着，宽 \(2a\)，边缘那根压缩量正好为 0，这就是 \(\delta=g(a)\)。现在压头再往下走一小段 \(\Delta\delta\)（虚线）：接触区里的每根弹簧都多压了 \(\Delta\delta\)，合起来就是那条红带，宽 \(2a\)、厚 \(\Delta\delta\)；每根弹簧每单位长度的刚度是 \(E^*\)，所以多出来的力是 \(E^*\cdot2a\cdot\Delta\delta\)。边缘新碰上的那几根只被压了一点点，是两个浅色小三角，比红带小一阶，取极限时可以忽略。于是刚度 \(K=dF/d\delta=2aE^*\)，只看此刻接触区有多宽：压得越深接触越宽，就越硬，而压头是什么形状只决定 \(a\) 怎么随 \(\delta\) 变，不改变这个关系。" loading="lazy"><figcaption class="small">还是降维法那排一维弹簧：灰色压头的下表面就是等效轮廓 \(g(x)\)，压到压深 \(\delta\) 时，蓝色弹簧在接触区里被压着，宽 \(2a\)，边缘那根压缩量正好为 0，这就是 \(\delta=g(a)\)。现在压头再往下走一小段 \(\Delta\delta\)（虚线）：接触区里的每根弹簧都多压了 \(\Delta\delta\)，合起来就是那条红带，宽 \(2a\)、厚 \(\Delta\delta\)；每根弹簧每单位长度的刚度是 \(E^*\)，所以多出来的力是 \(E^*\cdot2a\cdot\Delta\delta\)。边缘新碰上的那几根只被压了一点点，是两个浅色小三角，比红带小一阶，取极限时可以忽略。于是刚度 \(K=dF/d\delta=2aE^*\)，只看此刻接触区有多宽：压得越深接触越宽，就越硬，而压头是什么形状只决定 \(a\) 怎么随 \(\delta\) 变，不改变这个关系。</figcaption></figure>
 <h3 id="w2-3" class="numbered">2.3 用降维法推出 Hertz</h3>
 
 <p><strong>缝隙。</strong> 半径为 \(R_i\) 的球，离接触中心水平距离 \(r\) 处，球面比最低点高出 \(f_i\)。球心、最低点和这一点构成直角三角形，水平边 \(r\)、竖直边 \(R_i-f_i\)、斜边 \(R_i\)：</p>
@@ -394,40 +394,40 @@ html.annot-on #annot-capture { display: block; }
 <p>接触区很小，\(\color{#c0392b}{f_i\ll R_i}\)，略去 \(f_i^2\)：</p>
 <p>\[r^2\approx2R_if_i\ \Longrightarrow\ f_i\approx\frac{r^2}{2R_i}.\]</p>
 <p>即在最低点附近球面像抛物线，离中心远一倍，高出四倍。两侧相加：</p>
-<p>\[\color{#c0392b}{h=f_A+f_B=\frac{r^2}{2R_A}+\frac{r^2}{2R_B}=\frac{r^2}{2}\Big(\frac1{R_A}+\frac1{R_B}\Big)=\frac{r^2}{2R},\qquad \frac1R=\frac1{R_A}+\frac1{R_B}}.\]</p>
-<p>\(R\) 是合成半径，两侧曲率（半径的倒数）相加，与软度相加是同一个道理。</p>
-<figure style="margin:12px 0"><img src="assets/images/w34_core_w34_2.3_b.png" width="1235" height="914" style="width:568px;max-width:100%;height:auto" alt="一个球的竖直剖面。球心在最低点正上方 \(R_i\) 处；离中心水平距离 \(r\) 的球面点和球心连起来是斜边 \(R_i\)，水平边是 \(r\)，竖直边是 \(R_i-f_i\)，这就是上面的直角三角形，红色的 \(f_i\) 是这一点比最低点高出的量。蓝色虚线是抛物线 \(r^2/(2R_i)\)：在最低点附近（绿色那一小片）它和球面几乎完全重合，离远了两者才分开。接触只发生在这一小片里，\(f_i\) 比 \(R_i\) 小得多，所以在接触区里可以放心把球面换成抛物线：离中心远一倍，高出四倍。两个球各自这样换完再相加，就得到缝隙 \(h=r^2/(2R)\)，降维法就能直接接着算下去。" loading="lazy"><figcaption class="small">一个球的竖直剖面。球心在最低点正上方 \(R_i\) 处；离中心水平距离 \(r\) 的球面点和球心连起来是斜边 \(R_i\)，水平边是 \(r\)，竖直边是 \(R_i-f_i\)，这就是上面的直角三角形，红色的 \(f_i\) 是这一点比最低点高出的量。蓝色虚线是抛物线 \(r^2/(2R_i)\)：在最低点附近（绿色那一小片）它和球面几乎完全重合，离远了两者才分开。接触只发生在这一小片里，\(f_i\) 比 \(R_i\) 小得多，所以在接触区里可以放心把球面换成抛物线：离中心远一倍，高出四倍。两个球各自这样换完再相加，就得到缝隙 \(h=r^2/(2R)\)，降维法就能直接接着算下去。</figcaption></figure>
-<p><strong>等效轮廓。</strong> \(h&#x27;(r)=r/R\)，代入 \(g\) 的定义：</p>
-<p>\[g(x)=\frac{|x|}{R}\int_0^{|x|}\frac{r}{\sqrt{x^2-r^2}}\,dr=\frac{|x|}{R}\Big[-\sqrt{x^2-r^2}\Big]_0^{|x|}=\frac{|x|}{R}\big(0+|x|\big)=\frac{x^2}{R}.\]</p>
-<p><strong>接触半径。</strong> 由 \(g(a)=d\)：\(a^2/R=d\)，即 \(\color{#c0392b}{a^2=Rd}\)。</p>
+<p>\[\color{#c0392b}{h=f_A+f_B=\frac{r^2}{2R_A}+\frac{r^2}{2R_B}=\frac{r^2}{2}\Big(\frac1{R_A}+\frac1{R_B}\Big)=\frac{r^2}{2R^*},\qquad \frac1{R^*}=\frac1{R_A}+\frac1{R_B}}.\]</p>
+<p>\(R^*\) 是合成半径，两侧曲率（半径的倒数）相加，与软度相加是同一个道理（球压平面时 \(R^*\) 就是球半径 \(R\)）。</p>
+<figure style="margin:12px 0"><img src="assets/images/w34_core_w34_2.3_b.png" width="1235" height="914" style="width:568px;max-width:100%;height:auto" alt="一个球的竖直剖面。球心在最低点正上方 \(R_i\) 处；离中心水平距离 \(r\) 的球面点和球心连起来是斜边 \(R_i\)，水平边是 \(r\)，竖直边是 \(R_i-f_i\)，这就是上面的直角三角形，红色的 \(f_i\) 是这一点比最低点高出的量。蓝色虚线是抛物线 \(r^2/(2R_i)\)：在最低点附近（绿色那一小片）它和球面几乎完全重合，离远了两者才分开。接触只发生在这一小片里，\(f_i\) 比 \(R_i\) 小得多，所以在接触区里可以放心把球面换成抛物线：离中心远一倍，高出四倍。两个球各自这样换完再相加，就得到缝隙 \(h=r^2/(2R^*)\)，降维法就能直接接着算下去。" loading="lazy"><figcaption class="small">一个球的竖直剖面。球心在最低点正上方 \(R_i\) 处；离中心水平距离 \(r\) 的球面点和球心连起来是斜边 \(R_i\)，水平边是 \(r\)，竖直边是 \(R_i-f_i\)，这就是上面的直角三角形，红色的 \(f_i\) 是这一点比最低点高出的量。蓝色虚线是抛物线 \(r^2/(2R_i)\)：在最低点附近（绿色那一小片）它和球面几乎完全重合，离远了两者才分开。接触只发生在这一小片里，\(f_i\) 比 \(R_i\) 小得多，所以在接触区里可以放心把球面换成抛物线：离中心远一倍，高出四倍。两个球各自这样换完再相加，就得到缝隙 \(h=r^2/(2R^*)\)，降维法就能直接接着算下去。</figcaption></figure>
+<p><strong>等效轮廓。</strong> \(h&#x27;(r)=r/R^*\)，代入 \(g\) 的定义：</p>
+<p>\[g(x)=\frac{|x|}{R^*}\int_0^{|x|}\frac{r}{\sqrt{x^2-r^2}}\,dr=\frac{|x|}{R^*}\Big[-\sqrt{x^2-r^2}\Big]_0^{|x|}=\frac{|x|}{R^*}\big(0+|x|\big)=\frac{x^2}{R^*}.\]</p>
+<p><strong>接触半径。</strong> 由 \(g(a)=\delta\)：\(a^2/R^*=\delta\)，即 \(\color{#c0392b}{a^2=R^*\delta}\)。</p>
 <p><strong>力。</strong> 先积分：</p>
-<p>\[\color{#c0392b}{F=2E^*\int_0^a\Big(d-\frac{x^2}{R}\Big)dx=2E^*\Big(ad-\frac{a^3}{3R}\Big)}.\]</p>
-<p>代入 \(a=\sqrt{Rd}\)：\(ad=\sqrt R\,d^{3/2}\)，\(a^3/R=(Rd)^{3/2}/R=\sqrt R\,d^{3/2}\)，所以</p>
-<p>\[\color{#c0392b}{F=2E^*\Big(\sqrt R\,d^{3/2}-\frac13\sqrt R\,d^{3/2}\Big)=2E^*\cdot\frac23\sqrt R\,d^{3/2}=\frac43E^*\sqrt R\,d^{3/2}}.\]</p>
-<p><strong>能量。</strong> 由 \(dU/dd=F\)，从零积分：</p>
-<p>\[\color{#c0392b}{U_H=\int_0^d\frac43E^*\sqrt R\,s^{3/2}\,ds=\frac43E^*\sqrt R\cdot\frac25d^{5/2}=\frac{8}{15}E^*\sqrt R\,d^{5/2}}.\]</p>
-<p><strong>直观理解。</strong> 接触圈只按压深的平方根变大，能量却按 2.5 次方涨，因为每处压得更深、接触圈又同时变宽，两件事叠在一起。大球接触圈更宽，所以更硬，但只按 \(\sqrt R\) 变化。</p>
+<p>\[\color{#c0392b}{F=2E^*\int_0^a\Big(\delta-\frac{x^2}{R^*}\Big)dx=2E^*\Big(a\delta-\frac{a^3}{3R^*}\Big)}.\]</p>
+<p>代入 \(a=\sqrt{R^*\delta}\)：\(a\delta=\sqrt{R^*}\,\delta^{3/2}\)，\(a^3/R^*=(R^*\delta)^{3/2}/R^*=\sqrt{R^*}\,\delta^{3/2}\)，所以</p>
+<p>\[\color{#c0392b}{F=2E^*\Big(\sqrt{R^*}\,\delta^{3/2}-\frac13\sqrt{R^*}\,\delta^{3/2}\Big)=2E^*\cdot\frac23\sqrt{R^*}\,\delta^{3/2}=\frac43E^*\sqrt{R^*}\,\delta^{3/2}}.\]</p>
+<p><strong>能量。</strong> 由 \(dU/d\delta=F\)，从零积分（\(\delta&#x27;\) 是积分变量）：</p>
+<p>\[\color{#c0392b}{U_H=\int_0^\delta\frac43E^*\sqrt{R^*}\,\delta&#x27;^{3/2}\,d\delta&#x27;=\frac43E^*\sqrt{R^*}\cdot\frac25\delta^{5/2}=\frac{8}{15}E^*\sqrt{R^*}\,\delta^{5/2}}.\]</p>
+<p><strong>直观理解。</strong> 接触圈只按压深的平方根变大，能量却按 2.5 次方涨，因为每处压得更深、接触圈又同时变宽，两件事叠在一起。大球接触圈更宽，所以更硬，但只按 \(\sqrt{R^*}\) 变化。</p>
 <h3 id="w2-4" class="numbered">2.4 幂律形状与椭圆接触</h3>
 
-<p><strong>幂律。</strong> 设缝隙 \(\color{#c0392b}{h=c\,r^n}\)，\(c\) 是系数，\(n\) 是幂次。\(n\) 越大压头中心越平（平底是 \(n\to\infty\)），\(n\) 越小中心越尖（圆锥 \(n=1\)，球 \(n=2\)）。</p>
-<p>\(h&#x27;=cn\,r^{n-1}\)，代入 \(g\) 的定义：</p>
-<p>\[g(x)=|x|\int_0^{|x|}\frac{c\,n\,r^{n-1}}{\sqrt{x^2-r^2}}\,dr.\]</p>
+<p><strong>幂律。</strong> 设缝隙 \(\color{#c0392b}{h=A\,r^n}\)，\(A\) 是系数，\(n\) 是幂次。\(n\) 越大压头中心越平（平底是 \(n\to\infty\)），\(n\) 越小中心越尖（圆锥 \(n=1\)，球 \(n=2\)）。</p>
+<p>\(h&#x27;=An\,r^{n-1}\)，代入 \(g\) 的定义：</p>
+<p>\[g(x)=|x|\int_0^{|x|}\frac{A\,n\,r^{n-1}}{\sqrt{x^2-r^2}}\,dr.\]</p>
 <p>令 \(r=|x|t\)，\(dr=|x|\,dt\)，\(\sqrt{x^2-r^2}=|x|\sqrt{1-t^2}\)：</p>
-<p>\[\begin{aligned}g(x)&amp;=|x|\int_0^1\frac{c\,n\,|x|^{n-1}t^{n-1}}{|x|\sqrt{1-t^2}}\,|x|\,dt\\&amp;=c\,|x|^n\cdot n\int_0^1\frac{t^{n-1}}{\sqrt{1-t^2}}\,dt\\&amp;=\kappa_n\,c\,|x|^n,\qquad \kappa_n=n\int_0^1\frac{t^{n-1}}{\sqrt{1-t^2}}\,dt.\end{aligned}\]</p>
-<p>由 \(d=g(a)\)：</p>
-<p>\[d=\kappa_n\,c\,a^n\ \Longrightarrow\ a=\Big(\frac{d}{\kappa_n c}\Big)^{1/n}\propto d^{1/n}.\]</p>
-<p>于是 \(g(x)=\kappa_n c\,a^n(x/a)^n=d\,(x/a)^n\)，\(d-g(x)=d\big(1-(x/a)^n\big)\)。代入能量：</p>
-<p>\[U_0=E^*\int_0^ad^2\Big(1-\Big(\frac xa\Big)^n\Big)^2dx.\]</p>
-<p>令 \(x=as\)，\(dx=a\,ds\)：</p>
-<p>\[U_0=E^*\,a\,d^2\int_0^1\big(1-s^n\big)^2ds\ \propto\ a\,d^2.\]</p>
-<p>（积分 \(\int_0^1(1-s^n)^2ds=1-\frac{2}{n+1}+\frac{1}{2n+1}\) 只依赖 \(n\)，是常数。）</p>
-<p>代入 \(a\propto d^{1/n}\)：</p>
-<p>\[\color{#c0392b}{U_0\propto d^{1/n}\cdot d^2=d^{2+1/n}=d^{(2n+1)/n}}.\]</p>
+<p>\[\begin{aligned}g(x)&amp;=|x|\int_0^1\frac{A\,n\,|x|^{n-1}t^{n-1}}{|x|\sqrt{1-t^2}}\,|x|\,dt\\&amp;=A\,|x|^n\cdot n\int_0^1\frac{t^{n-1}}{\sqrt{1-t^2}}\,dt\\&amp;=\mu_n\,A\,|x|^n,\qquad \mu_n=n\int_0^1\frac{t^{n-1}}{\sqrt{1-t^2}}\,dt.\end{aligned}\]</p>
+<p>（\(\mu_n\) 是只依赖 \(n\) 的常数。）由 \(\delta=g(a)\)：</p>
+<p>\[\delta=\mu_n\,A\,a^n\ \Longrightarrow\ a=\Big(\frac{\delta}{\mu_n A}\Big)^{1/n}\propto \delta^{1/n}.\]</p>
+<p>于是 \(g(x)=\mu_n A\,a^n(x/a)^n=\delta\,(x/a)^n\)，\(\delta-g(x)=\delta\big(1-(x/a)^n\big)\)。代入能量：</p>
+<p>\[U_0=E^*\int_0^a\delta^2\Big(1-\Big(\frac xa\Big)^n\Big)^2dx.\]</p>
+<p>令 \(x=a\xi\)（\(\xi\) 是换元变量），\(dx=a\,d\xi\)：</p>
+<p>\[U_0=E^*\,a\,\delta^2\int_0^1\big(1-\xi^n\big)^2d\xi\ \propto\ a\,\delta^2.\]</p>
+<p>（积分 \(\int_0^1(1-\xi^n)^2d\xi=1-\frac{2}{n+1}+\frac{1}{2n+1}\) 只依赖 \(n\)，是常数。）</p>
+<p>代入 \(a\propto \delta^{1/n}\)：</p>
+<p>\[\color{#c0392b}{U_0\propto \delta^{1/n}\cdot \delta^2=\delta^{2+1/n}=\delta^{(2n+1)/n}}.\]</p>
 <p>所以球是 2.5 次方，圆锥 3 次方，平底 2 次方。压头越尖，接触面积随压深涨得越快，能量也涨得越快。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_fig05_power_law.png" width="1184" height="696" style="width:548px;max-width:100%;height:auto" alt="这张图展示了压头形状怎样决定能量随压深涨得多快。横轴是压深，纵轴是能量，都取对数，所以每条线的斜率就是能量随压深的幂次，右边的小图标画的是对应的压头形状。通过对比红色圆锥线、蓝色球线、绿色平底线的倾斜程度，可以看出圆锥最陡（斜率 3），球居中（2.5），平底最缓（2），因为压头中心凸出得越陡，压深加大时接触面积涨得越快，能量也涨得越快。三条线的高低没有意义，只比斜率。" loading="lazy"><figcaption class="small">这张图展示了压头形状怎样决定能量随压深涨得多快。横轴是压深，纵轴是能量，都取对数，所以每条线的斜率就是能量随压深的幂次，右边的小图标画的是对应的压头形状。通过对比红色圆锥线、蓝色球线、绿色平底线的倾斜程度，可以看出圆锥最陡（斜率 3），球居中（2.5），平底最缓（2），因为压头中心凸出得越陡，压深加大时接触面积涨得越快，能量也涨得越快。三条线的高低没有意义，只比斜率。</figcaption></figure>
 <p><strong>椭圆接触。</strong> 接触处两个方向弯曲程度不同时（例如压在环面内圈，绕管截面方向凸、沿圆环方向凹），接触区是椭圆，能量由椭圆 Hertz 公式精确给出。用扁度衡量椭圆有多扁：</p>
-<p>\[\color{#c0392b}{\text{扁度}=\ln\frac{\kappa_1}{\kappa_2}},\]</p>
-<p>\(\kappa_1,\kappa_2\) 是接触处两个主方向上两侧合起来的曲率（曲率 = 1/半径，越弯越大）。圆形接触扁度为 0。把椭圆当圆算会少算能量，扁度 1.10 时少 2.5%。</p>
+<p>\[\color{#c0392b}{e=\ln\frac{\kappa_1}{\kappa_2}},\]</p>
+<p>\(e\) 是扁度，\(\kappa_1\ge\kappa_2\) 是接触处两个主方向上两侧合起来的曲率（曲率 = 1/半径，越弯越大）。圆形接触扁度为 0。把椭圆当圆算会少算能量，扁度 1.10 时少 2.5%。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_fig10a_ellipse_vs_circle.png" width="1911" height="878" style="width:914px;max-width:100%;height:auto" alt="这张图展示了两个方向弯曲程度不同时接触区的形状，两幅都是从上往下看接触区。扁度定义为两个方向弯曲程度之比取对数。通过对比左边蓝色的圆形接触区（两个方向弯曲一样，扁度 0）和右边红色的 T1b 椭圆接触区（两个方向弯曲差 3 倍，扁度 ln3 = 1.10），可以看出 T1b 的接触区一个方向长、一个方向短，所以当成圆来算会有偏差。" loading="lazy"><figcaption class="small">这张图展示了两个方向弯曲程度不同时接触区的形状，两幅都是从上往下看接触区。扁度定义为两个方向弯曲程度之比取对数。通过对比左边蓝色的圆形接触区（两个方向弯曲一样，扁度 0）和右边红色的 T1b 椭圆接触区（两个方向弯曲差 3 倍，扁度 ln3 = 1.10），可以看出 T1b 的接触区一个方向长、一个方向短，所以当成圆来算会有偏差。</figcaption></figure>
 <h3 id="w2-5" class="numbered">2.5 相似律</h3>
 
@@ -482,47 +482,47 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w3-2" class="numbered">3.2 三个外推</h3>
 
 <p>仿真有三处离散，标签要外推到三个理想极限。</p>
-<p><strong>接触阈值 \(\hat d\to0\)。</strong> IPC 为保证不穿透，让两表面始终保持一层不超过 \(\hat d\) 的间隙 \(g_{\text{IPC}}\)。外推时分母的压深用「压深 + 间隙」\(\delta+g_{\text{IPC}}\)，这样比值几乎不随 \(\hat d\) 变，按直线外推更准。按直线外推：设 \(X(\hat d)=X_0+k\,\hat d\)，最小两档 \(\hat d_1=2\hat d_2\) 的读数为 \(X_1,X_2\)：</p>
-<p>\[X_1=X_0+2k\hat d_2,\qquad X_2=X_0+k\hat d_2.\]</p>
-<p>相减得 \(k\hat d_2=X_1-X_2\)，代回第二式：</p>
-<p>\[X_0=X_2-k\hat d_2=X_2-(X_1-X_2)=2X_2-X_1.\]</p>
-<p><strong>块无限大。</strong> 同一网格下取两种块尺寸，按偏差与 1/块宽 成正比外推。设 \(X(L)=X_\infty+k/L\)，两种块宽 \(L_2=2L_1\)（2.4 与 4.8）：</p>
-<p>\[X(L_1)=X_\infty+\frac{k}{L_1},\qquad X(L_2)=X_\infty+\frac{k}{2L_1}.\]</p>
-<p>相减得 \(\frac{k}{2L_1}=X(L_1)-X(L_2)\)，代回第二式：</p>
+<p><strong>接触阈值 \(\hat d\to0\)。</strong> IPC 为保证不穿透，让两表面始终保持一层不超过 \(\hat d\) 的间隙 \(\gamma\)。外推时分母的压深用「压深 + 间隙」\(\delta+\gamma\)，这样比值几乎不随 \(\hat d\) 变，按直线外推更准。按直线外推：设 \(X(\hat d)=X_0+\alpha\,\hat d\)（\(\alpha\) 是斜率），最小两档 \(\hat d_1=2\hat d_2\) 的读数为 \(X_1,X_2\)：</p>
+<p>\[X_1=X_0+2\alpha\hat d_2,\qquad X_2=X_0+\alpha\hat d_2.\]</p>
+<p>相减得 \(\alpha\hat d_2=X_1-X_2\)，代回第二式：</p>
+<p>\[X_0=X_2-\alpha\hat d_2=X_2-(X_1-X_2)=2X_2-X_1.\]</p>
+<p><strong>块无限大。</strong> 同一网格下取两种块尺寸，按偏差与 1/块宽 成正比外推。设 \(X(L)=X_\infty+\alpha/L\)，两种块宽 \(L_2=2L_1\)（2.4 与 4.8）：</p>
+<p>\[X(L_1)=X_\infty+\frac{\alpha}{L_1},\qquad X(L_2)=X_\infty+\frac{\alpha}{2L_1}.\]</p>
+<p>相减得 \(\frac{\alpha}{2L_1}=X(L_1)-X(L_2)\)，代回第二式：</p>
 <p>\[X_\infty=X(L_2)-\big(X(L_1)-X(L_2)\big)=2X(L_2)-X(L_1).\]</p>
 <p><strong>网格无限细（Richardson 外推）。</strong> 下面单独推导。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_label_one_run_scene.png" width="2052" height="970" style="width:888px;max-width:100%;height:auto" alt="这张图是 3.2 节那张标签表对应的那次仿真压到最深一档时的样子。左边是过接触中心的剖面，灰色是半径 1 的刚球，蓝色是软块（杨氏模量 1e5），竖直方向放大 4 倍；右边是从正上方看块的顶面，灰点是块表面的网格点，红点是离球面不到 0.0005 的点，粉色是红点围出的接触区。这一档设定压深 0.024，块实际被压下 0.0232，存下的弹性能 5.06，就是表里最后一行。" loading="lazy"><figcaption class="small">这张图是 3.2 节那张标签表对应的那次仿真压到最深一档时的样子。左边是过接触中心的剖面，灰色是半径 1 的刚球，蓝色是软块（杨氏模量 1e5），竖直方向放大 4 倍；右边是从正上方看块的顶面，灰点是块表面的网格点，红点是离球面不到 0.0005 的点，粉色是红点围出的接触区。这一档设定压深 0.024，块实际被压下 0.0232，存下的弹性能 5.06，就是表里最后一行。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/w34_label_one_run.png" width="2066" height="532" style="width:828px;max-width:100%;height:auto" alt="这张图展示了一次仿真运行存下来的原始数据。这次运行是半径 1 的刚球压软块（E = 1e5、ν = 0.3），间隙 0.000125，设定压深从 0.004 到 0.024 共 6 档，每档记一行，依次是设定压深、块表面实际被压下的深度、块的弹性能，以及弹性能除以同一实际压深下的 Hertz 能量。最后一列的 1.05 到 1.12 还带着数值误差，要经过下面那张图里的三步外推才成为训练用的标签，0.009 那一行的 1.0659 就是下面那张图的第三个灰点。这组仿真的场景见 3.4 节的视频，视频是同样的球和块用较粗网格另跑的一次。" loading="lazy"><figcaption class="small">这张图展示了一次仿真运行存下来的原始数据。这次运行是半径 1 的刚球压软块（E = 1e5、ν = 0.3），间隙 0.000125，设定压深从 0.004 到 0.024 共 6 档，每档记一行，依次是设定压深、块表面实际被压下的深度、块的弹性能，以及弹性能除以同一实际压深下的 Hertz 能量。最后一列的 1.05 到 1.12 还带着数值误差，要经过下面那张图里的三步外推才成为训练用的标签，0.009 那一行的 1.0659 就是下面那张图的第三个灰点。这组仿真的场景见 3.4 节的视频，视频是同样的球和块用较粗网格另跑的一次。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/w34_s3_4_chain.png" width="1507" height="948" style="width:530px;max-width:100%;height:auto" alt="这张图展示了一个标签如何从仿真原始读数逐步外推出来，例子是半径 1 的刚球压软块（E = 1e5、ν = 0.3）、设定压深 0.009。纵轴是能量除以 Hertz 能量，绿色虚线是 1；左边三个灰点是同一网格下间隙取 0.0005、0.00025、0.000125 三档的原始读数，间隙越小读数越低，最大的是最左边的 1.1626；把间隙外推到 0、再把块外推到无限大（仿真里的块有限大，解析解假设块无限大），得到两个蓝点，最后把网格外推到无限细，得到最右边的绿点 1.0058，即最终标签。每一步去掉一种数值误差，所以最终标签只比 Hertz 高 0.6%。这组仿真的场景（刚球压平块）见 3.4 节的视频，视频是同样的球和块用较粗网格另跑的一次。" loading="lazy"><figcaption class="small">这张图展示了一个标签如何从仿真原始读数逐步外推出来，例子是半径 1 的刚球压软块（E = 1e5、ν = 0.3）、设定压深 0.009。纵轴是能量除以 Hertz 能量，绿色虚线是 1；左边三个灰点是同一网格下间隙取 0.0005、0.00025、0.000125 三档的原始读数，间隙越小读数越低，最大的是最左边的 1.1626；把间隙外推到 0、再把块外推到无限大（仿真里的块有限大，解析解假设块无限大），得到两个蓝点，最后把网格外推到无限细，得到最右边的绿点 1.0058，即最终标签。每一步去掉一种数值误差，所以最终标签只比 Hertz 高 0.6%。这组仿真的场景（刚球压平块）见 3.4 节的视频，视频是同样的球和块用较粗网格另跑的一次。</figcaption></figure>
 <h4>外推值</h4>
-<p>设三档网格的单元尺寸为 \(h\)、\(h/2\)、\(h/4\)（这里 \(h\) 指单元尺寸，不是缝隙），算出的能量依次为 \(U_1,U_2,U_3\)。误差模型：</p>
+<p>设三档网格的单元尺寸为 \(h\)、\(h/2\)、\(h/4\)（本节里 \(h\) 指网格单元尺寸、不是缝隙，\(p\) 指收敛阶、不是压强），算出的能量依次为 \(U^{(1)},U^{(2)},U^{(3)}\)（上标是网格档，和 5.3 节的 \(U_①,U_②,U_③\) 不是一回事）。误差模型：</p>
 <p>\[\color{#c0392b}{U(h)=U_\infty+C\,h^p}.\]</p>
 <p>\(U_\infty\) 是网格无限细时的真值，\(C\) 是未知常数，\(p\) 是收敛阶：\(p=1\) 时网格每细一半误差减半，\(p=2\) 时缩成四分之一。</p>
 <p>把中、细两档代入：</p>
-<p>\[U_2=U_\infty+C\Big(\frac h2\Big)^p,\qquad U_3=U_\infty+C\Big(\frac h4\Big)^p.\]</p>
+<p>\[U^{(2)}=U_\infty+C\Big(\frac h2\Big)^p,\qquad U^{(3)}=U_\infty+C\Big(\frac h4\Big)^p.\]</p>
 <p>相减：</p>
-<p>\[U_2-U_3=C\Big(\frac h2\Big)^p-C\Big(\frac h4\Big)^p=C\Big(\frac h4\Big)^p\big(2^p-1\big)\ \Longrightarrow\ C\Big(\frac h4\Big)^p=\frac{U_2-U_3}{2^p-1}.\]</p>
-<p>代回 \(U_3\) 的式子 \(U_\infty=U_3-C(h/4)^p\)：</p>
-<p>\[U_\infty=U_3-\frac{U_2-U_3}{2^p-1}\]</p>
+<p>\[U^{(2)}-U^{(3)}=C\Big(\frac h2\Big)^p-C\Big(\frac h4\Big)^p=C\Big(\frac h4\Big)^p\big(2^p-1\big)\ \Longrightarrow\ C\Big(\frac h4\Big)^p=\frac{U^{(2)}-U^{(3)}}{2^p-1}.\]</p>
+<p>代回 \(U^{(3)}\) 的式子 \(U_\infty=U^{(3)}-C(h/4)^p\)：</p>
+<p>\[U_\infty=U^{(3)}-\frac{U^{(2)}-U^{(3)}}{2^p-1}\]</p>
 <p>即</p>
-<p>\[\color{#c0392b}{U_\infty=U_3+\frac{U_3-U_2}{2^p-1}}.\]</p>
+<p>\[\color{#c0392b}{U_\infty=U^{(3)}+\frac{U^{(3)}-U^{(2)}}{2^p-1}}.\]</p>
 <p>即从细档出发，顺着「中 → 细」的方向再走一步。两档差得越多，细档离真值越远；\(p\) 越大，剩下的误差越小，多走的一步越短。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_fig06a_mesh_extrapolation.png" width="1304" height="997" style="width:549px;max-width:100%;height:auto" alt="这张图展示了网格外推的做法。横轴是有限元单元的尺寸，纵轴是算出的能量，三个黑点是单元尺寸为 h、h/2、h/4 时的结果。通过对比三个黑点和沿灰色虚线延伸到横轴 0 处的蓝色五角星，可以看出网格每细一半，算出的能量下降一截，降幅越来越小，所以顺着这个趋势能推出单元无限小时的值，标签用的就是这个值。" loading="lazy"><figcaption class="small">这张图展示了网格外推的做法。横轴是有限元单元的尺寸，纵轴是算出的能量，三个黑点是单元尺寸为 h、h/2、h/4 时的结果。通过对比三个黑点和沿灰色虚线延伸到横轴 0 处的蓝色五角星，可以看出网格每细一半，算出的能量下降一截，降幅越来越小，所以顺着这个趋势能推出单元无限小时的值，标签用的就是这个值。</figcaption></figure>
 <h4>收敛阶</h4>
 <p>三档代入误差模型，相邻两档相减：</p>
-<p>\[\begin{aligned}U_1-U_2&amp;=C\,h^p-C\Big(\frac h2\Big)^p=C\,h^p(1-2^{-p}),\\U_2-U_3&amp;=C\Big(\frac h2\Big)^p-C\Big(\frac h4\Big)^p=C\Big(\frac h2\Big)^p(1-2^{-p}).\end{aligned}\]</p>
+<p>\[\begin{aligned}U^{(1)}-U^{(2)}&amp;=C\,h^p-C\Big(\frac h2\Big)^p=C\,h^p(1-2^{-p}),\\U^{(2)}-U^{(3)}&amp;=C\Big(\frac h2\Big)^p-C\Big(\frac h4\Big)^p=C\Big(\frac h2\Big)^p(1-2^{-p}).\end{aligned}\]</p>
 <p>两式相除，\(C\) 与 \((1-2^{-p})\) 约掉：</p>
-<p>\[\frac{U_1-U_2}{U_2-U_3}=\frac{h^p}{(h/2)^p}=2^p.\]</p>
+<p>\[\frac{U^{(1)}-U^{(2)}}{U^{(2)}-U^{(3)}}=\frac{h^p}{(h/2)^p}=2^p.\]</p>
 <p>两边取以 2 为底的对数：</p>
-<p>\[\color{#c0392b}{\frac{U_1-U_2}{U_2-U_3}=2^p\ \Longrightarrow\ p=\log_2\frac{U_1-U_2}{U_2-U_3}}.\]</p>
+<p>\[\color{#c0392b}{\frac{U^{(1)}-U^{(2)}}{U^{(2)}-U^{(3)}}=2^p\ \Longrightarrow\ p=\log_2\frac{U^{(1)}-U^{(2)}}{U^{(2)}-U^{(3)}}}.\]</p>
 <p>即看相邻两档的变化每细一档缩小几倍。\(p\) 是两个小差相除得到的，稍有噪声就乱跳；逐压深各算一个 \(p\) 会给标签带进 0.4%–1% 的假起伏（各组最大值）。因此同一实验族所有压深共用一个 \(p\)（取各压深的中位数）。</p>
-<figure style="margin:12px 0"><img src="assets/images/w34_core_w34_3.4_c.png" width="1818" height="996" style="width:767px;max-width:100%;height:auto" alt="两张小图的横轴都是单元尺寸，从右到左依次是 \(h\)、\(h/2\)、\(h/4\)，越往左网格越细；纵轴是算出的能量，三个黑点是三档读数 \(U_1\)、\(U_2\)、\(U_3\)，按误差模型画。红条是粗档到中档变了多少，\(U_1-U_2\)；蓝条是中档到细档又变了多少，\(U_2-U_3\)。左图 \(p=1\)，蓝条正好是红条的一半；右图 \(p=2\)，蓝条只有红条的四分之一。所以只要看网格每细一档、相邻两档的变化缩小了几倍，这个倍数就是 \(2^p\)，取以 2 为底的对数就得到收敛阶，正是上面的 \(p\) 公式。也正因为 \(p\) 是两个很小的差相除得来的，读数稍有噪声它就会乱跳。" loading="lazy"><figcaption class="small">两张小图的横轴都是单元尺寸，从右到左依次是 \(h\)、\(h/2\)、\(h/4\)，越往左网格越细；纵轴是算出的能量，三个黑点是三档读数 \(U_1\)、\(U_2\)、\(U_3\)，按误差模型画。红条是粗档到中档变了多少，\(U_1-U_2\)；蓝条是中档到细档又变了多少，\(U_2-U_3\)。左图 \(p=1\)，蓝条正好是红条的一半；右图 \(p=2\)，蓝条只有红条的四分之一。所以只要看网格每细一档、相邻两档的变化缩小了几倍，这个倍数就是 \(2^p\)，取以 2 为底的对数就得到收敛阶，正是上面的 \(p\) 公式。也正因为 \(p\) 是两个很小的差相除得来的，读数稍有噪声它就会乱跳。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/w34_core_w34_3.4_c.png" width="1818" height="996" style="width:767px;max-width:100%;height:auto" alt="两张小图的横轴都是单元尺寸，从右到左依次是 \(h\)、\(h/2\)、\(h/4\)，越往左网格越细；纵轴是算出的能量，三个黑点是三档读数 \(U^{(1)}\)、\(U^{(2)}\)、\(U^{(3)}\)，按误差模型画。红条是粗档到中档变了多少，\(U^{(1)}-U^{(2)}\)；蓝条是中档到细档又变了多少，\(U^{(2)}-U^{(3)}\)。左图 \(p=1\)，蓝条正好是红条的一半；右图 \(p=2\)，蓝条只有红条的四分之一。所以只要看网格每细一档、相邻两档的变化缩小了几倍，这个倍数就是 \(2^p\)，取以 2 为底的对数就得到收敛阶，正是上面的 \(p\) 公式。也正因为 \(p\) 是两个很小的差相除得来的，读数稍有噪声它就会乱跳。" loading="lazy"><figcaption class="small">两张小图的横轴都是单元尺寸，从右到左依次是 \(h\)、\(h/2\)、\(h/4\)，越往左网格越细；纵轴是算出的能量，三个黑点是三档读数 \(U^{(1)}\)、\(U^{(2)}\)、\(U^{(3)}\)，按误差模型画。红条是粗档到中档变了多少，\(U^{(1)}-U^{(2)}\)；蓝条是中档到细档又变了多少，\(U^{(2)}-U^{(3)}\)。左图 \(p=1\)，蓝条正好是红条的一半；右图 \(p=2\)，蓝条只有红条的四分之一。所以只要看网格每细一档、相邻两档的变化缩小了几倍，这个倍数就是 \(2^p\)，取以 2 为底的对数就得到收敛阶，正是上面的 \(p\) 公式。也正因为 \(p\) 是两个很小的差相除得来的，读数稍有噪声它就会乱跳。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/w34_fig06b_order_jumps.png" width="1170" height="775" style="width:516px;max-width:100%;height:auto" alt="这张图展示了收敛阶 p 的取法怎样影响标签。收敛阶 p 表示网格每细一半误差缩小多少，横轴是压深，纵轴是外推出的标签，这里画的是四组实验中压头几乎刚性的那一组的 5 个压深（0.006–0.024）。红色折线是每个压深用自己算的 p 外推，各点旁标着它的 p（0.83、1.08、0.82、1.30、1.20），蓝色折线是四组共用 p = 1.086，共用 p 由四组 20 个压深各自的阶定出（每组 6 个压深里，压深 0.004 那一档实测阶为负，不计）。通过对比红线的上下锯齿和蓝线的平滑上升，再用左边 1% 的黑色比例尺量，可以看出 p 一跳，标签就跟着跳，这一组的跳动幅度接近 1%，四组共用一个 p 以后这种假起伏消失了。" loading="lazy"><figcaption class="small">这张图展示了收敛阶 p 的取法怎样影响标签。收敛阶 p 表示网格每细一半误差缩小多少，横轴是压深，纵轴是外推出的标签，这里画的是四组实验中压头几乎刚性的那一组的 5 个压深（0.006–0.024）。红色折线是每个压深用自己算的 p 外推，各点旁标着它的 p（0.83、1.08、0.82、1.30、1.20），蓝色折线是四组共用 p = 1.086，共用 p 由四组 20 个压深各自的阶定出（每组 6 个压深里，压深 0.004 那一档实测阶为负，不计）。通过对比红线的上下锯齿和蓝线的平滑上升，再用左边 1% 的黑色比例尺量，可以看出 p 一跳，标签就跟着跳，这一组的跳动幅度接近 1%，四组共用一个 p 以后这种假起伏消失了。</figcaption></figure>
 <h4>球面细分</h4>
 <p>刚球是正二十面体细分若干次得到的多面体。三角面比真球面凹进去，在一个三角面上平均下来，凹进的深度与 \(\ell^2/R\) 成正比（\(\ell\) 为边长）。细分一档边长减半，凹陷缩为四分之一，所以这一项的收敛阶由几何定为 \(p=2\)。目前这一项只做了估计（见 4.4 节误差账），还没有写进正式标签。</p>
 <p>为什么与 \(\ell^2/R\) 成正比：看两个典型点，边中点约 \(\ell^2/(8R)\)，面中心约 \(\ell^2/(6R)\)（整面平均也等于 \(\ell^2/(8R)\)）。这两个数来自弦高：一个平面截球面得到半径 \(\rho\) 的截圆，截圆中心处平面比球面凹进的深度，按 2.3 节同样的勾股近似（\(R-\sqrt{R^2-\rho^2}\)，略去高阶项）是</p>
-<p>\[\varepsilon\approx\frac{\rho^2}{2R}.\]</p>
-<p>边是长 \(\ell\) 的弦，边中点处取 \(\rho=\ell/2\)，得 \(\varepsilon=\frac{(\ell/2)^2}{2R}=\frac{\ell^2}{8R}\)；正三角形的三个顶点落在半径 \(\rho=\ell/\sqrt3\) 的截圆上（外接圆），面中心处得 \(\varepsilon=\frac{\ell^2/3}{2R}=\frac{\ell^2}{6R}\)。两者都是 \(\ell^2/R\) 乘一个常数，边长减半时都缩为四分之一。</p>
+<p>\[\zeta\approx\frac{\rho^2}{2R}.\]</p>
+<p>（\(\zeta\) 是凹进深度。）边是长 \(\ell\) 的弦，边中点处取 \(\rho=\ell/2\)，得 \(\zeta=\frac{(\ell/2)^2}{2R}=\frac{\ell^2}{8R}\)；正三角形的三个顶点落在半径 \(\rho=\ell/\sqrt3\) 的截圆上（外接圆），面中心处得 \(\zeta=\frac{\ell^2/3}{2R}=\frac{\ell^2}{6R}\)。两者都是 \(\ell^2/R\) 乘一个常数，边长减半时都缩为四分之一。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_fig11b_facet_sagitta.png" width="1409" height="556" style="width:669px;max-width:100%;height:auto" alt="这张图展示了三角面拼出的球为什么让能量偏低。蓝色弧线是真球面，红色折线是用平的三角面拼出来的球面，红点是三角面的顶点，都落在真球面上。通过对比蓝色弧线和红色折线，以及最下面那块平面中点到弧线之间标着「缩进去 ε」的小箭头，可以看出每块平面都比真球面往里缩了一点，压头实际压进去的量变少，所以算出的能量偏低。三角面拼得越粗，ε 越大，能量偏得越多。" loading="lazy"><figcaption class="small">这张图展示了三角面拼出的球为什么让能量偏低。蓝色弧线是真球面，红色折线是用平的三角面拼出来的球面，红点是三角面的顶点，都落在真球面上。通过对比蓝色弧线和红色折线，以及最下面那块平面中点到弧线之间标着「缩进去 ε」的小箭头，可以看出每块平面都比真球面往里缩了一点，压头实际压进去的量变少，所以算出的能量偏低。三角面拼得越粗，ε 越大，能量偏得越多。</figcaption></figure>
 <h3 id="w3-3" class="numbered">3.3 数据集</h3>
 
@@ -614,21 +614,21 @@ html.annot-on #annot-capture { display: block; }
 <p>被压的软块是长方体：水平方向 \(|x|,|z|\le L\)，竖直方向 \(-D\le y\le0\)，顶面在 \(y=0\)，未说明时 \(D=L\)。网格在接触区内按固定间距 \(h_c\) 铺到半径 \(r_{\text{core}}\)，再往外每格放大 1.4 倍直到边界，每个小长方体切成 6 个四面体。</p>
 <p>材料未说明时取 \(E=10^5\)、\(\nu=0.3\)，用超弹性模型，参数换算成小变形时正好等于这组 \(E,\nu\)。标签的能量 \(U\) 是所有软体所有单元的弹性能之和。接触不计摩擦和重力，时间步 0.02；每个压深用 25 帧压到位，（体力加载各组先确认停稳）取最后 10 帧平均。所有 IPC 组都是固定的参数格子，没有随机采样。</p>
 <p>体力加载时，刚球不动，块的每个节点受一个向上的力，按质量分摊：</p>
-<p>\[\color{#c0392b}{F(c)=\tfrac43E^*\sqrt R\,(c-g_0)^{3/2},\qquad f_i=\frac{m_i}{M}\,F}.\]</p>
-<p>\(c\) 是这一帧的目标压深，\(g_0=0.0005\) 是初始间隙，\(m_i\) 是第 \(i\) 个节点的质量，\(M\) 是块的总质量，\(f_i\) 是该节点受的力。合力按 Hertz 公式由目标压深给出，只是为了把物体压到大致想要的深度；真实压深最后从结果里读出。两个软体相压时，压头受大小相同、方向向下的力。</p>
+<p>\[\color{#c0392b}{F(\delta_{\text t})=\tfrac43E^*\sqrt R\,(\delta_{\text t}-\gamma_0)^{3/2},\qquad F^{\text b}_i=\frac{m_i}{M}\,F}.\]</p>
+<p>\(\delta_{\text t}\) 是这一帧的目标压深，\(\gamma_0=0.0005\) 是初始间隙，\(m_i\) 是第 \(i\) 个节点的质量，\(M\) 是块的总质量，\(F^{\text b}_i\) 是该节点受的体力。合力按 Hertz 公式由目标压深给出，只是为了把物体压到大致想要的深度；真实压深最后从结果里读出。两个软体相压时，压头受大小相同、方向向下的力。</p>
 <p>外推顺序：\(\hat d\) 取最小两档外推到零 → 大小两种块外推到无限大 → 网格外推到无限细。各实验族的收敛阶：刚球压平块约 1.92，软球冠约 1.09，曲面块约 1.87；只有两档网格时取 1。</p>
 <h4>刚球压平块（E0、E1）</h4>
 <p>刚球压软方块，检查能否回到 Hertz。E0 球半径 1（细分 7 次），E1 半径 2（细分 8 次）。网格 \(h_c=0.025,\,0.0125,\,0.00625\)，块半宽 \(L=2.4,\,4.8\)，\(\hat d=5\times10^{-4},\,2.5\times10^{-4},\,1.25\times10^{-4}\)。压深 0.004、0.006、0.009、0.013，两个半径共 8 个标签。</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/w3i_e0_rigid_ball_flat_press.mp4" style="width:888px;max-width:100%;height:auto"></video><figcaption class="small">这段视频展示了刚球压平块时，压得越深，球和块接触的那一片越大。这是 3.2 节那张标签表（\(\hat d\) = 0.000125）对应的那次仿真，用同样的设置重跑了一遍、每帧录了下来，每个压深的弹性能和标签逐值一致。左边是过接触中心的剖面，灰色是半径 1 的刚球，蓝色是软块（杨氏模量 1e5），竖直方向放大 4 倍，球和块之间描红的是剖面上受力的块节点连成的段；右边是从正上方看块的顶面，灰点是块表面的网格点，粉色是红点围出的接触区。红色是 IPC 实际施加了接触力的块节点：压头的点落在块的某个三角形上时，力按位置分到这个三角形的三个角；两条棱靠近时，力分到块那条棱的两端。所以红色区域比真正贴住的地方大一圈，大约一个网格单元，网格越粗这圈越宽。球固定不动，块被一组向上的力推着依次压到六个深度，每停稳一次画面停一秒，小字给出这时的压深和弹性能，从第 4 秒的 0.0038 和 0.058 到第 26 秒的 0.0232 和 5.06。对比每一段停住的画面可以看出，左边的红段和右边的接触区一起变大，最深一档整面受力节点 516 个、剖面上 25 个，压深涨了 6 倍，弹性能涨了约 87 倍。</figcaption></figure>
 <h4>软球冠压软块</h4>
 <p>压头本身是软的：用与块相同的分级网格，翻转后把底面压成球冠，每个节点的高度改为</p>
-<p>\[\color{#c0392b}{y\leftarrow y+f(r)\Big(1-\frac yD\Big),\qquad f(r)=R-\sqrt{R^2-\min(r,r_{\text{cap}})^2}}.\]</p>
-<p>\(y\) 是节点高度，\(D\) 是压头高度，\(r=\sqrt{x^2+z^2}\) 是到中轴的水平距离，\(R=1\) 是球冠半径，\(r_{\text{cap}}=0.6\) 是球冠的水平半径，\(f(r)\) 是球冠在 \(r\) 处比最低点高出的量。括号里的因子让改动从底面往顶面逐渐减到零，所以压头顶面仍是平的，球冠外是一圈平台。</p>
+<p>\[\color{#c0392b}{y\leftarrow y+f(r)\Big(1-\frac yH\Big),\qquad f(r)=R-\sqrt{R^2-\min(r,r_{\text{cap}})^2}}.\]</p>
+<p>\(y\) 是节点高度，\(H\) 是压头高度，\(r=\sqrt{x^2+z^2}\) 是到中轴的水平距离，\(R=1\) 是球冠半径，\(r_{\text{cap}}=0.6\) 是球冠的水平半径，\(f(r)\) 是球冠在 \(r\) 处比最低点高出的量。括号里的因子让改动从底面往顶面逐渐减到零，所以压头顶面仍是平的，球冠外是一圈平台。</p>
 <p>四组只换软硬：压头/块的杨氏模量为 \(10^8/10^5\)、\(10^6/10^5\)、\(10^5/10^5\)、\(10^5/10^6\)。压头一侧承担的软度份额（压头的 \(1/E&#x27;\) 占两侧之和的比例）依次为 0.001、0.091、0.5、0.909。网格 \(h_c=0.05,\,0.025,\,0.0125\)，每组 6 个压深。</p>
 <h4>刚球压曲面块</h4>
-<p>块的顶面换成曲面 \(y=s(x,z)\)，节点按 \(y\leftarrow y+s\,(1+y/D)\) 竖直移动，底面不动，\(L=D=1.2\)。</p>
-<p>环面（像游泳圈）：管半径 \(r=2\)，管中心圆半径 \(R_T\)。压在管顶时绕管截面方向凸、沿圆环方向是平的（与半径 1 的球合起来，两个方向的曲率比为 1.5）；压在内圈时绕管截面方向凸、沿圆环方向凹：</p>
-<p>\[\color{#c0392b}{s_{\text{管顶}}=\sqrt{r^2-\Big(\sqrt{(R_T-z)^2+x^2}-R_T\Big)^2}-r,\qquad s_{\text{内圈}}=R_T-r-\sqrt{\Big(R_T-\sqrt{r^2-z^2}\Big)^2-x^2}}.\]</p>
+<p>块的顶面换成曲面 \(y=\eta(x,z)\)（\(\eta\) 是顶面高度），节点按 \(y\leftarrow y+\eta\,(1+y/D)\) 竖直移动，底面不动，\(L=D=1.2\)。</p>
+<p>环面（像游泳圈）：管半径 \(r_T=2\)，管中心圆半径 \(R_T\)。压在管顶时绕管截面方向凸、沿圆环方向是平的（与半径 1 的球合起来，两个方向的曲率比为 1.5）；压在内圈时绕管截面方向凸、沿圆环方向凹：</p>
+<p>\[\color{#c0392b}{\begin{aligned}\eta_{\text{管顶}}&amp;=\sqrt{r_T^2-\Big(\sqrt{(R_T-z)^2+x^2}-R_T\Big)^2}-r_T,\\\eta_{\text{内圈}}&amp;=R_T-r_T-\sqrt{\Big(R_T-\sqrt{r_T^2-z^2}\Big)^2-x^2}.\end{aligned}}\]</p>
 <p>波浪面：波幅 \(\Delta=0.1\)，波长 \(\lambda=4\)，压在波峰或波谷：</p>
 <p>\[\color{#c0392b}{s_{\text{波峰}}=\Delta\Big[\cos\frac{2\pi x}{\lambda}-1\Big],\qquad s_{\text{波谷}}=\Delta\Big[1-\cos\frac{2\pi x}{\lambda}\Big]}.\]</p>
 <p>14 个构型：刚球半径 1 或 0.5，分别压环面管顶、环面内圈（\(R_T=4\)；半径 1 的球另加 \(R_T=6\)、\(4.5\)，扁度 0.69、0.92）、波峰、波谷、杨氏模量 \(2\times10^5\) 的平块，以及作对照的 \(10^5\) 平块。半径 1 的球压深 0.006、0.009、0.012，半径 0.5 的网格和压深都减半。分母用椭圆 Hertz 能量，再除以同半径平块对照的比值，以消去共有的数值误差。</p>
@@ -645,23 +645,23 @@ html.annot-on #annot-capture { display: block; }
 <p>两个相同的软球冠压头（球冠半径 1、水平半径 0.18，压头半宽 0.2、高 0.6），中心在 \(x=\pm0.219\)，与块一样软。一组两个同时压，另一组只压一个。压深 0.006、0.009、0.012。只有一档网格，没做网格外推（旧版边界驱动标签），因此只拿单个压头的 3 行做预测，不进训练。</p>
 <h4>其他形状（E2–E6）</h4>
 <ul>
-<li><strong>平底圆柱（E2）。</strong> 刚性圆柱，半径 \(a=0.25,\,0.5,\,1\)，块和网格随 \(a\) 等比放大，压深 0.003–0.024。分母是平底的解析能量 \(\color{#c0392b}{U_{\text{ref}}=E^*a\,\delta^2}\)（由 2.2 节平底力 \(F=2E^*a\,s\) 从零积分：\(\int_0^\delta2E^*a\,s\,ds=E^*a\,\delta^2\)）。共 12 个标签。</li>
+<li><strong>平底圆柱（E2）。</strong> 刚性圆柱，半径 \(a=0.25,\,0.5,\,1\)，块和网格随 \(a\) 等比放大，压深 0.003–0.024。分母是平底的解析能量 \(\color{#c0392b}{U_{\text{ref}}=E^*a\,\delta^2}\)（由 2.2 节平底力 \(F=2E^*a\,\delta&#x27;\) 从零积分：\(\int_0^\delta2E^*a\,\delta&#x27;\,d\delta&#x27;=E^*a\,\delta^2\)）。共 12 个标签。</li>
 <li><strong>两个平底凸台（E3）。</strong> 同一刚体下有一个或两个半径 \(a=0.1\) 的凸台，两凸台中心距为 \(4a\) 或 \(10a\)；正压 4 个构型，整体倾斜 3° 后斜压 4 个构型。压深 0.003、0.006、0.012，共 24 个标签。</li>
 <li>
 <p><strong>薄层（E4）。</strong> 块厚 \(b=0.1\)，刚性球冠压上去，底面粘在刚性底座上或只放在无摩擦地面上。底面不粘时分母是薄层的解析能量</p>
 <p>\[\color{#c0392b}{U_{\text{layer}}=\frac{\pi E^*R\,\delta_{\text{layer}}^3}{3b}},\]</p>
-<p>\(R\) 是球冠半径，\(\delta_{\text{layer}}\) 是扣掉块整体下沉后层实际被压缩的量（下面简写 \(\delta\)）。这个式子来自薄层近似：层很薄，每根竖直细柱各压各的，像一排刚度为每单位面积 \(E^*/b\) 的弹簧，压强 \(p=E^*w/b\)，\(w\) 是该处的压缩量。</p>
-<p>① 压缩量：球冠在 \(r\) 处比最低点高 \(r^2/(2R)\)（2.3 节），所以 \(w(r)=\delta-\frac{r^2}{2R}\)，接触半径满足 \(w(a)=0\)，即 \(a^2=2R\delta\)。</p>
-<p>② 能量：每根弹簧存 \(\tfrac12pw\)，对接触面积分（\(dA=2\pi r\,dr\)）：</p>
+<p>\(R\) 是球冠半径，\(\delta_{\text{layer}}\) 是扣掉块整体下沉后层实际被压缩的量（下面简写 \(\delta\)）。这个式子来自薄层近似：层很薄，每根竖直细柱各压各的，像一排刚度为每单位面积 \(E^*/b\) 的弹簧，压强 \(p=E^*u/b\)，\(u\) 是该处的压缩量。</p>
+<p>① 压缩量：球冠在 \(r\) 处比最低点高 \(r^2/(2R)\)（2.3 节），所以 \(u(r)=\delta-\frac{r^2}{2R}\)，接触半径满足 \(u(a)=0\)，即 \(a^2=2R\delta\)。</p>
+<p>② 能量：每根弹簧存 \(\tfrac12pu\)，对接触面积分（\(dA=2\pi r\,dr\)）：</p>
 <p>\[U=\int_0^a\frac12\cdot\frac{E^*}{b}\Big(\delta-\frac{r^2}{2R}\Big)^2\,2\pi r\,dr.\]</p>
-<p>③ 令 \(u=\frac{r^2}{2R}\)，\(r\,dr=R\,du\)，\(r=a\) 时 \(u=\delta\)：</p>
-<p>\[U=\frac{\pi E^*R}{b}\int_0^\delta(\delta-u)^2\,du=\frac{\pi E^*R}{b}\cdot\frac{\delta^3}{3}=\frac{\pi E^*R\,\delta^3}{3b}.\]</p>
+<p>③ 令 \(\tau=\frac{r^2}{2R}\)，\(r\,dr=R\,d\tau\)，\(r=a\) 时 \(\tau=\delta\)：</p>
+<p>\[U=\frac{\pi E^*R}{b}\int_0^\delta(\delta-\tau)^2\,d\tau=\frac{\pi E^*R}{b}\cdot\frac{\delta^3}{3}=\frac{\pi E^*R\,\delta^3}{3b}.\]</p>
 <p>层越薄越硬，能量按压缩量的三次方涨。共 16 个标签。</p>
 </li>
 <li>
 <p><strong>有限高圆柱块（E5）。</strong> 块换成半径 1 的圆柱，高 0.15–2.4 共 5 档，底面固定，刚球半径 1 压上去，压深 0.005、0.012。圆柱高本身就是要研究的量，不做块尺寸外推。共 10 个标签。</p>
 </li>
-<li><strong>幂律压头（E6）。</strong> 轮廓 \(\color{#c0392b}{y=c\,r^k}\)，外面是平顶：圆锥 \(k=1\)，介于圆锥和球之间 \(k=1.5\)，比球更平 \(k=4\)。分母是同一轮廓压半空间的解析能量，\(k=2\) 时就是 Hertz。共 9 个标签。</li>
+<li><strong>幂律压头（E6）。</strong> 轮廓 \(\color{#c0392b}{y=A\,r^n}\)（同 2.4 节的幂律），外面是平顶：圆锥 \(n=1\)，介于圆锥和球之间 \(n=1.5\)，比球更平 \(n=4\)。分母是同一轮廓压半空间的解析能量，\(n=2\) 时就是 Hertz。共 9 个标签。</li>
 </ul>
 <h4>解析解数据</h4>
 <p>不跑仿真，每个构型直接由解析解给出：球用 Hertz，平底用 Boussinesq，两个软曲面体对压用降维法。</p>
@@ -706,7 +706,7 @@ html.annot-on #annot-capture { display: block; }
 <td>1.004–1.011</td>
 </tr>
 <tr>
-<td>\(y=c\,r^{1.5}\)</td>
+<td>\(y=A\,r^{1.5}\)</td>
 <td>Sneddon</td>
 <td>0.994–1.006</td>
 </tr>
@@ -778,8 +778,8 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w4-3" class="numbered">4.3 相似律与 \(\sqrt2\)</h3>
 
 <p><strong>两个相同软球同时放大一倍。</strong> 两球半径都是 \(R\)，合成半径由曲率相加得到：</p>
-<p>\[\color{#c0392b}{\frac1{R_{\text{合}}}=\frac1R+\frac1R=\frac2R\ \Longrightarrow\ R_{\text{合}}=\frac R2}.\]</p>
-<p>放大一倍后合成半径也翻倍（\(\frac1{R_{\text{合}}&#x27;}=\frac1{2R}+\frac1{2R}=\frac1R\)，\(R_{\text{合}}&#x27;=R\)），材料不变所以 \(E^*\) 不变。由 \(\color{#c0392b}{U_H\propto\sqrt{R_{\text{合}}}}\)（2.3 节 \(U_H=\frac8{15}E^*\sqrt R\,d^{5/2}\)），同一压深下</p>
+<p>\[\color{#c0392b}{\frac1{R^*}=\frac1R+\frac1R=\frac2R\ \Longrightarrow\ R^*=\frac R2}.\]</p>
+<p>放大一倍后合成半径也翻倍（\(\frac1{R^{*\prime}}=\frac1{2R}+\frac1{2R}=\frac1R\)，\(R^{*\prime}=R\)），材料不变所以 \(E^*\) 不变。由 \(\color{#c0392b}{U_H\propto\sqrt{R^*}}\)（2.3 节 \(U_H=\frac8{15}E^*\sqrt{R^*}\,\delta^{5/2}\)），同一压深下</p>
 <p>\[\frac{U_H&#x27;}{U_H}=\frac{\sqrt{R}}{\sqrt{R/2}}=\sqrt2,\]</p>
 <p>即能量应变为 \(\sqrt2=1.414\) 倍。标签给出 1.411–1.438（旧版标签）。刚球 \(R=1\)、\(R=2\) 压平块给出 1.4173–1.4196。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_s32_two_soft_caps_scene.png" width="2490" height="1010" style="width:1035px;max-width:100%;height:auto" alt="这张图是 4.3 节实验压之前过中心的剖面，两幅用同一个比例尺、按真实比例画。上面橙色和下面蓝色是两个一模一样的软物体（杨氏模量都是 1e5），各自朝对方的那一面是一块球冠，两个球冠顶点对顶点。左边两个球冠的半径都是 1，右边都是 2，所以右边的球冠更平；两块物体本身的大小、球冠底面的宽度都没变，变的只有球冠的弯曲半径。" loading="lazy"><figcaption class="small">这张图是 4.3 节实验压之前过中心的剖面，两幅用同一个比例尺、按真实比例画。上面橙色和下面蓝色是两个一模一样的软物体（杨氏模量都是 1e5），各自朝对方的那一面是一块球冠，两个球冠顶点对顶点。左边两个球冠的半径都是 1，右边都是 2，所以右边的球冠更平；两块物体本身的大小、球冠底面的宽度都没变，变的只有球冠的弯曲半径。</figcaption></figure>
@@ -789,7 +789,7 @@ html.annot-on #annot-capture { display: block; }
 <p>hydro 在这件事上只能给出 1 倍或 2 倍：它的力等于压力梯度乘重叠体积，球放大一倍重叠体积翻倍；压力场按半径归一时梯度减半，两者抵消，得 1 倍；按厚度归一时梯度不变，得 2 倍。</p>
 <p><strong>按相似律细查。</strong> 在相同 \(\delta/R=0.0065\) 处，\(R=2\) 的「标签 ÷ Hertz」是 1.0108，\(R=1\) 约 1.0034（10-22 版标签，按压深插值），差 0.74%；\(\sqrt2\) 能对上是两项误差部分抵消。由此查出两个来源：</p>
 <ul>
-<li>外推分母的压深漏了间隙，使比值随 \(\hat d\) 的变化不是直线。这一项已修正（3.2 节的 \(\delta+g_{\text{IPC}}\)）。</li>
+<li>外推分母的压深漏了间隙，使比值随 \(\hat d\) 的变化不是直线。这一项已修正（3.2 节的 \(\delta+\gamma\)）。</li>
 <li>刚球的球面细分没有外推。两个半径用的细分档不同，估计 \(R=1\) 偏低 0.13%–0.34%（与 4.4 节误差账一致）。这一项目前只量出了大小，没有写进标签（3.2 节末）。</li>
 </ul>
 <figure style="margin:12px 0"><img src="assets/images/w34_e0e1_same_depth_ratio.png" width="2494" height="1079" style="width:971px;max-width:100%;height:auto" alt="这张图展示了把刚球放大一倍、压力按相似律放大四倍以后，压出来的坑形状不变，只是整体大了一倍。左边是半径 1 的灰色刚球压在蓝色软平块上，右边是半径 2 的刚球压在同样的软块上，右边的压力是左边的 4 倍，右图取景框也放大了一倍，两边竖直方向都放大 4 倍。两张图里球和块贴合的样子一样，右边的弹性能是左边的 7.98 倍，接近相似律给出的 2³ = 8 倍（这是未外推的单次读数），所以同一个「压深 ÷ 半径」下，两个半径的「标签 ÷ Hertz」应该相等。" loading="lazy"><figcaption class="small">这张图展示了把刚球放大一倍、压力按相似律放大四倍以后，压出来的坑形状不变，只是整体大了一倍。左边是半径 1 的灰色刚球压在蓝色软平块上，右边是半径 2 的刚球压在同样的软块上，右边的压力是左边的 4 倍，右图取景框也放大了一倍，两边竖直方向都放大 4 倍。两张图里球和块贴合的样子一样，右边的弹性能是左边的 7.98 倍，接近相似律给出的 2³ = 8 倍（这是未外推的单次读数），所以同一个「压深 ÷ 半径」下，两个半径的「标签 ÷ Hertz」应该相等。</figcaption></figure>
@@ -870,8 +870,8 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w5-1" class="numbered">5.1 原版 hydro</h3>
 
 <p>hydro 在每个物体内预设一张压力分布：</p>
-<p>\[\color{#c0392b}{p=\frac{E_h}{D}\times s}.\]</p>
-<p>\(s\) 是这一点离物体表面的深度；\(E_h\) 是人为设定的模量，与材料真实硬度无关；\(D\) 是物体内离表面最远的距离（球就是半径）；\(E_h/D\) 是压力随深度增加的速度。两物体重叠时，在重叠区每点取两侧压力的较小者，积分得能量：</p>
+<p>\[\color{#c0392b}{p=\frac{E_h}{D_h}\times s}.\]</p>
+<p>\(s\) 是这一点离物体表面的深度；\(E_h\) 是人为设定的模量，与材料真实硬度无关；\(D_h\) 是物体内离表面最远的距离（球就是半径）；\(E_h/D_h\) 是压力随深度增加的速度。两物体重叠时，在重叠区每点取两侧压力的较小者，积分得能量：</p>
 <p>\[\color{#c0392b}{U=\int_{\text{重叠区}}\min(p_A,p_B)\,dV},\]</p>
 <p>\(dV\) 是体积元。重叠得越深、重叠区越大，能量越大。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_fig07_hydro_pressure_field.png" width="1323" height="883" style="width:629px;max-width:100%;height:auto" alt="这张图展示了 hydro 怎样算能量。左边橙色是物体 A，右边绿色是物体 B，颜色从边缘的浅色到中心的深色表示压力越往里越大，黑色箭头标的是一点离表面的深度 s，压力和深度成正比。通过对比两个物体各自的压力颜色和两圆相交处的蓝色重叠区，可以看出 hydro 事先把压力画死在每个物体里，碰撞时在重叠区每点取两边压力中小的那个加起来，所以每个物体的压力场与对面是谁、旁边有没有别的接触无关。" loading="lazy"><figcaption class="small">这张图展示了 hydro 怎样算能量。左边橙色是物体 A，右边绿色是物体 B，颜色从边缘的浅色到中心的深色表示压力越往里越大，黑色箭头标的是一点离表面的深度 s，压力和深度成正比。通过对比两个物体各自的压力颜色和两圆相交处的蓝色重叠区，可以看出 hydro 事先把压力画死在每个物体里，碰撞时在重叠区每点取两边压力中小的那个加起来，所以每个物体的压力场与对面是谁、旁边有没有别的接触无关。</figcaption></figure>
@@ -968,10 +968,10 @@ html.annot-on #annot-capture { display: block; }
 <figure style="margin:12px 0"><img src="assets/images/w34_t6p_single02_scene.png" width="2068" height="970" style="width:895px;max-width:100%;height:auto" alt="这张图是死结里「只压一个」的那次计算：同一块、同一压深，只留右边凸台（x = 0.2），画法同上一张。和上一张比，右凸台底下的接触区一样大（最深一档整面受力节点 81 个），但剖面上左边的块面不再被压下去。成对时块面整体先被另一个凸台带着沉了一点，所以每个凸台分到的弹性能比单压时少：两个一起压的能量是单压的 1.72 倍而不是 2 倍，对应 c ≈ 0.861，边界元给 0.8606。" loading="lazy"><figcaption class="small">这张图是死结里「只压一个」的那次计算：同一块、同一压深，只留右边凸台（x = 0.2），画法同上一张。和上一张比，右凸台底下的接触区一样大（最深一档整面受力节点 81 个），但剖面上左边的块面不再被压下去。成对时块面整体先被另一个凸台带着沉了一点，所以每个凸台分到的弹性能比单压时少：两个一起压的能量是单压的 1.72 倍而不是 2 倍，对应 c ≈ 0.861，边界元给 0.8606。</figcaption></figure>
 <h4>hydro 只能相加，真值要打折</h4>
 <p>hydro 的能量可以统一写成</p>
-<p>\[\color{#c0392b}{U^{\text{hydro}}=\int_{\Omega}e\big(s(\mathbf x)\big)\,dV}.\]</p>
-<p>\(\Omega\) 是两物体的重叠区，\(\mathbf x\) 是其中一点，\(s(\mathbf x)\) 是它在物体里的深度，\(e(s)\) 是由压力场决定的单位体积能量。每一小块只按自己的深度算能量，与旁边有没有别的接触无关。</p>
+<p>\[\color{#c0392b}{U^{\text{hydro}}=\int_{\Omega}\mathcal E\big(s(\mathbf x)\big)\,dV}.\]</p>
+<p>\(\Omega\) 是两物体的重叠区，\(\mathbf x\) 是其中一点，\(s(\mathbf x)\) 是它在物体里的深度，\(\mathcal E(s)\) 是由压力场决定的单位体积能量。每一小块只按自己的深度算能量，与旁边有没有别的接触无关。</p>
 <p>两个压头离得开，同时压的重叠区就是两块单独重叠区拼起来，两块不相交：\(\color{#c0392b}{\Omega_③=\Omega_①\cup\Omega_②}\)。积分随之拆开：</p>
-<p>\[\color{#c0392b}{U^{\text{hydro}}_③=\int_{\Omega_①}e\,dV+\int_{\Omega_②}e\,dV=U^{\text{hydro}}_①+U^{\text{hydro}}_②}.\]</p>
+<p>\[\color{#c0392b}{U^{\text{hydro}}_③=\int_{\Omega_①}\mathcal E\,dV+\int_{\Omega_②}\mathcal E\,dV=U^{\text{hydro}}_①+U^{\text{hydro}}_②}.\]</p>
 <p>这对任何压力场都成立。真实弹性体则由 2.6 节：</p>
 <p>\[\color{#c0392b}{U_③=c\,(U_①+U_②),\qquad c&lt;1}.\]</p>
 <p>P 压下去时周围表面按 1/距离 跟着陷，Q 那里等于已被压低一点，需要压入的量变少，存的能量也就少了。</p>
@@ -1011,29 +1011,29 @@ html.annot-on #annot-capture { display: block; }
 <figure style="margin:12px 0"><img src="assets/images/w34_fig12_hydropp_15_objects.png" width="2236" height="876" style="width:1072px;max-width:100%;height:auto" alt="这张图展示了 hydro++ 泛化实验用的 15 个物体以及配对的划分方式。左边每一列是一种形状，依次是半径 1 的球、半径 2 的球、圆锥、中心按 1.5 次方凸出的幂律压头和平面，每个物体朝下的那条边就是它的表面轮廓；每一行是一种杨氏模量 E（1×10⁵、2×10⁵、4×10⁵），颜色越深越硬。右边的 3×3 方格以「球 R=1 对球 R=2」这一对形状为例，行是球 R=1 的模量，列是球 R=2 的模量，每格是一个具体配对，绿色是训练，红色是测试，灰色是验证。通过对比红色测试格和它所在行、所在列里的绿色训练格，可以看出每一行、每一列都有两个训练格，所以测试配对里的两个物体都在训练里和别的对手配过，只是这两个没有一起出现过。其余形状对也这样分，全部 102 对里训练 68 对、验证 10 对、测试 24 对，测试考的就是 hydro++ 能不能从见过的配对推出没见过的组合。" loading="lazy"><figcaption class="small">这张图展示了 hydro++ 泛化实验用的 15 个物体以及配对的划分方式。左边每一列是一种形状，依次是半径 1 的球、半径 2 的球、圆锥、中心按 1.5 次方凸出的幂律压头和平面，每个物体朝下的那条边就是它的表面轮廓；每一行是一种杨氏模量 E（1×10⁵、2×10⁵、4×10⁵），颜色越深越硬。右边的 3×3 方格以「球 R=1 对球 R=2」这一对形状为例，行是球 R=1 的模量，列是球 R=2 的模量，每格是一个具体配对，绿色是训练，红色是测试，灰色是验证。通过对比红色测试格和它所在行、所在列里的绿色训练格，可以看出每一行、每一列都有两个训练格，所以测试配对里的两个物体都在训练里和别的对手配过，只是这两个没有一起出现过。其余形状对也这样分，全部 102 对里训练 68 对、验证 10 对、测试 24 对，测试考的就是 hydro++ 能不能从见过的配对推出没见过的组合。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/w34_s4_3_memorize.png" width="1104" height="837" style="width:554px;max-width:100%;height:auto" alt="这张图展示了 hydro++ 能记住见过的配对，但推不到没见过的配对。左边蓝点是 464 个训练构型的误差，最大 0.0003%；右边红点是 240 个两物体没有一起出现过的构型，最大 12.12%，近一半在灰色 1% 线上方，两团相差三个多数量级。所以 hydro++ 记住的是每一对的答案，没有学到「能量只取决于缝隙和合成模量」这条规律。" loading="lazy"><figcaption class="small">这张图展示了 hydro++ 能记住见过的配对，但推不到没见过的配对。左边蓝点是 464 个训练构型的误差，最大 0.0003%；右边红点是 240 个两物体没有一起出现过的构型，最大 12.12%，近一半在灰色 1% 线上方，两团相差三个多数量级。所以 hydro++ 记住的是每一对的答案，没有学到「能量只取决于缝隙和合成模量」这条规律。</figcaption></figure>
 <p><strong>自由度再多也只是背下来。</strong> 场每多一份自由度，训练集里的冲突就被拟掉一块。只随深度变的场，同一个凸台既水平压又斜着压，至少错 28%–35%；让场再随压头的位置变，只剩 1.11%。若取</p>
-<p>\[\color{#c0392b}{p=c\,\frac{s}{r}}\]</p>
-<p>（\(s\) 是深度，\(r\) 是到接触轴的距离，\(c\) 是系数），任意两个球配对都精确等于 Hertz：离轴越近弹簧越硬，大球多出来的重叠正好落在软的外圈。12 个物体的循环赛共 198 个构型，给场 18720 个参数，能拟到 \(5.1\times10^{-15}\)。但改变压头半径时，多组场都能完全拟合 \(R=1,2\)，对 \(R=1.5,3\) 的预测误差却从 0.07% 到 57% 不等，训练数据分不出哪一组是对的。有限的训练集总能背下来；而 5.3 节的问题里物体和场都没变，参数再多也改不了「相加」这一条。</p>
+<p>\[\color{#c0392b}{p=\beta\,\frac{s}{r}}\]</p>
+<p>（\(s\) 是深度，\(r\) 是到接触轴的距离，\(\beta\) 是系数），任意两个球配对都精确等于 Hertz：离轴越近弹簧越硬，大球多出来的重叠正好落在软的外圈。12 个物体的循环赛共 198 个构型，给场 18720 个参数，能拟到 \(5.1\times10^{-15}\)。但改变压头半径时，多组场都能完全拟合 \(R=1,2\)，对 \(R=1.5,3\) 的预测误差却从 0.07% 到 57% 不等，训练数据分不出哪一组是对的。有限的训练集总能背下来；而 5.3 节的问题里物体和场都没变，参数再多也改不了「相加」这一条。</p>
 <h4>辅助论证：压力只随深度变时的下界</h4>
 <p>真实结果中有只属于一对物体的量，例如椭圆接触的扁度取决于两侧合起来的曲率比；每个物体各管各的场拼不出来。在「压力只随深度变」的前提下可以把这一点算出来。</p>
 <p><strong>设置。</strong> 环面、波浪面、两种材料三组，每组用半径 1 和 0.5 两个刚球，分别压两个块（环面的管顶和内圈、波浪面的波峰和波谷、杨氏模量 \(10^5\) 和 \(2\times10^5\) 的平块），共四种组合，各造一个标签。</p>
 <p><strong>三个前提。</strong></p>
 <ol>
 <li>
-<p>场只随深度变，并取能让能量对上 Hertz 2.5 次方的形状：\(\color{#c0392b}{p=\kappa\sqrt s}\)。\(s\) 是深度，\(\kappa\) 是这个物体的场强度，每个物体只剩这一个数可调。为什么是 \(\sqrt s\)：刚球压进带这个场的块，用 5.1 节的截圆面积 \(2\pi R(\delta-s)\) 逐层累加，</p>
-<p>\[U=\int_0^\delta2\pi R(\delta-s)\,\kappa\sqrt s\,ds=2\pi R\kappa\Big(\delta\cdot\frac23\delta^{3/2}-\frac25\delta^{5/2}\Big)=2\pi R\kappa\cdot\frac{4}{15}\delta^{5/2}\ \propto\ \delta^{5/2},\]</p>
-<p>与 Hertz 的 \(d^{5/2}\) 同幂次。</p>
+<p>场只随深度变，并取能让能量对上 Hertz 2.5 次方的形状：\(\color{#c0392b}{p=\sigma\sqrt s}\)。\(s\) 是深度，\(\sigma\) 是这个物体的场强度，每个物体只剩这一个数可调。为什么是 \(\sqrt s\)：刚球压进带这个场的块，用 5.1 节的截圆面积 \(2\pi R(\delta-s)\) 逐层累加，</p>
+<p>\[U=\int_0^\delta2\pi R(\delta-s)\,\sigma\sqrt s\,ds=2\pi R\sigma\Big(\delta\cdot\frac23\delta^{3/2}-\frac25\delta^{5/2}\Big)=2\pi R\sigma\cdot\frac{4}{15}\delta^{5/2}\ \propto\ \delta^{5/2},\]</p>
+<p>与 Hertz 的 \(\delta^{5/2}\) 同幂次。</p>
 </li>
 <li>
-<p>两个场压在一起时像串联弹簧，柔度相加，这里柔度是强度的负二次方：\(\color{#c0392b}{\kappa_{\text{合}}^{-2}=\kappa_A^{-2}+\kappa_B^{-2}}\)。</p>
+<p>两个场压在一起时像串联弹簧，柔度相加，这里柔度是强度的负二次方：\(\color{#c0392b}{\sigma_{\text{合}}^{-2}=\sigma_A^{-2}+\sigma_B^{-2}}\)。</p>
 </li>
-<li>记号：\(\color{#c0392b}{T_{ij}=\kappa_{\text{合},ij}^{-2}}\) 是第 \(i\) 个压头压第 \(j\) 个块的合成柔度，\(\color{#c0392b}{u_i=\kappa_{P_i}^{-2}}\) 是第 \(i\) 个压头的柔度，\(\color{#c0392b}{v_j=\kappa_{B_j}^{-2}}\) 是第 \(j\) 个块的柔度。</li>
+<li>记号：\(\color{#c0392b}{T_{ij}=\sigma_{\text{合},ij}^{-2}}\) 是第 \(i\) 个压头压第 \(j\) 个块的合成柔度，\(\color{#c0392b}{C^{\text P}_i=\sigma_{P_i}^{-2}}\) 是第 \(i\) 个压头的柔度，\(\color{#c0392b}{C^{\text B}_j=\sigma_{B_j}^{-2}}\) 是第 \(j\) 个块的柔度。</li>
 </ol>
 <p><strong>推导。</strong> 由前提 3 的记号与前提 2，每种组合的合成柔度是两份之和：</p>
-<p>\[T_{ij}=\kappa_{\text{合},ij}^{-2}=\kappa_{P_i}^{-2}+\kappa_{B_j}^{-2}=u_i+v_j.\]</p>
+<p>\[T_{ij}=\sigma_{\text{合},ij}^{-2}=\sigma_{P_i}^{-2}+\sigma_{B_j}^{-2}=C^{\text P}_i+C^{\text B}_j.\]</p>
 <p>写出四格：</p>
-<p>\[T_{11}=u_1+v_1,\quad T_{22}=u_2+v_2,\quad T_{12}=u_1+v_2,\quad T_{21}=u_2+v_1.\]</p>
+<p>\[T_{11}=C^{\text P}_1+C^{\text B}_1,\quad T_{22}=C^{\text P}_2+C^{\text B}_2,\quad T_{12}=C^{\text P}_1+C^{\text B}_2,\quad T_{21}=C^{\text P}_2+C^{\text B}_1.\]</p>
 <p>对角两格分别相加：</p>
-<p>\[\color{#c0392b}{T_{11}+T_{22}=u_1+u_2+v_1+v_2=T_{12}+T_{21}}.\]</p>
+<p>\[\color{#c0392b}{T_{11}+T_{22}=C^{\text P}_1+C^{\text P}_2+C^{\text B}_1+C^{\text B}_2=T_{12}+T_{21}}.\]</p>
 <p><strong>结果。</strong> 这种场下，2×2 表格的两条对角线之和必须相等。标签给出的并不相等：环面 1.329 对 1.535，波浪面 1.432 对 1.609，材料 1.125 对 0.750。hydro++ 只能把差摊到四种组合上，摊得最匀时至少分别错 3.6%、2.9% 和 10.1%。真实接触的结果还与两边如何搭配有关，加法凑不出来。</p>
 <figure style="margin:12px 0"><img src="assets/images/w34_s4_2_t5_tables.png" width="1874" height="1123" style="width:940px;max-width:100%;height:auto" alt="这张图展示了如果每个物体的压力场只随离表面的深度变，hydro++ 在环面、波浪面、两种材料三组实验上至少错 3.6%、2.9%、10.1%。每组下面是一个 2×2 格子，行是半径 1 和 0.5 两个刚球压头，列是两个块（环面的顶部和内圈、波浪面的波峰和波谷、两块杨氏模量 1e5 和 2e5 的平块），①到④是四种组合；上面一排是半径 1 那一行各构型从正上方看块顶面的接触斑，每张放在对应那一列正上方：灰点是块面的网格点，离球面不到 4 倍间隙 \(\hat d\) 的点涂成红色，粉色是红点围出的接触区；平块上是圆，环面内圈被拉成很扁的长条，波谷也比波峰宽，可见块面怎么弯决定了接触斑的形状。两种材料的块形状相同，只放 E 1e5 那一张。格子里的数是由标签算出的串联柔度 T：hydro++ 在这种场下给每个物体一份柔度，两物体压在一起时两份相加，所以四格的 T 必须能拆成「行的一份加列的一份」，等价于对角两格之和 ①+④ 等于另两格之和 ②+③。标签里这两个和并不相等，环面 1.329 对 1.535、波浪面 1.432 对 1.609、材料 1.125 对 0.750，hydro++ 只能把这个差摊到四个构型上，最好的摊法也有下方红字那么大的能量误差，材料组差得最多。这个下界依赖「压力只随深度变」的 √ 型场这一前提，允许场在三维里任意变化时不一定成立，所以只作为 5.3 节死结之外的辅助论证。" loading="lazy"><figcaption class="small">这张图展示了如果每个物体的压力场只随离表面的深度变，hydro++ 在环面、波浪面、两种材料三组实验上至少错 3.6%、2.9%、10.1%。每组下面是一个 2×2 格子，行是半径 1 和 0.5 两个刚球压头，列是两个块（环面的顶部和内圈、波浪面的波峰和波谷、两块杨氏模量 1e5 和 2e5 的平块），①到④是四种组合；上面一排是半径 1 那一行各构型从正上方看块顶面的接触斑，每张放在对应那一列正上方：灰点是块面的网格点，离球面不到 4 倍间隙 \(\hat d\) 的点涂成红色，粉色是红点围出的接触区；平块上是圆，环面内圈被拉成很扁的长条，波谷也比波峰宽，可见块面怎么弯决定了接触斑的形状。两种材料的块形状相同，只放 E 1e5 那一张。格子里的数是由标签算出的串联柔度 T：hydro++ 在这种场下给每个物体一份柔度，两物体压在一起时两份相加，所以四格的 T 必须能拆成「行的一份加列的一份」，等价于对角两格之和 ①+④ 等于另两格之和 ②+③。标签里这两个和并不相等，环面 1.329 对 1.535、波浪面 1.432 对 1.609、材料 1.125 对 0.750，hydro++ 只能把这个差摊到四个构型上，最好的摊法也有下方红字那么大的能量误差，材料组差得最多。这个下界依赖「压力只随深度变」的 √ 型场这一前提，允许场在三维里任意变化时不一定成立，所以只作为 5.3 节死结之外的辅助论证。</figcaption></figure>
 <p>这个下界依赖「压力只随深度变」的前提，对任意三维场没有证明，所以只作辅助；主论证是 5.3 节，那里不管压力场怎么取都成立。</p></section>
@@ -1045,13 +1045,13 @@ html.annot-on #annot-capture { display: block; }
 <h4>单个接触区</h4>
 <p><strong>输入。</strong> 两表面之间的缝隙，以及两侧各自的形状和材料。</p>
 <p><strong>主体能量。</strong> 由解析式直接计算：轴对称时用 2.2 节的降维法，椭圆接触用椭圆 Hertz。</p>
-<p><strong>椭圆接触时怎么修正。</strong> 椭圆分支仍在一条一维轮廓上用降维法，这条轮廓属于一个等效圆，半径由接触处两个主方向上的相对曲率 \(c_1,c_2\) 得到：</p>
-<p>\[R_e=\frac{1}{\sqrt{c_1c_2}}.\]</p>
-<p>椭圆的形状只进一个因子：椭圆 Hertz 能量与半径为 \(R_e\) 的圆的 Hertz 能量之比，它只取决于两个方向的曲率比：</p>
-<p>\[F_U(e)=\frac{U_{\text{椭圆 Hertz}}}{U_H(R_e)}.\]</p>
+<p><strong>椭圆接触时怎么修正。</strong> 椭圆分支仍在一条一维轮廓上用降维法，这条轮廓属于一个等效圆，半径由接触处两个主方向上两侧合起来的曲率 \(\kappa_1,\kappa_2\)（同 2.4 节）得到：</p>
+<p>\[R^*=\frac{1}{\sqrt{\kappa_1\kappa_2}}.\]</p>
+<p>椭圆的形状只进一个因子：椭圆 Hertz 能量与半径为 \(R^*\) 的圆的 Hertz 能量之比，它只取决于两个方向的曲率比：</p>
+<p>\[F_U(e)=\frac{U_{\text{椭圆 Hertz}}}{U_H(R^*)}.\]</p>
 <p>骨架把合成模量乘上这个因子：</p>
-<p>\[U_{\text{骨架}}=F_U\cdot\frac{8}{15}E^*\sqrt{R_e}\,\delta^{5/2}.\]</p>
-<p>修正为零时，骨架就严格等于椭圆 Hertz。网络对 \(g\) 的修正仍作用在这条一维等效圆轮廓上，不改变椭圆的形状；椭圆有多扁只通过输入告诉网络：扁度 \(e=\ln(c_{\max}/c_{\min})\)，以及两侧在两个主方向上各占多少曲率。所以椭圆带来的大头由 \(F_U\) 精确算出，网络只补剩下的小量（标签相对椭圆 Hertz 只偏 0.24%–0.51%，见 6.2 节）。</p>
+<p>\[U_{\text{骨架}}=F_U\cdot\frac{8}{15}E^*\sqrt{R^*}\,\delta^{5/2}.\]</p>
+<p>修正为零时，骨架就严格等于椭圆 Hertz。网络对 \(g\) 的修正仍作用在这条一维等效圆轮廓上，不改变椭圆的形状；椭圆有多扁只通过输入告诉网络：扁度 \(e=\ln(\kappa_1/\kappa_2)\)，以及两侧在两个主方向上各占多少曲率。所以椭圆带来的大头由 \(F_U\) 精确算出，网络只补剩下的小量（标签相对椭圆 Hertz 只偏 0.24%–0.51%，见 6.2 节）。</p>
 <p><strong>网络（约 500 个参数）。</strong> 只输出两样小修正：对等效轮廓 \(g\) 的修正，以及（可选，约 40 个参数，本页结果未开）对合成模量 \(E^*\) 的修正。用来补上有限 \(a/R\)、有限尺寸和有限变形造成的偏差（4.2 节那种）。</p>
 <p><strong>结构保证的性质。</strong> 修正项不以压深为输入，修正后的等效轮廓仍随 \(|x|\) 单调增加。因此 2.2 节的两条性质原样保留：</p>
 <ul>
@@ -1120,17 +1120,17 @@ html.annot-on #annot-capture { display: block; }
 <li><strong>我们</strong>：软块外推到无限大，只钉中轴线的水平位置，压深从结果里读。</li>
 </ul>
 <p><strong>求解器。</strong> 他们不用 IPC，用自己写的牛顿法，接触用罚函数：</p>
-<p>\[E_{\text{contact}}=\tfrac12\,\kappa\sum_i a_i\,\max(0,\,-d_i)^2.\]</p>
+<p>\[E_{\text{contact}}=\tfrac12\,k_{\text p}\sum_i A_i\,\max(0,\,-q_i)^2.\]</p>
 <ul>
-<li>\(d_i\) 是第 \(i\) 个表面点到对方表面的有向距离，穿进去为负；</li>
-<li>\(\max(0,-d_i)\) 只在穿进去时取穿入深度，没穿入时为零；</li>
-<li>\(a_i\) 是这个点分到的表面积；</li>
-<li>\(\kappa=10^9\) 是罚系数。</li>
+<li>\(q_i\) 是第 \(i\) 个表面点到对方表面的有向距离，穿进去为负；</li>
+<li>\(\max(0,-q_i)\) 只在穿进去时取穿入深度，没穿入时为零；</li>
+<li>\(A_i\) 是这个点分到的表面积；</li>
+<li>\(k_{\text p}=10^9\) 是罚系数。</li>
 </ul>
 <p>直观地说，就是在穿透处放一根极硬的弹簧，穿得越深罚得越多。所以它允许约 \(10^{-5}\) 的微小穿透。IPC 则完全不穿透，但两表面之间留一层间隙，我们靠外推去掉它。</p>
 <p><strong>扣掉预应变自己的松弛。</strong> 他们给每个球预先加一点随机的整体拉压（每个分量不超过 2%），让网络见到「粗状态带应变」的情况。一个带应变的球即使不碰任何东西，局部变形也会自己松弛掉一部分能量，这部分不是接触造成的，所以标签取</p>
-<p>\[\color{#c0392b}{U_{\text{contact}}=U_c-U_{0,1}-U_{0,2}},\]</p>
-<p>\(U_{0,k}\) 是第 \(k\) 个球在同样粗状态下、没有接触时的那部分能量。</p>
+<p>\[\color{#c0392b}{U_{\text{contact}}=U_c-U_{\text{free},1}-U_{\text{free},2}},\]</p>
+<p>\(U_{\text{free},k}\) 是第 \(k\) 个球在同样粗状态下、没有接触时的那部分能量。</p>
 <p><strong>数据量。</strong> 随机采样，固定种子：</p>
 <div class="tablewrap"><table>
 <thead>
@@ -1180,16 +1180,16 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w7-2" class="numbered">7.2 他们的网络和训练</h3>
 
 <p>能量写成「Hertz × 修正」：</p>
-<p>\[\color{#c0392b}{U=E^*\cdot\frac{8}{15}\sqrt{R_{\text{eff}}}\,\delta^{5/2}\cdot\exp(g)}.\]</p>
+<p>\[\color{#c0392b}{U=E^*\cdot\frac{8}{15}\sqrt{R^*}\,\delta^{5/2}\cdot\exp(\phi)}.\]</p>
 <ul>
-<li>\(R_{\text{eff}}\) 是由两侧主曲率合成的半径；</li>
-<li>\(g\) 是一个三层、每层 64 个神经元的网络，约 9900 个参数；</li>
-<li>\(\exp(g)\) 保证修正因子为正，\(g=0\) 时就是 Hertz。</li>
+<li>\(R^*\) 是由两侧主曲率合成的半径；</li>
+<li>\(\phi\) 是一个三层、每层 64 个神经元的网络，约 9900 个参数；</li>
+<li>\(\exp(\phi)\) 保证修正因子为正，\(\phi=0\) 时就是 Hertz。</li>
 </ul>
-<p><strong>输入。</strong> 压深与半径之比 \(\log(\delta/R_{\text{eff}})\)；每个物体 11 个数：两个主曲率半径、沿法向的尺寸、泊松比、它分担的柔度份额，以及粗状态的 6 个应变分量。两个物体交换顺序再平均，保证对称。</p>
+<p><strong>输入。</strong> 压深与半径之比 \(\log(\delta/R^*)\)；每个物体 11 个数：两个主曲率半径、沿法向的尺寸、泊松比、它分担的柔度份额，以及粗状态的 6 个应变分量。两个物体交换顺序再平均，保证对称。</p>
 <p><strong>两个结构上的缺口。</strong></p>
 <ul>
-<li>修正直接以压深为输入，没有结构上的单调保证。压深超出训练范围时 \(\exp(g)\) 会塌掉，所以他们在动力学里压深小于 0.005 时冻结修正、只用 Hertz。</li>
+<li>修正直接以压深为输入，没有结构上的单调保证。压深超出训练范围时 \(\exp(\phi)\) 会塌掉，所以他们在动力学里压深小于 0.005 时冻结修正、只用 Hertz。</li>
 <li>模型只描述一个接触区，没有接触区之间的相互影响。</li>
 </ul>
 <p><strong>训练。</strong> 只拟合能量；损失是相对误差的平方，分母加了 1% 的 Hertz 值作地板，以免接近零的标签主导。Adam，学习率 \(10^{-3}\) 余弦退火，20000 步，3 个种子取中位数。</p>
@@ -1289,7 +1289,7 @@ html.annot-on #annot-capture { display: block; }
 </tr>
 <tr>
 <td>修正放在哪</td>
-<td>整体能量乘 \(\exp(g)\)</td>
+<td>整体能量乘 \(\exp(\phi)\)</td>
 <td>只修等效轮廓，Hertz 极限保持精确</td>
 </tr>
 <tr>
@@ -1429,7 +1429,7 @@ html.annot-on #annot-capture { display: block; }
   viewer.addEventListener('close', () => opener && opener.focus({ preventScroll: true }));
 })();
 </script>
-<script type="application/json" id="annot-renames">{"tex": {}, "text": {}}</script>
+<script type="application/json" id="annot-renames">{"tex": {"\\color{#c0392b}{d=g(a),\\qquad F=2E^*\\int_0^a\\big(d-g(x)\\big)dx,\\qquad U_0=E^*\\int_0^a\\big(d-g(x)\\big)^2dx}.": "\\color{#c0392b}{\\delta=g(a),\\qquad F=2E^*\\int_0^a\\big(\\delta-g(x)\\big)dx,\\qquad U_0=E^*\\int_0^a\\big(\\delta-g(x)\\big)^2dx}.", "w(r)=\\frac{2\\delta}{\\pi}\\arcsin\\frac{\\tilde a}{r}\\quad(r>\\tilde a).": "u(r)=\\frac{2\\delta}{\\pi}\\arcsin\\frac{\\tilde a}{r}\\quad(r>\\tilde a).", "F=2E^*\\Big[\\tilde a\\,g(\\tilde a)\\Big]_0^a-2E^*\\int_0^ag\\,d\\tilde a=2E^*\\Big(a\\,d-\\int_0^ag\\,d\\tilde a\\Big)=2E^*\\int_0^a\\big(d-g(x)\\big)dx.": "F=2E^*\\Big[\\tilde a\\,g(\\tilde a)\\Big]_0^a-2E^*\\int_0^ag\\,d\\tilde a=2E^*\\Big(a\\,\\delta-\\int_0^ag\\,d\\tilde a\\Big)=2E^*\\int_0^a\\big(\\delta-g(x)\\big)dx.", "w(a)=\\frac2\\pi\\int_0^a\\arcsin\\frac{\\tilde a}{a}\\;g'(\\tilde a)\\,d\\tilde a.": "u(a)=\\frac2\\pi\\int_0^a\\arcsin\\frac{\\tilde a}{a}\\;g'(\\tilde a)\\,d\\tilde a.", "w(a)=\\frac2\\pi\\Big[\\arcsin\\frac{\\tilde a}{a}\\,g(\\tilde a)\\Big]_0^a-\\frac2\\pi\\int_0^a\\frac{g(\\tilde a)}{\\sqrt{a^2-\\tilde a^2}}\\,d\\tilde a.": "u(a)=\\frac2\\pi\\Big[\\arcsin\\frac{\\tilde a}{a}\\,g(\\tilde a)\\Big]_0^a-\\frac2\\pi\\int_0^a\\frac{g(\\tilde a)}{\\sqrt{a^2-\\tilde a^2}}\\,d\\tilde a.", "w(a)=d-\\frac2\\pi\\int_0^a\\frac{g(\\tilde a)}{\\sqrt{a^2-\\tilde a^2}}\\,d\\tilde a.": "u(a)=\\delta-\\frac2\\pi\\int_0^a\\frac{g(\\tilde a)}{\\sqrt{a^2-\\tilde a^2}}\\,d\\tilde a.", "\\int_t^x\\frac{r\\,dr}{\\sqrt{x^2-r^2}\\,\\sqrt{r^2-t^2}}=\\frac12\\int_{t^2}^{x^2}\\frac{du}{\\sqrt{(x^2-u)(u-t^2)}}=\\frac12\\int_0^{\\pi/2}2\\,d\\theta=\\frac\\pi2.": "\\int_t^x\\frac{r\\,dr}{\\sqrt{x^2-r^2}\\,\\sqrt{r^2-t^2}}=\\frac12\\int_{t^2}^{x^2}\\frac{d\\tau}{\\sqrt{(x^2-\\tau)(\\tau-t^2)}}=\\frac12\\int_0^{\\pi/2}2\\,d\\theta=\\frac\\pi2.", "\\frac{dU_0}{dd}=E^*\\big(d-g(a)\\big)^2\\frac{da}{dd}+E^*\\int_0^a2\\big(d-g(x)\\big)dx.": "\\frac{dU_0}{d\\delta}=E^*\\big(\\delta-g(a)\\big)^2\\frac{da}{d\\delta}+E^*\\int_0^a2\\big(\\delta-g(x)\\big)dx.", "\\frac{dU_0}{dd}=2E^*\\int_0^a\\big(d-g(x)\\big)dx=F.": "\\frac{dU_0}{d\\delta}=2E^*\\int_0^a\\big(\\delta-g(x)\\big)dx=F.", "K=2E^*\\big(d-g(a)\\big)\\frac{da}{dd}+2E^*\\int_0^a1\\,dx.": "K=2E^*\\big(\\delta-g(a)\\big)\\frac{da}{d\\delta}+2E^*\\int_0^a1\\,dx.", "\\color{#c0392b}{h=f_A+f_B=\\frac{r^2}{2R_A}+\\frac{r^2}{2R_B}=\\frac{r^2}{2}\\Big(\\frac1{R_A}+\\frac1{R_B}\\Big)=\\frac{r^2}{2R},\\qquad \\frac1R=\\frac1{R_A}+\\frac1{R_B}}.": "\\color{#c0392b}{h=f_A+f_B=\\frac{r^2}{2R_A}+\\frac{r^2}{2R_B}=\\frac{r^2}{2}\\Big(\\frac1{R_A}+\\frac1{R_B}\\Big)=\\frac{r^2}{2R^*},\\qquad \\frac1{R^*}=\\frac1{R_A}+\\frac1{R_B}}.", "g(x)=\\frac{|x|}{R}\\int_0^{|x|}\\frac{r}{\\sqrt{x^2-r^2}}\\,dr=\\frac{|x|}{R}\\Big[-\\sqrt{x^2-r^2}\\Big]_0^{|x|}=\\frac{|x|}{R}\\big(0+|x|\\big)=\\frac{x^2}{R}.": "g(x)=\\frac{|x|}{R^*}\\int_0^{|x|}\\frac{r}{\\sqrt{x^2-r^2}}\\,dr=\\frac{|x|}{R^*}\\Big[-\\sqrt{x^2-r^2}\\Big]_0^{|x|}=\\frac{|x|}{R^*}\\big(0+|x|\\big)=\\frac{x^2}{R^*}.", "\\color{#c0392b}{F=2E^*\\int_0^a\\Big(d-\\frac{x^2}{R}\\Big)dx=2E^*\\Big(ad-\\frac{a^3}{3R}\\Big)}.": "\\color{#c0392b}{F=2E^*\\int_0^a\\Big(\\delta-\\frac{x^2}{R^*}\\Big)dx=2E^*\\Big(a\\delta-\\frac{a^3}{3R^*}\\Big)}.", "\\color{#c0392b}{F=2E^*\\Big(\\sqrt R\\,d^{3/2}-\\frac13\\sqrt R\\,d^{3/2}\\Big)=2E^*\\cdot\\frac23\\sqrt R\\,d^{3/2}=\\frac43E^*\\sqrt R\\,d^{3/2}}.": "\\color{#c0392b}{F=2E^*\\Big(\\sqrt{R^*}\\,\\delta^{3/2}-\\frac13\\sqrt{R^*}\\,\\delta^{3/2}\\Big)=2E^*\\cdot\\frac23\\sqrt{R^*}\\,\\delta^{3/2}=\\frac43E^*\\sqrt{R^*}\\,\\delta^{3/2}}.", "\\color{#c0392b}{U_H=\\int_0^d\\frac43E^*\\sqrt R\\,s^{3/2}\\,ds=\\frac43E^*\\sqrt R\\cdot\\frac25d^{5/2}=\\frac{8}{15}E^*\\sqrt R\\,d^{5/2}}.": "\\color{#c0392b}{U_H=\\int_0^\\delta\\frac43E^*\\sqrt{R^*}\\,\\delta'^{3/2}\\,d\\delta'=\\frac43E^*\\sqrt{R^*}\\cdot\\frac25\\delta^{5/2}=\\frac{8}{15}E^*\\sqrt{R^*}\\,\\delta^{5/2}}.", "g(x)=|x|\\int_0^{|x|}\\frac{c\\,n\\,r^{n-1}}{\\sqrt{x^2-r^2}}\\,dr.": "g(x)=|x|\\int_0^{|x|}\\frac{A\\,n\\,r^{n-1}}{\\sqrt{x^2-r^2}}\\,dr.", "\\begin{aligned}g(x)&=|x|\\int_0^1\\frac{c\\,n\\,|x|^{n-1}t^{n-1}}{|x|\\sqrt{1-t^2}}\\,|x|\\,dt\\\\&=c\\,|x|^n\\cdot n\\int_0^1\\frac{t^{n-1}}{\\sqrt{1-t^2}}\\,dt\\\\&=\\kappa_n\\,c\\,|x|^n,\\qquad \\kappa_n=n\\int_0^1\\frac{t^{n-1}}{\\sqrt{1-t^2}}\\,dt.\\end{aligned}": "\\begin{aligned}g(x)&=|x|\\int_0^1\\frac{A\\,n\\,|x|^{n-1}t^{n-1}}{|x|\\sqrt{1-t^2}}\\,|x|\\,dt\\\\&=A\\,|x|^n\\cdot n\\int_0^1\\frac{t^{n-1}}{\\sqrt{1-t^2}}\\,dt\\\\&=\\mu_n\\,A\\,|x|^n,\\qquad \\mu_n=n\\int_0^1\\frac{t^{n-1}}{\\sqrt{1-t^2}}\\,dt.\\end{aligned}", "d=\\kappa_n\\,c\\,a^n\\ \\Longrightarrow\\ a=\\Big(\\frac{d}{\\kappa_n c}\\Big)^{1/n}\\propto d^{1/n}.": "\\delta=\\mu_n\\,A\\,a^n\\ \\Longrightarrow\\ a=\\Big(\\frac{\\delta}{\\mu_n A}\\Big)^{1/n}\\propto \\delta^{1/n}.", "U_0=E^*\\int_0^ad^2\\Big(1-\\Big(\\frac xa\\Big)^n\\Big)^2dx.": "U_0=E^*\\int_0^a\\delta^2\\Big(1-\\Big(\\frac xa\\Big)^n\\Big)^2dx.", "U_0=E^*\\,a\\,d^2\\int_0^1\\big(1-s^n\\big)^2ds\\ \\propto\\ a\\,d^2.": "U_0=E^*\\,a\\,\\delta^2\\int_0^1\\big(1-\\xi^n\\big)^2d\\xi\\ \\propto\\ a\\,\\delta^2.", "\\color{#c0392b}{U_0\\propto d^{1/n}\\cdot d^2=d^{2+1/n}=d^{(2n+1)/n}}.": "\\color{#c0392b}{U_0\\propto \\delta^{1/n}\\cdot \\delta^2=\\delta^{2+1/n}=\\delta^{(2n+1)/n}}.", "\\color{#c0392b}{\\text{扁度}=\\ln\\frac{\\kappa_1}{\\kappa_2}},": "\\color{#c0392b}{e=\\ln\\frac{\\kappa_1}{\\kappa_2}},", "X_1=X_0+2k\\hat d_2,\\qquad X_2=X_0+k\\hat d_2.": "X_1=X_0+2\\alpha\\hat d_2,\\qquad X_2=X_0+\\alpha\\hat d_2.", "X_0=X_2-k\\hat d_2=X_2-(X_1-X_2)=2X_2-X_1.": "X_0=X_2-\\alpha\\hat d_2=X_2-(X_1-X_2)=2X_2-X_1.", "X(L_1)=X_\\infty+\\frac{k}{L_1},\\qquad X(L_2)=X_\\infty+\\frac{k}{2L_1}.": "X(L_1)=X_\\infty+\\frac{\\alpha}{L_1},\\qquad X(L_2)=X_\\infty+\\frac{\\alpha}{2L_1}.", "U_2=U_\\infty+C\\Big(\\frac h2\\Big)^p,\\qquad U_3=U_\\infty+C\\Big(\\frac h4\\Big)^p.": "U^{(2)}=U_\\infty+C\\Big(\\frac h2\\Big)^p,\\qquad U^{(3)}=U_\\infty+C\\Big(\\frac h4\\Big)^p.", "U_2-U_3=C\\Big(\\frac h2\\Big)^p-C\\Big(\\frac h4\\Big)^p=C\\Big(\\frac h4\\Big)^p\\big(2^p-1\\big)\\ \\Longrightarrow\\ C\\Big(\\frac h4\\Big)^p=\\frac{U_2-U_3}{2^p-1}.": "U^{(2)}-U^{(3)}=C\\Big(\\frac h2\\Big)^p-C\\Big(\\frac h4\\Big)^p=C\\Big(\\frac h4\\Big)^p\\big(2^p-1\\big)\\ \\Longrightarrow\\ C\\Big(\\frac h4\\Big)^p=\\frac{U^{(2)}-U^{(3)}}{2^p-1}.", "U_\\infty=U_3-\\frac{U_2-U_3}{2^p-1}": "U_\\infty=U^{(3)}-\\frac{U^{(2)}-U^{(3)}}{2^p-1}", "\\color{#c0392b}{U_\\infty=U_3+\\frac{U_3-U_2}{2^p-1}}.": "\\color{#c0392b}{U_\\infty=U^{(3)}+\\frac{U^{(3)}-U^{(2)}}{2^p-1}}.", "\\begin{aligned}U_1-U_2&=C\\,h^p-C\\Big(\\frac h2\\Big)^p=C\\,h^p(1-2^{-p}),\\\\U_2-U_3&=C\\Big(\\frac h2\\Big)^p-C\\Big(\\frac h4\\Big)^p=C\\Big(\\frac h2\\Big)^p(1-2^{-p}).\\end{aligned}": "\\begin{aligned}U^{(1)}-U^{(2)}&=C\\,h^p-C\\Big(\\frac h2\\Big)^p=C\\,h^p(1-2^{-p}),\\\\U^{(2)}-U^{(3)}&=C\\Big(\\frac h2\\Big)^p-C\\Big(\\frac h4\\Big)^p=C\\Big(\\frac h2\\Big)^p(1-2^{-p}).\\end{aligned}", "\\frac{U_1-U_2}{U_2-U_3}=\\frac{h^p}{(h/2)^p}=2^p.": "\\frac{U^{(1)}-U^{(2)}}{U^{(2)}-U^{(3)}}=\\frac{h^p}{(h/2)^p}=2^p.", "\\color{#c0392b}{\\frac{U_1-U_2}{U_2-U_3}=2^p\\ \\Longrightarrow\\ p=\\log_2\\frac{U_1-U_2}{U_2-U_3}}.": "\\color{#c0392b}{\\frac{U^{(1)}-U^{(2)}}{U^{(2)}-U^{(3)}}=2^p\\ \\Longrightarrow\\ p=\\log_2\\frac{U^{(1)}-U^{(2)}}{U^{(2)}-U^{(3)}}}.", "\\varepsilon\\approx\\frac{\\rho^2}{2R}.": "\\zeta\\approx\\frac{\\rho^2}{2R}.", "\\color{#c0392b}{F(c)=\\tfrac43E^*\\sqrt R\\,(c-g_0)^{3/2},\\qquad f_i=\\frac{m_i}{M}\\,F}.": "\\color{#c0392b}{F(\\delta_{\\text t})=\\tfrac43E^*\\sqrt R\\,(\\delta_{\\text t}-\\gamma_0)^{3/2},\\qquad F^{\\text b}_i=\\frac{m_i}{M}\\,F}.", "\\color{#c0392b}{y\\leftarrow y+f(r)\\Big(1-\\frac yD\\Big),\\qquad f(r)=R-\\sqrt{R^2-\\min(r,r_{\\text{cap}})^2}}.": "\\color{#c0392b}{y\\leftarrow y+f(r)\\Big(1-\\frac yH\\Big),\\qquad f(r)=R-\\sqrt{R^2-\\min(r,r_{\\text{cap}})^2}}.", "\\color{#c0392b}{s_{\\text{管顶}}=\\sqrt{r^2-\\Big(\\sqrt{(R_T-z)^2+x^2}-R_T\\Big)^2}-r,\\qquad s_{\\text{内圈}}=R_T-r-\\sqrt{\\Big(R_T-\\sqrt{r^2-z^2}\\Big)^2-x^2}}.": "\\color{#c0392b}{\\begin{aligned}\\eta_{\\text{管顶}}&=\\sqrt{r_T^2-\\Big(\\sqrt{(R_T-z)^2+x^2}-R_T\\Big)^2}-r_T,\\\\\\eta_{\\text{内圈}}&=R_T-r_T-\\sqrt{\\Big(R_T-\\sqrt{r_T^2-z^2}\\Big)^2-x^2}.\\end{aligned}}", "U=\\frac{\\pi E^*R}{b}\\int_0^\\delta(\\delta-u)^2\\,du=\\frac{\\pi E^*R}{b}\\cdot\\frac{\\delta^3}{3}=\\frac{\\pi E^*R\\,\\delta^3}{3b}.": "U=\\frac{\\pi E^*R}{b}\\int_0^\\delta(\\delta-\\tau)^2\\,d\\tau=\\frac{\\pi E^*R}{b}\\cdot\\frac{\\delta^3}{3}=\\frac{\\pi E^*R\\,\\delta^3}{3b}.", "\\color{#c0392b}{\\frac1{R_{\\text{合}}}=\\frac1R+\\frac1R=\\frac2R\\ \\Longrightarrow\\ R_{\\text{合}}=\\frac R2}.": "\\color{#c0392b}{\\frac1{R^*}=\\frac1R+\\frac1R=\\frac2R\\ \\Longrightarrow\\ R^*=\\frac R2}.", "\\color{#c0392b}{p=\\frac{E_h}{D}\\times s}.": "\\color{#c0392b}{p=\\frac{E_h}{D_h}\\times s}.", "\\color{#c0392b}{U^{\\text{hydro}}=\\int_{\\Omega}e\\big(s(\\mathbf x)\\big)\\,dV}.": "\\color{#c0392b}{U^{\\text{hydro}}=\\int_{\\Omega}\\mathcal E\\big(s(\\mathbf x)\\big)\\,dV}.", "\\color{#c0392b}{U^{\\text{hydro}}_③=\\int_{\\Omega_①}e\\,dV+\\int_{\\Omega_②}e\\,dV=U^{\\text{hydro}}_①+U^{\\text{hydro}}_②}.": "\\color{#c0392b}{U^{\\text{hydro}}_③=\\int_{\\Omega_①}\\mathcal E\\,dV+\\int_{\\Omega_②}\\mathcal E\\,dV=U^{\\text{hydro}}_①+U^{\\text{hydro}}_②}.", "\\color{#c0392b}{p=c\\,\\frac{s}{r}}": "\\color{#c0392b}{p=\\beta\\,\\frac{s}{r}}", "U=\\int_0^\\delta2\\pi R(\\delta-s)\\,\\kappa\\sqrt s\\,ds=2\\pi R\\kappa\\Big(\\delta\\cdot\\frac23\\delta^{3/2}-\\frac25\\delta^{5/2}\\Big)=2\\pi R\\kappa\\cdot\\frac{4}{15}\\delta^{5/2}\\ \\propto\\ \\delta^{5/2},": "U=\\int_0^\\delta2\\pi R(\\delta-s)\\,\\sigma\\sqrt s\\,ds=2\\pi R\\sigma\\Big(\\delta\\cdot\\frac23\\delta^{3/2}-\\frac25\\delta^{5/2}\\Big)=2\\pi R\\sigma\\cdot\\frac{4}{15}\\delta^{5/2}\\ \\propto\\ \\delta^{5/2},", "T_{ij}=\\kappa_{\\text{合},ij}^{-2}=\\kappa_{P_i}^{-2}+\\kappa_{B_j}^{-2}=u_i+v_j.": "T_{ij}=\\sigma_{\\text{合},ij}^{-2}=\\sigma_{P_i}^{-2}+\\sigma_{B_j}^{-2}=C^{\\text P}_i+C^{\\text B}_j.", "T_{11}=u_1+v_1,\\quad T_{22}=u_2+v_2,\\quad T_{12}=u_1+v_2,\\quad T_{21}=u_2+v_1.": "T_{11}=C^{\\text P}_1+C^{\\text B}_1,\\quad T_{22}=C^{\\text P}_2+C^{\\text B}_2,\\quad T_{12}=C^{\\text P}_1+C^{\\text B}_2,\\quad T_{21}=C^{\\text P}_2+C^{\\text B}_1.", "\\color{#c0392b}{T_{11}+T_{22}=u_1+u_2+v_1+v_2=T_{12}+T_{21}}.": "\\color{#c0392b}{T_{11}+T_{22}=C^{\\text P}_1+C^{\\text P}_2+C^{\\text B}_1+C^{\\text B}_2=T_{12}+T_{21}}.", "R_e=\\frac{1}{\\sqrt{c_1c_2}}.": "R^*=\\frac{1}{\\sqrt{\\kappa_1\\kappa_2}}.", "F_U(e)=\\frac{U_{\\text{椭圆 Hertz}}}{U_H(R_e)}.": "F_U(e)=\\frac{U_{\\text{椭圆 Hertz}}}{U_H(R^*)}.", "U_{\\text{骨架}}=F_U\\cdot\\frac{8}{15}E^*\\sqrt{R_e}\\,\\delta^{5/2}.": "U_{\\text{骨架}}=F_U\\cdot\\frac{8}{15}E^*\\sqrt{R^*}\\,\\delta^{5/2}.", "E_{\\text{contact}}=\\tfrac12\\,\\kappa\\sum_i a_i\\,\\max(0,\\,-d_i)^2.": "E_{\\text{contact}}=\\tfrac12\\,k_{\\text p}\\sum_i A_i\\,\\max(0,\\,-q_i)^2.", "\\color{#c0392b}{U_{\\text{contact}}=U_c-U_{0,1}-U_{0,2}},": "\\color{#c0392b}{U_{\\text{contact}}=U_c-U_{\\text{free},1}-U_{\\text{free},2}},", "\\color{#c0392b}{U=E^*\\cdot\\frac{8}{15}\\sqrt{R_{\\text{eff}}}\\,\\delta^{5/2}\\cdot\\exp(g)}.": "\\color{#c0392b}{U=E^*\\cdot\\frac{8}{15}\\sqrt{R^*}\\,\\delta^{5/2}\\cdot\\exp(\\phi)}."}, "text": {"是该节点受的力": "是该节点受的体力"}}</script>
 <script>
 (() => {
   'use strict';
