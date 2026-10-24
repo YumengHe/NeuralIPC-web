@@ -218,6 +218,8 @@ def test_ipad_draw(browser, rep, out):
               f"锚点 {kinds}；文字锚点 exact={st[1]['anchor'].get('exact')!r}" if len(st) == 2
               else f"笔画数 {len(st)}，锚点 {[s['anchor'] for s in st]}，点数 {[len(s['pts']) for s in st]}")
     if len(st) != 2:
+        top = page.evaluate("([x, y]) => { const e = document.elementFromPoint(x, y); return e && (e.tagName + '#' + e.id + '.' + e.className); }", [sx, sy])
+        print(f"      文字那一笔的起点 ({sx:.1f}, {sy:.1f})，字矩形 {c}，该点最上层元素 {top}")
         raise SystemExit("a2 没画出两笔，后面的检查无法进行")
     pres = sorted({p[2] for p in st[0]["pts"]})
     widths = page.evaluate(f"""() => [...document.querySelectorAll('#annot-layer path')].map(p => p.getBBox().height)""")
