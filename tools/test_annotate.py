@@ -119,8 +119,17 @@ def pen_stroke(cdp, pts, forces):
 
 
 def scroll_to(page, js_target):
-    page.evaluate(f"() => ({js_target}).scrollIntoView({{block: 'center', behavior: 'instant'}})")
+    """把目标元素滚到视口中间（立即滚动），并确认它真的在视口里。"""
+    r = page.evaluate(f"""() => {{
+      const el = ({js_target});
+      const r0 = el.getBoundingClientRect();
+      window.scrollTo({{top: scrollY + r0.top - innerHeight / 2 + Math.min(r0.height, innerHeight * 0.6) / 2, behavior: 'instant'}});
+      const r = el.getBoundingClientRect();
+      return {{top: r.top, bottom: r.bottom, vh: innerHeight, sy: scrollY}};
+    }}""")
     page.wait_for_timeout(300)
+    if r["top"] > r["vh"] or r["bottom"] < 0:
+        raise SystemExit(f"scroll_to 没把目标滚进视口：{r}")
 
 
 def img_js(src):
