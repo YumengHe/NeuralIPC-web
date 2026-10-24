@@ -7,6 +7,7 @@
 
 import re
 
+from .annotate import ANNOT_CSS, ANNOT_JS
 from .common import MISSING, esc, pct
 from .config import PAGE_TITLE, WEEKS
 
@@ -53,7 +54,7 @@ aside { position: sticky; top: 110px; align-self: start; max-height: calc(100vh 
 #contents a.toc-level-3 { font-size: 12px; padding-left: 22px; }
 #contents a.active { border-color: var(--accent); color: var(--accent); background: #eaf1fb; font-weight: 600; }
 #contents a:hover { color: var(--accent); background: #eef2f7; text-decoration: none; }
-main { min-width: 0; background: var(--paper); padding: 44px 54px 24px; border: 1px solid var(--line); border-radius: 12px;
+main { position: relative; min-width: 0; background: var(--paper); padding: 44px 54px 24px; border: 1px solid var(--line); border-radius: 12px;
        box-shadow: 0 4px 30px #22354b03; }
 .eyebrow { font-size: 10px; letter-spacing: .17em; color: var(--muted); font-weight: 650; }
 .eyebrow span { color: #91a7c2; padding: 0 9px; }
@@ -272,8 +273,12 @@ def topbar(current):
 def page(body, title, current):
     """整页 HTML：doctype + charset / viewport + <title> / <style> + MathJax 配置；顶栏、左侧目录（取正文各节的 h2 / h3，
     没有节的页面不放目录、正文居中）、正文卡片 <main><article>…</article></main>、点图放大的对话框和页面脚本。
-    current：本页文件名（顶栏高亮）。正文里的 d̂ 统一换成 MathJax 行内公式 \\(\\hat d\\)。"""
+    current：本页文件名（顶栏高亮）。正文里的 d̂ 统一换成 MathJax 行内公式 \\(\\hat d\\)。
+    除首页外，每页都带手写标注层（annotate.py：右下角笔记工具栏 + 笔迹图层）。"""
     body, toc = outline(body.replace("d̂", r"\(\hat d\)"))
+    notes = current != "index.html"
+    notes_css = f"<style>{ANNOT_CSS}</style>\n" if notes else ""
+    notes_js = f"<script>{ANNOT_JS}</script>\n" if notes else ""
     aside = ""
     if toc:
         items = "\n".join(f'<a class="toc-level-{lv}" href="#{a}">{text}</a>' for lv, a, text in toc)
@@ -284,7 +289,7 @@ def page(body, title, current):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
 <style>{PAGE_CSS}</style>
-<script>window.MathJax = {{tex: {{inlineMath: [["\\\\(", "\\\\)"]], displayMath: [["\\\\[", "\\\\]"]]}}, svg: {{fontCache: "global"}}}};</script>
+{notes_css}<script>window.MathJax = {{tex: {{inlineMath: [["\\\\(", "\\\\)"]], displayMath: [["\\\\[", "\\\\]"]]}}, svg: {{fontCache: "global"}}}};</script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 <a class="skip" href="#content">跳转到正文</a><div id="progress" aria-hidden="true"></div>
 {topbar(current)}
@@ -293,7 +298,7 @@ def page(body, title, current):
 </article><footer class="pagefoot"><span>{esc(PAGE_TITLE)}</span><a href="#content">返回顶部 ↑</a></footer></main></div>
 <dialog id="image-viewer" aria-label="放大查看图片"><button type="button" id="close-viewer" aria-label="关闭大图">关闭 ×</button><img alt=""><p>点击图片外区域或按 Esc 关闭</p></dialog>
 <script>{PAGE_JS}</script>
-"""
+{notes_js}"""
 
 
 def table(heads, rows):
