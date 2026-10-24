@@ -617,9 +617,9 @@ def test_sync(browser, rep):
         extra = dict(d["strokes"][0], id="foreign1", updatedAt=1)
         d["strokes"].append(extra)
         fk.write(p, base64.b64encode(json.dumps(d).encode("utf-8")).decode())
-    fake.inject = foreign_write
     a.click('[data-tool="pen"][data-color="black"]')
     draw_on_text(a, cdp_a, tgt["needle"])
+    fake.inject = foreign_write   # 下一次 GET（就是下面这次同步的）应答后，仓库被「别的设备」抢先改了
     n409 = sum(1 for c in fake.calls if c[2] == 409)
     sync_now(a)
     conflicts = sum(1 for c in fake.calls if c[2] == 409) - n409

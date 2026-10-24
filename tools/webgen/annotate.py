@@ -914,6 +914,7 @@ ANNOT_JS = r"""
     const cfg = syncCfg();
     if (!cfg.token) return;
     if (SY.busy) { SY.again = true; return; }
+    clearTimeout(SY.timer);   // 这次同步已包含所有本机改动，取消还没到点的防抖推送
     SY.busy = true; SY.dirty = false;
     setSync('同步中');
     try {
