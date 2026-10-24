@@ -305,60 +305,64 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{\gamma_n/\delta t=(-k\phi-\tau_d\,k\,v_n)_+} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\delta t\,v_n} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{\gamma_n/\delta t=(-k\phi-\tau_d\,k\,v_n)_+} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\phi=\phi_0+\delta t\,v_n} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+\quad(3)}\]</p>
 
 
 
-<p>式 (1)：\(\gamma_n\) 是一步内的法向冲量，即力乘步长；\(k\) 是接触刚度；\(\phi\) 是下一步的有符号距离，穿透为负；\(\tau_d\) 是耗散时间尺度，单位秒，阻尼系数为 \(\tau_dk\)；\(v_n\) 是法向相对速度，分开为正；\((\cdot)_+\) 表示负数取 0。它说的是：接触力 = 弹簧力 + 阻尼力，穿得越深推得越大，相互靠近得越快推得越大，只推不拉；\(\tau_d\) 越大，碰后反弹越小。</p>
+<p>式 (1)：带阻尼弹簧的接触模型。\(\gamma_n\) 是一步内的法向冲量，即力乘步长；\(k\) 是接触刚度；\(\phi\) 是下一步的有符号距离，穿透为负；\(\tau_d\) 是耗散时间尺度，单位秒，阻尼系数为 \(\tau_dk\)；\(v_n\) 是法向相对速度，分开为正；\((\cdot)_+\) 表示负数取 0。它说的是：接触力 = 弹簧力 + 阻尼力，穿得越深推得越大，相互靠近得越快推得越大，只推不拉；\(\tau_d\) 越大，碰后反弹越小。</p>
 
-<p>式 (2)：\(\phi_0\) 是步首的有符号距离。它说的是：一步之内重叠量按下一步的速度匀速变化，下一步的穿透量 = 步首穿透量 + 一步内走过的量。</p>
+<p>式 (2)：一步内的运动学关系。\(\phi_0\) 是步首的有符号距离。它说的是：一步之内重叠量按下一步的速度匀速变化，下一步的穿透量 = 步首穿透量 + 一步内走过的量。</p>
 
 <p>结果：步首穿得越深 → 冲量越大；下一步相互靠近得越快 → 冲量越大，因为弹簧会被压得更深、阻尼也更大。冲量只含下一步速度这一个未知量，所以可以隐式求解，步长可以取大。</p>
 
-<details><summary>推导</summary><p>把式 (2) \(\phi=\phi_0+\delta t\,v_n\) 代入式 (1)：</p>
+<details><summary>推导</summary><p>把式 (2) \(\phi=\phi_0+\delta t\,v_n\) 代入式 (1) \(\gamma_n=\delta t(-k\phi-\tau_dk\,v_n)_+\)：</p>
 <p>\[\gamma_n=\delta t\big(-k\phi_0-k\,\delta t\,v_n-\tau_d\,k\,v_n\big)_+\]</p>
 <p>合并 \(v_n\) 项：</p>
-<p>\[\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+\]</p></details>
+<p>\[\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+\qquad(3)\]</p></details>
 <p><b>② 动量方程 = 一个碗形函数的最低点</b></p>
 
-<p>已知：质量矩阵 \(\mathbf M\)、不计接触时的下一步速度 \(\mathbf v^*\)、① 的冲量 \(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)_+\)；求：下一步速度 \(\mathbf v\)。</p>
+<p>已知：质量矩阵 \(\mathbf M\)、不计接触时的下一步速度 \(\mathbf v^*\)、每个接触的冲量；求：下一步速度 \(\mathbf v\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2}\]</p>
-<p>式 (1)：\(\mathbf M\) 是质量矩阵，\(\mathbf v\) 是下一步所有自由度的速度，\(\mathbf v^*\) 是不计接触时的下一步速度，\(\boldsymbol\gamma\) 是所有接触的冲量，\(\mathbf J\) 把接触冲量换成各自由度上的冲量。它说的是：隐式欧拉的动量守恒，速度相对「不碰时会有的速度」的改变量 × 质量，全部来自接触冲量，就是冲量 = 动量变化。</p>
+<p>\[\begin{cases}\color{#c0392b}{\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)\,v_n\big)_+} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{\mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf v=\arg\min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2\quad(6)}\]</p>
+<p>式 (3)：① 推出的每个接触的冲量，随下一步速度线性变化后取正部。</p>
 
-<p>式 (2)：\(R\) 是 ① 中冲量随下一步速度变化的斜率的倒数：下一步速度每增加一点，冲量按固定比例减少。</p>
+<p>式 (4)：牛顿第二定律的一步形式，即隐式欧拉的动量方程。\(\mathbf M\) 是质量矩阵，\(\mathbf v\) 是下一步所有自由度的速度，\(\mathbf v^*\) 是不计接触时的下一步速度，\(\boldsymbol\gamma\) 是所有接触的冲量，\(\mathbf J\) 把接触冲量换成各自由度上的冲量。它说的是：质量 × 速度的改变量，全部来自接触冲量，就是冲量 = 动量变化。</p>
 
-<p>结果：解动量方程等价于找右边函数的最低点。\(k\)、\(\delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
+<p>式 (5)：记号定义。\(R\) 是 (3) 中冲量随下一步速度变化的斜率的倒数：下一步速度每增加一点，冲量按固定比例减少。</p>
+
+<p>结果：解动量方程等价于找 (6) 中函数的最低点。\(k\)、\(\delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
 
 <details><summary>推导</summary><p>记目标函数：</p>
 <p>\[\ell(\mathbf v)=\tfrac12(\mathbf v-\mathbf v^*)^T\mathbf M(\mathbf v-\mathbf v^*)+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2\]</p>
 <p>第一项对 \(\mathbf v\) 求导：</p>
 <p>\[\frac{\partial}{\partial\mathbf v}\tfrac12(\mathbf v-\mathbf v^*)^T\mathbf M(\mathbf v-\mathbf v^*)=\mathbf M(\mathbf v-\mathbf v^*)\]</p>
-<p>\(\gamma_n&gt;0\) 时，由 ① 的 \(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)\) 与式 (2) \(R=1/(\delta t\,k(\delta t+\tau_d))\)：</p>
+<p>\(\gamma_n&gt;0\) 时，由式 (3) \(\gamma_n=\delta t\big(-k\phi_0-k(\delta t+\tau_d)v_n\big)\) 与式 (5) \(R=1/(\delta t\,k(\delta t+\tau_d))\)：</p>
 <p>\[\frac{d\gamma_n}{dv_n}=-\delta t\,k(\delta t+\tau_d)=-\frac1R\]</p>
 <p>第二项对 \(v_n\) 求导：</p>
 <p>\[\frac{d}{dv_n}\Big(\tfrac12R\gamma_n^2\Big)=R\,\gamma_n\cdot\Big(-\frac1R\Big)=-\gamma_n\]</p>
-<p>经 \(\mathbf J\) 换到所有自由度上，令总导数为 0：</p>
-<p>\[\mathbf M(\mathbf v-\mathbf v^*)-\mathbf J^T\boldsymbol\gamma=0\quad\Longleftrightarrow\quad\text{式 (1)}\ \mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma\]</p></details>
+<p>经 \(\mathbf J\) 换到所有自由度上，令总导数为 0，正是式 (4)：</p>
+<p>\[\mathbf M(\mathbf v-\mathbf v^*)-\mathbf J^T\boldsymbol\gamma=0\]</p>
+<p>所以式 (4) 的解就是 \(\ell\) 的最低点：</p>
+<p>\[\mathbf v=\arg\min_{\mathbf v}\ \ell(\mathbf v)\qquad(6)\]</p></details>
 <p><b>③ 近刚性处理：刚度封顶</b></p>
 
 <p>已知：接触刚度 \(k\)、质量 \(m\)、步长 \(\delta t\)、数值参数 \(\beta\)；求：SAP 实际使用的 \(R_n\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\omega_n^2=k/m,\quad T_n=2\pi/\omega_n} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{T_n=\beta\,\delta t,\quad \tau_d=\dfrac{\beta}{\pi}\delta t} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{R_n=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}\approx\dfrac{1}{\delta t^2k}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)}\]</p>
-<p>式 (1)：\(m\) 是质量，\(\omega_n\) 是接触振动的角频率，\(T_n\) 是振动周期。它说的是：接触像一个质量挂在弹簧上振动，弹簧越硬、质量越小，振得越快。</p>
+<p>\[\begin{cases}\color{#c0392b}{R=\dfrac{1}{\delta t\,k(\delta t+\tau_d)}} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{\omega_n^2=\dfrac km,\quad T_n=\dfrac{2\pi}{\omega_n}} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{T_n=\beta\,\delta t,\quad \tau_d=\dfrac{\beta}{\pi}\delta t} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)\quad(9)}\]</p>
+<p>式 (5)：② 定义的 \(R\)，冲量对速度斜率的倒数；\(R\) 越小，接触越硬。</p>
 
-<p>式 (2)：\(\beta\) 是数值参数，默认 1。它说的是：步长能分辨的最快振动，周期大约是一个步长；把周期取到这个界限，就得到步长允许的最硬弹簧，阻尼也按同一时间尺度取。若真实周期比一步还短，一步之内振动就完成了，步长看不清它，这叫近刚性。</p>
+<p>式 (7)：简谐振子定律。\(m\) 是质量，\(\omega_n\) 是接触振动的角频率，\(T_n\) 是振动周期。它说的是：接触像一个质量挂在弹簧上振动，弹簧越硬、质量越小，振得越快。</p>
 
-<p>式 (3)：\(R_n\) 是 ② 的 \(R\)，阻尼时间与步长同量级时近似为 \(1/(\delta t^2k)\)。</p>
+<p>式 (8)：近刚性的界限。\(\beta\) 是数值参数，默认 1。它说的是：步长能分辨的最快振动，周期大约是一个步长；把周期取到这个界限，就得到步长允许的最硬弹簧，阻尼也按同一时间尺度取。若真实周期比一步还短，一步之内振动就完成了，步长看不清它，这叫近刚性。</p>
 
-<p>结果：真实刚度给的 \(R_n\) 太小，即弹簧太硬时，就用步长允许的下限顶住。\(k\) 越大、\(\delta t\) 越大 → 越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、步长、质量决定，与压力场给的 \(k\) 无关。</p>
+<p>结果：真实刚度给的 \(R\) 太小，即弹簧太硬时，就用步长允许的下限顶住。\(k\) 越大、\(\delta t\) 越大 → 越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、步长、质量决定，与压力场给的 \(k\) 无关。</p>
 
-<details><summary>推导</summary><p>由式 (1) \(T_n=2\pi\sqrt{m/k}\) 与式 (2) \(T_n=\beta\,\delta t\)：</p>
+<details><summary>推导</summary><p>由式 (7) \(T_n=2\pi\sqrt{m/k}\) 与式 (8) \(T_n=\beta\,\delta t\)：</p>
 <p>\[2\pi\sqrt{\frac mk}=\beta\,\delta t\quad\Longrightarrow\quad k=\frac{4\pi^2m}{\beta^2\delta t^2}\]</p>
-<p>代入式 (3) \(R_n\approx1/(\delta t^2k)\)：</p>
-<p>\[R_n\approx\frac{\beta^2}{4\pi^2}\,\frac1m\]</p>
+<p>代入式 (5) \(R=1/(\delta t\,k(\delta t+\tau_d))\)，由式 (8) \(\tau_d\) 与 \(\delta t\) 同量级，取 \(\delta t+\tau_d\approx\delta t\)：</p>
+<p>\[R\approx\frac{1}{\delta t^2k}=\frac{\beta^2}{4\pi^2}\,\frac1m\]</p>
 <p>真实刚度给的值小于这个下限时取下限：</p>
-<p>\[R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)\]</p></details>
+<p>\[R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\delta t\,k(\delta t+\tau_d)}\Big)\qquad(9)\]</p></details>
 </details>
 <p><strong>实现</strong></p>
 <ul>
@@ -382,15 +386,16 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ h\approx\frac{r^2}{2R}}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ h\approx\frac{r^2}{2R}\quad(3)}\]</p>
 
 
 
-<p>式 (1)：\(R\) 是球半径，\(r\) 是离最低点的水平距离，\(h\) 是这一点球面比最低点高出的量。它说的是：球心在最低点正上方 \(R\) 处，球面上这一点到球心的距离也是 \(R\)；水平边 \(r\)、竖直边 \(R-h\)、斜边 \(R\) 正好构成一个直角三角形，所以勾股定理成立。</p>
+<p>式 (1)：勾股定理。\(R\) 是球半径，\(r\) 是离最低点的水平距离，\(h\) 是这一点球面比最低点高出的量。它说的是：球心在最低点正上方 \(R\) 处，球面上这一点到球心的距离也是 \(R\)；水平边 \(r\)、竖直边 \(R-h\)、斜边 \(R\) 正好构成一个直角三角形。</p>
 
-<p>式 (2)：接触只发生在球底很小一片，那里高出的量比球半径小得多。例如 \(R=1\) m、\(h=1\) mm 时，\(h^2\) 比 \(2Rh\) 小两千倍，可以丢掉。</p>
+<p>式 (2)：只看最低点附近的条件。接触只发生在球底很小一片，那里高出的量比球半径小得多；例如 \(R=1\) m、\(h=1\) mm 时，\(h^2\) 比 \(2Rh\) 小两千倍，可以丢掉。</p>
 
 <p>结果：离中心越远 → 高出越多，而且按平方涨，远一倍高出四倍，因为碗底越往外越陡；球越大 → 同样距离高出越少，因为大球的碗底更平。</p>
+
 
 
 
@@ -403,112 +408,116 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>两边消去 \(R^2\)：</p>
 <p>\[r^2=2Rh-h^2\]</p>
 <p>由式 (2) \(h\ll R\)，\(h^2\) 相对 \(2Rh\) 可略去：</p>
-<p>\[r^2\approx2Rh\quad\Longrightarrow\quad h\approx\frac{r^2}{2R}\]</p></details>
+<p>\[h\approx\frac{r^2}{2R}\qquad(3)\]</p></details>
 <p><b>② 压深与几何重叠</b></p>
 
-<p>已知：球半径 \(R\)、压深 \(\delta\)（球最低点进入原表面以下的深度）；求：假设垫子不变形时的重叠半径。</p>
+<p>已知：球半径 \(R\)、压深 \(\delta\)；求：假设垫子不变形时的重叠半径 \(a_{\text{几何}}\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{h\approx\dfrac{r^2}{2R}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\delta-h(a_{\text{几何}})=0} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a_{\text{几何}}^2=2R\delta}\]</p>
-<p>式 (1)：① 的结果 \(h\approx r^2/(2R)\)：离中心 \(r\) 处的球面比最低点高出 \(h\)，\(R\) 是球半径。</p>
+<p>\[\begin{cases}\color{#c0392b}{h\approx\dfrac{r^2}{2R}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{\delta-h(a_{\text{几何}})=0} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a_{\text{几何}}^2=2R\delta\quad(5)}\]</p>
+<p>式 (3)：① 推出的球面形状，离中心 \(r\) 处的球面比最低点高出 \(r^2/(2R)\)。</p>
 
-<p>式 (2)：\(\delta\) 是压深，即球最低点进入垫子原表面以下的深度；\(a_{\text{几何}}\) 是假设垫子一点不变形时，球与垫子重叠区的半径；\(h(a_{\text{几何}})\) 是那里球面比最低点高出的量。它说的是：离中心 \(r\) 处的球面在原表面以下 \(\delta-h\)；重叠区的边缘就是球面正好回到原表面、这个差为 0 的地方。</p>
+<p>式 (4)：几何重叠边缘的定义。\(\delta\) 是压深，即球最低点进入垫子原表面以下的深度；\(a_{\text{几何}}\) 是假设垫子一点不变形时，球与垫子重叠区的半径。它说的是：离中心 \(r\) 处的球面在原表面以下 \(\delta-h\)；重叠区的边缘就是球面正好回到原表面、这个差为 0 的地方。</p>
 
 <p>结果：假如垫子一点不凹，球插进去的那一圈有多大；压得越深 → 这一圈越大，但只按平方根变大，因为越往外球面越陡、越难再多插进一圈。下面会看到真实接触比这一圈小。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/hz02_geometric_overlap.png" style="width:538px;max-width:100%;height:auto" alt="假设基体（米色）完全不变形，刚球（灰）直接往下插进去，最低点比原表面低 δ（左边黑色双箭头）。红色透镜是球和基体重叠的那块。蓝色双箭头从中心沿原表面量到重叠的边缘，这一圈的半径就是 a_geo。由 ① 的碗底公式，r²/(2R) = δ 处正好碰到原表面，所以 a_geo² ≈ 2Rδ。真实接触中基体会被带着往下陷，接触圈比这个小，见 ③。" loading="lazy"><figcaption class="small">假设基体（米色）完全不变形，刚球（灰）直接往下插进去，最低点比原表面低 δ（左边黑色双箭头）。红色透镜是球和基体重叠的那块。蓝色双箭头从中心沿原表面量到重叠的边缘，这一圈的半径就是 a_geo。由 ① 的碗底公式，r²/(2R) = δ 处正好碰到原表面，所以 a_geo² ≈ 2Rδ。真实接触中基体会被带着往下陷，接触圈比这个小，见 ③。</figcaption></figure>
-<details><summary>推导</summary><p>把式 (1) \(h=r^2/(2R)\) 在 \(r=a_{\text{几何}}\) 处的值代入式 (2) \(\delta-h(a_{\text{几何}})=0\)：</p>
+<details><summary>推导</summary><p>把式 (3) \(h=r^2/(2R)\) 在 \(r=a_{\text{几何}}\) 处的值代入式 (4)：</p>
 <p>\[\delta-\frac{a_{\text{几何}}^2}{2R}=0\]</p>
 <p>移项：</p>
-<p>\[a_{\text{几何}}^2=2R\delta\]</p></details>
+<p>\[a_{\text{几何}}^2=2R\delta\qquad(5)\]</p></details>
 <p><b>③ 接触半径与中心压强</b></p>
 
 <p>已知：球半径 \(R\)、压深 \(\delta\)、模量 \(E^*\)；求：真实接触半径 \(a\) 与中心压强 \(p_0\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{u=\delta-\dfrac{r^2}{2R}\quad(r\le a)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u=\dfrac{P}{\pi E^*s}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p=p_0\sqrt{1-t^2/a^2}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=R\delta,\quad p_0=\frac{2aE^*}{\pi R}}\]</p>
-<p>式 (1)：\(r\) 是离接触中心的距离，\(a\) 是真实接触半径，\(u\) 是该处垫子表面往下陷的深度，\(\delta\) 是压深，\(R\) 是球半径。它说的是几何贴合：接触区里垫子表面必须正好贴着球面；球底压下去 \(\delta\)，而离中心 \(r\) 处的球面比球底高 \(r^2/(2R)\)，所以那里垫子只需陷 \(\delta-r^2/(2R)\)。</p>
+<p>\[\begin{cases}\color{#c0392b}{h\approx\dfrac{r^2}{2R}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{u(r)=\delta-h(r),\quad r\le a} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{u=\dfrac{P}{\pi E^*s}} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{p(t)=p_0\sqrt{1-t^2/a^2}} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=R\delta,\ \ p_0=\frac{2aE^*}{\pi R}\quad(9);\qquad u(a)=\frac\delta2\quad(10)}\]</p>
+<p>式 (3)：① 推出的球面形状。</p>
 
-<p>式 (2)：\(P\) 是作用在表面一点上的力，\(s\) 是离受力点的距离，\(E^*=E/(1-\nu^2)\) 是垫子的有效模量，\(E\) 是杨氏模量，\(\nu\) 是泊松比。它说的是：按住一点，周围表面也跟着陷，陷的量与力成正比、与距离成反比、与材料硬度成反比，远一倍陷一半。原因是线弹性里下沉与载荷成正比，而弹性半空间里点力造成的下沉按 1/距离 衰减。</p>
+<p>式 (6)：接触条件。\(r\) 是离接触中心的距离，\(a\) 是真实接触半径，\(u\) 是该处垫子表面往下陷的深度，\(\delta\) 是压深。它说的是：接触区里垫子表面必须正好贴着球面；球底压下去 \(\delta\)，而离中心 \(r\) 处的球面比球底高 \(h\)，所以那里垫子只需陷 \(\delta-h\)。</p>
 
-<p>式 (3)：\(t\) 是接触面上一点离接触中心的距离，\(p\) 是该处压强，\(p_0\) 是中心压强。它说的是：压强在接触圆里呈半个椭圆形，中心最大，到接触边缘平滑降到 0；这个形状是待验证的猜测，下面要求它产生的下沉正好满足式 (1)。</p>
+<p>式 (7)：弹性半空间的点力解。\(P\) 是作用在表面一点上的力，\(s\) 是离受力点的距离，\(E^*=E/(1-\nu^2)\) 是垫子的有效模量，\(E\) 是杨氏模量，\(\nu\) 是泊松比。它说的是：按住一点，周围表面也跟着陷，陷的量与力成正比、与距离成反比、与材料硬度成反比，远一倍陷一半；原因是线弹性里下沉与载荷成正比，而弹性体里点力的影响随距离按 1/距离 衰减。</p>
 
-<p>结果：压得越深 → 接触圈越大，球越大 → 接触圈越大；材料越硬、接触圈越大 → 中心压强越大。因为压一点周围都跟着陷，接触边缘的垫子已经被带着陷了一半压深，所以真实接触半径比几何重叠的小，平方之比为 1 : 2。</p>
+<p>式 (8)：试探的压强分布。\(t\) 是接触面上一点离接触中心的距离，\(p\) 是该处压强，\(p_0\) 是中心压强。它说的是：先猜压强在接触圆里呈半个椭圆形，中心最大，到接触边缘平滑降到 0；下面验证按 (7) 叠加出的下沉能对接触区内每一点都满足 (6)，猜对了就是解。</p>
+
+<p>结果：压得越深 → 接触圈越大，球越大 → 接触圈越大；材料越硬、接触圈越大 → 中心压强越大。因为压一点周围都跟着陷，接触边缘的垫子已经被带着陷了一半压深，所以真实接触半径比几何重叠 (5) 的小，平方之比为 1 : 2。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/hz03_pressure_profile.png" style="width:559px;max-width:100%;height:auto" alt="横轴是离接触中心的距离 t，纵轴是那一点的压强。蓝色曲线 p(t) = p₀√(1 − t²/a²) 是半个椭圆：中心 t = 0 最大，等于 p₀（蓝点）；往外逐渐减小，到接触边缘 t = ±a（红色刻度）正好降到 0；圈外不受压。" loading="lazy"><figcaption class="small">横轴是离接触中心的距离 t，纵轴是那一点的压强。蓝色曲线 p(t) = p₀√(1 − t²/a²) 是半个椭圆：中心 t = 0 最大，等于 p₀（蓝点）；往外逐渐减小，到接触边缘 t = ±a（红色刻度）正好降到 0；圈外不受压。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/hz00_contact_profile.png" style="width:534px;max-width:100%;height:auto" alt="这张图把核心式放回剖面上看。红线是球面，蓝线是垫子表面，灰色虚线是垫子原来的表面，竖直方向放大显示。在接触区里任取一条竖线 \(r_0\)：从原表面往下量到球底是压深 \(\delta\)，它正好分成两段，下面一段是这一点球面比球底高出的 \(h(r_0)\)，上面一段是垫子在这一点陷下去的 \(u(r_0)\)。同一条竖线上 \(\delta=h+u\)，所以接触区里垫子的下陷就是 \(u=\delta-h\)：离中心越远，球面抬得越高，垫子陷得越少。粉色带是真实接触区 \(|r|\le a=\sqrt{R\delta}\)，到它的边缘垫子仍下陷 \(\delta/2\)；再往外蓝线离开红线，两者之间是缝隙。右侧点线是几何重叠的边缘 \(r=\sqrt{2R\delta}\)，比真实接触区宽，因为垫子被接触区带着一起往下陷。" loading="lazy"><figcaption class="small">这张图把核心式放回剖面上看。红线是球面，蓝线是垫子表面，灰色虚线是垫子原来的表面，竖直方向放大显示。在接触区里任取一条竖线 \(r_0\)：从原表面往下量到球底是压深 \(\delta\)，它正好分成两段，下面一段是这一点球面比球底高出的 \(h(r_0)\)，上面一段是垫子在这一点陷下去的 \(u(r_0)\)。同一条竖线上 \(\delta=h+u\)，所以接触区里垫子的下陷就是 \(u=\delta-h\)：离中心越远，球面抬得越高，垫子陷得越少。粉色带是真实接触区 \(|r|\le a=\sqrt{R\delta}\)，到它的边缘垫子仍下陷 \(\delta/2\)；再往外蓝线离开红线，两者之间是缝隙。右侧点线是几何重叠的边缘 \(r=\sqrt{2R\delta}\)，比真实接触区宽，因为垫子被接触区带着一起往下陷。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/fig03_boussinesq_1_over_r.png" style="width:557px;max-width:100%;height:auto" alt="这张图说明 Boussinesq 点力解的核心：在弹性半空间表面按住一个点，周围一圈都跟着陷下去，离得越远陷得越少。红色箭头是作用在一点上的点力 \(F\)；米色是半空间，上方灰色虚线是它原来的表面。距离 \(r\) 处表面下沉 \(u\)（蓝色标注），到距离 \(2r\) 处只下沉 \(u/2\)：下沉和距离成反比，正对应 \(u=P/(\pi E^*s)\) 里的 \(1/s\)。" loading="lazy"><figcaption class="small">这张图说明 Boussinesq 点力解的核心：在弹性半空间表面按住一个点，周围一圈都跟着陷下去，离得越远陷得越少。红色箭头是作用在一点上的点力 \(F\)；米色是半空间，上方灰色虚线是它原来的表面。距离 \(r\) 处表面下沉 \(u\)（蓝色标注），到距离 \(2r\) 处只下沉 \(u/2\)：下沉和距离成反比，正对应 \(u=P/(\pi E^*s)\) 里的 \(1/s\)。</figcaption></figure>
-<details><summary>推导</summary><p>式 (2) \(u=P/(\pi E^*s)\) 对接触区内每一小块面积 \(dA\) 上的力 \(p\,dA\) 求和，\(B\) 是要求下沉的点，\(C\) 是施压点，\(s\) 是两点距离：</p>
+<details><summary>推导</summary><p>式 (7) \(u=P/(\pi E^*s)\) 对接触区内每一小块面积 \(dA\) 上的力 \(p\,dA\) 求和，\(B\) 是要求下沉的点，\(C\) 是施压点，\(s\) 是两点距离：</p>
 <p>\[u(B)=\frac{1}{\pi E^*}\int\frac{p(C)}{s}\,dA\]</p>
 <p>以 \(B\) 为原点用极坐标 \((s,\varphi)\) 表示 \(C\)，\(dA=|s|\,ds\,d\varphi\)，与 \(1/s\) 约去：</p>
 <p>\[u(r)=\frac{1}{\pi E^*}\int_0^{\pi}\!\!\int p\,ds\,d\varphi\]</p>
 <p>\(C\) 到接触中心的距离：</p>
 <p>\[t^2=r^2+2rs\cos\varphi+s^2\]</p>
-<p>代入式 (3) \(p=p_0\sqrt{1-t^2/a^2}\) 并配方，记 \(c^2=a^2-r^2\sin^2\varphi\)：</p>
+<p>代入式 (8) \(p=p_0\sqrt{1-t^2/a^2}\) 并配方，记 \(c^2=a^2-r^2\sin^2\varphi\)：</p>
 <p>\[p=\frac{p_0}{a}\sqrt{c^2-(s+r\cos\varphi)^2}\]</p>
 <p>对 \(s\) 积分是半径为 \(c\) 的半圆面积：</p>
 <p>\[\int p\,ds=\frac{p_0}{a}\cdot\frac{\pi}{2}c^2\]</p>
 <p>对 \(\varphi\) 积分，用 \(\int_0^\pi\sin^2\varphi\,d\varphi=\pi/2\)：</p>
-<p>\[u(r)=\frac{1}{\pi E^*}\cdot\frac{p_0}{a}\cdot\frac{\pi}{2}\Big(\pi a^2-\frac{\pi}{2}r^2\Big)=\frac{\pi p_0a}{2E^*}-\frac{\pi p_0}{4aE^*}\,r^2\]</p>
-<p>令它对所有 \(r\le a\) 等于式 (1) \(u=\delta-\dfrac{r^2}{2R}\)，\(r^2\) 的系数与常数项分别相等：</p>
+<p>\[u(r)=\frac{\pi p_0a}{2E^*}-\frac{\pi p_0}{4aE^*}\,r^2\]</p>
+<p>式 (6) 中代入式 (3)：\(u=\delta-\dfrac{r^2}{2R}\)。两者对所有 \(r\le a\) 相等，\(r^2\) 的系数与常数项分别相等：</p>
 <p>\[\frac{\pi p_0}{4aE^*}=\frac{1}{2R},\qquad \frac{\pi p_0a}{2E^*}=\delta\]</p>
-<p>由第一式：</p>
-<p>\[p_0=\frac{2aE^*}{\pi R}\]</p>
-<p>代入第二式：</p>
-<p>\[\frac{a^2}{R}=\delta\quad\Longrightarrow\quad a^2=R\delta\]</p>
-<p>接触边缘 \(r=a\) 处，代入式 (1)：</p>
-<p>\[u(a)=\delta-\frac{a^2}{2R}=\delta-\frac{\delta}{2}=\frac{\delta}{2}\]</p></details>
+<p>由第一式，再代入第二式：</p>
+<p>\[p_0=\frac{2aE^*}{\pi R},\qquad \frac{a^2}{R}=\delta\quad\Longrightarrow\quad a^2=R\delta\qquad(9)\]</p>
+<p>接触边缘 \(r=a\) 处，代入 \(u=\delta-r^2/(2R)\)：</p>
+<p>\[u(a)=\delta-\frac{a^2}{2R}=\delta-\frac{\delta}{2}=\frac{\delta}{2}\qquad(10)\]</p></details>
 <p><b>④ 合力</b></p>
 
 <p>已知：③ 的接触半径与中心压强；求：合力 \(F\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{F=\displaystyle\int_0^a p(t)\,2\pi t\,dt=\tfrac23\pi a^2p_0} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{p_0=\dfrac{2aE^*}{\pi R},\quad a^2=R\delta} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac43E^*R^{1/2}\delta^{3/2}}\]</p>
-<p>式 (1)：\(F\) 是合力，\(t\) 是离接触中心的距离，\(p(t)\) 是该处压强，\(2\pi t\,dt\) 是半径 \(t\)、宽 \(dt\) 的一圈圆环的面积，即周长乘宽。它说的是：把每一圈圆环上的力加起来就是总力；算出来等于接触圆面积乘平均压强，平均压强是中心压强的 2/3。</p>
+<p>\[\begin{cases}\color{#c0392b}{p(t)=p_0\sqrt{1-t^2/a^2}} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{a^2=R\delta,\quad p_0=\dfrac{2aE^*}{\pi R}} &amp; \color{#c0392b}{(9)}\\[4pt] \color{#c0392b}{F=\displaystyle\int_0^a p(t)\,2\pi t\,dt} &amp; \color{#c0392b}{(11)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac43E^*R^{1/2}\delta^{3/2}\quad(12)}\]</p>
+<p>式 (8)：③ 的压强分布，中心为 \(p_0\)，到边缘降到 0。</p>
 
-<p>式 (2)：③ 的结果，中心压强 \(p_0=2aE^*/(\pi R)\)，接触半径 \(a=\sqrt{R\delta}\)；\(E^*\) 是有效模量，\(R\) 是球半径，\(\delta\) 是压深。</p>
+<p>式 (9)：③ 推出的接触半径与中心压强；\(E^*\) 是有效模量，\(R\) 是球半径，\(\delta\) 是压深。</p>
+
+<p>式 (11)：合力的定义。\(F\) 是合力，\(t\) 是离接触中心的距离，\(2\pi t\,dt\) 是半径 \(t\)、宽 \(dt\) 的一圈圆环的面积，即周长乘宽。它说的是：把每一圈圆环上的力加起来就是总力；算出来等于接触圆面积乘平均压强，平均压强是中心压强的 2/3。</p>
 
 <p>结果：压深越大 → 力越大，而且比压深涨得快，按 1.5 次方，因为每处压得更深，接触圈又同时变宽，两件事叠在一起；球越大 → 力越大，但只按开方涨，因为大球只是接触圈宽一些。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/hz04_force_rings.png" style="width:572px;max-width:100%;height:auto" alt="从正上方看接触圆，半径 a，蓝色越深表示压强越大（中心最深，按 ③ 的半椭圆变浅）。把它切成一圈圈细圆环：红色这一圈半径 t（黑箭头）、宽 dt（两个小箭头夹住的宽度），面积是周长乘宽度 2πt·dt，受力是压强乘面积 p(t)·2πt·dt。把从中心到边缘所有圈的力加起来（积分）就是合力 F = (2/3)πa²p₀，再代入 ③ 的 a、p₀ 得 F = (4/3)E*R^{1/2}δ^{3/2}。" loading="lazy"><figcaption class="small">从正上方看接触圆，半径 a，蓝色越深表示压强越大（中心最深，按 ③ 的半椭圆变浅）。把它切成一圈圈细圆环：红色这一圈半径 t（黑箭头）、宽 dt（两个小箭头夹住的宽度），面积是周长乘宽度 2πt·dt，受力是压强乘面积 p(t)·2πt·dt。把从中心到边缘所有圈的力加起来（积分）就是合力 F = (2/3)πa²p₀，再代入 ③ 的 a、p₀ 得 F = (4/3)E*R^{1/2}δ^{3/2}。</figcaption></figure>
-<details><summary>推导</summary><p>式 (1) 中代入 ③ 的压强 \(p(t)=p_0\sqrt{1-t^2/a^2}\)：</p>
+<details><summary>推导</summary><p>把式 (8) \(p=p_0\sqrt{1-t^2/a^2}\) 代入式 (11)：</p>
 <p>\[F=2\pi p_0\int_0^a\sqrt{1-\frac{t^2}{a^2}}\;t\,dt\]</p>
 <p>换元 \(w=1-t^2/a^2\)，\(t\,dt=-\dfrac{a^2}{2}dw\)，\(t\) 从 0 到 \(a\) 对应 \(w\) 从 1 到 0：</p>
-<p>\[F=2\pi p_0\cdot\frac{a^2}{2}\int_0^1w^{1/2}\,dw=2\pi p_0\cdot\frac{a^2}{2}\cdot\frac23=\frac23\pi a^2p_0\]</p>
-<p>代入式 (2) \(p_0=\dfrac{2aE^*}{\pi R}\)：</p>
-<p>\[F=\frac23\pi a^2\cdot\frac{2aE^*}{\pi R}=\frac{4E^*a^3}{3R}\]</p>
-<p>代入式 (2) \(a=\sqrt{R\delta}\)，\(a^3=R^{3/2}\delta^{3/2}\)：</p>
-<p>\[F=\frac43E^*R^{1/2}\delta^{3/2}\]</p></details>
+<p>\[F=2\pi p_0\cdot\frac{a^2}{2}\int_0^1w^{1/2}\,dw=\frac23\pi a^2p_0\]</p>
+<p>代入式 (9) \(p_0=\dfrac{2aE^*}{\pi R}\)：</p>
+<p>\[F=\frac{4E^*a^3}{3R}\]</p>
+<p>代入式 (9) \(a^2=R\delta\)，\(a^3=R^{3/2}\delta^{3/2}\)：</p>
+<p>\[F=\frac43E^*R^{1/2}\delta^{3/2}\qquad(12)\]</p></details>
 <p><b>⑤ 弹性能</b></p>
 
 <p>已知：④ 的力–压深关系；求：弹性能 \(U\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{U=\displaystyle\int_0^\delta F\,d\delta&#x27;} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\frac{8}{15}E^*R^{1/2}\delta^{5/2}}\]</p>
-<p>式 (1)：\(U\) 是弹性能，\(\delta&#x27;\) 是从 0 涨到 \(\delta\) 的中间压深，\(F\) 是该压深下的力。它说的是：把球慢慢从 0 压到 \(\delta\)，每多压一小段 \(d\delta&#x27;\)，就要做功 \(F\,d\delta&#x27;\)；这些功全部存成垫子的弹性能，所以能量就是力–压深曲线下面的面积。</p>
+<p>\[\begin{cases}\color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(12)}\\[4pt] \color{#c0392b}{U=\displaystyle\int_0^\delta F\,d\delta&#x27;} &amp; \color{#c0392b}{(13)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U=\frac{8}{15}E^*R^{1/2}\delta^{5/2}\quad(14)}\]</p>
+<p>式 (12)：④ 推出的力–压深关系，力随压深按 1.5 次方增长。</p>
 
-<p>式 (2)：④ 的结果，力随压深按 1.5 次方增长；\(E^*\) 是有效模量，\(R\) 是球半径。</p>
+<p>式 (13)：功能原理。\(U\) 是弹性能，\(\delta&#x27;\) 是从 0 涨到 \(\delta\) 的中间压深。它说的是：把球慢慢从 0 压到 \(\delta\)，每多压一小段 \(d\delta&#x27;\) 就要做功 \(F\,d\delta&#x27;\)；这些功全部存成垫子的弹性能，所以能量就是力–压深曲线下面的面积。</p>
 
 <p>结果：压深越大 → 能量越大，而且比力再多涨一次方，按 2.5 次方，因为每多压一点，都是在已经很大的力上再做功；在对数坐标里是一条斜率 2.5 的直线，压头越尖斜率越大（下面第二张图）。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/hz05_energy_area.png" style="width:536px;max-width:100%;height:auto" alt="黑色曲线是合力随压深的变化 F = (4/3)E*R^{1/2}δ^{3/2}。从 0 压到 δ₁ 的过程中，每多压 dδ，力做功 F·dδ，就是曲线下一条细竖条的面积；全部竖条加起来，就是蓝色面积，也就是压到 δ₁ 时存进去的弹性能 U = (8/15)E*R^{1/2}δ^{5/2}。指数从 3/2 积分变成 5/2，能量随压深涨得比力更快。" loading="lazy"><figcaption class="small">黑色曲线是合力随压深的变化 F = (4/3)E*R^{1/2}δ^{3/2}。从 0 压到 δ₁ 的过程中，每多压 dδ，力做功 F·dδ，就是曲线下一条细竖条的面积；全部竖条加起来，就是蓝色面积，也就是压到 δ₁ 时存进去的弹性能 U = (8/15)E*R^{1/2}δ^{5/2}。指数从 3/2 积分变成 5/2，能量随压深涨得比力更快。</figcaption></figure>
 <figure style="margin:12px 0"><img src="assets/images/fig05_power_law.png" style="width:548px;max-width:100%;height:auto" alt="这张图说明能量随压深涨多快由压头形状决定。横轴是压深、纵轴是能量，都取对数，所以按幂次涨的能量画出来是直线，斜率就是幂次。蓝线是球（斜率 2.5，就是这里的 \(U\propto\delta^{5/2}\)），红线是圆锥（斜率 3），绿线是平底（斜率 2）；右上角的小图标是三种压头的样子。压头越尖，接触面积随压深涨得越快，直线越陡。" loading="lazy"><figcaption class="small">这张图说明能量随压深涨多快由压头形状决定。横轴是压深、纵轴是能量，都取对数，所以按幂次涨的能量画出来是直线，斜率就是幂次。蓝线是球（斜率 2.5，就是这里的 \(U\propto\delta^{5/2}\)），红线是圆锥（斜率 3），绿线是平底（斜率 2）；右上角的小图标是三种压头的样子。压头越尖，接触面积随压深涨得越快，直线越陡。</figcaption></figure>
-<details><summary>推导</summary><p>把式 (2) \(F=\tfrac43E^*R^{1/2}\delta&#x27;^{3/2}\) 代入式 (1) \(U=\int_0^\delta F\,d\delta&#x27;\)：</p>
+<details><summary>推导</summary><p>把式 (12) \(F=\tfrac43E^*R^{1/2}\delta&#x27;^{3/2}\) 代入式 (13)：</p>
 <p>\[U=\frac43E^*R^{1/2}\int_0^\delta\delta&#x27;^{3/2}\,d\delta&#x27;\]</p>
 <p>\(\delta&#x27;^{3/2}\) 的原函数是 \(\tfrac25\delta&#x27;^{5/2}\)：</p>
-<p>\[U=\frac43E^*R^{1/2}\cdot\frac25\delta^{5/2}=\frac{8}{15}E^*R^{1/2}\delta^{5/2}\]</p></details>
+<p>\[U=\frac43E^*R^{1/2}\cdot\frac25\delta^{5/2}=\frac{8}{15}E^*R^{1/2}\delta^{5/2}\qquad(14)\]</p></details>
 <p><b>⑥ 刚度</b></p>
 
-<p>已知：④ 的力–压深关系、③ 的接触半径；求：刚度（再压一点力多出多少）。</p>
+<p>已知：④ 的力–压深关系、③ 的接触半径；求：刚度，即再压一点力多出多少。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{a=\sqrt{R\delta}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{dF}{d\delta}=2E^*a}\]</p>
-<p>式 (1)：④ 的结果，\(F\) 是合力，\(\delta\) 是压深，\(E^*\) 是有效模量，\(R\) 是球半径。刚度就是这条力–压深曲线的斜率：再压一点，力多出多少。</p>
+<p>\[\begin{cases}\color{#c0392b}{a^2=R\delta} &amp; \color{#c0392b}{(9)}\\[4pt] \color{#c0392b}{F=\tfrac43E^*R^{1/2}\delta^{3/2}} &amp; \color{#c0392b}{(12)}\\[4pt] \color{#c0392b}{K=\dfrac{dF}{d\delta}} &amp; \color{#c0392b}{(15)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ K=2E^*a\quad(16)}\]</p>
+<p>式 (9)：③ 推出的接触半径，压得越深接触圈越大，按平方根变大。</p>
 
-<p>式 (2)：③ 的结果，\(a\) 是真实接触半径，压得越深接触圈越大，按平方根变大。</p>
+<p>式 (12)：④ 推出的力–压深关系。</p>
+
+<p>式 (15)：刚度的定义。\(K\) 是刚度，即力–压深曲线的斜率：再压一点，力多出多少。</p>
 
 <p>结果：刚度等于 \(2E^*\) 乘接触半径。接触圈越大 → 越硬，因为参与受力的面越大；压得越深，接触圈越大，所以越压越硬。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/hz06_stiffness_tangents.png" style="width:548px;max-width:100%;height:auto" alt="黑色曲线是 F–δ。在浅压深 δ₁（绿）和深压深 δ₂（红）各画一条切线，切线斜率就是此时的刚度 dF/dδ，等于 2E*a。左上两个圆是这两个压深下对应的接触圈，按同一比例画：a₂ 比 a₁ 大，所以红切线比绿切线陡。也就是说接触圈越压越大，物体就越压越硬。" loading="lazy"><figcaption class="small">黑色曲线是 F–δ。在浅压深 δ₁（绿）和深压深 δ₂（红）各画一条切线，切线斜率就是此时的刚度 dF/dδ，等于 2E*a。左上两个圆是这两个压深下对应的接触圈，按同一比例画：a₂ 比 a₁ 大，所以红切线比绿切线陡。也就是说接触圈越压越大，物体就越压越硬。</figcaption></figure>
-<details><summary>推导</summary><p>式 (1) \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\) 对 \(\delta\) 求导：</p>
-<p>\[\frac{dF}{d\delta}=\frac43E^*R^{1/2}\cdot\frac32\delta^{1/2}=2E^*\sqrt{R\delta}\]</p>
-<p>由式 (2) \(a=\sqrt{R\delta}\)：</p>
-<p>\[\frac{dF}{d\delta}=2E^*a\]</p></details>
+<details><summary>推导</summary><p>把式 (12) \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\) 代入式 (15) \(K=dF/d\delta\)：</p>
+<p>\[K=\frac43E^*R^{1/2}\cdot\frac32\delta^{1/2}=2E^*\sqrt{R\delta}\]</p>
+<p>由式 (9) \(a^2=R\delta\)：</p>
+<p>\[K=2E^*a\qquad(16)\]</p></details>
 </details>
 <p><strong>适用范围</strong></p>
 <ul>
@@ -568,35 +577,37 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{\mathbf x_{\text{世界}}=\mathbf R_A\,\mathbf x_{\text{局部}}+\mathbf t_A} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf R_A^{T}\mathbf R_A=\mathbf I} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{\mathbf x_{\text{世界}}=\mathbf R_A\,\mathbf x_{\text{局部}}+\mathbf t_A} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf R_A^{T}\mathbf R_A=\mathbf I} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\quad(3)}\]</p>
 
 
 
-<p>式 (1)：\(\mathbf R_A\) 是把手的旋转矩阵，即把手的朝向；\(\mathbf t_A\) 是把手的位置；\(\mathbf x_{\text{局部}}\) 是一点在把手坐标系里的坐标；\(\mathbf x_{\text{世界}}\) 是它在世界里的坐标。它说的是：把局部坐标里的一点先按把手朝向转过去，再挪到把手所在位置，就得到世界坐标；这是刚体运动的一般形式，刚体只能整体转和整体挪。</p>
+<p>式 (1)：刚体变换的定义。\(\mathbf R_A\) 是把手的旋转矩阵，即把手的朝向；\(\mathbf t_A\) 是把手的位置；\(\mathbf x_{\text{局部}}\) 是一点在把手坐标系里的坐标；\(\mathbf x_{\text{世界}}\) 是它在世界里的坐标。它说的是：把局部坐标里的一点先按把手朝向转过去，再挪到把手所在位置，就得到世界坐标；刚体只能整体转和整体挪。</p>
 
-<p>式 (2)：\(\mathbf I\) 是单位矩阵，\(\mathbf R_A^{T}\) 是转置。它说的是：旋转不改变长度和夹角，所以转回去只要用转置，不用真的求逆矩阵。</p>
+<p>式 (2)：旋转矩阵的性质。\(\mathbf I\) 是单位矩阵，\(\mathbf R_A^{T}\) 是转置。它说的是：旋转不改变长度和夹角，所以转回去只要用转置，不用真的求逆矩阵。</p>
 
 <p>结果：把手挪到哪 → 先减掉哪，把手转了多少 → 再反着转回多少，因为求逆就是把「先转后挪」倒过来做成「先退回再反转」。这就是外修正网络输入里的逆变换。</p>
 
 <details><summary>推导</summary><p>式 (1) \(\mathbf x_{\text{世界}}=\mathbf R_A\mathbf x_{\text{局部}}+\mathbf t_A\) 两边减 \(\mathbf t_A\)：</p>
 <p>\[\mathbf x_{\text{世界}}-\mathbf t_A=\mathbf R_A\,\mathbf x_{\text{局部}}\]</p>
 <p>两边左乘 \(\mathbf R_A^{T}\)，由式 (2) \(\mathbf R_A^{T}\mathbf R_A=\mathbf I\)：</p>
-<p>\[\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\]</p></details>
+<p>\[\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\qquad(3)\]</p></details>
 <p><b>② 作用到碰撞体上：相对位姿</b></p>
 
-<p>已知：碰撞体在世界里的位置 \(\mathbf p_z\) 与朝向 \(\mathbf R_z\)，① 的逆变换 \(\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\)；求：碰撞体相对把手的位姿，即外修正网络的输入。</p>
+<p>已知：碰撞体在世界里的位置 \(\mathbf p_z\) 与朝向 \(\mathbf R_z\)；求：碰撞体相对把手的位姿，即外修正网络的输入。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\mathbf z=(\mathbf p_z,\mathbf R_z)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf A(\mathbf q)^{-1}\mathbf z=\big(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A),\ \mathbf R_A^{T}\mathbf R_z\big)}\]</p>
-<p>式 (1)：\(\mathbf z\) 是碰撞体的状态，\(\mathbf p_z\) 是它在世界里的位置，\(\mathbf R_z\) 是它的朝向。它说的是：一个刚性碰撞体在哪、朝哪，就由这两样确定。</p>
+<p>\[\begin{cases}\color{#c0392b}{\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{\mathbf z=(\mathbf p_z,\mathbf R_z)} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf A(\mathbf q)^{-1}\mathbf z=\big(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A),\ \mathbf R_A^{T}\mathbf R_z\big)\quad(5)}\]</p>
+<p>式 (3)：① 推出的逆变换，把世界坐标换成把手局部坐标，\(\mathbf R_A\)、\(\mathbf t_A\) 是把手的朝向与位置。</p>
 
-<p>式 (2)：① 的逆变换，把世界坐标换成把手局部坐标，\(\mathbf R_A\)、\(\mathbf t_A\) 是把手的朝向与位置。</p>
+<p>式 (4)：碰撞体状态的定义。\(\mathbf z\) 是碰撞体的状态，\(\mathbf p_z\) 是它在世界里的位置，\(\mathbf R_z\) 是它的朝向。它说的是：一个刚性碰撞体在哪、朝哪，就由这两样确定。</p>
 
 <p>结果：\(\mathbf A(\mathbf q)^{-1}\mathbf z\) 是碰撞体相对把手的位姿。物体和碰撞体在世界里一起平移或旋转 → 相对位姿不变 → 网络输入不变，因为两者的平移一起变、旋转一起乘，相减、相乘后抵消；所以同一个凹坑只需学一次。</p>
 
-<details><summary>推导</summary><p>位置是一个点，直接用式 (2) \(\mathbf x_{\text{局部}}=\mathbf R_A^{T}(\mathbf x_{\text{世界}}-\mathbf t_A)\)：</p>
+<details><summary>推导</summary><p>位置是一个点，直接用式 (3)：</p>
 <p>\[\mathbf p_z^{\text{局部}}=\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A)\]</p>
-<p>朝向是方向，不受平移影响，只做反转：</p>
-<p>\[\mathbf R_z^{\text{局部}}=\mathbf R_A^{T}\mathbf R_z\]</p></details>
+<p>朝向把碰撞体自身的方向 \(\mathbf e\) 转成世界方向 \(\mathbf R_z\mathbf e\)；方向不受平移影响，按式 (3) 只做反转：</p>
+<p>\[\mathbf R_A^{T}\mathbf R_z\,\mathbf e\quad\Longrightarrow\quad\mathbf R_z^{\text{局部}}=\mathbf R_A^{T}\mathbf R_z\]</p>
+<p>合起来：</p>
+<p>\[\mathbf A(\mathbf q)^{-1}\mathbf z=\big(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A),\ \mathbf R_A^{T}\mathbf R_z\big)\qquad(5)\]</p></details>
 </details>
 <p><strong>为什么用相对位姿</strong>：凹坑形状只由碰撞体相对物体在哪、怎么转决定。物体和碰撞体在世界中一起平移或旋转时，\(\mathbf A(\mathbf q)^{-1}\mathbf z\) 不变，凹坑也不变；直接输入 \(\mathbf z\) 则网络要在每个世界位置重新学同一个凹坑。<strong>输入相对位姿，网络只需学碰撞体相对物体的那部分变化。</strong></p>
 <ul>
@@ -758,54 +769,58 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{\mathbf v_t=\dfrac{\mathbf q_t-\mathbf q_{t-1}}{\Delta t}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf a_t=\dfrac{\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}}{\Delta t^2}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{\mathbf v_t=\dfrac{\mathbf q_t-\mathbf q_{t-1}}{\Delta t}} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf a_t=\dfrac{\mathbf v_{t+1}-\mathbf v_t}{\Delta t}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}\quad(3)}\]</p>
 
 
 
-<p>式 (1)：\(\mathbf q_t\) 是某个锚点在第 \(t\) 帧的位置，\(\mathbf q_{t-1}\) 是上一帧的位置，\(\Delta t\) 是两帧的时间间隔，\(\mathbf v_t\) 是这段时间里的速度。它说的是：速度 = 走过的距离 ÷ 用的时间，只看相邻两帧就知道锚点走得多快，所以网络输入只需两帧。</p>
+<p>式 (1)：速度的定义。\(\mathbf q_t\) 是某个锚点在第 \(t\) 帧的位置，\(\mathbf q_{t-1}\) 是上一帧的位置，\(\Delta t\) 是两帧的时间间隔，\(\mathbf v_t\) 是这段时间里的速度。它说的是：速度 = 走过的距离 ÷ 用的时间，只看相邻两帧就知道锚点走得多快，所以网络输入只需两帧。</p>
 
-<p>式 (2)：\(\mathbf q_{t+1}\) 是下一帧的位置，\(\mathbf a_t\) 是第 \(t\) 帧的加速度。它说的是：加速度 = 速度的变化 ÷ 时间，后一段的速度减前一段的速度，再除以间隔；训练时也用同一个式子从真实轨迹算出加速度的标签。</p>
+<p>式 (2)：加速度的定义。\(\mathbf v_{t+1}\) 是下一段时间的速度，\(\mathbf a_t\) 是第 \(t\) 帧的加速度。它说的是：加速度 = 速度的变化 ÷ 时间；训练时也用同一个式子从真实轨迹算出加速度的标签。</p>
 
 <p>结果：\(\hat{\mathbf q}_{t+1}\) 是由网络给的加速度算出的锚点新位置。网络给的加速度越大 → 新位置偏离「按原速度直走」越远，因为 \(2\mathbf q_t-\mathbf q_{t-1}\) 就是按原速度再走一步的位置，加速度项是在它上面加的修正；步长越大，同样的加速度修正得越多，按步长的平方涨。</p>
 
-<details><summary>推导</summary><p>式 (2) 中的速度用式 (1) \(\mathbf v=\dfrac{\text{位置差}}{\Delta t}\) 写出：</p>
-<p>\[\mathbf a_t=\frac{1}{\Delta t}\Big(\frac{\mathbf q_{t+1}-\mathbf q_t}{\Delta t}-\frac{\mathbf q_t-\mathbf q_{t-1}}{\Delta t}\Big)=\frac{\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}}{\Delta t^2}\]</p>
+<details><summary>推导</summary><p>把式 (1) 用在下一段，\(\mathbf v_{t+1}=(\mathbf q_{t+1}-\mathbf q_t)/\Delta t\)，与 \(\mathbf v_t=(\mathbf q_t-\mathbf q_{t-1})/\Delta t\) 一起代入式 (2) \(\mathbf a_t=(\mathbf v_{t+1}-\mathbf v_t)/\Delta t\)：</p>
+<p>\[\mathbf a_t=\frac{\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}}{\Delta t^2}\]</p>
 <p>两边乘 \(\Delta t^2\)：</p>
 <p>\[\mathbf a_t\,\Delta t^2=\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}\]</p>
 <p>移项，把 \(\mathbf a_t\) 换成网络的输出：</p>
-<p>\[\hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}\]</p></details>
+<p>\[\hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1}\qquad(3)\]</p></details>
 <p><b>② Kabsch 对齐：4 个预测锚点 → 一个刚体变换</b></p>
 
 <p>已知：① 给出的 4 个预测锚点 \(\hat{\mathbf q}_{t+1}^{k}\)、参考姿态下的 4 个锚点 \(\mathbf q_{\text{ref}}^{k}\)；求：一个刚体变换 \((\mathbf R,\mathbf t)\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{\mathbf H=\displaystyle\sum_k(\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}})(\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}})^T,\quad \mathbf U,\boldsymbol\Sigma,\mathbf V^T=\mathrm{SVD}(\mathbf H)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\mathbf R=\mathbf V\,\mathrm{diag}(1,1,\det(\mathbf V\mathbf U^T))\,\mathbf U^T} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ (\mathbf R,\mathbf t)=\arg\min_{\mathbf R,\mathbf t}\sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2}\]</p>
-<p>式 (1)：\(k\) 是锚点编号，每个物体 4 个锚点；\(\mathbf q_{\text{ref}}^{k}\) 是参考姿态下第 \(k\) 个锚点，\(\hat{\mathbf q}_{t+1}^{k}\) 是 ① 预测的第 \(k\) 个锚点；\(\bar{\mathbf q}_{\text{ref}}\)、\(\bar{\hat{\mathbf q}}\) 是两组锚点各自的形心；\(\mathbf H\) 是两组锚点减去形心后的 3×3 相关矩阵；\(\mathbf U\)、\(\boldsymbol\Sigma\)、\(\mathbf V\) 是它的奇异值分解。它说的是：先把两组点都挪到以形心为原点，只剩「怎么转」的问题；\(\mathbf H\) 记录了两组点的方向如何对应，分解它就能读出最好的转法。网络对每个锚点各自预测，彼此间距不一定保持，所以需要这一步把它们掰回一个刚体。</p>
+<p>\[\begin{cases}\color{#c0392b}{\hat{\mathbf q}_{t+1}^{k}=\mathbf a_t\,\Delta t^2+2\mathbf q_t^{k}-\mathbf q_{t-1}^{k}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{(\mathbf R,\mathbf t)=\arg\min\displaystyle\sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{\mathbf R^{T}\mathbf R=\mathbf I,\quad \det\mathbf R=1} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\ \ (6),\qquad \mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}\ \ (7)}\]</p>
+<p>式 (3)：① 推出的锚点新位置，\(k\) 是锚点编号，每个物体 4 个。网络对每个锚点各自预测，彼此间距不一定保持，即不一定是一个刚体。</p>
 
-<p>式 (2)：\(\mathbf R\) 是求出的旋转矩阵，\(\det\) 是行列式。它说的是：由分解出的两组方向拼成旋转；中间的行列式项保证得到的是真正的旋转，而不是镜像翻转。</p>
+<p>式 (4)：最佳刚体摆放的定义。\(\mathbf q_{\text{ref}}^{k}\) 是参考姿态下第 \(k\) 个锚点，\(\mathbf R\) 是旋转，\(\mathbf t\) 是平移。它说的是：在所有「只转、只挪、不变形」的摆放里，找一个让参考锚点离预测锚点最近的，距离用平方和来量。</p>
 
-<p>式 (3)：\(\mathbf t\) 是平移。它说的是：把参考形心转过去以后，再挪到预测形心的位置。</p>
+<p>式 (5)：旋转的条件。\(\mathbf I\) 是单位矩阵，\(\det\) 是行列式。它说的是：\(\mathbf R\) 必须保持长度和夹角，并且行列式为 1，是真正的转动而不是镜像翻转。</p>
 
-<p>结果：这组旋转和平移让参考锚点经变换后与预测锚点的距离平方和最小，即找一个只转不变形的摆放，让参考锚点尽量贴近预测锚点。预测锚点越不像刚体，间距偏差越大 → 对齐后被「掰回」的量越大，因为结果只能是刚体运动，多出来的变形被丢掉。</p>
+<p>结果：\(\bar{\mathbf q}_{\text{ref}}\)、\(\bar{\hat{\mathbf q}}\) 是两组锚点各自的形心；\(\mathbf U\)、\(\mathbf V\) 来自两组锚点相关矩阵的奇异值分解，见折叠。预测锚点越不像刚体，间距偏差越大 → 对齐后被「掰回」的量越大，因为结果只能是刚体运动，多出来的变形被丢掉。</p>
 
-<details><summary>推导</summary><p>两组锚点各自减去形心：</p>
-<p>\[\mathbf r_k=\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}},\qquad \hat{\mathbf r}_k=\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}}\]</p>
-<p>由式 (1) 组成相关矩阵并分解：</p>
-<p>\[\mathbf H=\sum_k\mathbf r_k\,\hat{\mathbf r}_k^{T}=\mathbf U\boldsymbol\Sigma\mathbf V^{T}\]</p>
-<p>由式 (2) 取旋转：</p>
-<p>\[\mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}\]</p>
-<p>由式 (3) 取平移：</p>
-<p>\[\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\]</p></details>
+<details><summary>推导</summary><p>式 (4) 的目标函数对 \(\mathbf t\) 求导并令其为 0：</p>
+<p>\[\sum_k\big(\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big)=0\quad\Longrightarrow\quad\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\qquad(6)\]</p>
+<p>代回，记去掉形心后的坐标 \(\mathbf r_k=\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}}\)、\(\hat{\mathbf r}_k=\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}}\)，由式 (5) \(\|\mathbf R\mathbf r_k\|=\|\mathbf r_k\|\)：</p>
+<p>\[\sum_k\|\mathbf R\,\mathbf r_k-\hat{\mathbf r}_k\|^2=\sum_k\|\mathbf r_k\|^2+\sum_k\|\hat{\mathbf r}_k\|^2-2\,\mathrm{tr}(\mathbf R\,\mathbf H),\qquad \mathbf H=\sum_k\mathbf r_k\,\hat{\mathbf r}_k^{T}\]</p>
+<p>所以要让 \(\mathrm{tr}(\mathbf R\mathbf H)\) 最大。对 \(\mathbf H\) 做奇异值分解：</p>
+<p>\[\mathbf H=\mathbf U\boldsymbol\Sigma\mathbf V^{T}\]</p>
+<p>记 \(\mathbf M=\mathbf V^{T}\mathbf R\,\mathbf U\)，它也是正交矩阵：</p>
+<p>\[\mathrm{tr}(\mathbf R\mathbf H)=\mathrm{tr}(\mathbf M\boldsymbol\Sigma)=\sum_i M_{ii}\sigma_i\le\sum_i\sigma_i\]</p>
+<p>\(\mathbf M=\mathbf I\) 时取到最大，即 \(\mathbf R=\mathbf V\mathbf U^{T}\)；为满足式 (5) 的 \(\det\mathbf R=1\)，最后一个方向乘 \(\det(\mathbf V\mathbf U^{T})\)：</p>
+<p>\[\mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}\qquad(7)\]</p></details>
 <p><b>③ 推到所有顶点</b></p>
 
-<p>已知：② 的 \((\mathbf R,\mathbf t)\)、每个顶点的参考位置 \(\mathbf x_{\text{ref}}\)；求：所有顶点的新位置。</p>
+<p>已知：② 的旋转与平移、每个顶点的参考位置；求：所有顶点的新位置。</p>
 
-<p>\[\color{#c0392b}{\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\quad(\text{所有顶点})}\]</p>
-<p>式：\(\mathbf x_{\text{ref}}\) 是一个顶点在参考姿态下的位置，参考姿态取序列第一帧；\(\mathbf x_{t+1}\) 是它的新位置；\(\mathbf R\)、\(\mathbf t\) 是 ② 求出的旋转与平移。它说的是：整个物体这一步怎么转、怎么挪，就把参考姿态的形状整体照这样转、挪过去；刚体上所有点只能一起转、一起挪。</p>
+<p>\[\begin{cases}\color{#c0392b}{\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{\mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{\mathbf x=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \mathbf x_{t+1}^{(v)}=\mathbf R\,\mathbf x_{\text{ref}}^{(v)}+\mathbf t\ \ \text{对所有顶点}\ v\quad(9)}\]</p>
+<p>式 (6)(7)：② 推出的平移与旋转。</p>
 
-<p>结果：无论物体有多少顶点，都只由 4 个锚点决定，物体严格保持刚性，因为所有顶点用的是同一个旋转和平移。</p>
+<p>式 (8)：刚体运动的定义。\(\mathbf x_{\text{ref}}\) 是一个顶点在参考姿态下的位置，参考姿态取序列第一帧；\(\mathbf x\) 是它的新位置。它说的是：刚体上所有点只能一起转、一起挪。</p>
 
-<details><summary>推导</summary><p>对每个顶点代入 ② 的 \(\mathbf R\)、\(\mathbf t\)：</p>
-<p>\[\mathbf x_{t+1}=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\]</p></details>
+<p>结果：\(v\) 是顶点编号。无论物体有多少顶点，都只由 4 个锚点决定，物体严格保持刚性，因为所有顶点用的是同一个旋转和平移。</p>
+
+<details><summary>推导</summary><p>把式 (6)(7) 给出的 \(\mathbf R\)、\(\mathbf t\) 代入式 (8)，对每个顶点 \(v\)：</p>
+<p>\[\mathbf x_{t+1}^{(v)}=\mathbf R\,\mathbf x_{\text{ref}}^{(v)}+\mathbf t\qquad(9)\]</p></details>
 </details>
 <p><strong>步长输入方式 FiLM</strong>（Feature-wise Linear Modulation，逐特征线性调制）：</p>
 <details><summary>推导：步长输入方式 FiLM（步长 → 缩放与偏移 → 调制每维特征）</summary>
@@ -816,20 +831,18 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{h_i\leftarrow\gamma_i\,h_i+\beta_i} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{(\gamma,\beta)\ \text{由时间码}\ [s,s^2]\ \text{生成}} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{h_i\leftarrow\gamma_i\,h_i+\beta_i} &amp; \color{#c0392b}{(10)}\\[4pt] \color{#c0392b}{\big(\gamma,\beta\big)=\mathrm{MLP}\big([s,s^2]\big)} &amp; \color{#c0392b}{(11)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s)\quad(12)}\]</p>
 
 
 
-<p>式 (1)：\(h\) 是网络某一层里一个物体的特征，是一个 768 维向量，\(h_i\) 是它的第 \(i\) 维；\(\gamma_i\) 是第 \(i\) 维的缩放，\(\beta_i\) 是偏移。它说的是：每一维特征先乘一个系数、再加一个偏移，由外部条件决定乘多少、加多少；这样同一套网络权重可以按条件改变行为，像调音台上每个通道的音量和偏置旋钮。</p>
+<p>式 (10)：FiLM 的定义。\(h\) 是网络某一层里一个物体的特征，是一个 768 维向量，\(h_i\) 是它的第 \(i\) 维；\(\gamma_i\) 是第 \(i\) 维的缩放，\(\beta_i\) 是偏移。它说的是：每一维特征先乘一个系数、再加一个偏移，由外部条件决定乘多少、加多少；这样同一套网络权重可以按条件改变行为，像调音台上每个通道的音量和偏置旋钮。</p>
 
-<p>式 (2)：\(s\) 是步长，即一次预测跨过的帧数。它说的是：步长只以 \(s\) 和 \(s^2\) 两个数进入网络，由它们生成每一层的 \(\gamma\)、\(\beta\)；用 \(s^2\) 是因为 ① 里位置的修正按步长的平方涨。</p>
+<p>式 (11)：步长条件的定义。\(s\) 是步长，即一次预测跨过的帧数，MLP 是一个两层的小网络。它说的是：步长只以 \(s\) 和 \(s^2\) 两个数进入网络，由它们生成每一层的 \(\gamma\)、\(\beta\)；用 \(s^2\) 是因为式 (3) 里位置的修正按步长的平方涨。</p>
 
 <p>结果：同一个网络按不同 \(s\) 输出不同步长的预测。\(s\) 不同 → \(\gamma\)、\(\beta\) 不同 → 同一场景得到不同步长的一步；步长越大 → 走完同样时长要滚动预测的次数越少、误差累积越少。调制系数只由 \(s\) 决定、对所有物体相同，所以不破坏物体顺序的对称性。</p>
 
-<details><summary>推导</summary><p>由式 (2)，一个小网络把 \([s,s^2]\) 映成两组 768 维系数：</p>
-<p>\[\big(\gamma(s),\beta(s)\big)=\mathrm{MLP}\big([s,s^2]\big)\]</p>
-<p>代入式 (1)：</p>
-<p>\[h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s),\qquad i=1,\dots,768\]</p></details>
+<details><summary>推导</summary><p>把式 (11) 给出的 \(\gamma(s)\)、\(\beta(s)\) 代入式 (10)：</p>
+<p>\[h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s),\qquad i=1,\dots,768\qquad(12)\]</p></details>
 <p>结构细节：每个 FiLM 是一个独立的两层 MLP，编码器输出处一个、解码器每层各一个；最后一层零初始化，所以训练开始时调制是恒等，官方代码写成 \((1+\gamma)h+\beta\)，即同一调制把 \(\gamma\) 平移 1。作用位置是编码器输出处一次，之后每层 Transformer 内注意力（含与 register token 的交叉注意力）之后、逐物体全连接层之前各一次，所以每层的注意力结果都被步长调制。训练时步长在 1、5、10 中随机取，步长 10 的 100 帧误差最低。</p>
 </details>
 <p><strong>数据</strong>：MOVi 数据集（PyBullet 刚体仿真），1200 个场景，每个 3–10 个物体抛落互撞，2 s、480 帧。分三个子集：MOVi-Sphere（只有球）、MOVi-A（基本几何体）、MOVi-B（复杂形状）。RigidFormer 官方代码已公开（github.com/Frank-ZY-Dou/Dynamics-Modeling 的 RigidFormer 目录，项目页 people.csail.mit.edu/frankzydou/projects/RigidFormer 有链接）；数据生成脚本在 HopNet（此前最强的学习型刚体仿真方法，基于网格）的仓库。</p>
