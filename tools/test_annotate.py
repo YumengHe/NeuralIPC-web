@@ -188,6 +188,9 @@ def import_notes(page, text, mode="replace"):
 
 
 def shot_around(page, out, name, js_target):
+    """把目标滚到视口中间后截图；上方懒加载的图片加载完会把内容往下推，所以等一下再滚一次。"""
+    scroll_to(page, js_target)
+    page.wait_for_timeout(800)
     scroll_to(page, js_target)
     page.screenshot(path=str(out / name))
 
