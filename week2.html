@@ -1447,49 +1447,54 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{X_m=X^*+C\,(r h_f)^p} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{X_f=X^*+C\,h_f^p} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ X^*=X_f+\frac{X_f-X_m}{r^p-1}}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ X^*=X_f+\frac{X_f-X_m}{r^p-1}\quad(3)}\]</p>
 
 
 
-<p>式 (1)：\(h\) 是离散的尺寸，可以是网格单元尺寸、接触间隙 \(\hat d\) 或块尺寸的倒数 \(1/L\)；\(X(h)\) 是用这个尺寸算出的值；\(X^*\) 是离散无限细时的真值；\(C\) 是未知常数；\(p\) 是收敛阶。它说的是：算出的值 = 真值 + 一项误差，误差按尺寸的 \(p\) 次方缩小，例如 \(p=1\) 时尺寸减半误差减半，\(p=2\) 时缩成四分之一；这是离散误差在尺寸足够小时的一般形式。</p>
+<p>式 (1)：误差模型。\(h\) 是离散的尺寸，可以是网格单元尺寸、接触间隙 \(\hat d\) 或块尺寸的倒数 \(1/L\)；\(X(h)\) 是用这个尺寸算出的值；\(X^*\) 是离散无限细时的真值；\(C\) 是未知常数；\(p\) 是收敛阶。它说的是：算出的值 = 真值 + 一项误差，误差按尺寸的 \(p\) 次方缩小，例如 \(p=1\) 时尺寸减半误差减半，\(p=2\) 时缩成四分之一；这是离散误差在尺寸足够小时的一般形式。</p>
 
-<p>式 (2)(3)：\(h_f\) 是细档尺寸，\(r\) 是两档尺寸比且大于 1，本页网格取 2；\(X_m\)、\(X_f\) 是中档和细档的读数。它说的是：两档算的是同一个真值，只是误差不同，中档的误差是细档的 \(r^p\) 倍。</p>
+<p>式 (2)：两档读数的定义。\(h_f\) 是细档尺寸，\(h_m\) 是中档尺寸，\(r\) 是两档尺寸比且大于 1，本页网格取 2；\(X_m\)、\(X_f\) 是中档和细档的读数。</p>
 
 <p>结果：从细档读数出发，再顺着「中 → 细」的方向多走一步就到真值。两档差得越多 → 细档离真值越远，要多走越多；\(p\) 越大 → 细档剩下的误差越小，多走的一步越短。</p>
 
 
 
-<figure style="margin:12px 0"><img src="assets/images/rich01_richardson.png" style="width:539px;max-width:100%;height:auto" alt="横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p（②）。" loading="lazy"><figcaption class="small">横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p（②）。</figcaption></figure>
+
+<figure style="margin:12px 0"><img src="assets/images/rich01_richardson.png" style="width:539px;max-width:100%;height:auto" alt="横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p，即式 (5)。" loading="lazy"><figcaption class="small">横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p，即式 (5)。</figcaption></figure>
 
 
 
-<details><summary>推导</summary><p>式 (2) \(X_m=X^*+C(rh_f)^p\) 减式 (3) \(X_f=X^*+Ch_f^p\)：</p>
+<details><summary>推导</summary><p>把式 (2) 的两档代入式 (1) \(X(h)=X^*+Ch^p\)：</p>
+<p>\[X_m=X^*+C\,(r h_f)^p,\qquad X_f=X^*+C\,h_f^p\]</p>
+<p>两式相减：</p>
 <p>\[X_m-X_f=C\,h_f^p\,(r^p-1)\]</p>
 <p>解出细档的误差：</p>
 <p>\[C\,h_f^p=\frac{X_m-X_f}{r^p-1}\]</p>
-<p>代回式 (3) \(X_f=X^*+Ch_f^p\)：</p>
-<p>\[X^*=X_f-\frac{X_m-X_f}{r^p-1}=X_f+\frac{X_f-X_m}{r^p-1}\]</p></details>
+<p>代回 \(X_f=X^*+Ch_f^p\)：</p>
+<p>\[X^*=X_f-\frac{X_m-X_f}{r^p-1}=X_f+\frac{X_f-X_m}{r^p-1}\qquad(3)\]</p></details>
 <p><b>② 收敛阶 \(p\) 怎么来</b></p>
 
 <p>已知：粗、中、细三档读数 \(X_c\)、\(X_m\)、\(X_f\)，相邻两档尺寸比 \(r\)；求：收敛阶 \(p\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{X_c-X_m=C\,h_m^p\,(r^p-1)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{X_m-X_f=C\,h_f^p\,(r^p-1)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{h_m=r\,h_f} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}}\]</p>
-<p>式 (1)(2)：① 的误差模型 \(X(h)=X^*+Ch^p\) 用在粗–中、中–细相邻两档上；\(X_c\) 是粗档读数，\(h_c=r\,h_m\) 是粗档尺寸，\(h_m\)、\(h_f\) 是中、细档尺寸。它说的是：相邻两档之差里真值抵消，只剩误差之差。</p>
+<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{h_c=r\,h_m,\quad X_c=X(h_c)} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\quad(5)}\]</p>
+<p>式 (1)：① 的误差模型，算出的值 = 真值 + 按尺寸 \(p\) 次方缩小的误差。</p>
 
-<p>式 (3)：相邻两档的尺寸比都是 \(r\)。</p>
+<p>式 (2)：① 的中、细两档读数。</p>
 
-<p>结果：看网格每细一档，读数的变化缩小了多少倍，就知道误差按几次方收敛：变化每次缩一半且 \(r=2\) → \(p=1\)，缩成四分之一 → \(p=2\)。三档差值噪声大时 \(p\) 会跳，所以同一组实验所有压深共用一个 \(p\)，取各压深实测阶的中位数。</p>
+<p>式 (4)：粗档读数的定义。\(h_c\) 是粗档尺寸，\(X_c\) 是粗档读数，相邻两档尺寸比同样是 \(r\)。</p>
 
-<details><summary>推导</summary><p>式 (1) \(X_c-X_m=Ch_m^p(r^p-1)\) 除以式 (2) \(X_m-X_f=Ch_f^p(r^p-1)\)，\(C\) 与 \((r^p-1)\) 约掉：</p>
-<p>\[\frac{X_c-X_m}{X_m-X_f}=\frac{h_m^p}{h_f^p}\]</p>
-<p>由式 (3) \(h_m=r\,h_f\)：</p>
-<p>\[\frac{X_c-X_m}{X_m-X_f}=r^p\]</p>
+<p>结果：看网格每细一档，读数的变化缩小了多少倍，就知道误差按几次方收敛：\(r=2\) 时变化每次缩一半 → \(p=1\)，缩成四分之一 → \(p=2\)。三档差值噪声大时 \(p\) 会跳，所以同一组实验所有压深共用一个 \(p\)，取各压深实测阶的中位数。</p>
+
+<details><summary>推导</summary><p>把式 (2)(4) 的三档代入式 (1)，相邻两档相减：</p>
+<p>\[X_c-X_m=C\,h_m^p\,(r^p-1),\qquad X_m-X_f=C\,h_f^p\,(r^p-1)\]</p>
+<p>两式相除，\(C\) 与 \((r^p-1)\) 约掉，再用式 (2) \(h_m=r\,h_f\)：</p>
+<p>\[\frac{X_c-X_m}{X_m-X_f}=\frac{h_m^p}{h_f^p}=r^p\]</p>
 <p>两边取对数：</p>
-<p>\[p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\]</p></details>
+<p>\[p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\qquad(5)\]</p></details>
 <p><b>③ 本页三项各取什么</b></p>
 
 <ul>
-<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(r=2\)），\(p\) 按 ② 实测，代入 ①</li>
+<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(r=2\)），\(p\) 按式 (5) \(p=\ln[(X_c-X_m)/(X_m-X_f)]/\ln r\) 实测，代入式 (3) \(X^*=X_f+(X_f-X_m)/(r^p-1)\)</li>
 <li>\(\hat d\)：两档，取 \(p=1\)（偏差与 \(\hat d\) 成正比，\(h\) 换成 \(\hat d\)），即两点连直线延长到 \(\hat d=0\)</li>
 <li>块大小：两档半宽 \(L_s&lt;L_l\)，取 \(h=1/L\)、\(p=1\)，即两点连直线延长到 \(1/L=0\)（块无限大）</li>
 </ul>
