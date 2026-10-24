@@ -411,7 +411,7 @@ def test_drift(browser, rep, out, text, tgt, ids, ref):
       const p = document.createElement('p');
       p.textContent = '（测试插入的新段落）这一段是测试时临时插进来的，用来把后面的内容往下推，检查笔迹是否跟着原来的内容走。';
       const fig = document.createElement('figure');
-      const im = document.createElement('img'); im.src = other.getAttribute('src'); im.style.width = '400px';
+      const im = document.createElement('img'); im.src = other.getAttribute('src'); im.style.width = '400px'; im.dataset.testInserted = '1';
       fig.appendChild(im);
       first.before(p, fig);
       const lead = para.firstChild;
@@ -419,7 +419,7 @@ def test_drift(browser, rep, out, text, tgt, ids, ref):
       lead.data = '改过的字' + lead.data.slice(4);
       return {inserted_before: first.tagName, old_head: old, new_img: other.getAttribute('src')};
     }""", [tgt["src"], tgt["needle"]])
-    page.wait_for_function("[...document.querySelectorAll('article img')].every(i => i.complete)")
+    page.wait_for_function("document.querySelector('img[data-test-inserted]').complete")
     page.wait_for_timeout(300)
     import_notes(page, text)
     for k, (spec, name) in enumerate(zip(specs, ["图", "字"])):

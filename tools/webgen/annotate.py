@@ -189,9 +189,18 @@ ANNOT_JS = r"""
   const toLocal = (cx, cy, f) => ({ x: (cx - f.x) / f.s, y: (cy - f.y) / f.s });
   const toClient = (x, y, f) => ({ x: f.x + x * f.s, y: f.y + y * f.s });
   const localRect = (r, f) => ({ x: (r.left - f.x) / f.s, y: (r.top - f.y) / f.s, w: r.width / f.s, h: r.height / f.s });
+  /** el 是否在某个收起的折叠框里（不算该框自己的标题 summary）。新版 Chromium 里收起内容仍有布局矩形，所以要显式判断。 */
+  function inClosedDetails(el) {
+    for (let d = el && el.closest('details'); d; d = d.parentElement && d.parentElement.closest('details')) {
+      if (d.open) continue;
+      const sum = el.closest('summary');
+      if (!(sum && sum.parentElement === d)) return true;
+    }
+    return false;
+  }
   /** 元素的屏幕矩形；元素没渲染（如在收起的折叠框里）返回 null。 */
   function elementRect(el) {
-    if (!el || !el.isConnected || el.getClientRects().length === 0) return null;
+    if (!el || !el.isConnected || inClosedDetails(el) || el.getClientRects().length === 0) return null;
     const r = el.getBoundingClientRect();
     return r.width || r.height ? r : null;
   }
@@ -259,7 +268,7 @@ ANNOT_JS = r"""
   /** 位置 pos 的那个字的屏幕矩形；没渲染返回 null。 */
   function charRect(pos) {
     const ix = S.index, node = ix.nodes[ix.posNode[pos]];
-    if (!node || !node.isConnected) return null;
+    if (!node || !node.isConnected || inClosedDetails(node.parentElement)) return null;
     const r = document.createRange(), o = ix.posOff[pos];
     r.setStart(node, o); r.setEnd(node, Math.min(o + 1, node.data.length));
     for (const q of r.getClientRects()) if (q.width || q.height) return q;
