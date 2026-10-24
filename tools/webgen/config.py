@@ -1,5 +1,6 @@
 """路径、体积上限、站点标题与周清单：全站共用的常量，不含任何逻辑。"""
 
+import os
 from pathlib import Path
 
 # ---------------- 路径 ----------------
@@ -9,7 +10,7 @@ OUT_ROOT = Path("/nas/xiaoyingwang/Neural-IPC/outputs")     # NAS 上的仿真�
 DEMO_ROOT = OUT_ROOT / "ipc_demos"
 SWEEP_ROOT = OUT_ROOT / "ipc_sweep"
 SWEEP_CONFIGS = PROJECT / "tools" / "ipc_sweep" / "configs.py"
-DRAFTS = PROJECT / "docs" / "drafts"                        # 每周讲稿 web_<周>.md
+DRAFTS = Path(os.environ.get("NIPC_DRAFTS_DIR", PROJECT / "docs" / "drafts"))   # 每周讲稿 web_<周>.md；可指向导出的已提交版本，避免带上编辑中的半成品
 # week3 讲稿配图版目录（图在 figs/<组>/、视频在 videos/<组>/）；讲稿写 [[配图 <组>/<文件>]] 直接取这里的当时版本，
 # 图注取 sandbox tools/figs/week3_md/assemble_md.py 读的三份图注清单（draft_md.illustrated）
 ILLUSTRATED = OUT_ROOT / "week3_illustrated"
