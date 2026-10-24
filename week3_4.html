@@ -122,7 +122,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>已知：两物体的杨氏模量与泊松比，两表面的形状，压深；求：接触面上的压力满足的方程。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{p_{A\to B}(\mathbf x)=p_{B\to A}(\mathbf x)=p(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u_i(\mathbf x)=\dfrac{1}{E_i&#x27;}\cdot\dfrac1\pi\displaystyle\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,d\mathbf x&#x27;} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{E_i&#x27;=\dfrac{E_i}{1-\nu_i^2}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{u_A+u_B=\delta-h(\mathbf x),\quad h=f_A+f_B} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{1}{E^*}\cdot\frac1\pi\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,d\mathbf x&#x27;=\delta-h,\quad \frac1{E^*}=\frac1{E_A&#x27;}+\frac1{E_B&#x27;}}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{p_{A\to B}(\mathbf x)=p_{B\to A}(\mathbf x)=p(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u_i(\mathbf x)=\dfrac{1}{E_i&#x27;}\cdot\dfrac1\pi\displaystyle\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,d\mathbf x&#x27;} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{E_i&#x27;=\dfrac{E_i}{1-\nu_i^2}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{u_A+u_B=\delta-h(\mathbf x),\quad h=f_A+f_B} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{1}{E^*}\cdot\frac1\pi\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,d\mathbf x&#x27;=\delta-h,\quad \frac1{E^*}=\frac1{E_A&#x27;}+\frac1{E_B&#x27;}\quad(5)}\]</p>
 <p>式 (1)：\(\mathbf x\) 是接触面上的位置，\(p(\mathbf x)\) 是这一点每单位面积受的压力，\(p_{A\to B}\)、\(p_{B\to A}\) 分别是 A 压 B、B 压 A 的压力；作用力等于反作用力，两者一样大。</p>
 
 <p>式 (2)：\(u_i(\mathbf x)\) 是物体 \(i\)（A 或 B）在 \(\mathbf x\) 处表面往下陷的距离，\(\mathbf x&#x27;\) 是接触面上另一个位置，积分把所有位置的压力都加起来，\(|\mathbf x-\mathbf x&#x27;|\) 是两点之间的距离，\(E_i&#x27;\) 是物体 \(i\) 的有效硬度，即式 (3) \(E_i&#x27;=E_i/(1-\nu_i^2)\)。按一张蹦床的一个点，周围一圈都跟着陷下去，离得越近陷得越多，与距离成反比；两侧积分那部分完全一样，区别只在材料系数；原理是线弹性里下沉与载荷成正比，一个点力造成的下沉随距离按 1/距离 衰减（弹性半空间的点力解），任意压力分布的下沉就是各点的贡献叠加起来。</p>
@@ -142,7 +142,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>记合成模量，代入式 (3) \(E_i&#x27;=E_i/(1-\nu_i^2)\)：</p>
 <p>\[\frac1{E^*}\equiv\frac1{E_A&#x27;}+\frac1{E_B&#x27;}=\frac{1-\nu_A^2}{E_A}+\frac{1-\nu_B^2}{E_B}\]</p>
 <p>得：</p>
-<p>\[\frac1{E^*}\cdot\frac1\pi\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,d\mathbf x&#x27;=\delta-h\]</p></details>
+<p>\[\frac1{E^*}\cdot\frac1\pi\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,d\mathbf x&#x27;=\delta-h\qquad(5)\]</p></details>
 <p>这个等价关系只在线弹性、小变形、无摩擦，并且两侧都近似半空间、表面坡度远小于 1 时成立。球、椭圆、幂律以及任意轴对称的缝隙都能直接用；平底这类带尖边的压头、接触半径相对曲率半径不够小、物体厚度有限、几个接触区互相影响时，都不能直接用，要另外处理。</p>
 <h3>降维法：三维接触化成一排一维弹簧</h3>
 
@@ -150,7 +150,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>已知：轴对称缝隙 \(h(r)\)、合成模量 \(E^*\)、压深 \(d\)；求：接触半径 \(a\)、总力 \(F\)、总能量 \(U_0\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{u(r)=d-h(r),\quad r\le a} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u(\mathbf x)=\dfrac{1}{\pi E^*}\displaystyle\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,dA&#x27;} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p(a)=0,\quad p=0\ (r&gt;a)} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA,\quad \frac{dU_0}{dd}=F} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ d=g(a),\ \ F=2E^*\int_0^a\big(d-g(x)\big)dx,\ \ U_0=E^*\int_0^a\big(d-g(x)\big)^2dx,\ \ g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}dr}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{u(r)=d-h(r),\quad r\le a} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u(\mathbf x)=\dfrac{1}{\pi E^*}\displaystyle\int\frac{p(\mathbf x&#x27;)}{|\mathbf x-\mathbf x&#x27;|}\,dA&#x27;} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p(a)=0,\quad p=0\ (r&gt;a)} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA,\quad \frac{dU_0}{dd}=F} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ d=g(a)\ (5),\ \ F=2E^*\int_0^a\big(d-g(x)\big)dx\ (6),\ \ g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}dr\ (7),\ \ U_0=E^*\int_0^a\big(d-g(x)\big)^2dx\ (8)}\]</p>
 <p>式 (1)：\(r\) 是离接触中心的距离，\(h(r)\) 是接触前两表面之间的缝隙，\(d\) 是压深，\(a\) 是接触半径，\(u(r)\) 是表面往下陷的量。它说的是接触条件：接触区里表面必须正好贴着压头；压头整体压下 \(d\)，而离中心 \(r\) 处本来有 \(h(r)\) 的缝，所以那里表面只需陷 \(d-h(r)\)。</p>
 
 <p>式 (2)：\(\mathbf x\) 是表面上要求下沉的点，\(\mathbf x&#x27;\) 是施压的点，\(p(\mathbf x&#x27;)\) 是那里的压强，\(dA&#x27;\) 是一小块面积，\(E^*\) 是合成模量。它说的是：每一小块压强都像一个点力，让周围表面按 1/距离 陷下去；线弹性里各处的下沉可以直接相加，所以总下沉是所有点力贡献的积分。</p>
@@ -165,18 +165,18 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><img src="assets/images/w34_WikipediabilderKap_4.jpg" style="width:1184px;max-width:100%;height:auto" alt="这张图是降维法原作者的示意图。左边是半径 R 的灰色球在力 F 下压进弹性平面，a 是接触半径，d 是压深；箭头右边是换成的一维模型，一个半径 R1 的灰色轮廓在同样的力 F 下压进一排竖直弹簧，R1 = R/2，也就是等效轮廓 g(x) = x²/R。通过对比左右两边标出的 a 和 d，可以看出换成一排各压各的弹簧后，力、接触半径、压深都与三维问题相同，所以能用一维弹簧算三维接触。" loading="lazy"><figcaption class="small">这张图是降维法原作者的示意图。左边是半径 R 的灰色球在力 F 下压进弹性平面，a 是接触半径，d 是压深；箭头右边是换成的一维模型，一个半径 R1 的灰色轮廓在同样的力 F 下压进一排竖直弹簧，R1 = R/2，也就是等效轮廓 g(x) = x²/R。通过对比左右两边标出的 a 和 d，可以看出换成一排各压各的弹簧后，力、接触半径、压深都与三维问题相同，所以能用一维弹簧算三维接触。</figcaption></figure>
 <details><summary>推导</summary><p>先解一个平底：在式 (1) 中取 \(h=0\)（半径 \(\tilde a\) 内平），按式 (2)(3) 解得压深 \(\delta\) 时的力，以及平底外 \(r\) 处的下沉：</p>
 <p>\[F_{\text{平底}}=2E^*\tilde a\,\delta,\qquad w(r)=\frac{2\delta}{\pi}\arcsin\frac{\tilde a}{r}\quad(r&gt;\tilde a)\]</p>
-<p>一般形状的压入看成一连串平底压入：接触半径为 \(\tilde a\) 时再压 \(d\tilde d\)，相当于半径 \(\tilde a\) 的平底多压 \(d\tilde d\)。记压深与接触半径的关系为 \(\tilde d=g(\tilde a)\)，由式 (4) \(F=\int p\,dA\) 把各步的力相加：</p>
+<p>一般形状的压入看成一连串平底压入：接触半径为 \(\tilde a\) 时再压 \(d\tilde d\)，相当于半径 \(\tilde a\) 的平底多压 \(d\tilde d\)。记压深与接触半径的关系为 \(\tilde d=g(\tilde a)\)，到最后一步即 \(d=g(a)\) (5)，由式 (4) \(F=\int p\,dA\) 把各步的力相加：</p>
 <p>\[F=\int_0^a2E^*\tilde a\,g&#x27;(\tilde a)\,d\tilde a\]</p>
 <p>分部积分，用 \(g(a)=d\)：</p>
-<p>\[F=2E^*\Big[\tilde a\,g(\tilde a)\Big]_0^a-2E^*\int_0^ag\,d\tilde a=2E^*\int_0^a\big(d-g(x)\big)dx\]</p>
+<p>\[F=2E^*\Big[\tilde a\,g(\tilde a)\Big]_0^a-2E^*\int_0^ag\,d\tilde a=2E^*\int_0^a\big(d-g(x)\big)dx\qquad(6)\]</p>
 <p>各步在 \(r=a\) 处造成的下沉相加：</p>
 <p>\[w(a)=\frac2\pi\int_0^a\arcsin\frac{\tilde a}{a}\;g&#x27;(\tilde a)\,d\tilde a\]</p>
 <p>由式 (1)，\(r=a\) 处表面正好贴着压头，\(w(a)=d-h(a)\)；分部积分，用 \(g(a)=d\) 与 \(\arcsin1=\pi/2\)：</p>
 <p>\[h(a)=\frac2\pi\int_0^a\frac{g(\tilde a)}{\sqrt{a^2-\tilde a^2}}\,d\tilde a\]</p>
 <p>这是关于 \(g\) 的 Abel 积分方程，解为：</p>
-<p>\[g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr\]</p>
+<p>\[g(x)=|x|\int_0^{|x|}\frac{h&#x27;(r)}{\sqrt{x^2-r^2}}\,dr\qquad(7)\]</p>
 <p>由式 (4) \(dU_0/dd=F\)，取</p>
-<p>\[U_0=E^*\int_0^a\big(d-g(x)\big)^2dx\]</p>
+<p>\[U_0=E^*\int_0^a\big(d-g(x)\big)^2dx\qquad(8)\]</p>
 <p>对 \(d\) 求导，积分上限 \(a\) 处 \(d-g(a)=0\)，边界项为 0：</p>
 <p>\[\frac{dU_0}{dd}=2E^*\int_0^a\big(d-g(x)\big)dx=F\]</p>
 <p>且 \(d=0\) 时 \(U_0=0\)，所以这就是弹性能。</p>
@@ -185,23 +185,23 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>由 \(g(a)=d\) 得 \(a^2=Rd\)；力</p>
 <p>\[F=2E^*\int_0^a\Big(d-\frac{x^2}{R}\Big)dx=2E^*\Big(\frac{a^3}{R}-\frac{a^3}{3R}\Big)=\frac43E^*\frac{a^3}{R}\]</p>
 <p>正是 Hertz 解。</p></details>
-<p><b>② 力是能量的导数，越压越硬</b></p>
+<p><b>② 越压越硬</b></p>
 
-<p>已知：① 求出的总能量 \(U_0\) 与总力 \(F\)；求：能量对压深、力对压深的变化率。</p>
+<p>已知：① 求出的力与压深、接触半径的关系；求：刚度，即力对压深的变化率。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{U_0=\dfrac{E^*}{2}\displaystyle\int_{-a}^{a}\big(d-g\big)^2dx} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=E^*\displaystyle\int_{-a}^{a}\big(d-g\big)dx} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{d-g(\pm a)=0} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{dU_0}{dd}=F,\quad \frac{dF}{dd}=2aE^*}\]</p>
-<p>式 (1)(2)：就是 ① 求出的总能量与总力，\(U_0\) 是总能量，\(F\) 是总力，\(d\) 是压深，\(a\) 是接触半径（它随 \(d\) 变），\(g\) 是等效轮廓。</p>
+<p>\[\begin{cases}\color{#c0392b}{d=g(a)} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{F=2E^*\displaystyle\int_0^a\big(d-g(x)\big)dx} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{K=\dfrac{dF}{dd}} &amp; \color{#c0392b}{(9)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ K=2aE^*\quad(10)}\]</p>
+<p>式 (5)：① 推出的接触边缘条件：边缘那根弹簧的压缩量正好为 0，\(a\) 是接触半径，\(d\) 是压深。</p>
 
-<p>式 (3)：来自 ① 的接触边缘条件 \(g(a)=d\)：在积分的上下限 \(\pm a\) 处，被积的压缩量正好是 0。</p>
+<p>式 (6)：① 推出的总力，所有被压弹簧的力之和，\(E^*\) 是合成模量。</p>
 
-<p>结果：前者说明力就是能量对压深的导数，能量随压深涨得越快，推力越大；后者是刚度，说明压得越深越硬，因为接触区越来越宽，参与受力的弹簧越来越多。</p>
+<p>式 (9)：刚度的定义。\(K\) 是刚度，即力–压深曲线的斜率：再压一点，力多出多少。</p>
 
-<details><summary>推导</summary><p>对式 (1) \(U_0=\frac{E^*}{2}\int_{-a}^{a}(d-g)^2dx\) 求导，积分上下限也随 \(d\) 变，按含参积分求导法则：</p>
-<p>\[\frac{dU_0}{dd}=\frac{E^*}{2}\Big[\big(d-g(a)\big)^2\frac{da}{dd}+\big(d-g(-a)\big)^2\frac{da}{dd}\Big]+\frac{E^*}{2}\int_{-a}^{a}2\big(d-g\big)\,dx\]</p>
-<p>由式 (3) \(d-g(\pm a)=0\)，方括号为 0：</p>
-<p>\[\frac{dU_0}{dd}=E^*\int_{-a}^{a}\big(d-g\big)\,dx=F\]</p>
-<p>同样对式 (2) \(F=E^*\int_{-a}^{a}(d-g)dx\) 求导，由 \(d-g(\pm a)=0\) 边界项为 0：</p>
-<p>\[\frac{dF}{dd}=E^*\int_{-a}^{a}1\,dx=2aE^*\]</p></details>
+<p>结果：压得越深越硬，因为接触区越来越宽，参与受力的弹簧越来越多；刚度只取决于此刻的接触半径，与压头形状无关。另外由 ① 的式 (4) \(dU_0/dd=F\)，力就是能量对压深的导数。</p>
+
+<details><summary>推导</summary><p>把式 (6) 代入式 (9)，积分上限 \(a\) 也随 \(d\) 变，按含参积分求导法则：</p>
+<p>\[K=2E^*\big(d-g(a)\big)\frac{da}{dd}+2E^*\int_0^a1\,dx\]</p>
+<p>由式 (5) \(d=g(a)\)，第一项为 0：</p>
+<p>\[K=2aE^*\qquad(10)\]</p></details>
 <h3>用它推出 Hertz</h3>
 
 <p><b>① 球：Hertz 解</b></p>
