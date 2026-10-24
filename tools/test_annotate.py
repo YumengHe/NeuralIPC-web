@@ -119,7 +119,7 @@ def pen_stroke(cdp, pts, forces):
 
 
 def scroll_to(page, js_target):
-    page.evaluate(f"() => ({js_target}).scrollIntoView({{block: 'center'}})")
+    page.evaluate(f"() => ({js_target}).scrollIntoView({{block: 'center', behavior: 'instant'}})")
     page.wait_for_timeout(300)
 
 
@@ -215,7 +215,8 @@ def test_ipad_draw(browser, rep, out):
     st = strokes(page)
     kinds = [s["anchor"]["type"] for s in st]
     rep.check("a2 两笔已存、锚点类型", kinds == ["media", "text"],
-              f"锚点 {kinds}；文字锚点 exact={st[1]['anchor'].get('exact')!r}" if len(st) == 2 else f"笔画数 {len(st)}")
+              f"锚点 {kinds}；文字锚点 exact={st[1]['anchor'].get('exact')!r}" if len(st) == 2
+              else f"笔画数 {len(st)}，锚点 {[s['anchor'] for s in st]}，点数 {[len(s['pts']) for s in st]}")
     if len(st) != 2:
         raise SystemExit("a2 没画出两笔，后面的检查无法进行")
     pres = sorted({p[2] for p in st[0]["pts"]})
@@ -320,7 +321,7 @@ def test_week2_details(browser, rep, out):
     ref = page.evaluate(MEASURE_JS, spec)
 
     set_annotation(page, False)
-    page.evaluate(f"{det}.scrollIntoView({{block: 'center'}})")
+    page.evaluate(f"{det}.scrollIntoView({{block: 'center', behavior: 'instant'}})")
     page.click("details[data-test-pick] > summary")
     page.wait_for_timeout(400)
     opened = page.evaluate(f"{det}.open")
@@ -358,7 +359,7 @@ def test_video_click(browser, rep):
     toolbar_pen(page)
     set_annotation(page, False)
     page.evaluate("""() => { const v = document.querySelector('article video'); window.__vclick = false;
-                    v.addEventListener('click', () => { window.__vclick = true; }); v.scrollIntoView({block: 'center'}); }""")
+                    v.addEventListener('click', () => { window.__vclick = true; }); v.scrollIntoView({block: 'center', behavior: 'instant'}); }""")
     page.wait_for_timeout(300)
     box = page.evaluate("(() => { const r = document.querySelector('article video').getBoundingClientRect(); return {x: r.left + r.width / 2, y: r.top + r.height / 2}; })()")
     top = page.evaluate("([x, y]) => document.elementFromPoint(x, y).tagName", [box["x"], box["y"]])
@@ -440,7 +441,7 @@ def test_drift(browser, rep, out, text, tgt, ids, ref):
     status_text = page.inner_text("#annot-status")
     rep.check("f1 目标删掉后两笔标灰、不丢", st["orphans"] == 2 and all("orphan" in c and d != "none" for c, d in cls),
               f"orphans={st['orphans']}，path={cls}，提示「{status_text.strip()}」")
-    page.evaluate(f"document.querySelector('#annot-layer path[data-id=\"{ids[1]}\"]').scrollIntoView({{block: 'center'}})")
+    page.evaluate(f"document.querySelector('#annot-layer path[data-id=\"{ids[1]}\"]').scrollIntoView({{block: 'center', behavior: 'instant'}})")
     page.wait_for_timeout(300)
     page.screenshot(path=str(out / "f_orphan.png"))
     ctx.close()
