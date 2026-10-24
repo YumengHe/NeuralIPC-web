@@ -1161,30 +1161,68 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>[16 维特征, \(\log\delta_k\)] → 全连接 17→64→64→1，输出记为 \(g\)</li>
 <li>\(U_k=\delta_k^2\exp(g)\)</li>
 </ol>
-<details><summary>推导：\(\delta^2\exp(g)\) 的性质</summary><ul>
-<li>\(\exp(g)&gt;0\)，\(\delta^2\ge0\)，所以 \(U\ge0\)</li>
-<li>\(\delta=0\) 时 \(U=0\cdot\exp(g)=0\)</li>
-<li>
-<p>力 \(\dfrac{dU}{d\delta}\)：</p>
-<ol>
-<li>\(U=\delta^2\cdot\exp(g)\) 是两个因子相乘，用乘积求导 \((fh)&#x27;=f&#x27;h+fh&#x27;\)：\(\dfrac{dU}{d\delta}=2\delta\cdot\exp(g)+\delta^2\cdot\dfrac{d\exp(g)}{d\delta}\)</li>
-<li>\(g\) 依赖 \(\delta\)，用链式法则：\(\dfrac{d\exp(g)}{d\delta}=\exp(g)\dfrac{dg}{d\delta}\)；\(g\) 的输入是 \(\log\delta\)，再用一次链式法则：\(\dfrac{dg}{d\delta}=\dfrac{\partial g}{\partial\log\delta}\cdot\dfrac{d\log\delta}{d\delta}=\dfrac{\partial g}{\partial\log\delta}\cdot\dfrac1\delta\)</li>
-<li>代入：\(\dfrac{dU}{d\delta}=2\delta\exp(g)+\delta^2\exp(g)\dfrac{\partial g}{\partial\log\delta}\dfrac1\delta=\delta\exp(g)\Big(2+\dfrac{\partial g}{\partial\log\delta}\Big)\)</li>
-<li>
-<p>含因子 \(\delta\)。另两个因子在 \(\delta\to0\)（\(\log\delta\to-\infty\)）时不会变成无穷大：</p>
-<ul>
-<li>网络为 线性层 → tanh → 线性层 → tanh → 线性层。\(\tanh\) 的输出在 \([-1,1]\) 内，最后一层是这些有界值的加权和，所以 \(g\) 有界，\(\exp(g)\) 有界</li>
-<li>输出对输入的导数按链式法则是各层权重与 \(\tanh&#x27;\) 的乘积；\(0&lt;\tanh&#x27;\le1\)，权重为有限的数，所以 \(\dfrac{\partial g}{\partial\log\delta}\) 有界</li>
-</ul>
-<p>因此 \(\delta\to0\) 时力 \(\to0\)：接触瞬间力为 0</p>
-</li>
-</ol>
-</li>
-<li>
-<p>易于表示 Hertz：\(U_{\text{Hertz}}=\dfrac{8}{15}E^*R^{1/2}\delta^{5/2}=\delta^2\cdot\dfrac{8}{15}E^*R^{1/2}\delta^{1/2}\)。令 \(\exp(g)=\dfrac{8}{15}E^*R^{1/2}\delta^{1/2}\)，两边取对数得 \(g=\log\Big(\dfrac{8}{15}E^*R^{1/2}\Big)+0.5\log\delta\)，即网络只需输出 \(\log\delta\) 的线性函数（斜率 0.5，截距由形状决定）</p>
-</li>
-<li>不固定指数：形状偏离 Hertz 时能量随压深的指数可变，由 \(g\) 对 \(\log\delta\) 的依赖表示。固定为 \(c\,\delta^p\)（网络只输出 \(c\)、\(p\)）的版本在同样数据上记住训练样本、测试误差高</li>
-</ul></details>
+<details><summary>推导：\(\delta^2\exp(g)\) 的性质</summary>
+
+<p><b>① 能量非负，没接触时为 0</b></p>
+
+<p>已知：单区能量的写法；求：能量的符号和零点。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{U=\delta^2\exp(g)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{\exp(x)&gt;0\ \ \text{对任意实数}\ x} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ U\ge0,\quad U(\delta=0)=0\quad(3)}\]</p>
+
+
+
+<p>式 (1)：单区能量的定义。\(\delta\) 是这个接触区的穿透深度，\(g\) 是网络的输出，\(U\) 是能量。它说的是：能量 = 穿透深度的平方 × 一个由网络给出的正系数。</p>
+
+<p>式 (2)：指数函数的性质：任何实数的指数都是正数。</p>
+
+<p>结果：能量永远不为负，没有穿透时正好为 0，所以不会出现「不碰也有能量」或「能量为负、把物体吸过去」的情况。</p>
+
+<details><summary>推导</summary><p>由式 (2)，\(\exp(g)&gt;0\)；又 \(\delta^2\ge0\)，代入式 (1)：</p>
+<p>\[U=\delta^2\exp(g)\ge0\]</p>
+<p>\(\delta=0\) 时：</p>
+<p>\[U=0\cdot\exp(g)=0\qquad(3)\]</p></details>
+<p><b>② 接触瞬间力为 0</b></p>
+
+<p>已知：单区能量的写法、网络的结构；求：\(\delta\to0\) 时的力。</p>
+
+<p>\[\begin{cases}\color{#c0392b}{U=\delta^2\exp(g)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{g=\mathrm{NN}(\text{特征},\ \log\delta)} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{|\tanh(x)|\le1,\quad 0&lt;\tanh&#x27;(x)\le1} &amp; \color{#c0392b}{(5)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{dU}{d\delta}=\delta\exp(g)\Big(2+\frac{\partial g}{\partial\log\delta}\Big)\to0\quad(\delta\to0)\quad(6)}\]</p>
+<p>式 (1)：同 ① 的单区能量 \(U=\delta^2\exp(g)\)。</p>
+
+<p>式 (4)：网络的定义。\(g\) 由一个全连接网络算出，输入是形状特征和 \(\log\delta\)，网络为「线性层 → tanh → 线性层 → tanh → 线性层」。</p>
+
+<p>式 (5)：tanh 函数的性质：输出在 \(-1\) 到 \(1\) 之间，导数在 0 到 1 之间。</p>
+
+<p>结果：力是能量对穿透深度的导数。穿透趋于 0 时力趋于 0，所以接触开始的一瞬力从 0 平滑地长起来，不会突然跳出一个有限的力，这和真实弹性接触一致。</p>
+
+<details><summary>推导</summary><p>式 (1) \(U=\delta^2\exp(g)\) 对 \(\delta\) 求导，用乘积法则：</p>
+<p>\[\frac{dU}{d\delta}=2\delta\exp(g)+\delta^2\exp(g)\frac{dg}{d\delta}\]</p>
+<p>由式 (4)，\(g\) 通过 \(\log\delta\) 依赖 \(\delta\)，链式法则：</p>
+<p>\[\frac{dg}{d\delta}=\frac{\partial g}{\partial\log\delta}\cdot\frac1\delta\]</p>
+<p>代入：</p>
+<p>\[\frac{dU}{d\delta}=\delta\exp(g)\Big(2+\frac{\partial g}{\partial\log\delta}\Big)\]</p>
+<p>由式 (5)，最后一层是有界的 tanh 输出的加权和，所以 \(g\) 有界、\(\exp(g)\) 有界；\(\partial g/\partial\log\delta\) 是各层权重与 \(\tanh&#x27;\) 的乘积，也有界。于是 \(\delta\to0\) 时：</p>
+<p>\[\frac{dU}{d\delta}=\delta\cdot(\text{有界})\to0\qquad(6)\]</p></details>
+<p><b>③ 能精确表示 Hertz</b></p>
+
+<p>已知：单区能量的写法、Hertz 弹性能；求：网络要输出什么才能给出 Hertz。</p>
+
+<p>\[\begin{cases}\color{#c0392b}{U=\delta^2\exp(g)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{U_{\text{Hertz}}=\dfrac{8}{15}E^*R^{1/2}\delta^{5/2}} &amp; \color{#c0392b}{(7)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ g=\log\Big(\frac{8}{15}E^*R^{1/2}\Big)+0.5\log\delta\quad(8)}\]</p>
+<p>式 (1)：同 ① 的单区能量。</p>
+
+<p>式 (7)：Hertz 解（见 1.4 节），\(E^*\) 是有效模量，\(R\) 是球半径：光滑球压厚块时的精确弹性能。</p>
+
+<p>结果：网络只需输出 \(\log\delta\) 的一条直线，斜率 0.5，截距由形状决定，这对网络来说很容易学；形状偏离 Hertz 时，能量随压深的幂次可以通过 \(g\) 对 \(\log\delta\) 的斜率改变。</p>
+
+<details><summary>推导</summary><p>令式 (1) 等于式 (7)：</p>
+<p>\[\delta^2\exp(g)=\frac{8}{15}E^*R^{1/2}\delta^{5/2}\]</p>
+<p>两边除以 \(\delta^2\)：</p>
+<p>\[\exp(g)=\frac{8}{15}E^*R^{1/2}\delta^{1/2}\]</p>
+<p>两边取对数：</p>
+<p>\[g=\log\Big(\frac{8}{15}E^*R^{1/2}\Big)+0.5\log\delta\qquad(8)\]</p></details>
+<p>不固定指数的理由：若把能量固定为 \(c\,\delta^p\)，网络只输出 \(c\)、\(p\)，在同样数据上会记住训练样本、测试误差高。</p>
+</details>
 <p><strong>区间耦合</strong></p>
 <p>多个接触区压在同一块基体上时，一个区把基体压下去，另一个区周围的表面也跟着下沉，于是另一个区需要压得少一些、存的能量也少一些。所以总能量小于各区单独能量之和 \(\sum_kU_k\)。\(U_{ij}\) 是对每一对接触区的负修正：</p>
 <p>\[U_{ij}=-\mathrm{softplus}\big(\mathrm{NN}(\delta_i,\delta_j,\kappa_i,\kappa_j)\big)\cdot\sqrt{U_iU_j}\cdot\frac{L}{r_{ij}}\]</p>
@@ -1256,24 +1294,69 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>离散：每块接触多边形只在形心取一点（1.2）</li>
 </ul>
 <p><strong>受控场景：刚球压 FEM 块</strong>（块的杨氏模量远大于压力场模量 \(E_h\)，块几乎不变形）：物体从刚好接触处静止释放、只受自重，测静止后的压深 \(\delta\)，与压力场公式 \(F(\delta)=mg\) 解出的预测压深比较。</p>
-<details><summary>推导：刚球压 FEM 块的压力场公式</summary><ol>
-<li>块内某点压强 \(=\dfrac{E_h}{D}\times\)该点深度（1.1 实现；\(D\)：块内到表面的最大距离）。刚球几乎不变形，接触面就是球面落在块内的部分，各处深度 = 球面进入块的深度 \(d(\mathbf x)\)</li>
-<li>力 = 压强积分：\(F=\displaystyle\int\frac{E_h}{D}d(\mathbf x)\,dA=\frac{E_h}{D}\int d(\mathbf x)\,dA=\frac{E_h}{D}V\)，\(V\) 为球进入块的体积（球冠）</li>
-<li>
-<p>球冠体积：竖直坐标 \(y\) 从球最低点向上量。球心在最低点正上方 \(R\) 处，高度 \(y\) 处水平截面是圆，半径 \(r\) 满足勾股定理 \(r^2+(R-y)^2=R^2\)，展开得 \(r^2=2Ry-y^2\)；截面面积 \(\pi(2Ry-y^2)\)。对 \(y\) 从 0 到 \(\delta\) 积分：</p>
-<p>\[V=\int_0^\delta\pi(2Ry-y^2)\,dy\]</p>
-<ul>
-<li>分两项积分：\(2Ry\) 的原函数为 \(Ry^2\)，\(y^2\) 的原函数为 \(\dfrac{y^3}{3}\)</li>
-<li>代入上限 \(\delta\)、下限 0（下限处都为 0）：\(V=\pi\Big(R\delta^2-\dfrac{\delta^3}{3}\Big)\)</li>
-<li>即 \(V=\pi R\delta^2\Big(1-\dfrac{\delta}{3R}\Big)\)</li>
-<li>代入第 2 步：</li>
-</ul>
-<p>\[F=\frac{E_h}{D}\,\pi R\,\delta^{2}\Big(1-\frac{\delta}{3R}\Big)\]</p>
-</li>
-<li>
-<p>\(\delta\ll R\) 时括号 \(\approx1\)，\(F\approx\dfrac{E_h}{D}\pi R\delta^2\)。平衡 \(F=mg\)：\(\delta\approx\sqrt{\dfrac{mgD}{\pi E_hR}}\propto R^{-1/2}\)；Hertz 为 \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\)，压深 \(\propto R^{-1/3}\)。</p>
-</li>
-</ol></details>
+<details><summary>推导：刚球压 FEM 块的压力场公式</summary>
+
+<p><b>① 合力 = 压强斜率 × 球压进块的体积</b></p>
+
+<p>已知：块的压力场模量 \(E_h\)、块内到表面的最大距离 \(D\)、球面进入块的深度 \(d(\mathbf x)\)；求：合力 \(F\)。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{p(\mathbf x)=\dfrac{E_h}{D}\,d(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{V=\displaystyle\int d(\mathbf x)\,dA} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac{E_h}{D}\,V\quad(4)}\]</p>
+
+
+
+<p>式 (1)：Genesis 的压力场。\(\mathbf x\) 是接触面上一点，\(d(\mathbf x)\) 是那里球面进入块的深度，\(E_h\) 是压力场模量，\(D\) 是块内到表面的最大距离，\(E_h/D\) 是压强随深度的斜率。它说的是：块内某点的压强 = 斜率 × 该点深度；刚球几乎不变形，接触面就是球面落在块内的部分。</p>
+
+<p>式 (2)：合力的定义，把接触面上每小块面积的推力加起来。</p>
+
+<p>式 (3)：体积的定义。\(V\) 是球进入块的那块体积，即一个球冠。它说的是：把每小块面积上的进入深度加起来，就是进入的体积，像把一叠竖着的细柱子的高度加起来。</p>
+
+<p>结果：力只看球压进块的体积，与形状细节无关，这是 hydro「按体积算力」的直接后果。</p>
+
+<details><summary>推导</summary><p>把式 (1) 代入式 (2)，斜率是常数，提到积分外：</p>
+<p>\[F=\int\frac{E_h}{D}\,d(\mathbf x)\,dA=\frac{E_h}{D}\int d(\mathbf x)\,dA\]</p>
+<p>由式 (3)：</p>
+<p>\[F=\frac{E_h}{D}\,V\qquad(4)\]</p></details>
+<p><b>② 球冠体积</b></p>
+
+<p>已知：球半径 \(R\)、压深 \(\delta\)；求：球压进块的体积 \(V\)。</p>
+
+<p>\[\begin{cases}\color{#c0392b}{r^2+(R-y)^2=R^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{V=\displaystyle\int_0^\delta\pi\,r(y)^2\,dy} &amp; \color{#c0392b}{(6)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ V=\pi R\delta^2\Big(1-\frac{\delta}{3R}\Big)\quad(7)}\]</p>
+<p>式 (5)：勾股定理。\(y\) 是从球最低点向上量的高度，\(r\) 是高度 \(y\) 处水平截面圆的半径。它说的是：球心在最低点正上方 \(R\) 处，截面边缘上一点到球心的距离是 \(R\)，水平边 \(r\)、竖直边 \(R-y\)、斜边 \(R\) 构成直角三角形。</p>
+
+<p>式 (6)：按薄片求体积。\(\pi r(y)^2\) 是高度 \(y\) 处截面圆的面积，\(dy\) 是薄片厚度。它说的是：把球冠切成一叠水平薄圆片，每片体积 = 面积 × 厚度，从底到压深 \(\delta\) 加起来。</p>
+
+<p>结果：压深越大 → 体积越大，开始时按压深的平方涨，因为截面圆随高度变宽、高度本身也在增加。</p>
+
+<details><summary>推导</summary><p>由式 (5) 展开：</p>
+<p>\[r^2=2Ry-y^2\]</p>
+<p>代入式 (6)：</p>
+<p>\[V=\int_0^\delta\pi\big(2Ry-y^2\big)\,dy=\pi\Big[Ry^2-\frac{y^3}{3}\Big]_0^\delta=\pi\Big(R\delta^2-\frac{\delta^3}{3}\Big)\]</p>
+<p>提出 \(\pi R\delta^2\)：</p>
+<p>\[V=\pi R\delta^2\Big(1-\frac{\delta}{3R}\Big)\qquad(7)\]</p></details>
+<p><b>③ 预测压深</b></p>
+
+<p>已知：球的质量 \(m\)、重力加速度 \(g\)；求：静止时的压深 \(\delta\)。</p>
+
+<p>\[\begin{cases}\color{#c0392b}{F=\dfrac{E_h}{D}\,V} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{V=\pi R\delta^2\Big(1-\dfrac{\delta}{3R}\Big)} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{F=mg} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{\delta\ll R} &amp; \color{#c0392b}{(9)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \delta\approx\sqrt{\frac{mgD}{\pi E_hR}}\ \propto R^{-1/2}\quad(10)}\]</p>
+<p>式 (4)：① 推出的合力 = 压强斜率 × 侵入体积。</p>
+
+<p>式 (7)：② 推出的球冠体积。</p>
+
+<p>式 (8)：静力平衡。球静止时，接触力正好托住它的重量 \(mg\)。</p>
+
+<p>式 (9)：压深远小于球半径的条件，此时式 (7) 括号里的修正项可以略去。</p>
+
+<p>结果：hydro 预测的压深随球半径按 \(-1/2\) 次方变；而 Hertz 解 \(F=\tfrac43E^*R^{1/2}\delta^{3/2}\) 给出的压深按 \(-1/3\) 次方变。两者随半径的变化方式不同，这就是受控场景要检验的差别。</p>
+
+<details><summary>推导</summary><p>由式 (9)，式 (7) 括号约为 1：</p>
+<p>\[V\approx\pi R\delta^2\]</p>
+<p>代入式 (4)：</p>
+<p>\[F\approx\frac{E_h}{D}\,\pi R\,\delta^2\]</p>
+<p>令其等于式 (8) \(F=mg\)，解出 \(\delta\)：</p>
+<p>\[\delta\approx\sqrt{\frac{mgD}{\pi E_hR}}\ \propto R^{-1/2}\qquad(10)\]</p></details>
+</details>
 <h3 class="numbered">4.3 参数扫描：每次只改一个量</h3>
 
 <p><strong>刚球压 FEM 块：改球半径（同为 1 kg）</strong>（预期：压深 \(\propto R^{-1/2}\)；Hertz \(\propto R^{-1/3}\)）</p>
@@ -1415,23 +1498,37 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p><strong>hydro 搭法</strong></p>
 <ul>
-<li>
-<p>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 \(=\dfrac{E_h}{D}\times\)深度（\(E_h\)：压力场模量；\(D\)：基体内到表面的最大距离）</p>
-<ul>
-<li>
-<p>力 = 压强在接触面上的积分。接触面上水平位置 \(\mathbf x\) 处压头进入基体的深度记为 \(d(\mathbf x)\)：</p>
-<p>\[F_{\text{hydro}}=\int\frac{E_h}{D}\,d(\mathbf x)\,dA=\frac{E_h}{D}\int d(\mathbf x)\,dA\]</p>
-</li>
-<li>
-<p>\(\int d(\mathbf x)\,dA\) 是把每个位置的重叠深度乘以面积再相加，即重叠体积 \(V\)：</p>
-<p>\[F_{\text{hydro}}=\frac{E_h}{D}\,V\]</p>
-</li>
+<li>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 \(=\dfrac{E_h}{D}\times\)深度（\(E_h\)：压力场模量；\(D\)：基体内到表面的最大距离）<ul>
+<li>力 = 压力场斜率 × 重叠体积，推导见下</li>
 </ul>
 </li>
-<li>
-<p>(B) 两侧均为刚体、各带压力场、共用全局刚度 \(K\)（Genesis 刚体–刚体做法）</p>
-</li>
+<li>(B) 两侧均为刚体、各带压力场、共用全局刚度 \(K\)（Genesis 刚体–刚体做法）</li>
 </ul>
+<details><summary>推导：hydro (A) 的力 = 压力场斜率 × 重叠体积</summary>
+
+<p><b>① hydro (A) 的力</b></p>
+
+<p>已知：基体的压力场模量 \(E_h\)、基体内到表面的最大距离 \(D\)、压头进入基体的深度 \(d(\mathbf x)\)；求：hydro (A) 给出的力。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{p(\mathbf x)=\dfrac{E_h}{D}\,d(\mathbf x)} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{V=\displaystyle\int d(\mathbf x)\,dA} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_{\text{hydro}}=\frac{E_h}{D}\,V\quad(4)}\]</p>
+
+
+
+<p>式 (1)：hydro (A) 的压力场。\(\mathbf x\) 是接触面上的水平位置，\(d(\mathbf x)\) 是那里压头进入基体的深度，\(E_h/D\) 是压强随深度的斜率。它说的是：压头不带压力场，压强全来自基体，每点压强 = 斜率 × 该点深度。</p>
+
+<p>式 (2)：合力的定义，把接触面上每小块面积的推力加起来。</p>
+
+<p>式 (3)：重叠体积的定义：每个位置的重叠深度乘以面积再相加，就是压头与基体重叠部分的体积。</p>
+
+<p>结果：hydro (A) 的力只看重叠体积，所以下面各实验里 hydro 的倍数都可以直接从重叠体积的倍数读出来；\(E_h\)、\(D\) 在倍数里约掉，调参改变不了倍数。</p>
+
+<details><summary>推导</summary><p>把式 (1) 代入式 (2)，斜率提到积分外：</p>
+<p>\[F_{\text{hydro}}=\frac{E_h}{D}\int d(\mathbf x)\,dA\]</p>
+<p>由式 (3)：</p>
+<p>\[F_{\text{hydro}}=\frac{E_h}{D}\,V\qquad(4)\]</p></details>
+</details>
 <p><strong>判据</strong>：同一物体、同一压深，只改一个量，比较力的倍数。\(E_h\) 在比值中约掉，调参无法改变倍数。hydro 刚度用训练数据拟合一次，另报取杨氏模量时的结果。</p>
 <p><strong>标签验证</strong>：每个实验另用 IPC + FEM 造标签（3.1 的 \(U_c\)，粗模型为刚体时即精细解弹性能），与裁判比，判据为偏差 ≤ 2%。标签数值依赖三个离散参数，均用下面的 Richardson 外推推到极限：</p>
 <ul>
@@ -1447,54 +1544,54 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 
 
-<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(2)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ X^*=X_f+\frac{X_f-X_m}{r^p-1}\quad(3)}\]</p>
+<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(6)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ X^*=X_f+\frac{X_f-X_m}{r^p-1}\quad(7)}\]</p>
 
 
 
-<p>式 (1)：误差模型。\(h\) 是离散的尺寸，可以是网格单元尺寸、接触间隙 \(\hat d\) 或块尺寸的倒数 \(1/L\)；\(X(h)\) 是用这个尺寸算出的值；\(X^*\) 是离散无限细时的真值；\(C\) 是未知常数；\(p\) 是收敛阶。它说的是：算出的值 = 真值 + 一项误差，误差按尺寸的 \(p\) 次方缩小，例如 \(p=1\) 时尺寸减半误差减半，\(p=2\) 时缩成四分之一；这是离散误差在尺寸足够小时的一般形式。</p>
+<p>式 (5)：误差模型。\(h\) 是离散的尺寸，可以是网格单元尺寸、接触间隙 \(\hat d\) 或块尺寸的倒数 \(1/L\)；\(X(h)\) 是用这个尺寸算出的值；\(X^*\) 是离散无限细时的真值；\(C\) 是未知常数；\(p\) 是收敛阶。它说的是：算出的值 = 真值 + 一项误差，误差按尺寸的 \(p\) 次方缩小，例如 \(p=1\) 时尺寸减半误差减半，\(p=2\) 时缩成四分之一；这是离散误差在尺寸足够小时的一般形式。</p>
 
-<p>式 (2)：两档读数的定义。\(h_f\) 是细档尺寸，\(h_m\) 是中档尺寸，\(r\) 是两档尺寸比且大于 1，本页网格取 2；\(X_m\)、\(X_f\) 是中档和细档的读数。</p>
+<p>式 (6)：两档读数的定义。\(h_f\) 是细档尺寸，\(h_m\) 是中档尺寸，\(r\) 是两档尺寸比且大于 1，本页网格取 2；\(X_m\)、\(X_f\) 是中档和细档的读数。</p>
 
 <p>结果：从细档读数出发，再顺着「中 → 细」的方向多走一步就到真值。两档差得越多 → 细档离真值越远，要多走越多；\(p\) 越大 → 细档剩下的误差越小，多走的一步越短。</p>
 
 
 
 
-<figure style="margin:12px 0"><img src="assets/images/rich01_richardson.png" style="width:539px;max-width:100%;height:auto" alt="横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p，即式 (5)。" loading="lazy"><figcaption class="small">横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p，即式 (5)。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/rich01_richardson.png" style="width:539px;max-width:100%;height:auto" alt="横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p，即式 (9)。" loading="lazy"><figcaption class="small">横轴是网格尺寸 h，越往左越细；纵轴是用这档网格算出的值 X。三个黑点是粗、中、细三档：h、h/2、h/4 时的读数 X_c、X_m、X_f，相邻两档尺寸差 r = 2 倍。网格越细，读数越靠近真值，误差按 C·hᵖ 缩小，所以三点落在蓝色曲线 X(h) = X* + C hᵖ 上。把曲线沿虚线延长到 h = 0，终点红星就是网格无限细时的值 X*。不用真把曲线画出来：两档读数相减消去 C，就知道 X_f 还差多少，即从 X_f 再往下走 (X_f − X_m)/(r^p − 1)（红箭头）就到 X*。三档读数两两的差之比又给出收敛阶 p，即式 (9)。</figcaption></figure>
 
 
 
-<details><summary>推导</summary><p>把式 (2) 的两档代入式 (1) \(X(h)=X^*+Ch^p\)：</p>
+<details><summary>推导</summary><p>把式 (6) 的两档代入式 (5) \(X(h)=X^*+Ch^p\)：</p>
 <p>\[X_m=X^*+C\,(r h_f)^p,\qquad X_f=X^*+C\,h_f^p\]</p>
 <p>两式相减：</p>
 <p>\[X_m-X_f=C\,h_f^p\,(r^p-1)\]</p>
 <p>解出细档的误差：</p>
 <p>\[C\,h_f^p=\frac{X_m-X_f}{r^p-1}\]</p>
 <p>代回 \(X_f=X^*+Ch_f^p\)：</p>
-<p>\[X^*=X_f-\frac{X_m-X_f}{r^p-1}=X_f+\frac{X_f-X_m}{r^p-1}\qquad(3)\]</p></details>
+<p>\[X^*=X_f-\frac{X_m-X_f}{r^p-1}=X_f+\frac{X_f-X_m}{r^p-1}\qquad(7)\]</p></details>
 <p><b>② 收敛阶 \(p\) 怎么来</b></p>
 
 <p>已知：粗、中、细三档读数 \(X_c\)、\(X_m\)、\(X_f\)，相邻两档尺寸比 \(r\)；求：收敛阶 \(p\)。</p>
 
-<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{h_c=r\,h_m,\quad X_c=X(h_c)} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\quad(5)}\]</p>
-<p>式 (1)：① 的误差模型，算出的值 = 真值 + 按尺寸 \(p\) 次方缩小的误差。</p>
+<p>\[\begin{cases}\color{#c0392b}{X(h)=X^*+C\,h^p} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h_m=r\,h_f,\quad X_m=X(h_m),\quad X_f=X(h_f)} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{h_c=r\,h_m,\quad X_c=X(h_c)} &amp; \color{#c0392b}{(8)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\quad(9)}\]</p>
+<p>式 (5)：① 的误差模型，算出的值 = 真值 + 按尺寸 \(p\) 次方缩小的误差。</p>
 
-<p>式 (2)：① 的中、细两档读数。</p>
+<p>式 (6)：① 的中、细两档读数。</p>
 
-<p>式 (4)：粗档读数的定义。\(h_c\) 是粗档尺寸，\(X_c\) 是粗档读数，相邻两档尺寸比同样是 \(r\)。</p>
+<p>式 (8)：粗档读数的定义。\(h_c\) 是粗档尺寸，\(X_c\) 是粗档读数，相邻两档尺寸比同样是 \(r\)。</p>
 
 <p>结果：看网格每细一档，读数的变化缩小了多少倍，就知道误差按几次方收敛：\(r=2\) 时变化每次缩一半 → \(p=1\)，缩成四分之一 → \(p=2\)。三档差值噪声大时 \(p\) 会跳，所以同一组实验所有压深共用一个 \(p\)，取各压深实测阶的中位数。</p>
 
-<details><summary>推导</summary><p>把式 (2)(4) 的三档代入式 (1)，相邻两档相减：</p>
+<details><summary>推导</summary><p>把式 (6)(8) 的三档代入式 (5)，相邻两档相减：</p>
 <p>\[X_c-X_m=C\,h_m^p\,(r^p-1),\qquad X_m-X_f=C\,h_f^p\,(r^p-1)\]</p>
-<p>两式相除，\(C\) 与 \((r^p-1)\) 约掉，再用式 (2) \(h_m=r\,h_f\)：</p>
+<p>两式相除，\(C\) 与 \((r^p-1)\) 约掉，再用式 (6) \(h_m=r\,h_f\)：</p>
 <p>\[\frac{X_c-X_m}{X_m-X_f}=\frac{h_m^p}{h_f^p}=r^p\]</p>
 <p>两边取对数：</p>
-<p>\[p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\qquad(5)\]</p></details>
+<p>\[p=\frac{\ln\big[(X_c-X_m)/(X_m-X_f)\big]}{\ln r}\qquad(9)\]</p></details>
 <p><b>③ 本页三项各取什么</b></p>
 
 <ul>
-<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(r=2\)），\(p\) 按式 (5) \(p=\ln[(X_c-X_m)/(X_m-X_f)]/\ln r\) 实测，代入式 (3) \(X^*=X_f+(X_f-X_m)/(r^p-1)\)</li>
+<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(r=2\)），\(p\) 按式 (9) \(p=\ln[(X_c-X_m)/(X_m-X_f)]/\ln r\) 实测，代入式 (7) \(X^*=X_f+(X_f-X_m)/(r^p-1)\)</li>
 <li>\(\hat d\)：两档，取 \(p=1\)（偏差与 \(\hat d\) 成正比，\(h\) 换成 \(\hat d\)），即两点连直线延长到 \(\hat d=0\)</li>
 <li>块大小：两档半宽 \(L_s&lt;L_l\)，取 \(h=1/L\)、\(p=1\)，即两点连直线延长到 \(1/L=0\)（块无限大）</li>
 </ul>
@@ -1528,42 +1625,100 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>\(\dfrac{F(2R)}{F(R)}=\dfrac{(2R)^{1/2}}{R^{1/2}}=\sqrt2\approx1.41\) → <strong>×1.41</strong></li>
 </ul>
 <p><strong>hydro (A)</strong>：\(F_A=\dfrac{E_h}{D}\,\pi R\,\delta^{2}\) → <strong>×2</strong></p>
-<details><summary>推导：hydro (A)</summary><ol>
-<li>
-<p>重叠体积 \(V\)</p>
-<ul>
-<li>竖直坐标 \(y\) 从球最低点向上量。球心在最低点正上方 \(R\) 处，在高度 \(y\) 处水平截球，截面是圆，半径 \(r\) 满足勾股定理 \(r^2+(R-y)^2=R^2\)</li>
-<li>展开：\(r^2+R^2-2Ry+y^2=R^2\)，即 \(r^2=2Ry-y^2\)。\(y\le\delta\ll R\)，\(y^2\) 相对 \(2Ry\) 可忽略：\(r^2\approx2Ry\)</li>
-<li>截面面积 \(\pi r^2=2\pi Ry\)</li>
-<li>
-<p>重叠部分是 \(y\) 从 0 到 \(\delta\) 的这一段，体积 = 截面面积对高度积分：</p>
-<p>\[V=\int_0^\delta2\pi R\,y\,dy=2\pi R\cdot\frac{\delta^2}{2}=\pi R\,\delta^2\]</p>
-</li>
-</ul>
-</li>
-<li>
-<p>代入 5.0 的 \(F_{\text{hydro}}=\dfrac{E_h}{D}V\)：</p>
-<p>\[F_A=\frac{E_h}{D}\,\pi R\,\delta^{2}\]</p>
-</li>
-<li>
-<p>\(E_h\)、\(D\)、\(\delta\) 不变，\(\dfrac{F_A(2R)}{F_A(R)}=\dfrac{2R}{R}=2\) → <strong>×2</strong></p>
-</li>
-</ol>
-<p><strong>该结果与压力场形式无关</strong>：把压强写成任意深度函数 \(p(\text{深度})\)</p>
-<ul>
-<li>离中心 \(r\) 处压头进入基体的深度为 \(\delta-\dfrac{r^2}{2R}\)（1.4 第 3 步）</li>
-<li>半径 \(r\)、宽 \(dr\) 的圆环面积为 \(2\pi r\,dr\)，所以 \(F=\displaystyle\int p\Big(\delta-\frac{r^2}{2R}\Big)\,2\pi r\,dr\)</li>
-<li>换元 \(u=\dfrac{r^2}{2R}\)：求导 \(\dfrac{du}{dr}=\dfrac{r}{R}\)，所以 \(r\,dr=R\,du\)，\(2\pi r\,dr=2\pi R\,du\)。积分限：\(r=0\) 时 \(u=0\)；深度为 0 的边缘处 \(u=\delta\)</li>
-<li>代入：\(F=\displaystyle\int_0^\delta p(\delta-u)\,2\pi R\,du=2\pi R\int_0^\delta p(\delta-u)\,du\)</li>
-<li>积分 \(\int_0^\delta p(\delta-u)\,du\) 中不含 \(R\)，所以对任意 \(p\) 都有 \(F\propto R\)</li>
-</ul></details>
+<details><summary>推导：hydro (A)</summary>
+
+<p><b>① 重叠体积</b></p>
+
+<p>已知：球半径 \(R\)、压深 \(\delta\)；求：球与块重叠部分的体积 \(V\)。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{r^2+(R-y)^2=R^2} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{y\le\delta\ll R} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{V=\displaystyle\int_0^\delta\pi r(y)^2\,dy} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ r^2\approx2Ry\ \ (4),\qquad V=\pi R\,\delta^2\ \ (5)}\]</p>
+
+
+
+<p>式 (1)：勾股定理。\(y\) 是从球最低点向上量的高度，\(r\) 是高度 \(y\) 处水平截面圆的半径。它说的是：球心在最低点正上方 \(R\) 处，截面边缘到球心的距离是 \(R\)，水平边 \(r\)、竖直边 \(R-y\)、斜边 \(R\) 构成直角三角形。</p>
+
+<p>式 (2)：只看最低点附近的条件，压深比球半径小得多，\(y^2\) 相对 \(2Ry\) 可以丢掉。</p>
+
+<p>式 (3)：按薄片求体积，把重叠部分切成一叠水平薄圆片，每片体积 = 截面积 × 厚度。</p>
+
+<p>结果：球越大 → 同样压深下重叠体积越大，而且与半径成正比，因为大球的碗底更平、同样深度截出的圆更宽。</p>
+
+<details><summary>推导</summary><p>展开式 (1)，由式 (2) 略去 \(y^2\)：</p>
+<p>\[r^2=2Ry-y^2\approx2Ry\qquad(4)\]</p>
+<p>代入式 (3)：</p>
+<p>\[V=\int_0^\delta2\pi R\,y\,dy=2\pi R\cdot\frac{\delta^2}{2}=\pi R\,\delta^2\qquad(5)\]</p></details>
+<p><b>② hydro (A) 的力随半径 ×2</b></p>
+
+<p>已知：块的压力场模量 \(E_h\)、块内到表面的最大距离 \(D\)；求：hydro (A) 的力及其随球半径的变化。</p>
+
+<p>\[\begin{cases}\color{#c0392b}{V=\pi R\,\delta^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{p=\dfrac{E_h}{D}\times\text{深度}} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(7)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_A=\frac{E_h}{D}\,\pi R\,\delta^{2}\ \ (8),\qquad \frac{F_A(2R)}{F_A(R)}=2\ \ (9)}\]</p>
+<p>式 (5)：① 推出的重叠体积。</p>
+
+<p>式 (6)：hydro (A) 的压力场：块内某点压强 = 斜率 \(E_h/D\) × 该点深度。</p>
+
+<p>式 (7)：合力的定义，把接触面上每小块面积的推力加起来。</p>
+
+<p>结果：hydro (A) 的力与球半径成正比，半径 ×2 力就 ×2，而 Hertz 只是 ×1.41。</p>
+
+<details><summary>推导</summary><p>把式 (6) 代入式 (7)，斜率提到积分外；深度对面积积分就是重叠体积：</p>
+<p>\[F_A=\frac{E_h}{D}\int\text{深度}\,dA=\frac{E_h}{D}\,V\]</p>
+<p>代入式 (5)：</p>
+<p>\[F_A=\frac{E_h}{D}\,\pi R\,\delta^{2}\qquad(8)\]</p>
+<p>\(E_h\)、\(D\)、\(\delta\) 不变，半径换成 \(2R\)：</p>
+<p>\[\frac{F_A(2R)}{F_A(R)}=\frac{2R}{R}=2\qquad(9)\]</p></details>
+<p><b>③ 这个结果与压力场的形式无关</b></p>
+
+<p>已知：压强是深度的任意函数；求：力随球半径的变化。</p>
+
+<p>\[\begin{cases}\color{#c0392b}{r^2\approx2Ry} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{p=p(\text{深度})} &amp; \color{#c0392b}{(10)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=2\pi R\int_0^\delta p(\delta-u)\,du\ \propto R\quad(11)}\]</p>
+<p>式 (4)：① 推出的截面关系，离中心 \(r\) 处的球面比最低点高 \(y\approx r^2/(2R)\)。</p>
+
+<p>式 (7)：合力的定义。</p>
+
+<p>式 (10)：任意的「只看深度」的压力场，\(p\) 可以是深度的任何函数。</p>
+
+<p>结果：只要压强只看深度，力就与球半径成正比；所以「半径 ×2、力 ×2」是 hydro 这一类模型的共同毛病，换压力场的形状也改不掉。</p>
+
+<details><summary>推导</summary><p>由式 (4)，离中心 \(r\) 处压头进入块的深度为：</p>
+<p>\[\text{深度}=\delta-\frac{r^2}{2R}\]</p>
+<p>式 (7) 用圆环求和，半径 \(r\)、宽 \(dr\) 的圆环面积为 \(2\pi r\,dr\)，代入式 (10)：</p>
+<p>\[F=\int p\Big(\delta-\frac{r^2}{2R}\Big)\,2\pi r\,dr\]</p>
+<p>换元 \(u=\dfrac{r^2}{2R}\)，\(r\,dr=R\,du\)；\(r=0\) 时 \(u=0\)，深度为 0 的边缘处 \(u=\delta\)：</p>
+<p>\[F=2\pi R\int_0^\delta p(\delta-u)\,du\qquad(11)\]</p>
+<p>积分里不含 \(R\)，所以对任意 \(p\) 都有 \(F\propto R\)。</p></details>
+</details>
 <p><strong>hydro (B)</strong>：比值 \(\dfrac{2(R+D)}{2R+D}\)，介于 1 与 2 之间</p>
-<details><summary>推导：hydro (B)</summary><ul>
-<li>球的压强场：球内最大深度是球心到表面的距离 \(R\)，由 1.1 实现，球的压强梯度 \(g_{\text{球}}=K/R\)；块的压强梯度 \(g_{\text{块}}=K/D\)</li>
-<li>由 1.2 第 2 步串联：\(g=\dfrac{g_{\text{球}}\,g_{\text{块}}}{g_{\text{球}}+g_{\text{块}}}=\dfrac{(K/R)(K/D)}{K/R+K/D}\)。分子分母同乘 \(RD/K\)：\(g=\dfrac{K}{D+R}\)</li>
-<li>由 1.2 第 2 步，每处压强 \(p=g\times\)重叠深度；与 5.0 同样积分得 \(F_B=g\,V=\dfrac{K}{R+D}\cdot\pi R\delta^2\)</li>
-<li>比值：\(\dfrac{F_B(2R)}{F_B(R)}=\dfrac{2R/(2R+D)}{R/(R+D)}=\dfrac{2(R+D)}{2R+D}\)。\(D\gg R\) 时趋于 2，\(D\ll R\) 时趋于 1，所以介于 1 与 2 之间</li>
-</ul></details>
+<details><summary>推导：hydro (B)</summary>
+
+<p><b>④ hydro (B)：球也带压力场</b></p>
+
+<p>已知：压力场常数 \(K\)、球半径 \(R\)、块内最大距离 \(D\)；求：hydro (B) 的力随球半径的变化。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{V=\pi R\,\delta^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{g_{\text{球}}=\dfrac KR,\quad g_{\text{块}}=\dfrac KD} &amp; \color{#c0392b}{(12)}\\[4pt] \color{#c0392b}{g=\dfrac{g_{\text{球}}\,g_{\text{块}}}{g_{\text{球}}+g_{\text{块}}}} &amp; \color{#c0392b}{(13)}\\[4pt] \color{#c0392b}{p=g\times\text{重叠深度}} &amp; \color{#c0392b}{(14)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_B=\frac{K}{R+D}\,\pi R\delta^2\ \ (15),\qquad \frac{F_B(2R)}{F_B(R)}=\frac{2(R+D)}{2R+D}\ \ (16)}\]</p>
+
+
+
+<p>式 (5)：① 推出的重叠体积。</p>
+
+<p>式 (12)：两侧压力场的斜率。\(K\) 是压力场模量，球内到表面的最大距离是球半径 \(R\)，块的是 \(D\)，斜率 = 模量 ÷ 最大距离。</p>
+
+<p>式 (13)：hydro 的串联规则。\(g\) 是合成斜率。它说的是：两侧像两根串联的弹簧，接触面停在两侧压强相等处，总斜率由软的一侧主导。</p>
+
+<p>式 (14)：hydro 的压强：每处压强 = 合成斜率 × 该处两物体的重叠深度。</p>
+
+<p>结果：比值介于 1 与 2 之间：块很深、\(D\gg R\) 时趋于 2，退回 hydro (A)；块很浅、\(D\ll R\) 时趋于 1。两种情况都不是 Hertz 的 1.41 这个固定值，而且随块的尺寸变。</p>
+
+<details><summary>推导</summary><p>把式 (12) 代入式 (13)，分子分母同乘 \(RD/K\)：</p>
+<p>\[g=\frac{(K/R)(K/D)}{K/R+K/D}=\frac{K}{R+D}\]</p>
+<p>由式 (14)，压强对面积积分时斜率提到外面，深度对面积积分是重叠体积；代入式 (5)：</p>
+<p>\[F_B=g\,V=\frac{K}{R+D}\,\pi R\delta^2\qquad(15)\]</p>
+<p>半径换成 \(2R\)：</p>
+<p>\[\frac{F_B(2R)}{F_B(R)}=\frac{2R/(2R+D)}{R/(R+D)}=\frac{2(R+D)}{2R+D}\qquad(16)\]</p></details>
+</details>
 <p><strong>标签验证</strong></p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/e1_press_R2.mp4" style="width:1008px;max-width:100%;height:auto"></video></figure>
 <p><em>这段视频是 \(R=2\) 的标签仿真，画法同 E0 的视频：左图过球心的竖直截面（红点是球面，蓝线是变形后的块顶面，灰色虚线是原表面，竖直方向放大），右图俯视块顶面的竖直位移。4 个压深每个停 1.5 秒，第 0、1.5、3、4.5 秒依次是 \(\delta=\) 0.004、0.006、0.009、0.013。拿第 4.5 秒（\(\delta=0.013\)）和 E0 视频同一压深的第 4.5 秒对比：球大一倍，蓝线贴住红点的那一段明显更宽，右图中心的深色圆斑也更大，对应 Hertz 接触半径 \(\sqrt{R\delta}\) 随 \(R\) 变大。标题里的最小间隙在 \(0.98\text{–}1.03\times10^{-4}\) 之间，同样小于 \(\hat d=1.25\times10^{-4}\)。</em></p>
@@ -1605,43 +1760,65 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><img src="assets/images/E2_b.png" style="width:519px;max-width:100%;height:auto" alt="E2_b"></figure>
 <p><em>两张图只差平底压头的半径。深灰色圆柱是刚性平底压头（高 0.8），蓝色是和 E1 同样的块（宽 4.8、深 2.4）。上图压头半径 \(a=0.25\)，下图 \(4a=1.0\)，压深都是 0.024。平底压头的接触区就是整个底面，半径变几倍，接触面积就变几的平方倍。</em></p>
 <p><strong>裁判：Boussinesq 平底解</strong> \(F_{\text{解析}}=2E^{*}a\,\delta\) → 半径 ×1、×2、×4，<strong>力 ×1、×2、×4</strong></p>
-<details><summary>推导：Boussinesq 平底解（与 1.4 第 4 步相同的方法）</summary><ol>
-<li>几何要求：平底压头底面是平的，接触区内各点下沉都等于 \(\delta\)</li>
-<li>设压强分布 \(p(t)=\dfrac{p_m}{\sqrt{1-t^2/a^2}}=\dfrac{p_m\,a}{\sqrt{a^2-t^2}}\)（\(t\) 为到接触中心的距离；\(p_m\) 为待定常数；该分布在边缘处趋于无穷，对应平底的直角边缘）</li>
-<li>
-<p>求它产生的下沉。与 1.4 第 4 步相同：求下沉的点 \(B=(r,0)\)，施压点 \(C=(r+s\cos\varphi,\ s\sin\varphi)\)，\(t^2=r^2+2rs\cos\varphi+s^2\)，\(a^2-t^2=c^2-(s+r\cos\varphi)^2\)，\(c^2=a^2-r^2\sin^2\varphi\)，所以</p>
+<details><summary>推导：Boussinesq 平底解（与 1.4 ③ 相同的叠加方法）</summary>
+
+<p><b>① 平底压头的力</b></p>
+
+<p>已知：平底半径 \(a\)、压深 \(\delta\)、有效模量 \(E^*\)；求：合力 \(F\)。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{u(t)=\delta,\quad t\le a} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u(B)=\dfrac{1}{\pi E^*}\displaystyle\int\frac{p(C)}{s}\,dA} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{p(t)=\dfrac{p_m\,a}{\sqrt{a^2-t^2}}} &amp; \color{#c0392b}{(3)}\\[4pt] \color{#c0392b}{F=\displaystyle\int_0^a p(t)\,2\pi t\,dt} &amp; \color{#c0392b}{(4)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p_m=\frac{E^*\delta}{\pi a}\ \ (5),\qquad F_{\text{解析}}=2E^*a\,\delta\ \ (6)}\]</p>
+
+
+
+<p>式 (1)：接触条件。\(t\) 是离接触中心的距离，\(u\) 是表面下沉。它说的是：平底压头底面是平的，接触区内各点都正好陷下压深 \(\delta\)。</p>
+
+<p>式 (2)：点力叠加。\(B\) 是要求下沉的点，\(C\) 是施压点，\(s\) 是两点距离，\(dA\) 是一小块面积。它说的是：每一小块压强像一个点力，让周围表面按 1/距离 陷下去，线弹性里各处的下沉直接相加。</p>
+
+<p>式 (3)：试探的压强分布。\(p_m\) 是待定常数。它说的是：先猜压强中间小、越靠边缘越大，到边缘趋于无穷，这对应平底的直角棱处压强集中；下面验证它产生的下沉在接触区内处处相同，猜对了就是解。</p>
+
+<p>式 (4)：合力的定义。半径 \(t\)、宽 \(dt\) 的圆环面积是 \(2\pi t\,dt\)，把每一圈的力加起来。</p>
+
+<p>结果：力与平底半径成正比，与压深成正比：半径 ×1、×2、×4 → 力 ×1、×2、×4。这是因为接触面积不随压深变，而压一处会带着周围一起陷，力的增长只跟边长同阶，不跟面积同阶。</p>
+
+<details><summary>推导</summary><p>由式 (2)，以 \(B=(r,0)\) 为原点用极坐标 \((s,\varphi)\) 表示 \(C\)，\(dA=|s|\,ds\,d\varphi\)，与 \(1/s\) 约去；\(C\) 到中心的距离 \(t^2=r^2+2rs\cos\varphi+s^2\)，记 \(c^2=a^2-r^2\sin^2\varphi\)，代入式 (3)：</p>
 <p>\[p=\frac{p_m\,a}{\sqrt{c^2-(s+r\cos\varphi)^2}}\]</p>
-</li>
-<li>
-<p>对 \(s\) 积分：令 \(x=s+r\cos\varphi\)，\(x\) 从 \(-c\) 到 \(c\)，\(\displaystyle\int_{-c}^{c}\frac{dx}{\sqrt{c^2-x^2}}=\Big[\arcsin\frac{x}{c}\Big]_{-c}^{c}=\frac{\pi}{2}-\Big(-\frac{\pi}{2}\Big)=\pi\)，与 \(c\) 无关。所以 \(\displaystyle\int p\,ds=p_m\,a\,\pi\)</p>
-</li>
-<li>
-<p>代入 \(u(B)=\dfrac{1}{\pi E^*}\displaystyle\int_0^\pi\Big[\int p\,ds\Big]d\varphi\)（1.4 第 4 步）：</p>
-<p>\[u=\frac{1}{\pi E^*}\int_0^\pi p_m a\pi\,d\varphi=\frac{1}{\pi E^*}\cdot p_m a\pi\cdot\pi=\frac{\pi p_m a}{E^*}\]</p>
-<p>与 \(r\) 无关，接触区内各点下沉相同，满足第 1 步</p>
-</li>
-<li>
-<p>令 \(u=\delta\)：\(\dfrac{\pi p_m a}{E^*}=\delta\)，得 \(p_m=\dfrac{E^*\delta}{\pi a}\)</p>
-</li>
-<li>
-<p>合力：半径 \(t\)、宽 \(dt\) 的圆环面积 \(2\pi t\,dt\)</p>
-<p>\[F=\int_0^a\frac{p_m a}{\sqrt{a^2-t^2}}\,2\pi t\,dt=2\pi p_m a\int_0^a\frac{t}{\sqrt{a^2-t^2}}\,dt\]</p>
-<p>\(\dfrac{t}{\sqrt{a^2-t^2}}\) 的原函数为 \(-\sqrt{a^2-t^2}\)（求导验证：\(\dfrac{d}{dt}\big(-\sqrt{a^2-t^2}\big)=\dfrac{t}{\sqrt{a^2-t^2}}\)），所以 \(\displaystyle\int_0^a\frac{t}{\sqrt{a^2-t^2}}dt=-0-(-a)=a\)，\(F=2\pi p_m a^2\)</p>
-</li>
-<li>
-<p>代入 \(p_m=\dfrac{E^*\delta}{\pi a}\)：</p>
-<p>\[F_{\text{解析}}=2\pi a^2\cdot\frac{E^*\delta}{\pi a}=2E^{*}a\,\delta\]</p>
-</li>
-<li>
-<p>\(E^*\)、\(\delta\) 不变，\(F\propto a\)：半径 ×1、×2、×4 → <strong>力 ×1、×2、×4</strong></p>
-</li>
-</ol></details>
-<p><strong>hydro</strong></p>
-<ul>
-<li>平底各点进入基体的深度都是 \(\delta\)，所以压强处处为同一个值 \(p(\delta)\)</li>
-<li>\(F_{\text{hydro}}=\displaystyle\int p\,dA=p(\delta)\times\text{接触面积}=p(\delta)\cdot\pi a^2\)</li>
-<li>\(F\propto a^2\)：半径 ×1、×2、×4 → <strong>力 ×1、×4、×16</strong></li>
-</ul>
+<p>对 \(s\) 积分，令 \(x=s+r\cos\varphi\)，\(x\) 从 \(-c\) 到 \(c\)：</p>
+<p>\[\int p\,ds=p_m\,a\int_{-c}^{c}\frac{dx}{\sqrt{c^2-x^2}}=p_m\,a\Big[\arcsin\frac{x}{c}\Big]_{-c}^{c}=p_m\,a\,\pi\]</p>
+<p>再对 \(\varphi\) 从 0 到 \(\pi\) 积分：</p>
+<p>\[u=\frac{1}{\pi E^*}\int_0^\pi p_m a\pi\,d\varphi=\frac{\pi p_m a}{E^*}\]</p>
+<p>它与 \(r\) 无关，接触区内处处相同；令其等于式 (1) 的 \(\delta\)：</p>
+<p>\[p_m=\frac{E^*\delta}{\pi a}\qquad(5)\]</p>
+<p>代入式 (4)：</p>
+<p>\[F=2\pi p_m a\int_0^a\frac{t}{\sqrt{a^2-t^2}}\,dt=2\pi p_m a\Big[-\sqrt{a^2-t^2}\Big]_0^a=2\pi p_m a^2\]</p>
+<p>代入式 (5)：</p>
+<p>\[F_{\text{解析}}=2\pi a^2\cdot\frac{E^*\delta}{\pi a}=2E^*a\,\delta\qquad(6)\]</p></details>
+</details>
+<p><strong>hydro</strong>：平底各点进入基体的深度都一样，压强处处相同，力 = 压强 × 接触面积 → 半径 ×1、×2、×4，<strong>力 ×1、×4、×16</strong></p>
+<details><summary>推导：hydro 的力</summary>
+
+<p><b>② hydro 的力随半径 ×4 变 ×16</b></p>
+
+<p>已知：平底半径 \(a\)、压深 \(\delta\)、hydro (A) 的压力场；求：hydro 的力随半径的变化。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{\text{深度}(\mathbf x)=\delta,\quad |\mathbf x|\le a} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{p=p(\text{深度})} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(9)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F_{\text{hydro}}=p(\delta)\,\pi a^2\ \propto a^2\quad(10)}\]</p>
+
+
+
+<p>式 (7)：几何条件。平底底面是平的，底面每一点进入基体的深度都是压深 \(\delta\)。</p>
+
+<p>式 (8)：hydro 的压力场，每点压强只看该点的深度。</p>
+
+<p>式 (9)：合力的定义，把接触面上每小块面积的推力加起来。</p>
+
+<p>结果：hydro 的力与接触面积成正比，半径 ×4 力 ×16；而解析解只 ×4。原因是 hydro 每点各算各的，没有「压一处、周围一起陷」的效应。</p>
+
+<details><summary>推导</summary><p>由式 (7)，接触面上深度处处为 \(\delta\)，代入式 (8)，压强处处为同一个值 \(p(\delta)\)；代入式 (9)：</p>
+<p>\[F_{\text{hydro}}=p(\delta)\int dA=p(\delta)\,\pi a^2\qquad(10)\]</p></details>
+</details>
 <p><strong>标签验证</strong>：半径 0.25、0.5、1.0，网格随半径缩放，用 Richardson 外推（见 5.0「方法」）到 \(\hat d\to0\)、块无限大、网格无限细。压深 0.003–0.024 处，半径 ×2 时标签能量比 2.000–2.002，×4 时 4.000–4.076（解析 2、4），全部在 2% 内；各半径标签与 Boussinesq 能量之比 1.000–1.022。</p>
 <p class="kp">结论：半径 ×4，解析力与标签均 ×4，hydro ×16。</p>
 
@@ -1652,24 +1829,37 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><img src="assets/images/E3_b.png" style="width:526px;max-width:100%;height:auto" alt="E3_b"></figure>
 <p><em>两张图只差两个凸台之间的距离。深灰色是一个刚体：两个半径 \(a=0.25\)、高 0.5 的平底圆柱凸台，顶上用一根细杆连成一体；蓝色是同一块（图里只拍了块顶面中间一部分）。上图两凸台中心距 \(L=4a=1.0\)，下图拉开到 \(L=10a=2.5\)，凸台大小和压深 0.024 都不变。</em></p>
 <p><strong>裁判</strong>：每个凸台的力 \(F=\dfrac{2E^{*}a\,\delta}{1+2a/(\pi L)}\)</p>
-<details><summary>推导（两凸台对称，受力均为 \(F\)）</summary><ol>
-<li>凸台自身力造成的下沉：由 E2 第 8 步 \(F=2E^*a\delta\) 反解，受力 \(F\) 的平底压头下沉 \(\dfrac{F}{2E^*a}\)</li>
-<li>邻居造成的下沉：由 Boussinesq 点力解（1.4），表面一点受力 \(F\)，距离 \(L\) 处表面下沉 \(\dfrac{F}{\pi E^*L}\)。\(L\gg a\) 时邻居可当作一个点力</li>
-<li>
-<p>线弹性下各个力造成的下沉可以直接相加，凸台总下沉 = 压深 \(\delta\)：</p>
-<p>\[\delta=\frac{F}{2E^*a}+\frac{F}{\pi E^*L}\]</p>
-</li>
-<li>
-<p>提出 \(F\)：\(\delta=F\Big(\dfrac{1}{2E^*a}+\dfrac{1}{\pi E^*L}\Big)\)，所以 \(F=\dfrac{\delta}{\dfrac{1}{2E^*a}+\dfrac{1}{\pi E^*L}}\)</p>
-</li>
-<li>
-<p>分子分母同乘 \(2E^*a\)：分母变为 \(1+\dfrac{2E^*a}{\pi E^*L}=1+\dfrac{2a}{\pi L}\)，得</p>
-<p>\[F=\frac{2E^{*}a\,\delta}{1+2a/(\pi L)}\]</p>
-</li>
-<li>
-<p>分子 \(2E^*a\delta\) 是单独一个凸台的力（E2），所以 \(\dfrac{F}{F_{\text{单独}}}=\dfrac{1}{1+2a/(\pi L)}\)</p>
-</li>
-</ol></details>
+<details><summary>推导：两凸台对称，受力均为 F</summary>
+
+<p><b>① 每个凸台的力</b></p>
+
+<p>已知：凸台半径 \(a\)、中心距 \(L\)、压深 \(\delta\)、有效模量 \(E^*\)；求：每个凸台的力 \(F\)。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{F_{\text{单独}}=2E^*a\,\delta} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{u(L)=\dfrac{F}{\pi E^*L}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\delta=u_{\text{自己}}+u_{\text{邻居}}} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ F=\frac{2E^*a\,\delta}{1+2a/(\pi L)}\ \ (4),\qquad \frac{F}{F_{\text{单独}}}=\frac{1}{1+2a/(\pi L)}\ \ (5)}\]</p>
+
+
+
+<p>式 (1)：平底压头的解（E2 的 Boussinesq 平底解）。\(a\) 是凸台半径，\(\delta\) 是压深，\(E^*\) 是有效模量，\(F_{\text{单独}}\) 是只有一个凸台时的力。它说的是：平底的力与压深成正比，比例是 \(2E^*a\)。</p>
+
+<p>式 (2)：弹性半空间的点力解。\(F\) 是邻居凸台的力，\(L\) 是两凸台中心距，\(u(L)\) 是它在这个凸台处造成的下沉。它说的是：间距比凸台大得多时，邻居可以当成一个点力，它让这里的表面按 1/距离 陷下去。</p>
+
+<p>式 (3)：线弹性叠加。\(u_{\text{自己}}\) 是本凸台的力造成的下沉，\(u_{\text{邻居}}\) 是邻居造成的下沉。它说的是：两个力造成的下沉可以直接相加，加起来正好是压深。</p>
+
+<p>结果：邻居把基体预先压下去一点，本凸台需要自己压的就少，力就小。间距越近 → 力降得越多：中心距 \(4a\) 时降到 0.863 倍，\(10a\) 时 0.940 倍，无穷远时不变。</p>
+
+<details><summary>推导</summary><p>由式 (1) 反解，受力 \(F\) 的平底自己造成的下沉：</p>
+<p>\[u_{\text{自己}}=\frac{F}{2E^*a}\]</p>
+<p>两凸台对称，邻居的力也是 \(F\)，由式 (2)：</p>
+<p>\[u_{\text{邻居}}=\frac{F}{\pi E^*L}\]</p>
+<p>代入式 (3)：</p>
+<p>\[\delta=F\Big(\frac{1}{2E^*a}+\frac{1}{\pi E^*L}\Big)\]</p>
+<p>解出 \(F\)，分子分母同乘 \(2E^*a\)：</p>
+<p>\[F=\frac{2E^{*}a\,\delta}{1+2a/(\pi L)}\qquad(4)\]</p>
+<p>除以式 (1) 的 \(F_{\text{单独}}=2E^*a\delta\)：</p>
+<p>\[\frac{F}{F_{\text{单独}}}=\frac{1}{1+2a/(\pi L)}\qquad(5)\]</p></details>
+</details>
 <div class="tablewrap"><table>
 <thead>
 <tr>
@@ -1740,102 +1930,139 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li><strong>泊松比</strong> \(\nu=-\varepsilon_{\text{侧}}/\varepsilon_{\text{轴}}\)：单轴压缩时侧向膨胀应变与轴向压缩应变之比。\(\nu=0.5\) 时体积不变（<strong>不可压</strong>），橡胶约 0.49–0.4999</li>
 <li><strong>应变</strong> \(\varepsilon=\Delta L/L\)；<strong>剪切应变</strong> \(\gamma=\Delta x/h\)（平行于面的错动量 ÷ 厚度）</li>
 <li><strong>剪切应力</strong> \(\tau\)：平行于面的单位面积上的力；<strong>压强</strong> \(p\)：垂直于面的单位面积上的力</li>
-<li>胡克定律：\(\sigma_z=\lambda(\varepsilon_x+\varepsilon_y+\varepsilon_z)+2G\varepsilon_z\)，其中 \(G=\dfrac{E}{2(1+\nu)}\)（<strong>剪切模量</strong>，\(\tau=G\gamma\)），\(\lambda=\dfrac{E\nu}{(1+\nu)(1-2\nu)}\)</li>
-<li><strong>侧限模量</strong> \(M\)：侧向被约束 \(\varepsilon_x=\varepsilon_y=0\) 时，胡克定律化为 \(\sigma_z=(\lambda+2G)\varepsilon_z\)，所以 \(M=\lambda+2G=\dfrac{E\nu}{(1+\nu)(1-2\nu)}+\dfrac{E}{1+\nu}=\dfrac{E\nu+E(1-2\nu)}{(1+\nu)(1-2\nu)}=\dfrac{E(1-\nu)}{(1+\nu)(1-2\nu)}\)。\(\nu\to0.5\) 时分母 \(1-2\nu\to0\)，\(M\to\infty\)</li>
+<li><strong>剪切模量</strong> \(G\)、<strong>拉梅常数</strong> \(\lambda\)、<strong>侧限模量</strong> \(M\)（侧向被约束时竖直方向的刚度）：定义与推导见下面「推导 1」①；\(\nu\to0.5\) 时 \(M\to\infty\)</li>
 </ul>
 <p>材料给球让位有两种方式：原地压缩，或从球底下侧向挤出。下面分别推出两种方式下的力，再比较哪种需要的压强小。</p>
-<details><summary>推导 1：原地压缩，力 ∝ R</summary><ol>
-<li>层薄、接触区宽时，每根竖直材料柱的侧面被相邻柱挡住，只能沿竖直方向压缩，刚度为 \(M\)</li>
-<li>离中心 \(r\) 处，压头进入层的深度 \(w=\delta-\dfrac{r^2}{2R}\)（1.4 第 3 步）。这根柱子原长 \(b\)，被压缩 \(w\)，应变 \(\dfrac{w}{b}\)，压强 \(p=M\dfrac{w}{b}\)</li>
-<li>
-<p>力 = 压强积分：\(F=\displaystyle\int M\frac{w}{b}\,dA=\frac{M}{b}\int w\,dA\)。\(\int w\,dA\) 为重叠体积，由 E1 第 1 步 \(=\pi R\delta^2\)：</p>
-<p>\[F=\frac{M}{b}\cdot\pi R\delta^2=\pi M\frac{R\,\delta^{2}}{b}\]</p>
-</li>
-<li>
-<p>\(F\propto R\)，球半径 ×2 → 力 ×2</p>
-</li>
-<li>第 2 步的压强只取决于该点压缩量 \(w\)，与 hydro 的形式（\(p\propto\) 局部深度）相同，<strong>hydro 在此情况下正确</strong></li>
-</ol></details>
-<details><summary>推导 2：侧向挤出，力 ∝ R²（量级推导：只保留与 \(a\)、\(b\)、\(\delta\) 的比例关系，略去数值系数）</summary><p>层很薄时，材料沿层面方向流动，沿厚度方向的剪切起主导作用，这一近似称为<strong>润滑近似</strong>。</p>
-<ol>
-<li>需挤出的体积<ul>
-<li>不可压：体积不变；底面粘结：不能向下；顶面被球压着：不能向上。被球占据的体积 \(V\) 只能从接触区侧面流出</li>
-<li>\(V=\pi R\delta^2\)（E1 第 1 步）。接触区取几何重叠，由 1.4 第 4 步 \(a^2=2R\delta\)，即 \(R=\dfrac{a^2}{2\delta}\)，代入：\(V=\pi\cdot\dfrac{a^2}{2\delta}\cdot\delta^2=\dfrac{\pi a^2\delta}{2}\)</li>
-</ul>
-</li>
-<li>
-<p>平均侧向位移</p>
-<ul>
-<li>出口是接触区边缘的圆柱侧面：周长 \(2\pi a\)，高 \(b\)，面积 \(2\pi ab\)</li>
-<li>
-<p>体积 \(V\) 穿过面积 \(2\pi ab\)，平均移动距离 = 体积 ÷ 面积：</p>
-<p>\[\bar u=\frac{V}{2\pi ab}=\frac{\pi a^2\delta/2}{2\pi ab}=\frac{a\delta}{4b}\propto\frac{a\delta}{b}\]</p>
-</li>
-</ul>
-</li>
-<li>
-<p>剪切</p>
-<ul>
-<li>底面粘结不动，顶面贴着球，材料在中间被挤动，上下两面位移为 0、中间最大，这是剪切变形</li>
-<li>剪切应变 \(\gamma\approx\dfrac{\bar u}{b}\propto\dfrac{a\delta}{b^2}\)；剪切应力 \(\tau=G\gamma\propto\dfrac{G\,a\delta}{b^2}\)</li>
-</ul>
-</li>
-<li>
-<p>压强梯度（力平衡）</p>
-<ul>
-<li>取径向长 \(\Delta r\)、厚 \(b\)、宽 \(w\) 的一小段材料。内侧压强 \(p_1\)、外侧压强 \(p_2\)，作用在侧面（面积 \(b\,w\)）上，净推力 \((p_1-p_2)\,b\,w\)</li>
-<li>上下两个表面（各面积 \(\Delta r\,w\)）上的剪切应力阻碍它移动，阻力 \(2\tau\,\Delta r\,w\)</li>
-<li>准静态，两力平衡：\((p_1-p_2)\,b\,w=2\tau\,\Delta r\,w\)</li>
-<li>
-<p>两边同除以 \(b\,w\,\Delta r\)：</p>
-<p>\[\frac{p_1-p_2}{\Delta r}=\frac{2\tau}{b}\propto\frac{G\,a\delta}{b^3}\]</p>
-</li>
-<li>
-<p>取圆环微元时，侧面和上下表面面积都含因子 \(2\pi r\)，约去后结果相同</p>
-</li>
-<li>中心压强</li>
-<li>边缘处是自由表面，压强为 0；材料从中心往外流，压强从边缘向中心增大</li>
-<li>
-<p>从边缘到中心的路径长 \(a\)，压强增加量 = 压强梯度 × 路径长：</p>
-<p>\[p_{\text{中心}}\approx\frac{p_1-p_2}{\Delta r}\cdot a\propto\frac{G\,a\delta}{b^3}\cdot a=\frac{G\,a^2\delta}{b^3}\]</p>
-</li>
-</ul>
-</li>
-<li>
-<p>合力</p>
-<ul>
-<li>
-<p>压强从中心最大降到边缘为 0，按抛物线分布，平均值为中心值的 \(\tfrac12\)；合力 = 平均压强 × 接触面积 \(\pi a^2\)：</p>
-<p>\[F\approx\tfrac12\,p_{\text{中心}}\cdot\pi a^2\propto\frac{G\,a^2\delta}{b^3}\cdot a^2=\frac{G\,a^4\delta}{b^3}\]</p>
-</li>
-</ul>
-</li>
-<li>
-<p>换成球半径</p>
-<ul>
-<li>由 \(a^2=2R\delta\)：\(a^4=(a^2)^2=(2R\delta)^2=4R^2\delta^2\)</li>
-<li>代入：\(F\propto\dfrac{G\cdot4R^2\delta^2\cdot\delta}{b^3}\propto\dfrac{G\,R^2\delta^3}{b^3}\)</li>
-</ul>
-</li>
-<li>\(F\propto R^2\)，球半径 ×2：\(\dfrac{(2R)^2}{R^2}=4\) → 力 ×4</li>
-</ol></details>
-<details><summary>推导 3：材料走哪种方式</summary><ul>
-<li>原地压缩所需的中心压强：第 1 部分第 2 步，\(r=0\) 处 \(w=\delta\)，\(p_c=\dfrac{M\delta}{b}\)</li>
-<li>侧向挤出所需的中心压强：第 2 部分第 5 步，\(p_s\propto\dfrac{G\,a^2\delta}{b^3}\)</li>
-<li>比值：\(\dfrac{p_s}{p_c}\propto\dfrac{G\,a^2\delta/b^3}{M\delta/b}=\dfrac{G}{M}\Big(\dfrac ab\Big)^2\)</li>
-<li>
-<p>代入 \(G\)、\(M\)：\(\dfrac{G}{M}=\dfrac{E/(2(1+\nu))}{E(1-\nu)/((1+\nu)(1-2\nu))}=\dfrac{1-2\nu}{2(1-\nu)}\)</p>
-<p>\[\frac{p_s}{p_c}\propto\frac{1-2\nu}{2(1-\nu)}\Big(\frac ab\Big)^2\]</p>
-</li>
-<li>
-<p>材料按所需压强小的方式让位：</p>
-<ul>
-<li>\(\gg1\)：挤出更难，材料原地压缩，力 \(\propto R\)</li>
-<li>\(\ll1\)：压缩更难，材料侧向挤出，力 \(\propto R^2\)</li>
-</ul>
-</li>
-<li>数值：\(a/b=5\) 时，\(\nu=0.3\) 得 \(\dfrac{0.4}{1.4}\times25=7.1\)，原地压缩；\(\nu=0.49\) 得 \(\dfrac{0.02}{1.02}\times25=0.49\)，处于两者之间；要进入侧向挤出（\(\ll1\)）需 \(1-2\nu\ll0.04\)，即 \(\nu\approx0.499\)</li>
-</ul></details>
+<details><summary>推导 1：原地压缩，力 ∝ R</summary>
+
+<p><b>① 侧限模量</b></p>
+
+<p>已知：杨氏模量 \(E\)、泊松比 \(\nu\)；求：侧向被挡住时材料竖直方向的刚度 \(M\)。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{\sigma_z=\lambda(\varepsilon_x+\varepsilon_y+\varepsilon_z)+2G\varepsilon_z} &amp; \color{#c0392b}{(1)}\\[4pt] \color{#c0392b}{G=\dfrac{E}{2(1+\nu)},\quad \lambda=\dfrac{E\nu}{(1+\nu)(1-2\nu)}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{\varepsilon_x=\varepsilon_y=0} &amp; \color{#c0392b}{(3)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \sigma_z=M\,\varepsilon_z,\quad M=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)}\quad(4)}\]</p>
+
+
+
+<p>式 (1)：各向同性线弹性的胡克定律。\(\sigma_z\) 是竖直方向的应力，\(\varepsilon_x\)、\(\varepsilon_y\)、\(\varepsilon_z\) 是三个方向的应变，\(\lambda\) 是拉梅常数，\(G\) 是剪切模量。它说的是：竖直应力一部分来自整体的体积变化，一部分来自竖直方向本身的拉压。</p>
+
+<p>式 (2)：两个弹性常数的定义，由杨氏模量 \(E\) 和泊松比 \(\nu\) 确定；剪切模量满足 \(\tau=G\gamma\)，即剪切应力 = 剪切模量 × 剪切应变。</p>
+
+<p>式 (3)：侧限条件。层薄、接触区宽时，每根竖直材料柱的侧面被相邻柱挡住，只能沿竖直方向压缩，侧向应变为 0。</p>
+
+<p>结果：\(M\) 是侧限模量。\(\nu\to0.5\) 时分母 \(1-2\nu\to0\)，\(M\to\infty\)：近不可压的材料侧面被挡住时，几乎压不动，因为体积不能变而又无处可去。</p>
+
+<details><summary>推导</summary><p>把式 (3) 代入式 (1)：</p>
+<p>\[\sigma_z=(\lambda+2G)\,\varepsilon_z\]</p>
+<p>代入式 (2)，通分：</p>
+<p>\[M=\lambda+2G=\frac{E\nu}{(1+\nu)(1-2\nu)}+\frac{E}{1+\nu}=\frac{E\nu+E(1-2\nu)}{(1+\nu)(1-2\nu)}=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)}\qquad(4)\]</p></details>
+<p><b>② 原地压缩时的力</b></p>
+
+<p>已知：层厚 \(b\)、球半径 \(R\)、压深 \(\delta\)；求：材料原地压缩时的力。</p>
+
+<p>\[\begin{cases}\color{#c0392b}{\sigma_z=M\,\varepsilon_z} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{r^2+(R-h)^2=R^2} &amp; \color{#c0392b}{(5)}\\[4pt] \color{#c0392b}{h\ll R} &amp; \color{#c0392b}{(6)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{\varepsilon_z=\dfrac wb} &amp; \color{#c0392b}{(8)}\\[4pt] \color{#c0392b}{F=\displaystyle\int p\,dA} &amp; \color{#c0392b}{(9)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ p_c=\frac{M\delta}{b}\ \ (10),\quad V=\int w\,dA=\pi R\delta^2\ \ (11),\quad F=\pi M\frac{R\,\delta^{2}}{b}\ \ (12)}\]</p>
+<p>式 (4)：① 推出的侧限关系，竖直应力 = 侧限模量 × 竖直应变。</p>
+
+<p>式 (5)：勾股定理。\(r\) 是离接触中心的距离，\(h\) 是该处球面比球底高出的量。</p>
+
+<p>式 (6)：只看球底附近的条件，平方项可以丢掉。</p>
+
+<p>式 (7)：压入深度的定义。\(w\) 是离中心 \(r\) 处球压进层的深度：球底压下 \(\delta\)，那里球面高出 \(h\)，所以只压进 \(\delta-h\)。</p>
+
+<p>式 (8)：应变的定义。这根材料柱原长 \(b\)，被压缩 \(w\)，应变 = 压缩量 ÷ 原长。</p>
+
+<p>式 (9)：合力的定义，把接触面上每小块面积的推力加起来。</p>
+
+<p>结果：\(p_c\) 是中心压强，\(V\) 是重叠体积。力与球半径成正比，半径 ×2 → 力 ×2。这里每点的压强只取决于该点自己的压缩量，与 hydro「压强只看局部深度」的形式相同，所以 hydro 在这种情况下是对的。</p>
+
+<details><summary>推导</summary><p>由式 (5)(6)：</p>
+<p>\[h\approx\frac{r^2}{2R}\]</p>
+<p>代入式 (7)，再由式 (8)(4)，每根柱子的压强：</p>
+<p>\[p=M\,\frac{w}{b}=\frac{M}{b}\Big(\delta-\frac{r^2}{2R}\Big)\]</p>
+<p>中心 \(r=0\) 处：</p>
+<p>\[p_c=\frac{M\delta}{b}\qquad(10)\]</p>
+<p>代入式 (9)，模量与层厚提到积分外；\(w\) 在 \(r\) 满足 \(\delta=r^2/(2R)\) 处降到 0，此处 \(r^2=2R\delta\)：</p>
+<p>\[V=\int w\,dA=\int_0^{\sqrt{2R\delta}}\Big(\delta-\frac{r^2}{2R}\Big)2\pi r\,dr=2\pi\Big(R\delta^2-\frac{R\delta^2}{2}\Big)=\pi R\delta^2\qquad(11)\]</p>
+<p>\[F=\frac{M}{b}\,V=\pi M\frac{R\,\delta^{2}}{b}\qquad(12)\]</p></details>
+</details>
+<details><summary>推导 2：侧向挤出，力 ∝ R²（量级推导：只保留与 \(a\)、\(b\)、\(\delta\) 的比例关系，略去数值系数）</summary>
+
+层很薄时，材料沿层面方向流动，沿厚度方向的剪切起主导作用，这一近似称为<b>润滑近似</b>。
+
+<p><b>③ 侧向挤出时的力</b></p>
+
+<p>已知：层厚 \(b\)、剪切模量 \(G\)、球半径 \(R\)、压深 \(\delta\)；求：材料从球底侧向挤出时的力。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{V=\pi R\delta^2} &amp; \color{#c0392b}{(11)}\\[4pt] \color{#c0392b}{w=\delta-h} &amp; \color{#c0392b}{(7)}\\[4pt] \color{#c0392b}{w(a)=0} &amp; \color{#c0392b}{(13)}\\[4pt] \color{#c0392b}{\bar u=\dfrac{V}{2\pi ab}} &amp; \color{#c0392b}{(14)}\\[4pt] \color{#c0392b}{\gamma\approx\dfrac{\bar u}{b},\quad \tau=G\gamma} &amp; \color{#c0392b}{(15)}\\[4pt] \color{#c0392b}{(p_1-p_2)\,b\,w_e=2\tau\,\Delta r\,w_e} &amp; \color{#c0392b}{(16)}\\[4pt] \color{#c0392b}{p(a)=0,\quad F\approx\tfrac12\,p_s\cdot\pi a^2} &amp; \color{#c0392b}{(17)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ a^2=2R\delta\ \ (18),\quad p_s\propto\frac{G\,a^2\delta}{b^3}\ \ (19),\quad F\propto\frac{G\,R^2\delta^3}{b^3}\ \ (20)}\]</p>
+
+
+
+<p>式 (11)：② 推出的重叠体积，即被球占据、需要让出的体积。</p>
+
+<p>式 (7)：② 的压入深度定义 \(w=\delta-h\)，\(h\) 是离中心 \(r\) 处球面比球底高出的量。</p>
+
+<p>式 (13)：接触边缘的定义。\(a\) 是接触半径，取几何重叠的边缘，球面在那里正好回到层的原表面，压入深度为 0。</p>
+
+<p>式 (14)：体积守恒。\(\bar u\) 是材料穿过接触区边缘的平均侧向位移。它说的是：不可压、底面粘结、顶面被球压着，被占据的体积只能从接触区边缘那圈圆柱侧面流出；那圈侧面周长 \(2\pi a\)、高 \(b\)，平均移动距离 = 体积 ÷ 出口面积。</p>
+
+<p>式 (15)：剪切应变的定义与剪切的胡克定律。\(\gamma\) 是剪切应变，\(\tau\) 是剪切应力。它说的是：底面粘结不动，顶面贴着球，材料在中间被挤动，上下两面位移为 0、中间最大，错动量 ÷ 厚度就是剪切应变。</p>
+
+<p>式 (16)：一小段材料的力平衡。取径向长 \(\Delta r\)、厚 \(b\)、宽 \(w_e\) 的一小段，\(p_1\)、\(p_2\) 是内侧和外侧的压强。它说的是：两侧压强差推它向外，上下两面的剪切应力拦着它，准静态时两者相等；取圆环微元时面积里的 \(2\pi r\) 也会约去，结果相同。</p>
+
+<p>式 (17)：边缘条件与合力的近似。\(p_s\) 是中心压强。它说的是：边缘是自由表面，压强为 0，往中心压强增大；压强按抛物线从中心降到边缘，平均值约为中心值的一半，合力 = 平均压强 × 接触面积。</p>
+
+<p>结果：力与球半径的平方成正比，半径 ×2 → 力 ×4。这里压强由整个接触区的流动决定，不是由局部深度决定，所以 hydro 在这种情况下是错的。</p>
+
+<details><summary>推导</summary><p>由 ② 中式 (5)(6) 得到的 \(h\approx r^2/(2R)\) 代入式 (7)，再由式 (13) \(w(a)=0\)：</p>
+<p>\[\delta-\frac{a^2}{2R}=0\quad\Longrightarrow\quad a^2=2R\delta\qquad(18)\]</p>
+<p>把式 (18) 写成 \(R=a^2/(2\delta)\)，代入式 (11)：</p>
+<p>\[V=\pi\cdot\frac{a^2}{2\delta}\cdot\delta^2=\frac{\pi a^2\delta}{2}\]</p>
+<p>代入式 (14)：</p>
+<p>\[\bar u=\frac{\pi a^2\delta/2}{2\pi ab}=\frac{a\delta}{4b}\ \propto\ \frac{a\delta}{b}\]</p>
+<p>代入式 (15)：</p>
+<p>\[\tau=G\,\frac{\bar u}{b}\ \propto\ \frac{G\,a\delta}{b^2}\]</p>
+<p>式 (16) 两边同除以 \(b\,w_e\,\Delta r\)：</p>
+<p>\[\frac{p_1-p_2}{\Delta r}=\frac{2\tau}{b}\ \propto\ \frac{G\,a\delta}{b^3}\]</p>
+<p>由式 (17) 边缘压强为 0，从边缘到中心路径长 \(a\)，中心压强 = 梯度 × 路径长：</p>
+<p>\[p_s\ \propto\ \frac{G\,a\delta}{b^3}\cdot a=\frac{G\,a^2\delta}{b^3}\qquad(19)\]</p>
+<p>代入式 (17) 的合力：</p>
+<p>\[F\ \propto\ \frac{G\,a^2\delta}{b^3}\cdot a^2=\frac{G\,a^4\delta}{b^3}\]</p>
+<p>由式 (18)，\(a^4=4R^2\delta^2\)：</p>
+<p>\[F\ \propto\ \frac{G\,R^2\delta^3}{b^3}\qquad(20)\]</p>
+<p>半径 ×2：\((2R)^2/R^2=4\)，力 ×4。</p></details>
+</details>
+<details><summary>推导 3：材料走哪种方式</summary>
+
+<p><b>④ 两种方式所需的中心压强之比</b></p>
+
+<p>已知：两种方式各自的中心压强；求：材料按哪种方式让位。</p>
+
+
+
+<p>\[\begin{cases}\color{#c0392b}{G=\dfrac{E}{2(1+\nu)}} &amp; \color{#c0392b}{(2)}\\[4pt] \color{#c0392b}{M=\dfrac{E(1-\nu)}{(1+\nu)(1-2\nu)}} &amp; \color{#c0392b}{(4)}\\[4pt] \color{#c0392b}{p_c=\dfrac{M\delta}{b}} &amp; \color{#c0392b}{(10)}\\[4pt] \color{#c0392b}{p_s\propto\dfrac{G\,a^2\delta}{b^3}} &amp; \color{#c0392b}{(19)}\end{cases}\ \color{#c0392b}{\Longrightarrow\ \frac{p_s}{p_c}\ \propto\ \frac{1-2\nu}{2(1-\nu)}\Big(\frac ab\Big)^2\quad(21)}\]</p>
+
+
+
+<p>式 (2)：① 的剪切模量定义。</p>
+
+<p>式 (4)：① 推出的侧限模量。</p>
+
+<p>式 (10)：② 推出的原地压缩所需的中心压强。</p>
+
+<p>式 (19)：③ 推出的侧向挤出所需的中心压强。</p>
+
+<p>结果：材料按所需压强小的方式让位。比值 \(\gg1\)：挤出更难，材料原地压缩，力 \(\propto R\)；比值 \(\ll1\)：压缩更难，材料侧向挤出，力 \(\propto R^2\)。数值：\(a/b=5\) 时，\(\nu=0.3\) 得 \(\frac{0.4}{1.4}\times25=7.1\)，原地压缩；\(\nu=0.49\) 得 \(\frac{0.02}{1.02}\times25=0.49\)，处于两者之间；要进入侧向挤出需 \(1-2\nu\ll0.04\)，即 \(\nu\approx0.499\)。</p>
+
+<details><summary>推导</summary><p>式 (19) 除以式 (10)：</p>
+<p>\[\frac{p_s}{p_c}\ \propto\ \frac{G\,a^2\delta/b^3}{M\delta/b}=\frac{G}{M}\Big(\frac ab\Big)^2\]</p>
+<p>代入式 (2)(4)：</p>
+<p>\[\frac{G}{M}=\frac{E/(2(1+\nu))}{E(1-\nu)/((1+\nu)(1-2\nu))}=\frac{1-2\nu}{2(1-\nu)}\]</p>
+<p>所以：</p>
+<p>\[\frac{p_s}{p_c}\ \propto\ \frac{1-2\nu}{2(1-\nu)}\Big(\frac ab\Big)^2\qquad(21)\]</p></details>
+</details>
 <p><strong>4. 对比</strong></p>
 <div class="tablewrap"><table>
 <thead>
