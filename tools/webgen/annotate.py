@@ -735,6 +735,8 @@ ANNOT_JS = r"""
     if (e.pointerType === 'touch') {
       if (S.drawing || S.scroll) return;     // 写字时手掌碰到屏幕不算
       S.scroll = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      // 页面是 scroll-behavior: smooth，连续 scrollBy 会互相打断动画、只滚一小段；拖动期间改成立即滚动
+      document.documentElement.style.scrollBehavior = 'auto';
     } else {
       if (e.button !== 0 || S.drawing || S.erasing || S.moving) return;
       if (S.tool === 'eraser') { S.erasing = { id: e.pointerId, snap: snapshot(), changed: false }; eraseAt(e); }
@@ -753,7 +755,7 @@ ANNOT_JS = r"""
     else if (S.moving && e.pointerId === S.moving.id) dragMove(e);
   }
   function onUp(e) {
-    if (S.scroll && e.pointerId === S.scroll.id) S.scroll = null;
+    if (S.scroll && e.pointerId === S.scroll.id) { S.scroll = null; document.documentElement.style.scrollBehavior = ''; }
     else if (S.drawing && e.pointerId === S.drawing.id) finishStroke();
     else if (S.erasing && e.pointerId === S.erasing.id) {
       const er = S.erasing;

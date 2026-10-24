@@ -88,6 +88,7 @@ class Report:
 
 def open_page(ctx, rel):
     page = ctx.new_page()
+    page.on("pageerror", lambda err: print(f"      [页面 JS 报错] {rel}: {err}", flush=True))
     page.goto((ROOT / rel).as_uri())
     page.wait_for_function("window.__nipcNotes")
     return page
@@ -213,7 +214,10 @@ def test_ipad_draw(browser, rep, out):
     page.wait_for_timeout(300)
     st = strokes(page)
     kinds = [s["anchor"]["type"] for s in st]
-    rep.check("a2 两笔已存、锚点类型", kinds == ["media", "text"], f"锚点 {kinds}；文字锚点 exact={st[1]['anchor'].get('exact')!r}")
+    rep.check("a2 两笔已存、锚点类型", kinds == ["media", "text"],
+              f"锚点 {kinds}；文字锚点 exact={st[1]['anchor'].get('exact')!r}" if len(st) == 2 else f"笔画数 {len(st)}")
+    if len(st) != 2:
+        raise SystemExit("a2 没画出两笔，后面的检查无法进行")
     pres = sorted({p[2] for p in st[0]["pts"]})
     widths = page.evaluate(f"""() => [...document.querySelectorAll('#annot-layer path')].map(p => p.getBBox().height)""")
     rep.check("a3 压感进了笔画", len(pres) > 3 and min(pres) >= 0, f"第一笔压感取值 {pres[:3]}…{pres[-2:]}（共 {len(pres)} 种）")
