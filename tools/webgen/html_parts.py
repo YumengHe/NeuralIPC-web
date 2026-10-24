@@ -43,8 +43,8 @@ a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-v
 .topbar nav a[aria-current="page"] { color: var(--accent); font-weight: 600; }
 
 /* 左目录 + 正文卡片 */
-.layout { display: grid; grid-template-columns: 245px minmax(0, 1276px); gap: 50px; max-width: 1635px; margin: 0 auto; padding: 45px 32px 0; }
-.layout.single { grid-template-columns: minmax(0, 1276px); justify-content: center; }
+.layout { display: grid; grid-template-columns: 245px minmax(0, 920px); gap: 50px; max-width: 1320px; margin: 0 auto; padding: 45px 32px 0; }
+.layout.single { grid-template-columns: minmax(0, 920px); justify-content: center; }
 aside { position: sticky; top: 110px; align-self: start; max-height: calc(100vh - 140px); overflow: auto; padding-right: 16px;
         font-size: 13px; scrollbar-width: thin; }
 #contents > summary { font-weight: 700; font-size: 12px; letter-spacing: .1em; color: var(--muted); margin-bottom: 18px; cursor: pointer; }
@@ -157,15 +157,15 @@ dialog p { font-size: 12px; text-align: center; color: var(--muted); margin: 10p
 }
 @media (max-width: 720px) {
   body { font-size: 15px; }
-  .topbar { height: 62px; padding: 0 16px; }
+  .topbar { height: 62px; padding: 0 18px; }
   .brand { font-size: 15px; gap: 8px; } .brand-note, .brand-separator { display: none; }
-  .topbar nav { gap: 12px; font-size: 12px; overflow-x: auto; }
+  .topbar nav { gap: 15px; font-size: 12px; overflow-x: auto; }
   .layout { display: block; padding: 18px 12px 0; }
   aside { position: static; max-height: none; padding: 0; margin-bottom: 16px; }
   #contents { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 12px 14px; }
   #contents > summary { margin: 0; } #contents[open] > summary { margin-bottom: 10px; }
   #contents nav { max-height: 45vh; overflow: auto; }
-  main { padding: 28px 16px; border-radius: 8px; }
+  main { padding: 28px 20px; border-radius: 8px; }
   h1 { font-size: 25px; } header.top { margin-bottom: 30px; } h2 { font-size: 21px; margin-top: 40px; } h3 { font-size: 18px; }
   td, th { padding: 9px 11px; } .eyebrow { font-size: 9px; letter-spacing: .1em; }
   article figcaption { padding: 10px 12px; } article .lead { padding: 6px 14px; } article details { padding: 12px; }
