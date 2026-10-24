@@ -653,10 +653,10 @@ PICK_RENAME_JS = """() => {
   const norm = s => s.replace(/\\s+/g, ' ').trim();
   const m = [...MathJax.startup.document.math].find(m => m.display && m.typesetRoot && norm(m.math).length >= 10);
   const ps = [...document.querySelectorAll('article section > p')].filter(p =>
-      !p.querySelector('mjx-container') && p.firstChild && p.firstChild.nodeType === 3 && p.firstChild.data.trim().length > 120);
-  const pick = p => p.firstChild.data.slice(40, 56);
-  return {tex: norm(m.math), moved: pick(ps[2]), changed: pick(ps[5]), renamed: pick(ps[8]),
-          old: ps[8].firstChild.data.slice(37, 40)};
+      !p.querySelector('mjx-container') && p.firstChild && p.firstChild.nodeType === 3 && p.firstChild.data.length > 90);
+  const n = ps.length, pick = p => p.firstChild.data.slice(40, 56);
+  const pm = ps[1], pc = ps[Math.floor(n / 2)], pr = ps[n - 2];   // 三段互不相同、分散在全页（需要 n ≥ 4）
+  return {tex: norm(m.math), moved: pick(pm), changed: pick(pc), renamed: pick(pr), old: pr.firstChild.data.slice(37, 40), n};
 }"""
 
 # 在 B 页上做「改讲稿」：公式按两步改名表换写法并重排；一段搬到最后一节末尾；一段整段改写（不在表里）；
