@@ -155,7 +155,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：式 (6) 是一个平面方程，\(\mathbf a\)、\(a_0\) 是 A 侧压强斜坡的斜率与截距，\(\mathbf b\)、\(b_0\) 是 B 侧的。所以接触面在每对相交四面体里是一块平面多边形，整面由这些多边形拼成。哪一侧越硬 → 接触面越靠近它原来的表面，它被压进去越少，因为它的压强升得快，在较浅处就和对面相等。</p>
 
-<figure style="margin:12px 0"><img src="assets/images/Elandt2019_p3_Fig1_contact_surface.png" style="width:420px;max-width:100%;height:auto" alt="Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。" loading="lazy"><figcaption class="small">Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/core_1.1_a.png" style="width:667px;max-width:100%;height:auto" alt="二维里把 A、B 各一个相交的单元画成三角形。式 (5) 让单元内的压强按顶点值线性插值，所以每个单元里压强都是一块斜坡：蓝线是 A 的等压线，往上越来越大；绿线是 B 的等压线，往下越来越大，而且更密，表示 B 的斜坡更陡。两组等压线取同一串压强值，同值的蓝线和绿线正好交在红虚线上，这条线就是式 (4) 要的「两边压强相等」，因为两个线性函数相等的地方只能是一条直线，到三维里就是式 (6) 的平面。真正算数的只是它落在两个单元交集（灰色）里的那一段红实线，这一段在三维里就是一块平面多边形；整张接触面就是逐对单元这样切出来的多边形拼起来的。" loading="lazy"><figcaption class="small">二维里把 A、B 各一个相交的单元画成三角形。式 (5) 让单元内的压强按顶点值线性插值，所以每个单元里压强都是一块斜坡：蓝线是 A 的等压线，往上越来越大；绿线是 B 的等压线，往下越来越大，而且更密，表示 B 的斜坡更陡。两组等压线取同一串压强值，同值的蓝线和绿线正好交在红虚线上，这条线就是式 (4) 要的「两边压强相等」，因为两个线性函数相等的地方只能是一条直线，到三维里就是式 (6) 的平面。真正算数的只是它落在两个单元交集（灰色）里的那一段红实线，这一段在三维里就是一块平面多边形；整张接触面就是逐对单元这样切出来的多边形拼起来的。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/Elandt2019_p3_Fig1_contact_surface_crop.png" style="width:518px;max-width:100%;height:auto" alt="Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。" loading="lazy"><figcaption class="small">Elandt 原论文 Fig. 1：球（紫）压半空间（绿）的三种软硬组合，彩色曲面就是两侧压强相等的接触面，颜色越亮压强越大。上：球硬、半空间软，接触面贴着球面，深深压进半空间；中：两者一样软，接触面在两者中间；下：球软、半空间硬，接触面贴着半空间原表面，几乎是平的。可以看出哪一侧越硬，接触面越靠近它原来的表面。</figcaption></figure>
 <details><summary>推导</summary><p>式 (5) \(\epsilon=\boldsymbol\epsilon\cdot\zeta(\mathbf x)\) 中重心坐标 \(\zeta\) 是 \(\mathbf x\) 的线性函数，代入式 (3) \(p_0=E\epsilon\)，A、B 两侧的压强都是 \(\mathbf x\) 的线性函数：</p>
 <p>\[p_{0_A}(\mathbf x)=\mathbf a\cdot\mathbf x+a_0,\qquad p_{0_B}(\mathbf x)=\mathbf b\cdot\mathbf x+b_0\]</p>
 <p>代入式 (4) \(p_{0_A}=p_{0_B}\)，移项：</p>
@@ -172,6 +173,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：重叠越深 → 力越大，因为接触面上每点压强更大、接触面也更大；接触面越平 → 各小块推力方向越一致、合力越接近「压强 × 面积」，因为法向相同的推力不会互相抵消。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_1.1_b.png" style="width:784px;max-width:100%;height:auto" alt="左边把一段弯曲的接触面切成 7 小块，每块按式 (7) 沿自己的法向推，箭头长度是这一块的压强乘面积，中间压强大、两边小。右边把这 7 根箭头头尾相接地串起来，从起点指到终点的蓝箭头就是式 (9) 的合力 f。可以看到两侧的块一个往右偏、一个往左偏，水平分量互相抵消，合力只剩竖直方向，长度比 7 根箭头长度直接相加要短。这就是为什么式 (8) 必须按矢量积分，也说明接触面越平，各块方向越一致，合力越接近「压强 × 面积」。" loading="lazy"><figcaption class="small">左边把一段弯曲的接触面切成 7 小块，每块按式 (7) 沿自己的法向推，箭头长度是这一块的压强乘面积，中间压强大、两边小。右边把这 7 根箭头头尾相接地串起来，从起点指到终点的蓝箭头就是式 (9) 的合力 f。可以看到两侧的块一个往右偏、一个往左偏，水平分量互相抵消，合力只剩竖直方向，长度比 7 根箭头长度直接相加要短。这就是为什么式 (8) 必须按矢量积分，也说明接触面越平，各块方向越一致，合力越接近「压强 × 面积」。</figcaption></figure>
 <details><summary>推导</summary><p>把式 (7) \(\mathbf T=p_0\hat{\mathbf n}\) 代入式 (8) \(\mathbf f=\int_{\mathcal S}\mathbf T\,dS\)：</p>
 <p>\[\mathbf f=\int_{\mathcal S}p_0\,\hat{\mathbf n}\;dS\qquad(9)\]</p></details>
 </details>
@@ -222,6 +224,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：多边形越大、形心处压强越大 → 力越大，因为斜坡在形心两侧多出来的和少掉的正好抵消，只剩「平均压强 × 面积」，而线性函数的平均值就是形心处的值。</p>
 
+
+
+<figure style="margin:12px 0"><img src="assets/images/core_1.2_d.png" style="width:661px;max-width:100%;height:auto" alt="左边把一块平面接触多边形上的压强竖起来画成一根柱子，柱顶的高度就是这一点的压强。按式 (2) 压强是斜坡，所以柱顶是斜的；过形心、垂直于斜坡方向的那条线把顶面分成两半，红色那半高出形心压强 \(p_c\)，蓝色那半低于 \(p_c\)，灰虚线框是高度 \(p_c\) 的平顶。这里的多边形关于形心对称，每一点都有一个对称点，一个高出多少、另一个就低多少，红色多出来的正好填上蓝色缺的；一般形状的多边形靠式 (3) 形心的定义得到同样结论。力是式 (1) 的柱子体积，所以斜顶柱和右边同底、高 \(p_c\) 的平顶柱一样大，就是 \(f_n=A\,p_c\)。" loading="lazy"><figcaption class="small">左边把一块平面接触多边形上的压强竖起来画成一根柱子，柱顶的高度就是这一点的压强。按式 (2) 压强是斜坡，所以柱顶是斜的；过形心、垂直于斜坡方向的那条线把顶面分成两半，红色那半高出形心压强 \(p_c\)，蓝色那半低于 \(p_c\)，灰虚线框是高度 \(p_c\) 的平顶。这里的多边形关于形心对称，每一点都有一个对称点，一个高出多少、另一个就低多少，红色多出来的正好填上蓝色缺的；一般形状的多边形靠式 (3) 形心的定义得到同样结论。力是式 (1) 的柱子体积，所以斜顶柱和右边同底、高 \(p_c\) 的平顶柱一样大，就是 \(f_n=A\,p_c\)。</figcaption></figure>
+
+
+
 <details><summary>推导</summary><p>把式 (2) \(p=p_c+\nabla p\cdot(\mathbf x-\mathbf x_c)\) 代入式 (1) \(f_n=\int_Ap\,dA\)：</p>
 <p>\[f_n=\int_A p_c\,dA+\nabla p\cdot\int_A(\mathbf x-\mathbf x_c)\,dA\]</p>
 <p>式 (3) \(\mathbf x_c=\frac1A\int_A\mathbf x\,dA\) 两边乘 \(A\) 移项：</p>
@@ -243,6 +251,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(g\) 是合成梯度。任一侧越软，即梯度越小 → \(g\) 越小，而且比两侧中较软的那个还小，因为这就是两根弹簧串联，总刚度由软的一根主导；软的一侧分到的重叠深度也更多。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_1.2_e.png" style="width:818px;max-width:100%;height:auto" alt="左边是沿法向切的一条线：A 在左、表面在右端，B 在右、表面在左端，两者重叠了 d。蓝线是 A 侧压强，从 A 的表面往 A 里走越来越大，斜率是 \(g_A\)；绿线是 B 侧压强，往 B 里走越来越大，斜率 \(g_B\) 更小，表示 B 更软。两条线的交点就是式 (7) 的接触面，这里两边压强相等。交点把 d 分成两段，软的 B 分到的 \(d_B\) 明显比硬的 A 分到的 \(d_A\) 长，因为同样的压强在软的一侧要压得更深才能达到。右边把这件事换成两根串联的弹簧：同一个力穿过两根，软的那根压缩得多，总刚度就是式 (9) 的 \(g=g_Ag_B/(g_A+g_B)\)，比软的那根还小。" loading="lazy"><figcaption class="small">左边是沿法向切的一条线：A 在左、表面在右端，B 在右、表面在左端，两者重叠了 d。蓝线是 A 侧压强，从 A 的表面往 A 里走越来越大，斜率是 \(g_A\)；绿线是 B 侧压强，往 B 里走越来越大，斜率 \(g_B\) 更小，表示 B 更软。两条线的交点就是式 (7) 的接触面，这里两边压强相等。交点把 d 分成两段，软的 B 分到的 \(d_B\) 明显比硬的 A 分到的 \(d_A\) 长，因为同样的压强在软的一侧要压得更深才能达到。右边把这件事换成两根串联的弹簧：同一个力穿过两根，软的那根压缩得多，总刚度就是式 (9) 的 \(g=g_Ag_B/(g_A+g_B)\)，比软的那根还小。</figcaption></figure>
 <details><summary>推导</summary><p>由式 (5) \(p_A=g_Ad_A\)、式 (6) \(p_B=g_Bd_B\) 与式 (7) \(p_A=p_B=p\) 解出两段深度：</p>
 <p>\[d_A=\frac{p}{g_A},\qquad d_B=\frac{p}{g_B}\]</p>
 <p>代入式 (8) \(d_A+d_B=d\)：</p>
@@ -260,6 +269,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(p_{c,0}\) 是步首形心处压强。分开得越快或步长越大 → 压强降得越多；合成梯度 \(g\) 越大 → 同样的速度下压强变化越快，因为压强 = \(g\) × 重叠深度，重叠变了多少，压强就按 \(g\) 倍跟着变。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_1.2_f.png" style="width:577px;max-width:100%;height:auto" alt="还是沿法向的那条剖面线，B 不动，A 在这一步里以法向速度 \(v_n\) 往外退了 \(\delta t\,v_n\)：虚线是步首 A 侧的压强，实线是步末的。重叠从 \(-\phi_0\) 缩成 \(-\phi\)，正是式 (10)。两条蓝线和绿线的交点就是接触面上的压强，步首在 \(p_{c,0}\)，步末降到 \(p_c\)。因为式 (9) 说交点高度等于合成梯度 \(g\) 乘重叠，重叠少了 \(\delta t\,v_n\)，压强就少 \(g\,\delta t\,v_n\)，这就是式 (11)。这样一来，步末的压强只差一个与下一步速度成正比的修正，求解器才能把它当成速度的线性函数来隐式求解。" loading="lazy"><figcaption class="small">还是沿法向的那条剖面线，B 不动，A 在这一步里以法向速度 \(v_n\) 往外退了 \(\delta t\,v_n\)：虚线是步首 A 侧的压强，实线是步末的。重叠从 \(-\phi_0\) 缩成 \(-\phi\)，正是式 (10)。两条蓝线和绿线的交点就是接触面上的压强，步首在 \(p_{c,0}\)，步末降到 \(p_c\)。因为式 (9) 说交点高度等于合成梯度 \(g\) 乘重叠，重叠少了 \(\delta t\,v_n\)，压强就少 \(g\,\delta t\,v_n\)，这就是式 (11)。这样一来，步末的压强只差一个与下一步速度成正比的修正，求解器才能把它当成速度的线性函数来隐式求解。</figcaption></figure>
 <details><summary>推导</summary><p>式 (9) \(p=-g\phi\) 用在步首形心，已知步首压强 \(p_{c,0}\)，反解步首有符号距离：</p>
 <p>\[\phi_0=-\frac{p_{c,0}}{g}\]</p>
 <p>式 (9) 用在步末形心，代入式 (10) \(\phi=\phi_0+\delta t\,v_n\)：</p>
@@ -281,6 +291,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(k\) 是这根弹簧的刚度，\((\cdot)_+=\max(\cdot,0)\) 表示负数取 0。多边形越大、合成梯度越大 → 弹簧越硬，因为同样的重叠下面积大、压强升得快，力都更大；每块多边形各自一根弹簧，刚度只看自己的面积和梯度。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_1.2_g.png" style="width:586px;max-width:100%;height:auto" alt="横轴是有符号距离 \(\phi\)，往左是穿透越来越深，往右是两物体分开；纵轴是这块多边形给的法向力。穿透时力随穿透深度直线增长，斜率是 \(-k=-gA_0\)；一旦分开，力立刻变成 0，因为式 (13) 规定接触只推不拉，这就是 \((\cdot)_+\) 取正部的意思。两条线是同一个合成梯度、不同面积的多边形：面积大的那根更陡，也就是更硬的弹簧。整张接触面在 hydro 里就是这样一堆各自独立的弹簧，每根的刚度只看自己那块的面积和梯度，这正是本节结论里的「假设二」。" loading="lazy"><figcaption class="small">横轴是有符号距离 \(\phi\)，往左是穿透越来越深，往右是两物体分开；纵轴是这块多边形给的法向力。穿透时力随穿透深度直线增长，斜率是 \(-k=-gA_0\)；一旦分开，力立刻变成 0，因为式 (13) 规定接触只推不拉，这就是 \((\cdot)_+\) 取正部的意思。两条线是同一个合成梯度、不同面积的多边形：面积大的那根更陡，也就是更硬的弹簧。整张接触面在 hydro 里就是这样一堆各自独立的弹簧，每根的刚度只看自己那块的面积和梯度，这正是本节结论里的「假设二」。</figcaption></figure>
 <details><summary>推导</summary><p>式 (9) \(p=-g\phi\) 用在形心，与式 (12) \(A=A_0\) 一起代入式 (4) \(f_n=A\,p_c\)：</p>
 <p>\[f_n=-g\,A_0\,\phi\]</p>
 <p>记 \(k=g\,A_0\)，按式 (13) 力不能为负，取正部：</p>
@@ -325,6 +336,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：步首穿得越深 → 冲量越大；下一步相互靠近得越快 → 冲量越大，因为弹簧会被压得更深、阻尼也更大。冲量只含下一步速度这一个未知量，所以可以隐式求解，步长可以取大。</p>
 
+
+
+<figure style="margin:12px 0"><img src="assets/images/core_1.3_h.png" style="width:597px;max-width:100%;height:auto" alt="横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\delta t\,k(\delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_d\)：\(\tau_d\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_d\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。" loading="lazy"><figcaption class="small">横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\delta t\,k(\delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_d\)：\(\tau_d\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_d\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。</figcaption></figure>
+
+
+
 <details><summary>推导</summary><p>把式 (2) \(\phi=\phi_0+\delta t\,v_n\) 代入式 (1) \(\gamma_n=\delta t(-k\phi-\tau_dk\,v_n)_+\)：</p>
 <p>\[\gamma_n=\delta t\big(-k\phi_0-k\,\delta t\,v_n-\tau_d\,k\,v_n\big)_+\]</p>
 <p>合并 \(v_n\) 项：</p>
@@ -342,6 +359,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：解动量方程等价于找 (6) 中函数的最低点。\(k\)、\(\delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_1.3_i.png" style="width:552px;max-width:100%;height:auto" alt="把式 (6) 的目标函数降到一维来看。灰虚线只有惯性项 \(\tfrac12M(v-v^*)^2\)，碗底在 \(v^*\)，也就是不计接触时物体下一步会有的速度，这里它朝着对方撞过去。蓝实线加上了接触项 \(\tfrac12R\gamma_n^2\)：越往靠近一侧走，冲量越大，这一项涨得越快，于是整只碗被往分开一侧抬起来，碗底挪到了 \(v\)。这个 \(v\) 就是式 (4) 动量方程的解，接触冲量正好把速度从 \(v^*\) 推到这里。两项都是向上弯的，合起来的曲线只有一个碗底，所以解唯一，牛顿法每一步往下走都会走到它。" loading="lazy"><figcaption class="small">把式 (6) 的目标函数降到一维来看。灰虚线只有惯性项 \(\tfrac12M(v-v^*)^2\)，碗底在 \(v^*\)，也就是不计接触时物体下一步会有的速度，这里它朝着对方撞过去。蓝实线加上了接触项 \(\tfrac12R\gamma_n^2\)：越往靠近一侧走，冲量越大，这一项涨得越快，于是整只碗被往分开一侧抬起来，碗底挪到了 \(v\)。这个 \(v\) 就是式 (4) 动量方程的解，接触冲量正好把速度从 \(v^*\) 推到这里。两项都是向上弯的，合起来的曲线只有一个碗底，所以解唯一，牛顿法每一步往下走都会走到它。</figcaption></figure>
 <details><summary>推导</summary><p>记目标函数：</p>
 <p>\[\ell(\mathbf v)=\tfrac12(\mathbf v-\mathbf v^*)^T\mathbf M(\mathbf v-\mathbf v^*)+\sum_{\text{接触}}\tfrac12R\,\gamma_n^2\]</p>
 <p>第一项对 \(\mathbf v\) 求导：</p>
@@ -367,6 +385,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：真实刚度给的 \(R\) 太小，即弹簧太硬时，就用步长允许的下限顶住。\(k\) 越大、\(\delta t\) 越大 → 越容易被下限顶住而触发封顶；一旦触发，接触力由 \(\beta\)、步长、质量决定，与压力场给的 \(k\) 无关。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_1.3_j.png" style="width:590px;max-width:100%;height:auto" alt="横轴是接触刚度 \(k\)，纵轴是 SAP 实际使用的 \(R_n\)，两轴都取对数；\(R_n\) 越小，接触越硬。\(k\) 不大时，\(R_n\) 就按真实刚度算，等于 \(1/(\delta t\,k(\delta t+\tau_d))\)，随 \(k\) 增大一路往下走。走到 \(\beta^2/(4\pi^2m)\) 这条线时被托住，之后无论 \(k\) 再大都不再变，虚线是按真实刚度本该继续走下去、但已经不用的部分。平台的高度只由 \(\beta\) 和质量决定，和压力场给出的 \(k\) 无关。绿线和蓝线是两种步长：步长大的那根整体更低，在更小的 \(k\) 就碰到平台。所以在大步长、硬接触时，hydro 的接触刚度实际上由这个数值下限决定，而不是由压力场决定。" loading="lazy"><figcaption class="small">横轴是接触刚度 \(k\)，纵轴是 SAP 实际使用的 \(R_n\)，两轴都取对数；\(R_n\) 越小，接触越硬。\(k\) 不大时，\(R_n\) 就按真实刚度算，等于 \(1/(\delta t\,k(\delta t+\tau_d))\)，随 \(k\) 增大一路往下走。走到 \(\beta^2/(4\pi^2m)\) 这条线时被托住，之后无论 \(k\) 再大都不再变，虚线是按真实刚度本该继续走下去、但已经不用的部分。平台的高度只由 \(\beta\) 和质量决定，和压力场给出的 \(k\) 无关。绿线和蓝线是两种步长：步长大的那根整体更低，在更小的 \(k\) 就碰到平台。所以在大步长、硬接触时，hydro 的接触刚度实际上由这个数值下限决定，而不是由压力场决定。</figcaption></figure>
 <details><summary>推导</summary><p>由式 (7) \(T_n=2\pi\sqrt{m/k}\) 与式 (8) \(T_n=\beta\,\delta t\)：</p>
 <p>\[2\pi\sqrt{\frac mk}=\beta\,\delta t\quad\Longrightarrow\quad k=\frac{4\pi^2m}{\beta^2\delta t^2}\]</p>
 <p>代入式 (5) \(R=1/(\delta t\,k(\delta t+\tau_d))\)，由式 (8) \(\tau_d\) 与 \(\delta t\) 同量级，取 \(\delta t+\tau_d\approx\delta t\)：</p>
@@ -603,6 +622,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：把手挪到哪 → 先减掉哪，把手转了多少 → 再反着转回多少，因为求逆就是把「先转后挪」倒过来做成「先退回再反转」。这就是外修正网络输入里的逆变换。</p>
 
+
+
+<figure style="margin:12px 0"><img src="assets/images/core_2.1_k.png" style="width:576px;max-width:100%;height:auto" alt="灰色是世界坐标架，蓝色是把手的坐标架：它被转了一个角度 \(\mathbf R_A\)，又挪到了 \(\mathbf t_A\)。同一个点 x，从世界原点量是灰虚线那么长，这是它的世界坐标。要换成把手的局部坐标，先减掉 \(\mathbf t_A\)，得到从把手原点指向这个点的红箭头；再乘 \(\mathbf R_A^T\)，就是把这根红箭头投到把手自己的两根轴上去读数，两条红点线落在两根蓝轴上的位置就是局部坐标的两个分量。正着走是「先转后挪」，倒回来就是「先退回再反转」，这正是外修正网络输入里那个逆变换在做的事。" loading="lazy"><figcaption class="small">灰色是世界坐标架，蓝色是把手的坐标架：它被转了一个角度 \(\mathbf R_A\)，又挪到了 \(\mathbf t_A\)。同一个点 x，从世界原点量是灰虚线那么长，这是它的世界坐标。要换成把手的局部坐标，先减掉 \(\mathbf t_A\)，得到从把手原点指向这个点的红箭头；再乘 \(\mathbf R_A^T\)，就是把这根红箭头投到把手自己的两根轴上去读数，两条红点线落在两根蓝轴上的位置就是局部坐标的两个分量。正着走是「先转后挪」，倒回来就是「先退回再反转」，这正是外修正网络输入里那个逆变换在做的事。</figcaption></figure>
+
+
+
 <details><summary>推导</summary><p>式 (1) \(\mathbf x_{\text{世界}}=\mathbf R_A\mathbf x_{\text{局部}}+\mathbf t_A\) 两边减 \(\mathbf t_A\)：</p>
 <p>\[\mathbf x_{\text{世界}}-\mathbf t_A=\mathbf R_A\,\mathbf x_{\text{局部}}\]</p>
 <p>两边左乘 \(\mathbf R_A^{T}\)，由式 (2) \(\mathbf R_A^{T}\mathbf R_A=\mathbf I\)：</p>
@@ -618,6 +643,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(\mathbf A(\mathbf q)^{-1}\mathbf z\) 是碰撞体相对把手的位姿。物体和碰撞体在世界里一起平移或旋转 → 相对位姿不变 → 网络输入不变，因为两者的平移一起变、旋转一起乘，相减、相乘后抵消；所以同一个凹坑只需学一次。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_2.1_l.png" style="width:1042px;max-width:100%;height:auto" alt="前两幅是同一组东西在世界里的两种摆法：一块果冻被星形碰撞体压出一个凹坑，整组东西转了不同的角度、放在不同的位置，左下角的灰色小坐标架是世界坐标，蓝色坐标架是果冻的把手。第三幅把这两种摆法都按式 (5) 换到把手的坐标系里看，两者变成同一张图：碰撞体相对把手在哪、朝哪完全一样，凹坑也一样。所以外修正网络如果输入的是相对位姿，这个凹坑只需要学一次；如果直接输入世界里的位姿，网络得在每个位置、每个朝向上把同一个凹坑重新学一遍。" loading="lazy"><figcaption class="small">前两幅是同一组东西在世界里的两种摆法：一块果冻被星形碰撞体压出一个凹坑，整组东西转了不同的角度、放在不同的位置，左下角的灰色小坐标架是世界坐标，蓝色坐标架是果冻的把手。第三幅把这两种摆法都按式 (5) 换到把手的坐标系里看，两者变成同一张图：碰撞体相对把手在哪、朝哪完全一样，凹坑也一样。所以外修正网络如果输入的是相对位姿，这个凹坑只需要学一次；如果直接输入世界里的位姿，网络得在每个位置、每个朝向上把同一个凹坑重新学一遍。</figcaption></figure>
 <details><summary>推导</summary><p>位置是一个点，直接用式 (3)：</p>
 <p>\[\mathbf p_z^{\text{局部}}=\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A)\]</p>
 <p>朝向把碰撞体自身的方向 \(\mathbf e\) 转成世界方向 \(\mathbf R_z\mathbf e\)；方向不受平移影响，按式 (3) 只做反转：</p>
@@ -801,6 +827,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(\hat{\mathbf q}_{t+1}\) 是由网络给的加速度算出的锚点新位置。网络给的加速度越大 → 新位置偏离「按原速度直走」越远，因为 \(2\mathbf q_t-\mathbf q_{t-1}\) 就是按原速度再走一步的位置，加速度项是在它上面加的修正；步长越大，同样的加速度修正得越多，按步长的平方涨。</p>
 
+
+
+<figure style="margin:12px 0"><img src="assets/images/core_2.4_m.png" style="width:583px;max-width:100%;height:auto" alt="一个锚点在上一帧和这一帧的位置是两个黑点，灰色实线是它这一帧的速度。如果没有任何力，它会按同样的速度再走一步，落到空心圈 \(2\mathbf q_t-\mathbf q_{t-1}\)。网络给出的加速度乘上 \(\Delta t^2\) 是红箭头，把空心圈拉到蓝点 \(\hat{\mathbf q}_{t+1}\)，这就是式 (3)。可以看出网络只负责「偏离直走多少」这一部分；步长越大，同样的加速度拉得越远，按步长的平方增长，这也是 FiLM 那里要把 \(s^2\) 喂给网络的原因。" loading="lazy"><figcaption class="small">一个锚点在上一帧和这一帧的位置是两个黑点，灰色实线是它这一帧的速度。如果没有任何力，它会按同样的速度再走一步，落到空心圈 \(2\mathbf q_t-\mathbf q_{t-1}\)。网络给出的加速度乘上 \(\Delta t^2\) 是红箭头，把空心圈拉到蓝点 \(\hat{\mathbf q}_{t+1}\)，这就是式 (3)。可以看出网络只负责「偏离直走多少」这一部分；步长越大，同样的加速度拉得越远，按步长的平方增长，这也是 FiLM 那里要把 \(s^2\) 喂给网络的原因。</figcaption></figure>
+
+
+
 <details><summary>推导</summary><p>把式 (1) 用在下一段，\(\mathbf v_{t+1}=(\mathbf q_{t+1}-\mathbf q_t)/\Delta t\)，与 \(\mathbf v_t=(\mathbf q_t-\mathbf q_{t-1})/\Delta t\) 一起代入式 (2) \(\mathbf a_t=(\mathbf v_{t+1}-\mathbf v_t)/\Delta t\)：</p>
 <p>\[\mathbf a_t=\frac{\mathbf q_{t+1}-2\mathbf q_t+\mathbf q_{t-1}}{\Delta t^2}\]</p>
 <p>两边乘 \(\Delta t^2\)：</p>
@@ -820,6 +852,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(\bar{\mathbf q}_{\text{ref}}\)、\(\bar{\hat{\mathbf q}}\) 是两组锚点各自的形心；\(\mathbf U\)、\(\mathbf V\) 来自两组锚点相关矩阵的奇异值分解，见折叠。预测锚点越不像刚体，间距偏差越大 → 对齐后被「掰回」的量越大，因为结果只能是刚体运动，多出来的变形被丢掉。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_2.4_n.png" style="width:716px;max-width:100%;height:auto" alt="左边灰色是参考姿态下的 4 个锚点，连成一个四面体（这里画的是它的投影）。右边红点是网络对 4 个锚点各自预测的新位置，红虚线连起来的形状和参考的不一样，说明它已经不是刚体了。蓝色是按式 (4) 找到的最佳刚体摆放：把参考四面体只转、只挪、不变形，让它离 4 个红点的距离平方和最小，结果由式 (6)(7) 直接写出。每个锚点上的黑短线是它被「掰回」刚体的那一段残差，预测越不像刚体，这些线越长，多出来的变形就被丢掉了。" loading="lazy"><figcaption class="small">左边灰色是参考姿态下的 4 个锚点，连成一个四面体（这里画的是它的投影）。右边红点是网络对 4 个锚点各自预测的新位置，红虚线连起来的形状和参考的不一样，说明它已经不是刚体了。蓝色是按式 (4) 找到的最佳刚体摆放：把参考四面体只转、只挪、不变形，让它离 4 个红点的距离平方和最小，结果由式 (6)(7) 直接写出。每个锚点上的黑短线是它被「掰回」刚体的那一段残差，预测越不像刚体，这些线越长，多出来的变形就被丢掉了。</figcaption></figure>
 <details><summary>推导</summary><p>式 (4) 的目标函数对 \(\mathbf t\) 求导并令其为 0：</p>
 <p>\[\sum_k\big(\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big)=0\quad\Longrightarrow\quad\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\qquad(6)\]</p>
 <p>代回，记去掉形心后的坐标 \(\mathbf r_k=\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}}\)、\(\hat{\mathbf r}_k=\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}}\)，由式 (5) \(\|\mathbf R\mathbf r_k\|=\|\mathbf r_k\|\)：</p>
@@ -841,6 +874,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(v\) 是顶点编号。无论物体有多少顶点，都只由 4 个锚点决定，物体严格保持刚性，因为所有顶点用的是同一个旋转和平移。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_2.4_o.png" style="width:560px;max-width:100%;height:auto" alt="左边灰点是物体在参考姿态下的全部顶点，其中 4 个红圈是锚点；右边蓝点是同一批顶点用同一个旋转和平移搬过去之后的样子。旋转和平移只由 4 个锚点通过上一步的 Kabsch 定出来，然后原样作用到每一个顶点上，所以不管物体有多少个顶点，它们之间的距离一个都不会变，物体严格保持刚性。这也说明 RigidFormer 输出的只有 4 个锚点的加速度，物体本身的形状从不参与预测。" loading="lazy"><figcaption class="small">左边灰点是物体在参考姿态下的全部顶点，其中 4 个红圈是锚点；右边蓝点是同一批顶点用同一个旋转和平移搬过去之后的样子。旋转和平移只由 4 个锚点通过上一步的 Kabsch 定出来，然后原样作用到每一个顶点上，所以不管物体有多少个顶点，它们之间的距离一个都不会变，物体严格保持刚性。这也说明 RigidFormer 输出的只有 4 个锚点的加速度，物体本身的形状从不参与预测。</figcaption></figure>
 <details><summary>推导</summary><p>把式 (6)(7) 给出的 \(\mathbf R\)、\(\mathbf t\) 代入式 (8)，对每个顶点 \(v\)：</p>
 <p>\[\mathbf x_{t+1}^{(v)}=\mathbf R\,\mathbf x_{\text{ref}}^{(v)}+\mathbf t\qquad(9)\]</p></details>
 </details>
@@ -862,6 +896,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>式 (11)：步长条件的定义。\(s\) 是步长，即一次预测跨过的帧数，MLP 是一个两层的小网络。它说的是：步长只以 \(s\) 和 \(s^2\) 两个数进入网络，由它们生成每一层的 \(\gamma\)、\(\beta\)；用 \(s^2\) 是因为式 (3) 里位置的修正按步长的平方涨。</p>
 
 <p>结果：同一个网络按不同 \(s\) 输出不同步长的预测。\(s\) 不同 → \(\gamma\)、\(\beta\) 不同 → 同一场景得到不同步长的一步；步长越大 → 走完同样时长要滚动预测的次数越少、误差累积越少。调制系数只由 \(s\) 决定、对所有物体相同，所以不破坏物体顺序的对称性。</p>
+
+
+
+<figure style="margin:12px 0"><img src="assets/images/core_2.4_p.png" style="width:674px;max-width:100%;height:auto" alt="每一行是一次调制：步长 \(s\) 以 \([s,s^2]\) 两个数进入一个两层的小网络，小网络为特征的每一维各给出一个缩放 \(\gamma_i\)（橙）和一个偏移 \(\beta_i\)（绿）；中间蓝色是网络某一层里一个物体的特征 h，768 维这里只画 8 格，颜色深浅只是示意大小。式 (10) 把每一维先乘 \(\gamma_i\)、再加 \(\beta_i\)，得到右边调制后的特征。上下两行的 h 完全一样，只是步长分别取训练里用的 1 和 10，于是 \(\gamma\)、\(\beta\) 不同，调制结果也不同。同一套网络权重就这样按步长改变行为；而且调制系数只由 \(s\) 决定、对所有物体相同，不会打乱物体之间的对称性。" loading="lazy"><figcaption class="small">每一行是一次调制：步长 \(s\) 以 \([s,s^2]\) 两个数进入一个两层的小网络，小网络为特征的每一维各给出一个缩放 \(\gamma_i\)（橙）和一个偏移 \(\beta_i\)（绿）；中间蓝色是网络某一层里一个物体的特征 h，768 维这里只画 8 格，颜色深浅只是示意大小。式 (10) 把每一维先乘 \(\gamma_i\)、再加 \(\beta_i\)，得到右边调制后的特征。上下两行的 h 完全一样，只是步长分别取训练里用的 1 和 10，于是 \(\gamma\)、\(\beta\) 不同，调制结果也不同。同一套网络权重就这样按步长改变行为；而且调制系数只由 \(s\) 决定、对所有物体相同，不会打乱物体之间的对称性。</figcaption></figure>
+
+
 
 <details><summary>推导</summary><p>把式 (11) 给出的 \(\gamma(s)\)、\(\beta(s)\) 代入式 (10)：</p>
 <p>\[h_i\leftarrow\gamma_i(s)\,h_i+\beta_i(s),\qquad i=1,\dots,768\qquad(12)\]</p></details>
@@ -1015,6 +1055,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\((\Psi w)_{y,i}\) 是修正让第 \(i\) 个节点在竖直方向挪动的量。修正把质量往下挪得越多 → 重力项越负，因为线性函数之差只和挪动量有关、和粗形状无关。</p>
 
+
+
+<figure style="margin:12px 0"><img src="assets/images/core_3.1_q.png" style="width:615px;max-width:100%;height:auto" alt="一个被球压着的块，节点画成点：灰色空心点和灰虚线框是粗模型 \(\Phi z\) 给的形状，蓝色实心点和蓝线是加上局部修正 \(\Psi w\) 之后的形状。红箭头是凹坑一带的节点往下挪，凹坑以外的节点则略微往上挪（绿色说明）。重力势能每个节点只看高度，所以加修正前后重力势能差多少，就是每个节点的质量乘它竖直挪了多少、再全部加起来，正是式 (3)。这一步只说明重力项的形状：它和粗形状本身无关，只取决于修正把质量往上还是往下挪了多少。" loading="lazy"><figcaption class="small">一个被球压着的块，节点画成点：灰色空心点和灰虚线框是粗模型 \(\Phi z\) 给的形状，蓝色实心点和蓝线是加上局部修正 \(\Psi w\) 之后的形状。红箭头是凹坑一带的节点往下挪，凹坑以外的节点则略微往上挪（绿色说明）。重力势能每个节点只看高度，所以加修正前后重力势能差多少，就是每个节点的质量乘它竖直挪了多少、再全部加起来，正是式 (3)。这一步只说明重力项的形状：它和粗形状本身无关，只取决于修正把质量往上还是往下挪了多少。</figcaption></figure>
+
+
+
 <details><summary>推导</summary><p>由式 (2) \(E_{\text{重}}=\sum_im_ig\,y_i\)，加修正后每个节点的高度是粗形状的高度加修正的竖直分量：</p>
 <p>\[E_{\text{重}}(\Phi z+\Psi w)=\sum_im_ig\big((\Phi z)_{y,i}+(\Psi w)_{y,i}\big)\]</p>
 <p>减去只有粗形状时的 \(E_{\text{重}}(\Phi z)=\sum_im_ig\,(\Phi z)_{y,i}\)：</p>
@@ -1031,6 +1077,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：局部修正只在质心附近来回挪，质心一点不动。粗模型能表示的整体运动越完整，比如含平移的刚体、仿射体 → 修正里剩下的越只是局部凹陷，因为所有能被拟合的部分都已归入粗形状。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_3.1_r.png" style="width:586px;max-width:100%;height:auto" alt="还是同一个块：灰虚线是粗形状，叉号是它的质心；蓝色是加上局部修正之后的形状，圆圈是它的质心。凹坑处往下挪的质量，正好等于其余地方往上挪的质量，所以两个质心标记叠在一起，一点没动。这就是式 (6)：粗状态按节点质量加权拟合，拟合出的平移就是质心，整体平移全部归给了粗模型，留给局部修正的只是在质心附近来回挪。把它代回 ① 的式 (3)，重力项就恒为 0，这就是 ③ 的结论。" loading="lazy"><figcaption class="small">还是同一个块：灰虚线是粗形状，叉号是它的质心；蓝色是加上局部修正之后的形状，圆圈是它的质心。凹坑处往下挪的质量，正好等于其余地方往上挪的质量，所以两个质心标记叠在一起，一点没动。这就是式 (6)：粗状态按节点质量加权拟合，拟合出的平移就是质心，整体平移全部归给了粗模型，留给局部修正的只是在质心附近来回挪。把它代回 ① 的式 (3)，重力项就恒为 0，这就是 ③ 的结论。</figcaption></figure>
 <details><summary>推导</summary><p>对式 (5) \(\Psi w=\mathbf x-(\mathbf B\mathbf r+\mathbf t)\) 两边乘 \(m_i\) 求和：</p>
 <p>\[\sum_im_i(\Psi w)_i=\sum_im_i\mathbf x_i-\mathbf B\sum_im_i\mathbf r_i-\Big(\sum_jm_j\Big)\mathbf t\]</p>
 <p>由式 (5) \(\sum_im_i\mathbf r_i=0\)，再代入式 (4) \(\mathbf t=\sum_i m_i\mathbf x_i/\sum_j m_j\)：</p>
@@ -1046,6 +1093,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：重力项恒为 0，\(U_c\) 和最优修正都与 \(g\) 无关；所以生成标签时可以关掉重力，重力由粗模型通过质心承担。重力再大 → \(U_c\) 也不变，因为重力在修正方向上做功为 0。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_3.1_s.png" style="width:566px;max-width:100%;height:auto" alt="这张图用一次实跑来检验 ③。一个软球在重力下静止压在刚性地面上，g 从 0.5 取到 10；对每个平衡态先拟合出粗状态，然后把粗状态钉住不动，求两遍最省力的局部修正，一遍带重力、一遍不带，纵轴是两遍得到的 \(U_c\) 之差占不带重力那一遍的比例，也就是重力漏进 \(U_c\) 的那部分。粗状态按节点质量加权拟合时（蓝线），这个比例只在 \(10^{-11}\) 到 \(10^{-9}\) 之间正负来回跳，已经是数值求解本身的噪声；原因就是式 (6)：实测修正的竖直质量矩 \(\sum_i m_i(\Psi w)_{y,i}\) 只有 \(10^{-15}\) 量级，重力在修正上一点功也不做。换成只用表面顶点、不按质量加权的拟合（橙线），修正里混进了整体平移，竖直质量矩变成 4 到 77，重力在修正上做了功，\(U_c\) 跟着偏了 2.8% 到 14%，而且 g 越大偏得越多。所以生成标签时可以放心关掉重力，前提是粗状态一定要按质量加权来拟合。" loading="lazy"><figcaption class="small">这张图用一次实跑来检验 ③。一个软球在重力下静止压在刚性地面上，g 从 0.5 取到 10；对每个平衡态先拟合出粗状态，然后把粗状态钉住不动，求两遍最省力的局部修正，一遍带重力、一遍不带，纵轴是两遍得到的 \(U_c\) 之差占不带重力那一遍的比例，也就是重力漏进 \(U_c\) 的那部分。粗状态按节点质量加权拟合时（蓝线），这个比例只在 \(10^{-11}\) 到 \(10^{-9}\) 之间正负来回跳，已经是数值求解本身的噪声；原因就是式 (6)：实测修正的竖直质量矩 \(\sum_i m_i(\Psi w)_{y,i}\) 只有 \(10^{-15}\) 量级，重力在修正上一点功也不做。换成只用表面顶点、不按质量加权的拟合（橙线），修正里混进了整体平移，竖直质量矩变成 4 到 77，重力在修正上做了功，\(U_c\) 跟着偏了 2.8% 到 14%，而且 g 越大偏得越多。所以生成标签时可以放心关掉重力，前提是粗状态一定要按质量加权来拟合。</figcaption></figure>
 <details><summary>推导</summary><p>式 (6) \(\sum_im_i(\Psi w)_i=0\) 取竖直分量：</p>
 <p>\[\sum_im_i(\Psi w)_{y,i}=0\]</p>
 <p>代入式 (3) \(\Delta E_{\text{重}}=g\sum_im_i(\Psi w)_{y,i}\)：</p>
@@ -1112,6 +1160,12 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(C\) 是柔度矩阵。某格压强越大 → 所有格都陷得越多，离它越近的格陷得越多，因为 \(C_{ij}\) 大约与两格距离成反比；\(E^*\) 越大 → \(C\) 越小，同样压强陷得越少。</p>
 
+
+
+<figure style="margin:12px 0"><img src="assets/images/core_3.3_t.png" style="width:619px;max-width:100%;height:auto" alt="从上往下看基体表面的方格网，格距是 \(h\)。中间红色那一格受单位均匀压强，其余每一格按它中心沉下去多少着色，颜色越深沉得越多；这些颜色是按式 (3) 把式 (1) 的点力解在受压格上积分实算出来的。可以看到受压格周围一圈沉得最多，越往外越浅，大约按 1/距离 衰减，远处的格子也并不是一点不动。右上那一格离受压格的距离是 \(s\)，它沉下去的量就是柔度系数 \(C_{ij}\)。把每一格都轮流当受压格算一遍，就得到整个柔度矩阵 \(C\)，再由式 (2) 的叠加得到 \(u=Cp\)。" loading="lazy"><figcaption class="small">从上往下看基体表面的方格网，格距是 \(h\)。中间红色那一格受单位均匀压强，其余每一格按它中心沉下去多少着色，颜色越深沉得越多；这些颜色是按式 (3) 把式 (1) 的点力解在受压格上积分实算出来的。可以看到受压格周围一圈沉得最多，越往外越浅，大约按 1/距离 衰减，远处的格子也并不是一点不动。右上那一格离受压格的距离是 \(s\)，它沉下去的量就是柔度系数 \(C_{ij}\)。把每一格都轮流当受压格算一遍，就得到整个柔度矩阵 \(C\)，再由式 (2) 的叠加得到 \(u=Cp\)。</figcaption></figure>
+
+
+
 <details><summary>推导</summary><p>第 \(j\) 格的压强 \(p_j\) 是单位压强的 \(p_j\) 倍；按式 (1) 下沉与载荷成正比，由式 (3) 的单位下沉 \(C_{ij}\)：</p>
 <p>\[u_{i\leftarrow j}=C_{ij}\,p_j\]</p>
 <p>代入式 (2) \(u_i=\sum_ju_{i\leftarrow j}\)：</p>
@@ -1129,6 +1183,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：求压强就是求 (7) 中碗形函数在 \(p\ge0\) 范围内的最低点。压得越深 → 接触格越多、压强越大，因为更多格的不穿透条件被顶住；接触区外的格压强为 0，却被相邻压强带着下陷。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_3.3_u.png" style="width:820px;max-width:100%;height:auto" alt="左边是剖面，竖直方向放大显示：灰色是刚球压头，蓝线是基体表面，灰虚线是原来的表面；下面一条是每格的压强柱。中间那几格压强大于 0，表面正好贴着压头，这是式 (6) 的「有压强必贴合」；两边的格压强为 0，表面也被相邻压强带着陷下去了，但和压头之间还留着缝，这是「不穿透」。剖面用的是刚球压半空间的 Hertz 解析解，只为示意形状。右边是正文里求解用的有效集法：先猜哪些格接触，在这些格上要求贴合、解线性方程组得到压强，把压强为负的格移出去，把穿进压头的格加进来，集合变了就再解一次，直到不再变化，这时的压强就是式 (7) 的解。" loading="lazy"><figcaption class="small">左边是剖面，竖直方向放大显示：灰色是刚球压头，蓝线是基体表面，灰虚线是原来的表面；下面一条是每格的压强柱。中间那几格压强大于 0，表面正好贴着压头，这是式 (6) 的「有压强必贴合」；两边的格压强为 0，表面也被相邻压强带着陷下去了，但和压头之间还留着缝，这是「不穿透」。剖面用的是刚球压半空间的 Hertz 解析解，只为示意形状。右边是正文里求解用的有效集法：先猜哪些格接触，在这些格上要求贴合、解线性方程组得到压强，把压强为负的格移出去，把穿进压头的格加进来，集合变了就再解一次，直到不再变化，这时的压强就是式 (7) 的解。</figcaption></figure>
 <details><summary>推导</summary><p>记目标函数：</p>
 <p>\[f(p)=\tfrac12p^TCp-p^Tw\]</p>
 <p>对 \(p_i\) 求导，用式 (4) \(u=Cp\)：</p>
@@ -1148,6 +1203,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p>结果：\(U\) 就是标签。压得越深 → 压强和下沉都更大 → 标签能量增长得比压深快，因为能量是两者之积。</p>
 
+<figure style="margin:12px 0"><img src="assets/images/core_3.3_v.png" style="width:1098px;max-width:100%;height:auto" alt="三张小图各是一格的力与下沉的关系：中心格、中间格、靠边格。线弹性下，这一格的力从 0 开始，随着下沉线性地涨到终值 \(p_ih^2\)，下沉同时涨到 \(u_i\)，所以这一格存下的能量是直线下面那块三角形的面积，即 \(\tfrac12p_ih^2u_i\)，而不是力乘位移的整块矩形，这就是式 (8) 里那个 ½ 的来历。中心格压强大、沉得也多，三角形最大，越靠边越小。把所有格的三角形加起来就是标签能量 \(U\)，写成矩阵形式就是式 (9)。三张图的取值只是示意大小关系。" loading="lazy"><figcaption class="small">三张小图各是一格的力与下沉的关系：中心格、中间格、靠边格。线弹性下，这一格的力从 0 开始，随着下沉线性地涨到终值 \(p_ih^2\)，下沉同时涨到 \(u_i\)，所以这一格存下的能量是直线下面那块三角形的面积，即 \(\tfrac12p_ih^2u_i\)，而不是力乘位移的整块矩形，这就是式 (8) 里那个 ½ 的来历。中心格压强大、沉得也多，三角形最大，越靠边越小。把所有格的三角形加起来就是标签能量 \(U\)，写成矩阵形式就是式 (9)。三张图的取值只是示意大小关系。</figcaption></figure>
 <details><summary>推导</summary><p>式 (8) 写成向量形式：</p>
 <p>\[U=\tfrac12h^2\sum_ip_iu_i=\tfrac12h^2\,p^Tu\]</p>
 <p>代入式 (4) \(u=Cp\)：</p>
