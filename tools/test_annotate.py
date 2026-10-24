@@ -262,6 +262,8 @@ def test_ipad_draw(browser, rep, out):
     page.click("#annot-undo")
     page.wait_for_timeout(200)
     rep.check("a5 橡皮擦按笔擦、撤销恢复", n_erased == 1 and len(strokes(page)) == 2, f"擦后 {n_erased} 笔，撤销后 {len(strokes(page))} 笔")
+    # 撤销恢复的笔已有删除墓碑，会换新 id（同步时墓碑优先，否则会被删掉）；几何不变，后面按新 id 测
+    ids = [s["id"] for s in strokes(page)]
 
     shot_around(page, out, "a_ipad_text.png", needle_parent_js(tgt["needle"]))
     shot_around(page, out, "a_ipad_image.png", img_js(tgt["src"]))
