@@ -265,7 +265,7 @@ html.annot-on #annot-capture { display: block; }
 <a class="toc-level-3" href="#w6-1">6.1 结构</a>
 <a class="toc-level-3" href="#w6-2">6.2 初步结果</a>
 <a class="toc-level-3" href="#w6-3">6.3 接入求解器</a>
-<a class="toc-level-2" href="#w7">7. 合作者的软–软方案</a>
+<a class="toc-level-2" href="#w7">7. Huanyu 的软–软方案</a>
 <a class="toc-level-3" href="#w7-1">7.1 他们怎么造标签</a>
 <a class="toc-level-3" href="#w7-2">7.2 他们的网络和训练</a>
 <a class="toc-level-3" href="#w7-3">7.3 他们的结果</a>
@@ -1085,8 +1085,8 @@ html.annot-on #annot-capture { display: block; }
 
 <p>libuipc 是 Genesis 底层使用的开源 GPU 版 IPC 求解库，可以挂入自定义能量项。目前挂入的是解析的 Hertz 能量，不是网络：能量和力与参考值一致，Hessian（能量的二阶导数，牛顿法要用；这里比的是 Gauss–Newton 近似）误差在 \(10^{-15}\) 量级，牛顿法 2 步收敛；在 Genesis 中用它托住一个下落的刚球，静止压深 2.015 mm，Hertz 公式 1.987 mm，差 1.4%。这说明接口可用；把网络本身接进去还未开始。</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/w3i_engine_hertz_drop.mp4" style="width:560px;max-width:100%;height:auto"></video><figcaption class="small">这段视频展示了我们自己写的接触能量项挂进 libuipc 以后，能在 Genesis 里真的托住一个物体。画面中间的灰色刚球半径 0.1 m，从离地 2 cm 的地方落下，球和蓝灰色地面之间关掉了 IPC 自带的接触，能挡住它的只有我们加进去的那一项 Hertz 能量。看第 0.8 秒球落到最低的时候，它压进地面 7.27 mm，随后被这项能量推回去，弹到离地约 8 mm 再落下；视频结束时球还在小幅弹跳，压深 2.3 mm，仿真继续跑下去会停在 2.0 mm，和用 Hertz 公式算出的静止压深一致。</figcaption></figure></section>
-<section id="w7"><h2>合作者的软–软方案</h2>
-<p>合作者走了另一条路线做同一件事：自己写求解器造软–软、软–刚标签，训练一个接触能量网络，再放进动力学和抓取任务里试。本章讲四件事：他们怎么做；结果如何；两边的数字为什么不能直接比；对我们有什么启示。</p>
+<section id="w7"><h2>Huanyu 的软–软方案</h2>
+<p>Huanyu 走了另一条路线做同一件事：自己写求解器造软–软、软–刚标签，训练一个接触能量网络，再放进动力学和抓取任务里试。本章讲四件事：他们怎么做；结果如何；两边的数字为什么不能直接比；对我们有什么启示。</p>
 <h3 id="w7-1" class="numbered">7.1 他们怎么造标签</h3>
 
 <p><strong>定义相同，固定方式不同。</strong> 他们算的也是第 1 节的 \(U_c\)，区别在「把粗状态固定住」怎么落实：</p>
@@ -1207,7 +1207,7 @@ html.annot-on #annot-capture { display: block; }
 <thead>
 <tr>
 <th></th>
-<th>合作者</th>
+<th>Huanyu</th>
 <th>我们</th>
 </tr>
 </thead>
@@ -1335,7 +1335,7 @@ html.annot-on #annot-capture { display: block; }
 </ul>
 <p><strong>公平比较的原则：</strong> 训练数据、测试协议、参考解三样固定，只换网络。最小方案两步，都不用重新造标签：</p>
 <ol>
-<li><strong>他们的网络跑我们的 64 个标签。</strong> 用我们的留一法和插值考核，3 个种子，两边都报中位数、90 分位、最大值和力误差。要先和合作者商定输入怎么映射：他们的曲率输入只能是凸的，表达不了曲面块上凹的方向；半空间的「物体尺寸」是无穷大，也要另外编码。</li>
+<li><strong>他们的网络跑我们的 64 个标签。</strong> 用我们的留一法和插值考核，3 个种子，两边都报中位数、90 分位、最大值和力误差。要先和 Huanyu 商定输入怎么映射：他们的曲率输入只能是凸的，表达不了曲面块上凹的方向；半空间的「物体尺寸」是无穷大，也要另外编码。</li>
 <li><strong>我们的网络跑他们的 P2 零预应变数据。</strong> 用他们的 5 折交叉验证，和 0.61% 同表比。仿射钉住带来的约 4% 不在我们的骨架里，要靠修正去学，这正是要测的一点。</li>
 </ol>
 <p>两个网络都很小（我们 497 个参数，他们约 9900 个），一张 GPU 几分钟到十几分钟。若要再在同一个独立裁判上比，前提是先统一标签定义（半空间还是有限大球），否则参考本身就对不上。</p>
