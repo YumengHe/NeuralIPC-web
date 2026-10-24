@@ -140,7 +140,7 @@ def display_width(name, w, h):
 def size_media(html):
     """配图按最短边定尺寸：每个 <img src="assets/images/…"> / <video src="assets/videos/…"> 加行内样式，
     显示宽度 = SHORT_SIDE × 宽 / min(宽, 高)（宽 ≤ 高时宽 = SHORT_SIDE，否则高 = SHORT_SIDE），再加 max-width: 100%、
-    height: auto，窄屏按比例缩小、不出横向滚动。同一行并排的图（draft_md 产出的 <div class="grid"><figure>…）
+    height: auto，窄屏按比例缩小、不出横向滚动；图片还加原图像素 width / height 属性，让浏览器加载前就按比例占位。同一行并排的图（draft_md 产出的 <div class="grid"><figure>…）
     改成按各自宽度换行的 flex 行，免得被网格列宽压小；<figure> 的外边距改成上下 12px、左右 0。
     只读文件头取尺寸，不改图片和视频。"""
     def add_style(m):
@@ -150,7 +150,9 @@ def size_media(html):
         else:
             p = media_file(m.group(2))
             w, h = video_size(p) if p.suffix.lower() == ".mp4" else image_size(p)
-        return m.group(1) + f' style="width:{display_width(name, w, h)}px;max-width:100%;height:auto"'
+        # 图片另写原图像素 width/height：浏览器据此在加载前按比例留出高度，懒加载的图加载完不会把下面的内容推走
+        dims = f' width="{w}" height="{h}"' if m.group(1).startswith("<img") else ""
+        return m.group(1) + dims + f' style="width:{display_width(name, w, h)}px;max-width:100%;height:auto"'
     html = re.sub(r'(<(?:img|video)\b[^>]*?\bsrc="(assets/(?:images|videos)/[^"]+)")', add_style, html)
     html = html.replace('<div class="grid"><figure>', '<div style="display:flex;flex-wrap:wrap;gap:0 18px"><figure>')
     return html.replace("<figure>", '<figure style="margin:12px 0">')   # 去掉浏览器默认的左右 40px，宽图少被压缩
