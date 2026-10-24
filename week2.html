@@ -177,7 +177,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </details>
 <p><strong>实现</strong></p>
 <p>Drake 与 Genesis 取 \(\epsilon\) = 到表面距离 ÷ 物体内最大距离，因此</p>
-<p>\[p=\frac{E_h}{D}\times\text{深度}\]</p>
+<p>\[\color{#c0392b}{p=\frac{E_h}{D}\times\text{深度}}\]</p>
 <ul>
 <li>\(E_h\)：压力场模量（Pa），人工设定。Genesis 中刚体共用 \(H\)（默认 \(10^8\) Pa），FEM 软体按材料设置（默认 \(10^7\) Pa）</li>
 <li>\(D\)：物体内到表面的最大距离；\(E_h/D\) 为压强梯度（Pa/m）</li>
@@ -191,8 +191,11 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>论文的验证结果</strong></p>
 <p>与 FEM 对比：整面贴合接触时力一致；点状接触时偏小 23%，作者归因于忽略泊松效应。</p>
 <ul>
-<li><strong>泊松比</strong> \(\nu=-\varepsilon_{\text{侧}}/\varepsilon_{\text{轴}}\)：单轴压缩时侧向膨胀应变与轴向压缩应变之比，\(0\le\nu\le0.5\)，\(\nu=0.5\) 时体积不变</li>
-<li><strong>泊松效应</strong>：材料受压时向侧面膨胀，膨胀被周围材料约束会产生额外应力，因此一点的应力取决于周围材料。hydro 每点独立计算，没有这一项</li>
+<li><strong>泊松比</strong> \(\nu\)：单轴压缩时侧向膨胀应变 \(\varepsilon_{\text{侧}}\) 与轴向压缩应变 \(\varepsilon_{\text{轴}}\) 之比，取值在 0 到 0.5 之间，等于 0.5 时体积不变</li>
+<li>
+<p><strong>泊松效应</strong>：材料受压时向侧面膨胀，膨胀被周围材料约束会产生额外应力，因此一点的应力取决于周围材料。hydro 每点独立计算，没有这一项</p>
+<p>\[\color{#c0392b}{\nu=-\frac{\varepsilon_{\text{侧}}}{\varepsilon_{\text{轴}}}}\]</p>
+</li>
 </ul>
 <p class="kp">结论（假设一）：hydro 每点压强只取决于该点穿入深度。论文自身结果已显示该假设在点状接触时有偏差。</p>
 
@@ -287,11 +290,18 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <ul>
 <li>Drake：刚体侧梯度取无穷大</li>
 <li>Genesis 刚体–刚体：两侧真实梯度串联，与论文一致</li>
-<li>Genesis 刚体–地面：地面不带压力场，\(g\) 取刚体真实梯度 \(H/D\)，自洽</li>
-<li>Genesis 刚体–FEM 软体：刚体一侧的梯度直接取全局刚度 \(H\)（单位 Pa，按 Pa/m 使用），不随刚体尺寸 \(D\) 变化，与 FEM 侧真实梯度串联得 \(g\)；\(k=gA_0\)、\(\phi_0=-p_{c,0}/g\) 用同一个 \(g\)。把第 3 步 \(p_c=p_{c,0}-g\,\delta t\,v_n\) 代入第 4 步 \(f_n=A_0\,p_c\)，得 \(f_n=A_0\,p_{c,0}-A_0\,g\,\delta t\,v_n\)：静止时 \(v_n=0\)，力 \(A_0p_{c,0}\) 与 \(H\) 无关，\(H\) 只影响一步内力随速度的变化</li>
-<li>Genesis FEM–FEM：穿入量按两侧真实梯度算，\(\phi_0=-p_{c,0}/g_A-p_{c,0}/g_B\)，刚度却取 \(k=A_0H\)。静止力 \(k(-\phi_0)=A_0H\,p_{c,0}\big(\tfrac1{g_A}+\tfrac1{g_B}\big)\) 随 \(H\) 变化，且单位为 Pa·m²·m，不是力，量纲不一致。由 1.2 第 2 步 \(\tfrac1{g_A}+\tfrac1{g_B}=\tfrac1g\)，论文的静止力为 \(gA_0\cdot\dfrac{p_{c,0}}{g}=A_0p_{c,0}\)；Genesis 把 \(k\) 中的 \(g\) 换成了 \(H\)，静止力变为论文值的 \(H/g\) 倍。该接触对未做单独实验验证</li>
+<li>Genesis 刚体–地面：地面不带压力场，合成梯度取刚体的真实梯度，即全局刚度 \(H\) 除以刚体尺寸 \(D\)，自洽</li>
+<li>
+<p>Genesis 刚体–FEM 软体：刚体一侧的梯度直接取全局刚度 \(H\)（单位 Pa，按 Pa/m 使用），不随刚体尺寸 \(D\) 变化，与 FEM 侧真实梯度串联得合成梯度 \(g\)；弹簧刚度 \(k\) 和步首有符号距离 \(\phi_0\) 用同一个 \(g\)。把式 (11) \(p_c=p_{c,0}-g\,\delta t\,v_n\) 代入式 (4) \(f_n=A\,p_c\)，面积取步首值 \(A_0\)，得到下式。静止时法向速度 \(v_n=0\)，力只剩 \(A_0\) 乘 \(p_{c,0}\)，与 \(H\) 无关；\(H\) 只影响一步内力随速度的变化</p>
+<p>\[\color{#c0392b}{f_n=A_0\,p_{c,0}-A_0\,g\,\delta t\,v_n}\]</p>
+</li>
+<li>
+<p>Genesis FEM–FEM：穿入量按两侧真实梯度 \(g_A\)、\(g_B\) 算，刚度却取全局刚度 \(H\) 乘面积 \(A_0\)，见下面第一式。这样算出的静止力见第二式，它随 \(H\) 变化，而且单位是 Pa·m²·m，不是力，量纲不一致。论文的静止力按式 (9)(14) 是 \(A_0\) 乘 \(p_{c,0}\)；Genesis 把刚度里的 \(g\) 换成了 \(H\)，静止力变为论文值的 \(H/g\) 倍。该接触对未做单独实验验证</p>
+<p>\[\color{#c0392b}{\phi_0=-\frac{p_{c,0}}{g_A}-\frac{p_{c,0}}{g_B},\qquad k=A_0H}\]</p>
+<p>\[\color{#c0392b}{k(-\phi_0)=A_0H\,p_{c,0}\Big(\frac1{g_A}+\frac1{g_B}\Big)=\frac{H}{g}\,A_0\,p_{c,0}}\]</p>
+</li>
 </ul>
-<p class="kp">结论（假设二）：每块接触多边形为一根独立弹簧，刚度 \(k=gA_0\) 只由该块面积和压强梯度决定，相邻接触区互不影响。</p>
+<p class="kp">结论（假设二）：每块接触多边形为一根独立弹簧，刚度只由该块面积和压强梯度决定（式 (14)），相邻接触区互不影响。</p>
 
 <h3 class="numbered">1.3 Castro et al. 2023：SAP 求解器</h3>
 
@@ -378,7 +388,13 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><em>这张图说明：刚球压进弹性垫子时，真正贴住球的区域比两者几何重叠的区域窄。横轴是离接触中心的水平距离，竖直方向放大显示。红线是球面，蓝线是垫子变形后的表面，米色是垫子，灰色虚线是垫子原来的表面；球底比原表面低出压深 \(\delta\)。中间粉色带是真实接触区 \(|r|\le a=\sqrt{R\delta}\)：带内蓝线贴着红线，垫子跟着球面凹下去。到粉色带边缘，垫子已经下陷 \(\delta/2\)，并不是回到原表面才和球分开。再往外，球面要到右侧点线 \(r=\sqrt{2R\delta}\)（几何重叠的边缘）才升回原表面，但这一段蓝线在红线下方，两者之间是缝隙：垫子被接触区带着下陷，却没有碰到球。所以按几何重叠估的接触半径比真实的宽。</em></p>
 <details><summary>推导：Hertz 接触（球面形状 → 接触半径 → 合力 → 弹性能 → 刚度）</summary>
 
-<p>以下推导刚球（半径 \(R\)）压弹性半空间（杨氏模量 \(E\)、泊松比 \(\nu\)，即侧向膨胀应变 ÷ 轴向压缩应变）。两个物体都可变形时，两者的下沉相加，结论只需把 \(E^*\)、\(R\) 换成 \(\dfrac{1}{E^*}=\dfrac{1-\nu_1^2}{E_1}+\dfrac{1-\nu_2^2}{E_2}\)、\(\dfrac1R=\dfrac1{R_1}+\dfrac1{R_2}\)。</p>
+<p>以下推导刚球（半径 \(R\)）压弹性半空间（杨氏模量 \(E\)、泊松比 \(\nu\)，即侧向膨胀应变 ÷ 轴向压缩应变）。两个物体都可变形时，两者的下沉相加，结论只需把有效模量 \(E^*\) 和半径 \(R\) 换成下面的合成值，下标 1、2 表示两个物体。</p>
+
+
+
+<p>\[\color{#c0392b}{\frac{1}{E^*}=\frac{1-\nu_1^2}{E_1}+\frac{1-\nu_2^2}{E_2},\qquad \frac1R=\frac1{R_1}+\frac1{R_2}}\]</p>
+
+
 
 <p><b>① 球面形状</b></p>
 
@@ -522,19 +538,19 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>适用范围</strong></p>
 <ul>
 <li>线弹性（应力与应变成正比，变形很小）</li>
-<li>\(a\ll R\)</li>
+<li>接触半径 \(a\) 远小于球半径 \(R\)</li>
 <li>厚块：基体远大于接触区，可按半空间（表面为平面、向下无限延伸的弹性体）处理</li>
 <li>光滑曲面、无摩擦、准静态（只求平衡状态，忽略惯性）</li>
 </ul>
 <p>平底压头、多接触区、薄层超出此范围，需使用其他解析解。</p>
-<p class="kp">结论：\(F\propto\sqrt R\,\delta^{3/2}\)，刚度 ∝ 接触半径。在光滑曲面压厚块的情况下作为裁判。</p></section>
+<p class="kp">结论：力随球半径的平方根、压深的 1.5 次方增长（式 (12)），刚度与接触半径成正比（式 (16)）。在光滑曲面压厚块的情况下作为裁判。</p></section>
 <section id="w2"><h2>文献：神经网络接触模型</h2>
 <p>本节回答三个问题：同类方法学什么、数据从哪来、与本项目的关系。用于说明本项目选择学习能量的理由、可借鉴的做法，以及标签需要自行生成。</p>
 <p><strong>共同背景</strong>：子空间模型用少量控制量（把手，handle）通过插值驱动全网格，求解快，但做不出局部接触凹陷。三篇 Romero 都在子空间模型上补回接触凹陷，标签构造相同：固定把手 → 求全网格的平衡解 → 减去子空间形状 → 差值为标签。</p>
 <h3 class="numbered">2.1 Romero et al. 2021：Handle-Based Subspace Contact Corrections</h3>
 
 <p><strong>学什么</strong>：全网格位移修正</p>
-<p>\[\mathbf{x} = \mathbf{U}\mathbf{q} + \mathbf{F}\left[\mathbf{r}_{\text{int}}(\mathbf{q}) + \mathbf{r}_{\text{ext}}(\text{碰撞体相对把手的位姿})\right]\]</p>
+<p>\[\color{#c0392b}{\mathbf{x} = \mathbf{U}\mathbf{q} + \mathbf{F}\left[\mathbf{r}_{\text{int}}(\mathbf{q}) + \mathbf{r}_{\text{ext}}(\text{碰撞体相对把手的位姿})\right]}\]</p>
 <p>\(\mathbf U\mathbf q\)：把手插值形状；\(\mathbf r_{\text{int}}\)：无接触时的插值误差；\(\mathbf r_{\text{ext}}\)：碰撞体压出的凹坑；\(\mathbf F\)：把修正从静止姿态转到当前姿态。</p>
 <p><strong>输入 → 输出</strong>：两个网络，各自独立</p>
 <div class="tablewrap"><table>
@@ -612,8 +628,13 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>为什么用相对位姿</strong>：凹坑形状只由碰撞体相对物体在哪、怎么转决定。物体和碰撞体在世界中一起平移或旋转时，\(\mathbf A(\mathbf q)^{-1}\mathbf z\) 不变，凹坑也不变；直接输入 \(\mathbf z\) 则网络要在每个世界位置重新学同一个凹坑。<strong>输入相对位姿，网络只需学碰撞体相对物体的那部分变化。</strong></p>
 <ul>
 <li><strong>PCA</strong>：从训练数据中所有修正位移里提取最主要的若干个变形模式（PCA 基，每个模式是一个"全网格位移场"）。任意修正 ≈ 各模式按系数加权求和，所以网络只输出系数</li>
-<li>两个输出解码后相加，代入 \(\mathbf x=\mathbf U\mathbf q+\mathbf F(\mathbf r_{\text{int}}+\mathbf r_{\text{ext}})\) 得到全网格位置</li>
-<li>速度：仿真时只对 \(\mathbf q\) 求解，比全空间 FEM 快 5–9 倍</li>
+<li>
+<p>两个输出解码后相加，代入「学什么」里的位移公式，得到全网格位置：</p>
+<p>\[\color{#c0392b}{\mathbf x=\mathbf U\mathbf q+\mathbf F(\mathbf r_{\text{int}}+\mathbf r_{\text{ext}})}\]</p>
+</li>
+<li>
+<p>速度：仿真时只对 \(\mathbf q\) 求解，比全空间 FEM 快 5–9 倍</p>
+</li>
 </ul>
 <p><strong>数据</strong>：在子空间中录制碰撞体以不同深度扫过表面，再用精细 FEM（Neo-Hookean 大变形材料，1–1.7 万四面体）重放并取差。每个物体–碰撞体组合单独生成。仅公开果冻–星形数据，无生成代码。</p>
 <p><strong>和我们的关系</strong>：学位移，没有可求导的能量；每个组合单独训练。</p>
@@ -758,7 +779,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </tr>
 </tbody>
 </table></div>
-<p><strong>参考位置</strong>：每个物体有一份固定的参考网格（物体在参考姿态下的顶点坐标 \(\mathbf x_{\text{ref}}\)）。刚体任一时刻的顶点位置都是参考网格整体旋转 \(\mathbf R\)、平移 \(\mathbf t\) 的结果：\(\mathbf x_t=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t\)。所以 \(\mathbf x_t-\mathbf x_{\text{ref}}\) 是该顶点相对参考姿态移动了多少，反映物体当前的姿态。</p>
+<p><strong>参考位置</strong>：每个物体有一份固定的参考网格（物体在参考姿态下的顶点坐标 \(\mathbf x_{\text{ref}}\)）。刚体任一时刻的顶点位置 \(\mathbf x_t\) 都是参考网格整体旋转 \(\mathbf R\)、平移 \(\mathbf t\) 的结果，见下式。所以顶点当前位置与参考位置之差，就是该顶点相对参考姿态移动了多少，反映物体当前的姿态。</p>
+<p>\[\color{#c0392b}{\mathbf x_t=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t}\]</p>
 <p><strong>锚点</strong>：每个物体从顶点中选 4 个点作为锚点，用最远点采样选取：先任取一个顶点，之后每次选离已选点最远的顶点，直到选够 4 个，使锚点在物体上尽量分散。刚体有 6 个自由度，3 个不共线的点即可确定其姿态；论文对比 3、4、8 个锚点，4 个的位置误差最小。</p>
 <p><strong>由锚点加速度得到物体运动</strong>：</p>
 <details><summary>推导：由锚点加速度得到物体运动（Verlet → Kabsch → 全体顶点）</summary>
@@ -959,14 +981,18 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <section id="w3"><h2>原代码：碰撞能量 U_c</h2>
 <h3 class="numbered">3.1 思路</h3>
 
-<p>\[U_c(z)=\min_w \Pi(\Phi z+\Psi w)-\Pi(\Phi z)\]</p>
+<p>\[\color{#c0392b}{U_c(z)=\min_w \Pi(\Phi z+\Psi w)-\Pi(\Phi z)}\]</p>
 <ol>
 <li>\(z\)：粗自由度；\(\Phi z\)：粗模型形状，与对方重叠</li>
 <li>\(\Psi w\)：接触区附近的局部修正变形（\(\Psi\) 为局部变形基，\(w\) 为系数）</li>
 <li>固定 \(z\)，在不穿透约束下求 \(w\) 使总势能 \(\Pi\)（弹性能 + 重力势能）最小</li>
-<li>\(U_c\) 为该局部变形引起的能量增量，作为势垒加入粗模型：粗模型不强制不穿透，穿透越深 \(U_c\) 越大。势能对坐标的负梯度即力，所以接触力 \(=-\partial U_c/\partial z\)</li>
+<li>
+<p>\(U_c\) 为该局部变形引起的能量增量，作为势垒加入粗模型：粗模型不强制不穿透，穿透越深 \(U_c\) 越大。势能对坐标的负梯度即力，所以接触力为</p>
+<p>\[\color{#c0392b}{F=-\frac{\partial U_c}{\partial z}}\]</p>
+</li>
 </ol>
-<p>光滑球压厚块时 \(U_c\) 即 Hertz 弹性能 \(U_{\text{Hertz}}=\dfrac{8}{15}E^*R^{1/2}\delta^{5/2}\)（1.4 第 6 步）。网络学习一般形状下的 \(U_c\)。</p>
+<p>光滑球压厚块时 \(U_c\) 即 Hertz 弹性能（1.4 ⑤），网络学习一般形状下的 \(U_c\)：</p>
+<p>\[\color{#c0392b}{U_{\text{Hertz}}=\frac{8}{15}E^*R^{1/2}\delta^{5/2}}\]</p>
 <p><strong>设计考虑</strong></p>
 <ul>
 <li><strong>重力不进入 \(U_c\)</strong>：</li>
@@ -1028,36 +1054,37 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </details>
 <ul>
 <li><strong>底部固定的物体也不例外</strong>：真实物体一端固定，它的粗模型代理并不需要固定那一端。代理允许穿透，完整代表精细解里的仿射变化（包括压缩后质心的整体下移），只是不含局部变形。所以粗状态仍取精细解按节点质量加权的拟合，局部修正不移动质心，重力项同样为 0</li>
-<li><strong>\(U_c\) 与粗模型绑定</strong>：粗模型自身能表示的变形越多，剩给 \(U_c\) 的越少。刚体粗模型不存弹性能，全部变形能都在 \(U_c\) 中；仿射体粗模型可整体均匀压缩，这部分由粗模型自身承担。由上一条，重力项为 0，\(U_c\) 只剩弹性能之差：\(U_c^{\text{仿射}}=E_{\text{总}}-\psi(\bar{\mathbf F})V_0\)（\(E_{\text{总}}\)：精细解的总弹性能；\(\bar{\mathbf F}\)：全物体平均变形梯度，即变形后对变形前位置的导数的体积平均；\(\psi\)：单位体积弹性能；\(V_0\)：体积）。为刚体训练的 \(U_c\) 直接用于仿射体，会把整体压缩能量重复计算</li>
+<li>
+<p><strong>\(U_c\) 与粗模型绑定</strong>：粗模型自身能表示的变形越多，剩给 \(U_c\) 的越少。刚体粗模型不存弹性能，全部变形能都在 \(U_c\) 中；仿射体粗模型可整体均匀压缩，这部分由粗模型自身承担。由上一条，重力项为 0，\(U_c\) 只剩弹性能之差，见下式；其中 \(E_{\text{总}}\) 是精细解的总弹性能，\(\bar{\mathbf F}\) 是全物体平均变形梯度，即变形后对变形前位置的导数的体积平均，\(\psi\) 是单位体积弹性能，\(V_0\) 是体积。为刚体训练的 \(U_c\) 直接用于仿射体，会把整体压缩能量重复计算</p>
+<p>\[\color{#c0392b}{U_c^{\text{仿射}}=E_{\text{总}}-\psi(\bar{\mathbf F})\,V_0}\]</p>
+</li>
 </ul>
 <h3 class="numbered">3.2 训练数据</h3>
 
-<p>刚性压头压弹性<strong>半空间</strong>（表面为平面、向下无限延伸的弹性体），\(E^*=1\)（等效模量 \(E^*=E/(1-\nu^2)\) 取 1，即无量纲化）。</p>
-<p><strong>压头形状</strong>（基体原表面为 \(z=0\)，压头在曲面上方）：</p>
-<p>\[z_{\text{压头}}(x,y)=a_h+\min_k z_k(x,y)+t_y\,x-t_x\,y\]</p>
+<p>刚性压头压弹性<strong>半空间</strong>（表面为平面、向下无限延伸的弹性体），等效模量取 1，即无量纲化；\(E\) 是杨氏模量，\(\nu\) 是泊松比：</p>
+<p>\[\color{#c0392b}{E^*=\frac{E}{1-\nu^2}=1}\]</p>
+<p><strong>压头形状</strong>（基体原表面为高度 0 的平面，压头在曲面上方）：</p>
+<p>\[\color{#c0392b}{z_{\text{压头}}(x,y)=a_h+\min_k z_k(x,y)+t_y\,x-t_x\,y}\]</p>
 <ul>
-<li>\(z_k\)：第 \(k\) 个凸起（每个样本 1–3 个），中心 \(\mathbf c_k\) 在 \([-0.1,0.1]^2\) 内随机、两两间距 ≥ 0.08。多个凸起取 \(\min\)，即哪个更低用哪个</li>
+<li>\(z_k\)：第 \(k\) 个凸起（每个样本 1–3 个），中心 \(\mathbf c_k\) 在边长 0.2 的正方形内随机、两两间距不小于 0.08。多个凸起取最小值，即哪个更低用哪个</li>
 <li>
 <p>每个凸起的表面高度 \(z_k\) 由两部分相加：</p>
 <ol>
+<li><strong>抛物面</strong>（凸起主体）。由 1.4，球面在离最低点水平距离 \(r\) 处比最低点高出的量写成曲率 \(\kappa\)（半径的倒数）的形式，最低点放在 \(\mathbf c=(c_x,c_y)\)；x、y 两个方向用不同曲率 \(\kappa_x\)、\(\kappa_y\)，取值在 0.5 到 3 之间。沿 x 方向截面是曲率 \(\kappa_x\) 的抛物线，沿 y 方向截面曲率为 \(\kappa_y\)；两者不等时俯视等高线是椭圆而非圆</li>
 <li>
-<p><strong>抛物面</strong>（凸起主体）。由 1.4，球面在离最低点水平距离 \(r\) 处比最低点高 \(\dfrac{r^2}{2R}=\tfrac12\kappa r^2\)（\(\kappa=1/R\)：曲率）。最低点放在 \(\mathbf c=(c_x,c_y)\)，\(r^2=(x-c_x)^2+(y-c_y)^2\)，得 \(\tfrac12\kappa\big((x-c_x)^2+(y-c_y)^2\big)\)。x、y 两个方向用不同曲率：</p>
-<p>\[\tfrac12\big(\kappa_x(x-c_x)^2+\kappa_y(y-c_y)^2\big)\]</p>
-<p>沿 x 方向（\(y=c_y\)）截面是曲率 \(\kappa_x\) 的抛物线，沿 y 方向（\(x=c_x\)）截面曲率为 \(\kappa_y\)；\(\kappa_x\ne\kappa_y\) 时俯视等高线是椭圆而非圆。\(\kappa_x,\kappa_y\in[0.5,3]\)</p>
-</li>
-<li>
-<p><strong>高斯项</strong>（凹坑，2–3 个，叠加在抛物面上）：</p>
-<p>\[A\exp\!\Big(-\frac{|\mathbf x-\mathbf x_0|^2}{2s^2}\Big)\]</p>
-<p>在 \(\mathbf x_0\) 处高度为 \(A\)；离 \(\mathbf x_0\) 距离 \(s\) 处降为 \(A e^{-1/2}\approx0.61A\)，距离 \(3s\) 外接近 0。即高度在 \(\mathbf x_0\) 附近、宽约 \(s\) 的范围内局部增大。\(A\in[0.004,0.012]\)，\(s\in[0.015,0.03]\)，\(\mathbf x_0\) 离凸起中心 0.01–0.05
-压头在曲面上方、朝下压，高度增大即该处压头表面抬高、离基体更远（相对压头本身是一个凹坑），此处接触变浅或脱开</p>
+<p><strong>高斯项</strong>（凹坑，2–3 个，叠加在抛物面上）：\(\mathbf x_0\) 是凹坑中心，\(A\) 是高度，\(s\) 是宽度。在 \(\mathbf x_0\) 处高度为 \(A\)；离 \(\mathbf x_0\) 距离 \(s\) 处降为 \(A\) 的 0.61 倍，距离 \(3s\) 外接近 0，即高度在 \(\mathbf x_0\) 附近、宽约 \(s\) 的范围内局部增大。\(A\) 取 0.004–0.012，\(s\) 取 0.015–0.03，\(\mathbf x_0\) 离凸起中心 0.01–0.05。压头在曲面上方、朝下压，高度增大即该处压头表面抬高、离基体更远（相对压头本身是一个凹坑），此处接触变浅或脱开</p>
+<p>\[\color{#c0392b}{\frac{r^2}{2R}=\tfrac12\kappa r^2,\qquad z_{\text{抛物}}=\tfrac12\big(\kappa_x(x-c_x)^2+\kappa_y(y-c_y)^2\big),\qquad z_{\text{高斯}}=A\exp\!\Big(-\frac{|\mathbf x-\mathbf x_0|^2}{2s^2}\Big)}\]</p>
 </li>
 </ol>
 </li>
 <li>
-<p>两部分相加后，凸起不再是一个球面：Hertz 只需一个 \(R\)，这里需要 \(\kappa_x\)、\(\kappa_y\) 和每个高斯项的位置、高度、宽度。所以网络以高度图而不是单个曲率描述形状</p>
+<p>两部分相加后，凸起不再是一个球面：Hertz 只需一个半径，这里需要 \(\kappa_x\)、\(\kappa_y\) 和每个高斯项的位置、高度、宽度。所以网络以高度图而不是单个曲率描述形状</p>
 </li>
-<li>\(t_x,t_y\in[-0.02,0.02]\) rad：压头绕 \(x\) 轴、\(y\) 轴的小倾角。绕 \(y\) 轴转 \(t_y\) 时，\(x\) 处表面升高 \(x\sin t_y\approx t_y x\)；绕 \(x\) 轴转 \(t_x\) 时，\(y\) 处升高 \(-t_x y\)</li>
-<li>\(a_h\)：压头整体高度。先求刚接触时的高度 \(m=\min(\min_k z_k+t_yx-t_xy)\)，再取 \(a_h=-m-d\)，使全场最深穿透恰为 \(d\)</li>
+<li>\(t_x\)、\(t_y\)：压头绕 x 轴、y 轴的小倾角，范围 ±0.02 rad。倾角很小时，转动引起的表面升高近似与坐标成正比，见下式第一项</li>
+<li>
+<p>\(a_h\)：压头整体高度。先求刚接触时的高度 \(m\)，再取下式，使全场最深穿透恰为 \(d\)</p>
+<p>\[\color{#c0392b}{x\sin t_y\approx t_y\,x,\qquad m=\min\big(\min_k z_k+t_yx-t_xy\big),\qquad a_h=-m-d}\]</p>
+</li>
 </ul>
 <p><strong>压深扫描</strong>：同一形状取 \(d=0.003、0.006、0.009、0.012\) 四个压深，各算一个标签。同一形状只有一个压深时，网络无法分辨能量变化来自形状还是压深，会记住样本；扫描压深使网络看到每个形状的能量–压深曲线。</p>
 <p><strong>划分</strong>：520 组形状 × 4 个压深 = 2080 个样本；按形状留出 1/4 测试，测试形状未在训练中出现。</p>
@@ -1147,19 +1174,26 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <li>只用该凸起自身的曲面 \(z_k\)（含其高斯项，不含相邻凸起、\(a_h\)、倾斜），减去窗口内最小值</li>
 </ol>
 <p>高度图描述局部形状，压深单独输入。</p>
-<p><strong>倾斜</strong>：小角度线性化（\(\sin\theta\approx\theta\)），只取法向高度变化，记倾斜项 \(t_y x-t_x y\)，水平位移为二阶小量。压在平面上时，6 个刚体自由度中只有竖直平移与两轴倾斜影响间隙。</p>
-<p><strong>压深</strong>：\(\delta_k=-\min_{\text{窗口}}\big(a_h+z_k+t_y x-t_x y\big)\)。\(z_k\) 是第 \(k\) 个凸起自身的形状；\(a_h\) 与 \(t_yx-t_xy\) 是整个压头的竖直位置与倾斜，所有凸起共用（倾角 \(t_x,t_y\) 全压头相同；倾斜引起的高度变化 \(t_yx-t_xy\) 随位置变化，离转轴越远升降越多，\(x,y\) 为全局坐标）。括号内即该凸起表面的实际高度，在第 \(k\) 个窗口的 20×20 点上取最小再取负，即该凸起最深点的穿透量；\(\delta_k\le0\) 表示未接触，该区不计入。</p>
-<p><strong>取 \(\log\delta\)</strong>：接触能随压深的变化通常接近<strong>幂律</strong> \(U=c\,\delta^{p}\)：能量正比于压深的 \(p\) 次方，\(c\)、\(p\) 由形状决定。Hertz 球即 \(c=\tfrac{8}{15}E^*R^{1/2}\)、\(p=\tfrac52\)（1.4 第 6 步）。两边取对数得 \(\log U=\log c+p\log\delta\)，是 \(\log\delta\) 的线性函数，所以输入 \(\log\delta\) 便于网络表示；\(\delta\) 量级跨 \(10^{-3}\)–\(10^{-2}\)，取对数后数值范围也更均匀。</p>
-<p><strong>曲率</strong>：耦合项另需每区一个标量曲率 \(\kappa_k=\sqrt{\kappa_x\kappa_y}\)，取自生成器。</p>
+<p><strong>倾斜</strong>：小角度线性化，只取法向高度变化，记为倾斜项，水平位移为二阶小量。压在平面上时，6 个刚体自由度中只有竖直平移与两轴倾斜影响间隙。\(\theta\) 是转角，\(t_x\)、\(t_y\) 是绕 x、y 轴的倾角：</p>
+<p>\[\color{#c0392b}{\sin\theta\approx\theta,\qquad \text{倾斜项}=t_y\,x-t_x\,y}\]</p>
+<p><strong>压深</strong>：见下式。\(z_k\) 是第 \(k\) 个凸起自身的形状；\(a_h\) 与倾斜项是整个压头的竖直位置与倾斜，所有凸起共用：倾角全压头相同，倾斜引起的高度变化随位置变化，离转轴越远升降越多，\(x\)、\(y\) 为全局坐标。括号内即该凸起表面的实际高度，在第 \(k\) 个窗口的 20×20 点上取最小再取负，即该凸起最深点的穿透量；压深不为正表示未接触，该区不计入。</p>
+<p>\[\color{#c0392b}{\delta_k=-\min_{\text{窗口}}\big(a_h+z_k+t_y x-t_x y\big)}\]</p>
+<p><strong>取 \(\log\delta\)</strong>：接触能随压深的变化通常接近<strong>幂律</strong>：能量正比于压深的 \(p\) 次方，系数 \(c\) 和幂次 \(p\) 由形状决定；Hertz 球的 \(c\)、\(p\) 见 1.4 ⑤。两边取对数，能量的对数是 \(\log\delta\) 的线性函数，所以输入 \(\log\delta\) 便于网络表示；\(\delta\) 量级跨 \(10^{-3}\)–\(10^{-2}\)，取对数后数值范围也更均匀。</p>
+<p>\[\color{#c0392b}{U=c\,\delta^{p},\qquad \log U=\log c+p\log\delta,\qquad \text{Hertz：}\ c=\tfrac{8}{15}E^*R^{1/2},\ p=\tfrac52}\]</p>
+<p><strong>曲率</strong>：耦合项另需每区一个标量曲率 \(\kappa_k\)，取两个方向曲率的几何平均，取自生成器：</p>
+<p>\[\color{#c0392b}{\kappa_k=\sqrt{\kappa_x\kappa_y}}\]</p>
 <h3 class="numbered">3.5 网络</h3>
 
-<p>\[U_c=\sum_k U_k+\sum_{i&lt;j}U_{ij}\]</p>
+<p>\[\color{#c0392b}{U_c=\sum_k U_k+\sum_{i&lt;j}U_{ij}}\]</p>
 <p>每个接触区一个单区能量 \(U_k\)，每对接触区一个耦合项 \(U_{ij}\)。</p>
 <p><strong>单区能量</strong></p>
 <ol>
 <li>高度图 → 卷积（3×3 滤波器，1→8 通道）→ 卷积（8→16 通道）→ 平均池化到 4×4 → 展平 16×4×4=256 → 全连接 256→32→16 → 16 维特征</li>
 <li>[16 维特征, \(\log\delta_k\)] → 全连接 17→64→64→1，输出记为 \(g\)</li>
-<li>\(U_k=\delta_k^2\exp(g)\)</li>
+<li>
+<p>单区能量由穿透深度 \(\delta_k\) 和 \(g\) 合成：</p>
+<p>\[\color{#c0392b}{U_k=\delta_k^2\exp(g)}\]</p>
+</li>
 </ol>
 <details><summary>推导：\(\delta^2\exp(g)\) 的性质</summary>
 
@@ -1224,8 +1258,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>不固定指数的理由：若把能量固定为 \(c\,\delta^p\)，网络只输出 \(c\)、\(p\)，在同样数据上会记住训练样本、测试误差高。</p>
 </details>
 <p><strong>区间耦合</strong></p>
-<p>多个接触区压在同一块基体上时，一个区把基体压下去，另一个区周围的表面也跟着下沉，于是另一个区需要压得少一些、存的能量也少一些。所以总能量小于各区单独能量之和 \(\sum_kU_k\)。\(U_{ij}\) 是对每一对接触区的负修正：</p>
-<p>\[U_{ij}=-\mathrm{softplus}\big(\mathrm{NN}(\delta_i,\delta_j,\kappa_i,\kappa_j)\big)\cdot\sqrt{U_iU_j}\cdot\frac{L}{r_{ij}}\]</p>
+<p>多个接触区压在同一块基体上时，一个区把基体压下去，另一个区周围的表面也跟着下沉，于是另一个区需要压得少一些、存的能量也少一些。所以总能量小于各区单独能量之和。\(U_{ij}\) 是对每一对接触区的负修正，\(\delta_i\)、\(\kappa_i\) 是第 \(i\) 区的穿透深度和曲率，\(L\) 是一个可训练的长度：</p>
+<p>\[\color{#c0392b}{U_{ij}=-\mathrm{softplus}\big(\mathrm{NN}(\delta_i,\delta_j,\kappa_i,\kappa_j)\big)\cdot\sqrt{U_iU_j}\cdot\frac{L}{r_{ij}}}\]</p>
 <p>NN：全连接 4→32→1，输出一个数。\(r_{ij}\)：两区中心距离。仅当两区均接触时加入。修正量的大小 = 正系数 × 能量量级 × 距离衰减，各项作用：</p>
 <div class="tablewrap"><table>
 <thead>
@@ -1253,15 +1287,16 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </tr>
 </tbody>
 </table></div>
-<p>\(r\) 不作为网络输入，而以 \(1/r\) 固定在网络外，使训练范围以外的间距仍按 \(1/r\) 衰减。依据：由 Boussinesq 点力解（1.4），半空间表面一点受力 \(P\)，距离 \(r\) 处表面下沉 \(\dfrac{P}{\pi E^*r}\propto\dfrac1r\)。衰减系数取决于接触区尺寸，接触区尺寸由 \(\delta,\kappa\) 决定（Hertz：\(a^2=R\delta\)，\(R=1/\kappa\)，得 \(a=\sqrt{\delta/\kappa}\)），所以网络输入 \(\delta,\kappa\)。</p>
+<p>\(r\) 不作为网络输入，而以 \(1/r\) 的形式固定在网络外，使训练范围以外的间距仍按 1/距离 衰减。依据是 Boussinesq 点力解（1.4）：半空间表面一点受力 \(P\)，距离 \(r\) 处表面下沉与距离成反比，见下面第一式。衰减系数取决于接触区尺寸，而由 Hertz 解，接触区尺寸由穿透深度和曲率决定，见第二式，所以网络输入 \(\delta\)、\(\kappa\)。</p>
+<p>\[\color{#c0392b}{u(r)=\frac{P}{\pi E^*r}\propto\frac1r,\qquad a^2=R\delta,\ R=\frac1\kappa\ \Rightarrow\ a=\sqrt{\delta/\kappa}}\]</p>
 <p><strong>训练</strong>：单区网络与耦合网络一起训练。损失为相对误差平方的均值 \(\big((U_{\text{pred}}-U)/U\big)^2\)，只拟合能量；力由<strong>自动求导</strong>（框架按计算图自动求梯度）得到。Adam 优化，学习率 \(2\times10^{-3}\)，3000 步。</p>
 <h3 class="numbered">3.6 缺陷</h3>
 
 <p>当前阶段在半空间合成数据上拟合能量，以下为这一阶段的问题。</p>
 <ul>
 <li><strong>接触区被计算域截断</strong>：BEM 网格只覆盖 \(r\le0.18\) 的圆盘（3.3），圆盘外压头虽穿入基体，却没有网格格子，既不施加不穿透条件也不计能量。生成时未剔除这类样本：2080 个训练样本中 56% 有接触格落在圆盘最外一圈（压深 0.003 时 28%，0.012 时 77%）。与把圆盘扩到 \(r\le0.32\) 重算比（前 240 个样本），被截断样本的标签能量偏低，中位数 0.6%，10% 的样本偏低超过 8.8%，最多 28.5%。而网络输入的窗口（凸起中心 ±0.05）可伸出圆盘，网络看到的形状与标签所用的不一致</li>
-<li><strong>曲率来自生成器</strong>：耦合项的 \(\kappa\) 是生成时的真值，且各向异性形状被压成一个标量 \(\sqrt{\kappa_x\kappa_y}\)；换成从高度图提取后效果未知</li>
-<li><strong>倾斜不进高度图</strong>：高度图只用 \(z_k\)（凸起未倾斜时的形状），实际表面是 \(a_h+z_k+t_yx-t_xy\)，倾斜使凸起一侧压得更深、另一侧更浅。倾斜只通过 \(\delta_k\)（最深点）进入，所以 \(z_k\) 与 \(\delta_k\) 相同、倾斜不同的两个样本，网络输入完全一样，真实能量却不同。窗口内倾斜造成的高度差最大约 \(0.02\times0.1\times2=0.004\)，与 \(\delta\)（0.003–0.012）同量级</li>
+<li><strong>曲率来自生成器</strong>：耦合项的 \(\kappa\) 是生成时的真值，且各向异性形状被压成一个标量，即两个方向曲率的几何平均；换成从高度图提取后效果未知</li>
+<li><strong>倾斜不进高度图</strong>：高度图只用 \(z_k\)（凸起未倾斜时的形状），实际表面还要加上整体高度和倾斜项（3.2 的压头形状公式），倾斜使凸起一侧压得更深、另一侧更浅。倾斜只通过 \(\delta_k\)（最深点）进入，所以 \(z_k\) 与 \(\delta_k\) 相同、倾斜不同的两个样本，网络输入完全一样，真实能量却不同。窗口内倾斜造成的高度差最大约 \(0.02\times0.1\times2=0.004\)，与 \(\delta\)（0.003–0.012）同量级</li>
 </ul>
 <p class="kp">结论：方案已有 \(U_c\) 定义、单区 + 耦合的网络结构和半空间合成数据；当前主要限制是输入特征。</p></section>
 <section id="w4"><h2>Demo：Genesis 中的 hydro</h2>
@@ -1289,11 +1324,11 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 
 <p><strong>Genesis 与原论文的差别</strong>（第 1 节各"实现"汇总）</p>
 <ul>
-<li>压力场：\(p=\dfrac{H}{D}\times\)深度（1.1），斜率随物体尺寸 \(D\) 变小；细长或薄处压强偏低</li>
+<li>压力场：压强 = 全局刚度 \(H\) 除以物体内最大距离 \(D\) 再乘深度（1.1），斜率随物体尺寸 \(D\) 变小；细长或薄处压强偏低</li>
 <li>刚度：全部刚体共用 \(H\)，FEM 软体单独设 \(E_h\)，二者都与杨氏模量无关（1.1）</li>
 <li>离散：每块接触多边形只在形心取一点（1.2）</li>
 </ul>
-<p><strong>受控场景：刚球压 FEM 块</strong>（块的杨氏模量远大于压力场模量 \(E_h\)，块几乎不变形）：物体从刚好接触处静止释放、只受自重，测静止后的压深 \(\delta\)，与压力场公式 \(F(\delta)=mg\) 解出的预测压深比较。</p>
+<p><strong>受控场景：刚球压 FEM 块</strong>（块的杨氏模量远大于压力场模量 \(E_h\)，块几乎不变形）：物体从刚好接触处静止释放、只受自重，测静止后的压深 \(\delta\)，与压力场公式令接触力等于重量解出的预测压深比较（下面推导 ③）。</p>
 <details><summary>推导：刚球压 FEM 块的压力场公式</summary>
 
 <p><b>① 合力 = 压强斜率 × 球压进块的体积</b></p>
@@ -1359,7 +1394,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </details>
 <h3 class="numbered">4.3 参数扫描：每次只改一个量</h3>
 
-<p><strong>刚球压 FEM 块：改球半径（同为 1 kg）</strong>（预期：压深 \(\propto R^{-1/2}\)；Hertz \(\propto R^{-1/3}\)）</p>
+<p><strong>刚球压 FEM 块：改球半径（同为 1 kg）</strong>（预期：压深随球半径的 −1/2 次方变化；Hertz 为 −1/3 次方）</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
@@ -1403,7 +1438,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </tbody>
 </table></div>
 <p><strong>半径每加倍压深 ×0.706、×0.722（\(R^{-1/2}\)），弹性解为 ×0.794（\(R^{-1/3}\)），调参无法消除。</strong></p>
-<p><strong>刚球压 FEM 块：改压力场模量 \(E_h\)</strong>（预期：压深 \(\propto E_h^{-1/2}\)）</p>
+<p><strong>刚球压 FEM 块：改压力场模量 \(E_h\)</strong>（预期：压深随压力场模量的 −1/2 次方变化）</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
@@ -1498,7 +1533,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </ul>
 <p><strong>hydro 搭法</strong></p>
 <ul>
-<li>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 \(=\dfrac{E_h}{D}\times\)深度（\(E_h\)：压力场模量；\(D\)：基体内到表面的最大距离）<ul>
+<li>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 = 压力场模量 \(E_h\) 除以基体内到表面的最大距离 \(D\)，再乘深度<ul>
 <li>力 = 压力场斜率 × 重叠体积，推导见下</li>
 </ul>
 </li>
@@ -1532,8 +1567,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><strong>判据</strong>：同一物体、同一压深，只改一个量，比较力的倍数。\(E_h\) 在比值中约掉，调参无法改变倍数。hydro 刚度用训练数据拟合一次，另报取杨氏模量时的结果。</p>
 <p><strong>标签验证</strong>：每个实验另用 IPC + FEM 造标签（3.1 的 \(U_c\)，粗模型为刚体时即精细解弹性能），与裁判比，判据为偏差 ≤ 2%。标签数值依赖三个离散参数，均用下面的 Richardson 外推推到极限：</p>
 <ul>
-<li>\(\hat d\)：IPC 的接触距离，表面间距小于它即开始互相推开。\(\hat d\) 越大能量越高，取几档外推到 \(\hat d\to0\)</li>
-<li>网格尺寸 \(h\)：取三档 \(h\)、\(h/2\)、\(h/4\)，外推到 \(h\to0\)</li>
+<li>\(\hat d\)：IPC 的接触距离，表面间距小于它即开始互相推开。\(\hat d\) 越大能量越高，取几档外推到间距为 0</li>
+<li>网格尺寸 \(h\)：取三档，依次减半，外推到网格无限细</li>
 <li>块大小：块有限大，取两档外推到无限大</li>
 </ul>
 <details><summary>方法：Richardson 外推（本页之后凡说「外推」都是它）</summary>
@@ -1602,8 +1637,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 </details>
 <h3>E0 前提：标签与解析解一致</h3>
 
-<p><strong>设置</strong>：半径 1 刚球压长方体（下称块），杨氏模量 \(E=10^5\)、泊松比 \(\nu=0.3\)，压深 0.004–0.024，比较标签弹性能与 Hertz 弹性能（1.4 第 6 步）之比，1 为一致：</p>
-<p>\[U_{\text{Hertz}}=\frac{8}{15}E^{*}R^{1/2}\delta^{5/2},\qquad E^{*}=\frac{E}{1-\nu^{2}}=\frac{10^5}{1-0.09}\approx1.099\times10^5\]</p>
+<p><strong>设置</strong>：半径 1 刚球压长方体（下称块），杨氏模量 \(E=10^5\)、泊松比 \(\nu=0.3\)，压深 0.004–0.024，比较标签弹性能与 Hertz 弹性能（1.4 ⑤）之比，1 为一致：</p>
+<p>\[\color{#c0392b}{U_{\text{Hertz}}=\frac{8}{15}E^{*}R^{1/2}\delta^{5/2},\qquad E^{*}=\frac{E}{1-\nu^{2}}=\frac{10^5}{1-0.09}\approx1.099\times10^5}\]</p>
 <figure style="margin:12px 0"><video controls muted playsinline preload="metadata" src="assets/videos/e0_press.mp4" style="width:1008px;max-width:100%;height:auto"></video></figure>
 <p><em>这段视频是造标签的仿真本身：IPC + FEM 把刚球（\(R=1\)）一档一档压进块里，块顶面在接触区内贴住球面。共 6 个压深，每个停 1.5 秒，第 0、1.5、3、4.5、6、7.5 秒依次是 \(\delta=\) 0.004、0.006、0.009、0.013、0.018、0.024，标题给出当前压深和球与块的最小间隙。左图是过球心的竖直截面，竖直方向放大：红点是球面，带点的蓝线是变形后的块顶面，灰色虚线是块顶面原来的位置。接触区内蓝线紧贴红点；接触区外蓝线也低于虚线，但与红点分开，和 1.4 节 Hertz 示意图的形状一致。右图从上往下看块顶面，颜色是竖直位移（0 到 −0.025），中心最深，向外逐渐变浅。标题里的最小间隙在 \(0.90\text{–}0.98\times10^{-4}\) 之间，小于这次仿真的 \(\hat d=1.25\times10^{-4}\)：IPC 在两表面距离小于 \(\hat d\) 时才把它们推开，所以球和块之间始终留着一层比 \(\hat d\) 还薄的缝，这层缝让标签偏离 Hertz，下图就是看这个偏离有多大。</em></p>
 <figure style="margin:12px 0"><img src="assets/images/e0_scene_L1.2.png" style="width:1038px;max-width:100%;height:auto" alt="e0_scene_L1.2"></figure>
@@ -1619,12 +1654,10 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><img src="assets/images/E1_a.png" style="width:420px;max-width:100%;height:auto" alt="E1_a"></figure>
 <figure style="margin:12px 0"><img src="assets/images/E1_b.png" style="width:420px;max-width:100%;height:auto" alt="E1_b"></figure>
 <p><em>两张图只差球的半径，用来检验压到同样深时力怎样随球半径变化。深灰色是刚球，蓝色是被压的弹性块（宽 4.8、深 2.4，远大于接触区，可当半空间）。上图球半径 \(R=1\)，下图 \(2R=2\)，两球都压进块顶面 0.024；压深相对块很小，图上看不出凹陷。两张图用同一个相机，大小差别就是真实的几何差别。</em></p>
-<p><strong>裁判（Hertz，1.4 第 5 步）</strong></p>
-<ul>
-<li>\(F=\dfrac43E^*R^{1/2}\delta^{3/2}\)。\(E^*\) 与 \(\delta\) 不变，只有 \(R^{1/2}\) 变化</li>
-<li>\(\dfrac{F(2R)}{F(R)}=\dfrac{(2R)^{1/2}}{R^{1/2}}=\sqrt2\approx1.41\) → <strong>×1.41</strong></li>
-</ul>
-<p><strong>hydro (A)</strong>：\(F_A=\dfrac{E_h}{D}\,\pi R\,\delta^{2}\) → <strong>×2</strong></p>
+<p><strong>裁判（Hertz，1.4 ④）</strong>：有效模量 \(E^*\) 与压深 \(\delta\) 不变，力只随球半径的平方根变化，半径 ×2 → <strong>×1.41</strong></p>
+<p>\[\color{#c0392b}{F=\frac43E^*R^{1/2}\delta^{3/2},\qquad \frac{F(2R)}{F(R)}=\frac{(2R)^{1/2}}{R^{1/2}}=\sqrt2\approx1.41}\]</p>
+<p><strong>hydro (A)</strong>：力与球半径成正比，半径 ×2 → <strong>×2</strong></p>
+<p>\[\color{#c0392b}{F_A=\frac{E_h}{D}\,\pi R\,\delta^{2}}\]</p>
 <details><summary>推导：hydro (A)</summary>
 
 <p><b>① 重叠体积</b></p>
@@ -1689,7 +1722,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>\[F=2\pi R\int_0^\delta p(\delta-u)\,du\qquad(11)\]</p>
 <p>积分里不含 \(R\)，所以对任意 \(p\) 都有 \(F\propto R\)。</p></details>
 </details>
-<p><strong>hydro (B)</strong>：比值 \(\dfrac{2(R+D)}{2R+D}\)，介于 1 与 2 之间</p>
+<p><strong>hydro (B)</strong>：半径 ×2 时力的比值介于 1 与 2 之间，\(D\) 是块内到表面的最大距离：</p>
+<p>\[\color{#c0392b}{\frac{F_B(2R)}{F_B(R)}=\frac{2(R+D)}{2R+D}}\]</p>
 <details><summary>推导：hydro (B)</summary>
 
 <p><b>④ hydro (B)：球也带压力场</b></p>
@@ -1759,7 +1793,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><img src="assets/images/E2_a.png" style="width:519px;max-width:100%;height:auto" alt="E2_a"></figure>
 <figure style="margin:12px 0"><img src="assets/images/E2_b.png" style="width:519px;max-width:100%;height:auto" alt="E2_b"></figure>
 <p><em>两张图只差平底压头的半径。深灰色圆柱是刚性平底压头（高 0.8），蓝色是和 E1 同样的块（宽 4.8、深 2.4）。上图压头半径 \(a=0.25\)，下图 \(4a=1.0\)，压深都是 0.024。平底压头的接触区就是整个底面，半径变几倍，接触面积就变几的平方倍。</em></p>
-<p><strong>裁判：Boussinesq 平底解</strong> \(F_{\text{解析}}=2E^{*}a\,\delta\) → 半径 ×1、×2、×4，<strong>力 ×1、×2、×4</strong></p>
+<p><strong>裁判：Boussinesq 平底解</strong>：力与平底半径成正比，半径 ×1、×2、×4 → <strong>力 ×1、×2、×4</strong></p>
+<p>\[\color{#c0392b}{F_{\text{解析}}=2E^{*}a\,\delta}\]</p>
 <details><summary>推导：Boussinesq 平底解（与 1.4 ③ 相同的叠加方法）</summary>
 
 <p><b>① 平底压头的力</b></p>
@@ -1828,7 +1863,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><img src="assets/images/E3_a.png" style="width:526px;max-width:100%;height:auto" alt="E3_a"></figure>
 <figure style="margin:12px 0"><img src="assets/images/E3_b.png" style="width:526px;max-width:100%;height:auto" alt="E3_b"></figure>
 <p><em>两张图只差两个凸台之间的距离。深灰色是一个刚体：两个半径 \(a=0.25\)、高 0.5 的平底圆柱凸台，顶上用一根细杆连成一体；蓝色是同一块（图里只拍了块顶面中间一部分）。上图两凸台中心距 \(L=4a=1.0\)，下图拉开到 \(L=10a=2.5\)，凸台大小和压深 0.024 都不变。</em></p>
-<p><strong>裁判</strong>：每个凸台的力 \(F=\dfrac{2E^{*}a\,\delta}{1+2a/(\pi L)}\)</p>
+<p><strong>裁判</strong>：每个凸台的力，\(a\) 是凸台半径，\(L\) 是中心距：</p>
+<p>\[\color{#c0392b}{F=\frac{2E^{*}a\,\delta}{1+2a/(\pi L)}}\]</p>
 <details><summary>推导：两凸台对称，受力均为 F</summary>
 
 <p><b>① 每个凸台的力</b></p>
@@ -1927,8 +1963,8 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p><em>两张图是过球心的剖面，从正侧面看，只差球的半径。浅灰色是刚性底座，蓝色是粘在底座上的薄弹性层（厚 \(b=0.1\)，泊松比 0.499，近似不可压），深灰色是刚球下部（球顶在画面之外）。上图球半径 \(R=2.25\)，下图 \(2R=4.5\)，压深都是 0.02。球越大，球底越平，压进层里的那一段越宽：几何重叠的半宽是层厚的 3 倍（上）和约 4.2 倍（下），都远大于层厚，这正是薄层解成立的条件。</em></p>
 <p><strong>本节用到的量</strong>（各向同性线弹性，由 \(E\)、\(\nu\) 确定）</p>
 <ul>
-<li><strong>泊松比</strong> \(\nu=-\varepsilon_{\text{侧}}/\varepsilon_{\text{轴}}\)：单轴压缩时侧向膨胀应变与轴向压缩应变之比。\(\nu=0.5\) 时体积不变（<strong>不可压</strong>），橡胶约 0.49–0.4999</li>
-<li><strong>应变</strong> \(\varepsilon=\Delta L/L\)；<strong>剪切应变</strong> \(\gamma=\Delta x/h\)（平行于面的错动量 ÷ 厚度）</li>
+<li><strong>泊松比</strong> \(\nu\)：单轴压缩时侧向膨胀应变与轴向压缩应变之比，等于 0.5 时体积不变（<strong>不可压</strong>），橡胶约 0.49–0.4999</li>
+<li><strong>应变</strong> \(\varepsilon\)：长度变化 ÷ 原长；<strong>剪切应变</strong> \(\gamma\)：平行于面的错动量 ÷ 厚度</li>
 <li><strong>剪切应力</strong> \(\tau\)：平行于面的单位面积上的力；<strong>压强</strong> \(p\)：垂直于面的单位面积上的力</li>
 <li><strong>剪切模量</strong> \(G\)、<strong>拉梅常数</strong> \(\lambda\)、<strong>侧限模量</strong> \(M\)（侧向被约束时竖直方向的刚度）：定义与推导见下面「推导 1」①；\(\nu\to0.5\) 时 \(M\to\infty\)</li>
 </ul>
@@ -2139,7 +2175,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <figure style="margin:12px 0"><img src="assets/images/E5_a.png" style="width:420px;max-width:100%;height:auto" alt="E5_a"></figure>
 <figure style="margin:12px 0"><img src="assets/images/E5_b.png" style="width:420px;max-width:100%;height:auto" alt="E5_b"></figure>
 <p><em>两张图只差软物体的高。浅灰色是刚性底座，蓝色是立在底座上的软圆柱（半径 1），深灰色是刚球（半径 1），压深 0.005（图上看不出）。上图圆柱高 0.15，矮胖；下图高 2.4，细长。物体越细长，整体能被压缩得越多，粗模型取刚体还是仿射体的差别就越大，下面的结果就是比这个差别。</em></p>
-<p>\[U_c=U_{\text{精细}}-U_{\text{粗}}\]</p>
+<p>\[\color{#c0392b}{U_c=U_{\text{精细}}-U_{\text{粗}}}\]</p>
 <p>\(U_{\text{精细}}\)：精细无穿透解的弹性能；\(U_{\text{粗}}\)：粗模型自身能表达的弹性能。仿射体可整体压缩，\(U_{\text{粗}}\) 更大，\(U_c\) 更小；物体越细长差异越大。</p>
 <p><strong>结果（原代码）</strong>：仿射体 \(U_c\) 比刚体小 1.0%→9.6%（线弹性）、7.1%→16.8%（大变形）。</p>
 <p><strong>hydro</strong>：接触能量不随粗模型改变。刚度按刚体标定时，用于仿射体会重复计入仿射体自身柔度，力偏小。</p>
@@ -2228,7 +2264,7 @@ footer.foot { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(
 <p>论证链：</p>
 <ol>
 <li>hydro 在 E1–E5 中与裁判不符 — 已完成</li>
-<li>本项目标签在 E1–E5 中与裁判相符 — 已完成（E4 限 \(\nu\le0.45\)）</li>
+<li>本项目标签在 E1–E5 中与裁判相符 — 已完成（E4 限泊松比不超过 0.45）</li>
 <li>学到的网络能复现上述倍数关系 — <strong>未验证</strong></li>
 </ol>
 <p>现有网络在 BEM 半空间数据上训练，输入只有高度图和压深，没有层厚与泊松比，原理上表达不了 E4 的效应；E3 的相邻区耦合可直接用现有耦合项测试。</p></section>
