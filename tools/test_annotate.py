@@ -121,6 +121,15 @@ def pen_stroke(cdp, pts, forces):
     cdp.send("Input.dispatchMouseEvent", {**base, "type": "mouseReleased", "x": x, "y": y, "buttons": 0, "force": 0})
 
 
+def finger_drag(page, cdp, x, y, steps, step):
+    """用 CDP 发一次手指向上拖（页面向下滚）：touchStart → steps 次 touchMove（每次上移 step 像素，间隔 16 ms）→ touchEnd。"""
+    cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": x, "y": y}]})
+    for k in range(1, steps + 1):
+        cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": x, "y": y - step * k}]})
+        page.wait_for_timeout(16)
+    cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+
+
 def scroll_to(page, js_target):
     """把目标元素滚到视口中间（立即滚动），并确认它真的在视口里。"""
     r = page.evaluate(f"""() => {{
@@ -209,13 +218,12 @@ def test_ipad_draw(browser, rep, out):
     rep.check("a0 iPad 横屏版式", lay["w"] == 920 and "annot-noaside" in lay["cls"], f"main 宽 {lay['w']}px，html class={lay['cls']}")
 
     y0 = page.evaluate("scrollY")
-    cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": 600, "y": 600}]})
-    for k in range(1, 9):
-        cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": 600, "y": 600 - 30 * k}]})
-    cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
-    page.wait_for_timeout(200)
+    finger_drag(page, cdp, 600, 600, 8, 30)
+    page.wait_for_timeout(600)
     y1 = page.evaluate("scrollY")
-    rep.check("a1 手指滑动滚屏、不出笔画", y1 - y0 > 200 and len(strokes(page)) == 0, f"scrollY {y0} → {y1}，笔画数 {len(strokes(page))}")
+    ta = page.evaluate("getComputedStyle(document.getElementById('annot-capture')).touchAction")
+    rep.check("a1 标注开时手指由浏览器原生滚动、不出笔画", y1 - y0 > 200 and len(strokes(page)) == 0,
+              f"scrollY {y0} → {y1}，笔画数 {len(strokes(page))}，输入层 touch-action={ta!r}")
 
     scroll_to(page, img_js(tgt["src"]))
     r = page.evaluate(f"(() => {{ const q = ({img_js(tgt['src'])}).getBoundingClientRect(); return {{x: q.left, y: q.top, w: q.width, h: q.height}}; }})()")
@@ -522,7 +530,7 @@ QUIET_MS = 600       # 最近一次输入之后超过这么久还在动，算「
 KEY_QUIET_MS = 1000  # PageDown 的平滑滚动动画更长
 
 
-def probe_actions(page, cdp, notes_on):
+def probe_actions(page, cdp):
     """依次做：静置、滚轮向下 20 次、PageDown 5 次、手指向下拖 3 次、跳到页中静置、滚轮向上 10 次；每段后静置 2 s。
     返回每段的 (名字, 开始 ms, 结束 ms, 期望方向 +1 向下 / -1 向上 / 0 静置)，时间与记录器同一时钟。"""
     segs = []
@@ -547,14 +555,7 @@ def probe_actions(page, cdp, notes_on):
 
     def touch():
         for _ in range(3):
-            if notes_on:   # 标注打开：手指事件落在输入层上，由页面 JS 滚动
-                cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": 500, "y": 600}]})
-                for k in range(1, 21):
-                    cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": 500, "y": 600 - 20 * k}]})
-                    page.wait_for_timeout(16)
-                cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
-            else:          # 标注关闭：浏览器原生的手指滚动手势
-                cdp.send("Input.synthesizeScrollGesture", {"x": 500, "y": 600, "yDistance": -400, "gestureSourceType": "touch"})
+            finger_drag(page, cdp, 500, 600, 20, 20)   # 各状态下手指都由浏览器原生滚动
             page.wait_for_timeout(300)
 
     def jump_middle():
@@ -622,7 +623,7 @@ def probe_case(browser, rep, out, width, height, mode):
     page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
     page.wait_for_timeout(500)
     page.evaluate(PROBE_INSTALL_JS)
-    segs = probe_actions(page, cdp, mode == "notes_on")
+    segs = probe_actions(page, cdp)
     log = page.evaluate("window.__probe")
     ctx.close()
     (out / f"scroll_probe_{mode}_{width}.json").write_text(json.dumps({"segments": segs, **log}), encoding="utf-8")

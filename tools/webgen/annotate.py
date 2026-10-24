@@ -1,6 +1,6 @@
 """手写标注层：周页面右下角的笔记工具栏 + 盖在正文上的笔迹图层（CSS 与 JS 字符串，由 html_parts.page 嵌进每个周页面）。
 
-用法（给讲的人）：iPad Safari 上打开周页面，点右下角「✎ 笔记」→「标注 开」，用 Apple Pencil 写（手指照常滚动），
+用法（给讲的人）：iPad Safari 上打开周页面，点右下角「✎ 笔记」→「标注 开」，用 Apple Pencil 写（手指由浏览器原生滚动，带惯性），
 每一笔自动存在本机；点「导出」得到 <页面名>_notes_<日期>.json，AirDrop 到 Mac；Mac 上打开同一页 →「导入」选这个文件，
 投屏时笔迹显示在页面上。标注关掉时页面一切照常（点击、播放视频、展开折叠框），笔迹仍显示但不拦截点击。
 
@@ -41,7 +41,7 @@ html.annot-noaside main { margin: 0 auto; }
 #annot-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 5; }
 #annot-layer path.hl, svg.annot-print path.hl { mix-blend-mode: multiply; }
 #annot-layer path.orphan { fill: #9aa3ad !important; stroke: #9aa3ad !important; opacity: .75; }
-#annot-capture { position: fixed; inset: 0; z-index: 45; display: none; touch-action: none; cursor: crosshair;
+#annot-capture { position: fixed; inset: 0; z-index: 45; display: none; touch-action: pan-x pan-y; cursor: crosshair;
                  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 html.annot-on #annot-capture { display: block; }
 #annot-capture.probe { visibility: hidden; }
@@ -112,7 +112,7 @@ ANNOT_JS = r"""
   const S = {
     strokes: [], on: false, tool: 'pen', color: 'red', undo: [],
     domVersion: 0, index: null, cache: new Map(), drawn: new Map(),
-    drawing: null, scroll: null, erasing: null, moving: null, printing: false, orphans: 0, hidden: 0,
+    drawing: null, erasing: null, moving: null, printing: false, orphans: 0, hidden: 0,
   };
 
   /* ---------- 2. 小工具 ---------- */
@@ -739,33 +739,30 @@ ANNOT_JS = r"""
     commit();
   }
 
-  /* ---------- 11. 输入：笔 / 鼠标画，手指滚动 ---------- */
+  /* ---------- 11. 输入：笔 / 鼠标画；手指交给浏览器原生滚动（带惯性） ----------
+   * 输入层是 touch-action: pan-x pan-y，手指拖动由浏览器自己滚页面，这里不处理手指的指针事件（浏览器开始滚动时会发
+   * pointercancel）。Apple Pencil 在 Safari 里的触摸 touchType 是 'stylus'：onTouch 只对笔触（以及正在写字时的任何触摸，
+   * 防手掌把页面拖走）调用 preventDefault，页面就不滚，笔的 pointer 事件照常用来画线。 */
   function onDown(e) {
-    if (e.pointerType === 'touch') {
-      if (S.drawing || S.scroll) return;     // 写字时手掌碰到屏幕不算
-      S.scroll = { id: e.pointerId, x: e.clientX, y: e.clientY };
-      // 页面是 scroll-behavior: smooth，连续 scrollBy 会互相打断动画、只滚一小段；拖动期间改成立即滚动
-      document.documentElement.style.scrollBehavior = 'auto';
-    } else {
-      if (e.button !== 0 || S.drawing || S.erasing || S.moving) return;
-      if (S.tool === 'eraser') { S.erasing = { id: e.pointerId, snap: snapshot(), changed: false }; eraseAt(e); }
-      else if (S.tool === 'move') { startMove(e); if (!S.moving) return; }
-      else startStroke(e);
-    }
+    if (e.pointerType === 'touch') return;
+    if (e.button !== 0 || S.drawing || S.erasing || S.moving) return;
+    if (S.tool === 'eraser') { S.erasing = { id: e.pointerId, snap: snapshot(), changed: false }; eraseAt(e); }
+    else if (S.tool === 'move') { startMove(e); if (!S.moving) return; }
+    else startStroke(e);
     e.preventDefault();
     try { capture.setPointerCapture(e.pointerId); } catch (err) { /* 指针已结束 */ }
   }
+  function onTouch(e) {
+    const stylus = Array.prototype.some.call(e.changedTouches, t => t.touchType === 'stylus');
+    if (stylus || S.drawing || S.erasing || S.moving) e.preventDefault();
+  }
   function onMove(e) {
-    if (S.scroll && e.pointerId === S.scroll.id) {
-      window.scrollBy(S.scroll.x - e.clientX, S.scroll.y - e.clientY);
-      S.scroll.x = e.clientX; S.scroll.y = e.clientY;
-    } else if (S.drawing && e.pointerId === S.drawing.id) extendStroke(e);
+    if (S.drawing && e.pointerId === S.drawing.id) extendStroke(e);
     else if (S.erasing && e.pointerId === S.erasing.id) eraseAt(e);
     else if (S.moving && e.pointerId === S.moving.id) dragMove(e);
   }
   function onUp(e) {
-    if (S.scroll && e.pointerId === S.scroll.id) { S.scroll = null; document.documentElement.style.scrollBehavior = ''; }
-    else if (S.drawing && e.pointerId === S.drawing.id) finishStroke();
+    if (S.drawing && e.pointerId === S.drawing.id) finishStroke();
     else if (S.erasing && e.pointerId === S.erasing.id) {
       const er = S.erasing;
       S.erasing = null;
@@ -984,6 +981,8 @@ ANNOT_JS = r"""
     capture.addEventListener('pointermove', onMove);
     capture.addEventListener('pointerup', onUp);
     capture.addEventListener('pointercancel', onUp);
+    capture.addEventListener('touchstart', onTouch, { passive: false });   // 非被动：preventDefault 才能阻止滚动
+    capture.addEventListener('touchmove', onTouch, { passive: false });
     addEventListener('resize', () => { applyLayout(); scheduleRender(); });
     new ResizeObserver(scheduleRender).observe(article);
     article.addEventListener('toggle', scheduleRender, true);
