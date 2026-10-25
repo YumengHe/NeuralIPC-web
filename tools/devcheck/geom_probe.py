@@ -181,6 +181,7 @@ class Layout:
         self.rule = scroll_rule(L)
         self.overlays = [o["r"] for o in L.get("overlays") or []]
         self.cur_f = (0.0, 0.0)   # 当前这笔滚动下正文卡片原点的屏幕坐标（probe 里设）
+        self.covered = {}         # 笔 id → 自己的采样点落在固定 / 粘性元素下面的个数
         # 正文字
         self.chars = []          # [(节点序号, 偏移, l, t, r, b)]
         self.node_char = []      # 节点序号 → {偏移: 字序号}
@@ -444,6 +445,8 @@ def probe(lay, sid, grid_px, sample_px, scroll=None, pre=None):
         n = max(1, math.ceil(math.hypot(x1 - x0, y1 - y0) / sample_px))
         for k in range(1, n + 1):
             S.append((x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n))
+    # 这笔自己的采样点有几个落在固定 / 粘性元素（导航条、工具条）下面：这些点上命中测试看不到正文，judge_devcheck 不许这样的笔判 ok
+    lay.covered[sid] = sum(1 for x, y in S if any(q[0] <= x <= q[2] and q[1] <= y <= q[3] for q in lay.overlays))
     in_view = sum(1 for x, y in S if x >= 0 and y >= 0 and x < W and y < H)
     if in_view < len(S) and (S[0][1] < 0 or S[0][1] >= H):
         return {"state": "offscreen"}
@@ -510,8 +513,10 @@ def probe_all(L, grid_px, sample_px, scrolls=None, pressed=None, only=None):
     """一页全部笔（only 给了只算这些）：{笔 id: 结果}。pressed 给了（设备上原样跑的压住段，layout 模式默认有）就用它的压住串、行高、滚动；
     否则 scrolls（设备 probe 模式记下的实际滚动）或按 scroll_for 推滚动，压住串也用几何（插入点规则是近似）。"""
     lay = Layout(L)
-    return {s["id"]: probe(lay, s["id"], grid_px, sample_px, (scrolls or {}).get(s["id"]), (pressed or {}).get(s["id"]))
-            for s in L["strokes"] if only is None or s["id"] in only}
+    out = {s["id"]: probe(lay, s["id"], grid_px, sample_px, (scrolls or {}).get(s["id"]), (pressed or {}).get(s["id"]))
+           for s in L["strokes"] if only is None or s["id"] in only}
+    probe_all.covered = dict(lay.covered)   # 旁路交回（不放进逐笔结果，结果字段与 PROBE_JS 一一对应）
+    return out
 
 
 def layout_stats(L):

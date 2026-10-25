@@ -199,13 +199,34 @@ def compare(out, IC, gmaps, cal):
         srows = {r["id"]: r for r in json.loads((sdir / f"table_{w}.json").read_text(encoding="utf-8"))}
         rows = J.judge_rows(IC, d1["old"], d1["new"], gmaps, cal)
         J.write_table(rows, out, f"{w}_device_R1")
-        bad = [r["id"] for r in rows if r["verdict"] != srows[r["id"]]["verdict"] or (r["off_diff"] is None) != (srows[r["id"]]["off_diff"] is None)
+        # t2 比 indep_check 原判定（verdict_ic；「笔压在导航条下」的改判另计）
+        bad = [r["id"] for r in rows if r["verdict_ic"] != srows[r["id"]]["verdict"] or (r["off_diff"] is None) != (srows[r["id"]]["off_diff"] is None)
                or (r["off_diff"] is not None and abs(r["off_diff"] - srows[r["id"]]["off_diff"]) > NUM_TOL)]
-        check(not bad, f"t2@{tag}", f"preview/3 布局表判定与服务器不同 {len(bad)} 笔 {bad[:5]}；设备判错 {sum(r['verdict'] == '错' for r in rows)}，"
+        check(not bad, f"t2@{tag}", f"preview/3 布局表判定与服务器不同 {len(bad)} 笔；设备判错 {sum(r['verdict_ic'] == '错' for r in rows)}，"
               f"服务器判错 {sum(r['verdict'] == '错' for r in srows.values())}")
+        if bad:   # 逐笔：两边判定、偏移差、两页邻域串里差的字（服务器 probe 对设备布局表重算）
+            import difflib
+            dev = {s: J.probes_of(IC, d1[s])[0] for s in ("old", "new")}
+            srv = {s: json.loads((sdir / f"probe_{w}_{s}.json").read_text(encoding="utf-8")) for s in ("old", "new")}
+            by = {r["id"]: r for r in rows}
+            for i in bad:
+                parts = []
+                for s in ("old", "new"):
+                    a, b = srv[s].get(i, {}).get("nc") or [], dev[s].get(i, {}).get("nc") or []
+                    ops = [(t, "".join(a[i1:i2]), "".join(b[j1:j2])) for t, i1, i2, j1, j2 in
+                           difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes() if t != "equal"]
+                    if ops:
+                        parts.append(f"{s} 邻域差 " + "，".join(f"服务器「{x}」→设备「{y}」" for _, x, y in ops))
+                    if (srv[s].get(i, {}).get("pressed") or "") != (dev[s].get(i, {}).get("pressed") or ""):
+                        parts.append(f"{s} 压住 服务器「{srv[s][i].get('pressed')}」设备「{dev[s][i].get('pressed')}」")
+                r, sr = by[i], srows[i]
+                print(f"   t2 差 {i}：服务器 {sr['verdict']}（偏移差 {sr['off_diff']}）/ 设备 {r['verdict_ic']}（偏移差 {r['off_diff']}）；" + "；".join(parts), flush=True)
+        cov = [(r["id"], r["covered"]) for r in rows if any(r.get("covered") or [])]
+        print(f"INFO t9@{tag} preview/3 笔画本身有采样点落在导航条 / 工具条下的笔 {len(cov)} 笔（这些笔若原判 ok 一律改判无法核）：{cov[:10]}", flush=True)
         rows2 = J.judge_rows(IC, d2["old"], d2["new"], gmaps, cal)
-        f3 = [r["id"] for r in rows2 if r["verdict"] in IC.FAIL_VERDICTS]
-        check(not f3, f"t3@{tag}", f"snapshot/2 对自己：失败 {len(f3)} 笔 {f3[:5]}")
+        f3 = [r["id"] for r in rows2 if r["verdict_ic"] in IC.FAIL_VERDICTS]
+        cov2 = [r["id"] for r in rows2 if any(r.get("covered") or [])]
+        check(not f3, f"t3@{tag}", f"snapshot/2 对自己：indep_check 判定失败 {len(f3)} 笔 {f3[:5]}；笔压在导航条下另改判无法核 {len(cov2)} 笔 {cov2[:5]}")
         rp1 = json.loads((out / f"repo_{w}_R1.json").read_text(encoding="utf-8"))
         rp2 = json.loads((out / f"repo_{w}_R2.json").read_text(encoding="utf-8"))
         ok5 = d2["base_cached"] and d2["base_ref"] == d1["base_ref"] and d2["base_ref"] in rp1["files"] and d2["old"] == d1["old"]

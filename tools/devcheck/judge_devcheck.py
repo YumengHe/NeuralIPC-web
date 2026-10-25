@@ -96,16 +96,18 @@ def new_offsets(refs, dump):
 def probes_of(IC, run):
     """一次运行的逐笔采样：设备 probe 模式直接用 PROBE_JS 结果；默认 layout 模式由布局表纯几何重算（geom_probe，与 PROBE_JS 对拍过）。"""
     if run.get("probes") is not None:
-        return run["probes"]
+        return run["probes"], {}
     import geom_probe as G
-    return G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, pressed=run.get("pressed"))
+    pr = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, pressed=run.get("pressed"))
+    return pr, G.probe_all.covered
 
 
 def judge_rows(IC, old, new, gmaps, cal):
     """逐笔判定行（与 indep_check.run 的行同字段）。old / new 是设备页的一次运行（probes 或 layout、texts、dump）。"""
     import geom_probe as G
-    old = dict(old, probes=probes_of(IC, old))
-    new = dict(new, probes=probes_of(IC, new))
+    po, co = probes_of(IC, old)
+    pn, cn = probes_of(IC, new)
+    old, new = dict(old, probes=po), dict(new, probes=pn)
     if new.get("dump") is None:
         new["dump"] = G.dump_from_layout(new["layout"])
     imap = IC.IdentityMap(old["texts"], new["texts"], gmaps)   # 同 indep_check.run（8978bb5 起带改名表、要 texts.mpos）
@@ -119,8 +121,11 @@ def judge_rows(IC, old, new, gmaps, cal):
             ref = (c, max(abs(ox - noff[i][0]), abs(oy - noff[i][1])))
         n = new["probes"].get(i, {"state": "none"})
         verdict, why = IC.judge(o, n, new["texts"], gmaps, ref, cal)
+        cov, verdict_ic = (co.get(i, 0), cn.get(i, 0)), verdict
+        if verdict == "ok" and any(cov):   # 笔自己压在导航条 / 工具条下面：那几处命中测试看不到正文，不能算核过
+            verdict, why = "无法核", f"笔画采样点有 {cov[0]} / {cov[1]}（旧 / 新页）个落在固定 / 粘性元素下面，命中测试看不到那里的正文（不判 ok）"
         rows.append(dict(id=i, verdict=verdict, why=why, old_pressed=o.get("pressed"), new_pressed=n.get("pressed"),
-                         ref=ref[0] if ref else None, off_diff=ref[1] if ref else None))
+                         ref=ref[0] if ref else None, off_diff=ref[1] if ref else None, covered=list(cov), verdict_ic=verdict_ic))
     return rows
 
 
