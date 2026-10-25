@@ -33,7 +33,7 @@
   'use strict';
   const CFG = JSON.parse(/*@CFG@*/null);
   // 以下四段 JS 由 tools/devcheck/build_devcheck.py 从 indep_check.py 原样嵌入（PROBE_JS、page_texts_js）或在该文件里定义（ENV_JS、DUMP_JS）
-  const SRC = { probe: /*@PROBE_JS@*/'', texts: /*@TEXTS_JS@*/'', env: /*@ENV_JS@*/'', dump: /*@DUMP_JS@*/'' };
+  const SRC = { probe: /*@PROBE_JS@*/'', texts: /*@TEXTS_JS@*/'', env: /*@ENV_JS@*/'', dump: /*@DUMP_JS@*/'', layout: /*@LAYOUT_JS@*/'' };
   // 与 indep_check.probe_page 里取笔起点的那一段相同
   const BOX_JS = "id => { const d = window.__nipcNotes.placed(id); if (!d || !d.abs) return null; const f = window.__nipcNotes.frame();" +
                  " return [f.x + d.abs[0][0] * f.s + scrollX, f.y + d.abs[0][1] * f.s + scrollY]; }";
@@ -42,6 +42,9 @@
   const NO_UPLOAD = qs.get('noupload') === '1';
   const FIXED_WAITS = qs.get('waits') === 'fixed';   // A/B 用：服务器 indep_check 的固定等待（1.5 s、0.8 s、每笔 30 + 100·重试 ms）；默认等布局稳定
   const NO_CACHE = qs.get('nocache') === '1';        // 不用已上传的基准页采样，重测
+  // 默认 layout：每页只导出一遍布局表（几秒），服务器纯几何重算；probe：在设备上逐笔原样跑 PROBE_JS（慢，一页约 10 分钟，A/B 对拍用），同时也导出布局表
+  const MODE = qs.get('mode') === 'probe' ? 'probe' : 'layout';
+  const EVERY = Math.max(1, parseInt(qs.get('every') || '1', 10) || 1);   // probe 模式每 N 笔跑一笔（调试几何对拍用）
 
   /** 结果只许写 checks/ 下的一个文件：不许 notes/、covers/、子目录、..。 */
   const checkPath = p => {
@@ -125,28 +128,37 @@
     const probe = fn(SRC.probe), box = fn(BOX_JS);
     const env_start = fn(SRC.env)();
     const ids = win.__nipcNotes.strokes().map(s => s.id);
-    const out = {};
-    for (const i of ids) {
-      const b = box(i);
-      if (b) {
-        for (let attempt = 0; attempt < 3; attempt++) {
-          scrollInstant(win, Math.max(0, b[1] - win.innerHeight / 2));
-          if (FIXED_WAITS) await sleep(30 + 100 * attempt); else for (let a = 0; a <= attempt; a++) await frames2(win);
-          out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
-          if (out[i].state !== 'offscreen') break;
-        }
-      } else out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
-      onStroke(Object.keys(out).length, ids.length);
+    const out = {}, scrolls = {};
+    if (MODE === 'probe') {
+      for (const i of (EVERY > 1 ? ids.filter((_, k) => k % EVERY === 0) : ids)) {
+        const b = box(i);
+        if (b) {
+          for (let attempt = 0; attempt < 3; attempt++) {
+            scrollInstant(win, Math.max(0, b[1] - win.innerHeight / 2));
+            if (FIXED_WAITS) await sleep(30 + 100 * attempt); else for (let a = 0; a <= attempt; a++) await frames2(win);
+            scrolls[i] = [win.scrollX, win.scrollY];
+            out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+            if (out[i].state !== 'offscreen') break;
+          }
+        } else out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+        onStroke(Object.keys(out).length, ids.length);
+      }
     }
     const msProbe = performance.now() - tProbe;
+    const tLay = performance.now();
+    const layout = fn(SRC.layout)();
+    const msLayout = performance.now() - tLay;
+    if (MODE !== 'probe') onStroke(ids.length, ids.length);
     const texts = fn(SRC.texts)();
     const env_end = fn(SRC.env)();
     let tex = [];
     try { tex = [...win.MathJax.startup.document.math].map(m => m.math); } catch (e) { /* 留空 */ }
-    const run = { page, ids, probes: JSON.parse(JSON.stringify(out)), texts: JSON.parse(JSON.stringify(texts)),
+    const run = { page, ids, mode: MODE, layout, texts: JSON.parse(JSON.stringify(texts)),
                   tex, env_start, env_end, iframe_resizes: iresize, iframe_attr: [ifr.offsetWidth, ifr.offsetHeight],
                   waits: FIXED_WAITS ? 'fixed' : 'settle' };
+    if (MODE === 'probe') { run.probes = JSON.parse(JSON.stringify(out)); run.scrolls = scrolls; }
     if (withDump) run.dump = JSON.parse(JSON.stringify(fn(SRC.dump)()));
+    run.ms_layout = Math.round(msLayout);
     run.ms = { load: Math.round(tProbe - tLoad), probe: Math.round(msProbe), total: Math.round(performance.now() - tLoad) };
     return JSON.parse(JSON.stringify(run));
   }
@@ -207,7 +219,8 @@
   async function deviceSig() {
     const html = await (await fetch(`../../${CFG.base}/week3_4.html`, { cache: 'no-store' })).text();
     const sig = { ua: navigator.userAgent, viewport: [W, H], dpr: devicePixelRatio, probe_sha256: CFG.probe_sha256,
-                  texts_sha256: CFG.texts_sha256, env_sha256: CFG.env_sha256, base_html_sha256: await sha256(html) };
+                  texts_sha256: CFG.texts_sha256, env_sha256: CFG.env_sha256, layout_sha256: CFG.layout_sha256, mode: MODE,
+                  base_html_sha256: await sha256(html) };
     return { sig, key: (await sha256(JSON.stringify(sig))).slice(0, 12) };
   }
   /** 笔记仓库 checks/ 里同签名、有效的基准页采样（最新一份）；没有返回 null。只读。 */

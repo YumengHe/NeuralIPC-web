@@ -1,17 +1,21 @@
 """设备核对页的本地验证：无头 Chromium 模拟 iPad（820×1180、1180×820，dpr 2，iPad UA）打开 devcheck/1，和服务器 indep_check 在同宽度下比。
 GitHub API 用本地假仓库代替（Playwright 拦截 api.github.com，记下每次读写），不碰真笔记仓库。
-每个视口：
-  R1 = ?page=preview/3（假 token、空仓库）：测基准页 + 待测页，上传基准页缓存与待测页结果；
-  R2 = ?page=snapshot/2（假仓库里有 R1 的基准页缓存）：应复用缓存、只测待测页；
-  RA = ?page=preview/3&waits=fixed&noupload=1（只在 820 跑）：服务器 indep_check 的固定等待，A/B 比耗时与结果。
-  t1) R1 / R2 的原始采样（PROBE_JS 结果，去掉耗时 tm）与 indep_check.probe_page 逐笔相同；全文、公式字形串相同。
-  t2) 用设备页数据走 judge_devcheck 的判定，与 indep_check.run 的逐笔表相同（判定一致，偏移差相差 ≤ 0.01 px）。
-  t3) R2（snapshot/2 对自己）0 笔失败。
-  t4) 设备页自报的有效性问题为空。
-  t5) R2 用了 R1 上传的基准页缓存（base_cached、base_ref、old 与 R1 相同），只测了一页。
-  t6) A/B：RA（固定等待）与 R1（等布局稳定）逐笔采样相同；打印两者每页耗时。
+
+--phase collect（开浏览器，结果存 --out-dir）：
+  服务器参照：indep_check.run("snap", preview/3 | snap, [820, 1180])；
+  每个视口：P  = ?mode=probe&page=preview/3&noupload=1（设备上原样跑 PROBE_JS，同时导出布局表，A/B 的对拍对象）；
+            R1 = ?page=preview/3（默认 layout 模式，假 token、空仓库）：测基准页 + 待测页，上传基准页缓存与结果；
+            R2 = ?page=snapshot/2（假仓库里有 R1 的基准页缓存）：应复用缓存、只测待测页；
+            RA = ?page=preview/3&waits=fixed&noupload=1：固定等待，与 R1 比布局表与耗时。
+--phase compare（不开浏览器，读 collect 的结果）：
+  t1) P 的 PROBE_JS 原始采样（去掉 tm）与服务器 indep_check.probe_page 逐笔相同。
+  t8) geom_probe 由 P 的布局表重算的每笔结果与 P 的 PROBE_JS 结果对拍：字符串 / 序号逐项相同，数值差 ≤ 0.01 px；
+      两种滚动各比一次（P 记下的实际滚动 / 按 probe_page 推出的滚动），不一致的逐笔逐字段写进 ab_<宽>.json。
+  t2) R1（布局表 → geom_probe → judge）与服务器 indep_check.run 的逐笔表相同（判定一致，偏移差相差 ≤ 0.01 px）。
+  t3) R2（snapshot/2 对自己）0 笔失败。   t4) 设备页自报的有效性问题为空。
+  t5) R2 用了 R1 上传的基准页缓存，只测了一页。   t6) RA 与 R1 布局表相同，打印两者耗时。
   t7) 所有写操作都是 PUT checks/devcheck_….json，没有别的写。
-结果只写 --out-dir。用法：/bin/python -B tools/devcheck/test_devcheck.py --out-dir <NAS 目录>（全部通过退出码 0）
+用法：/bin/python -B tools/devcheck/test_devcheck.py --out-dir <NAS 目录> --phase collect|compare|all
 """
 import argparse
 import base64
@@ -22,6 +26,7 @@ import pathlib
 import re
 import sys
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -34,6 +39,7 @@ NEW_SPEC = {"preview/3": "dir:_pv3/preview/3", "snapshot/2": "snap"}   # 服务�
 PATH_RE = re.compile(r"checks/devcheck_[A-Za-z0-9_]+_\d{8}T\d{6}Z\.json")
 CORS = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, PUT, OPTIONS",
         "Access-Control-Allow-Headers": "Authorization, Accept, X-GitHub-Api-Version, Content-Type"}
+NUM_TOL = 0.01
 
 
 def serve_root():
@@ -76,9 +82,10 @@ class FakeRepo:
 
 
 def run_device(base, view, query, repo=None):
-    """无头 Chromium 模拟 iPad 打开设备页，等跑完。repo 给了就放假 token、拦截 GitHub API。返回 ({页: 数据}, 警告)。"""
+    """无头 Chromium 模拟 iPad 打开设备页，等跑完。repo 给了就放假 token、拦截 GitHub API。返回 {res, warns, done, wall_s}。"""
     from playwright.sync_api import sync_playwright
     tag = f"{view[0]}×{view[1]} {query}"
+    t0 = time.time()
     with sync_playwright() as p:
         browser = p.chromium.launch()
         ctx = browser.new_context(viewport={"width": view[0], "height": view[1]}, device_scale_factor=2, user_agent=IPAD_UA, has_touch=True)
@@ -94,45 +101,60 @@ def run_device(base, view, query, repo=None):
         warns = pg.evaluate("window.__devcheck.warns")
         done = pg.inner_text("#dc-done")
         browser.close()
-    print(f"   [{tag}] 页面最后显示：{done!r}", flush=True)
-    return res, warns
+    wall = round(time.time() - t0, 1)
+    print(f"   [{tag}] 用时 {wall} s，页面最后显示：{done!r}", flush=True)
+    return dict(res=res, warns=warns, done=done, wall_s=wall)
 
 
-def strip_tm(pr):
-    return {k: v for k, v in pr.items() if k != "tm"}
-
-
-def probe_diff(a, b):
-    return sorted(i for i in set(a) | set(b) if strip_tm(a.get(i, {})) != strip_tm(b.get(i, {})))
-
-
-def main():
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--indep-check-dir", default=B.DEFAULT_IC_DIR)
-    args = ap.parse_args()
-    out = pathlib.Path(args.out_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    IC = B.load_ic(args.indep_check_dir)
-    from webgen.annotate import DRAFTS
-    gmaps = IC.RP.glyph_letter_maps(IC.RP.letter_maps(json.loads((DRAFTS / "notation_renames_week3_4.json").read_text(encoding="utf-8")).get("tex", {})))
-    cal = json.loads((pathlib.Path(args.indep_check_dir) / "indep_check_cal" / "calibration.json").read_text(encoding="utf-8"))
+def collect(out, IC, gmaps, cal):
     base, srv = serve_root()
     widths = [v[0] for v in VIEWS]
     for pg in NEW_SPEC:
         (out / f"server_{pg.replace('/', '_')}").mkdir(exist_ok=True)
     repos = {v: FakeRepo() for v in VIEWS}
-    with ThreadPoolExecutor(8) as ex:
+    with ThreadPoolExecutor(12) as ex:
         ref = {pg: ex.submit(IC.run, "snap", spec, widths, out / f"server_{pg.replace('/', '_')}", gmaps, None, (0, 0), cal)
                for pg, spec in NEW_SPEC.items()}
+        pr = {v: ex.submit(run_device, base, v, "mode=probe&page=preview/3&noupload=1") for v in VIEWS}
+        ra = {v: ex.submit(run_device, base, v, "page=preview/3&waits=fixed&noupload=1") for v in VIEWS}
         r1 = {v: ex.submit(run_device, base, v, "page=preview/3", repos[v]) for v in VIEWS}
-        ra = ex.submit(run_device, base, VIEWS[0], "page=preview/3&waits=fixed&noupload=1")
         r1 = {v: f.result() for v, f in r1.items()}
-        r2 = {v: ex.submit(run_device, base, v, "page=snapshot/2", FakeRepo(repos[v].files)) for v in VIEWS}
+        r2repo = {v: FakeRepo(repos[v].files) for v in VIEWS}
+        r2 = {v: ex.submit(run_device, base, v, "page=snapshot/2", r2repo[v]) for v in VIEWS}
         r2 = {v: f.result() for v, f in r2.items()}
-        ra = ra.result()
+        ra = {v: f.result() for v, f in ra.items()}
+        pr = {v: f.result() for v, f in pr.items()}
         ref = {pg: f.result() for pg, f in ref.items()}
     srv.shutdown()
+    for v in VIEWS:
+        w = v[0]
+        for name, r in (("P", pr[v]), ("R1", r1[v]), ("R2", r2[v]), ("RA", ra[v])):
+            (out / f"device_{w}_{name}.json").write_text(json.dumps(r, ensure_ascii=False), encoding="utf-8")
+        for name, repo in (("R1", repos[v]), ("R2", r2repo[v])):
+            (out / f"repo_{w}_{name}.json").write_text(json.dumps(dict(log=repo.log, bad=repo.bad, files=sorted(repo.files)), ensure_ascii=False), encoding="utf-8")
+
+
+def num_eq(a, b):
+    """两个 JSON 值相同：字符串 / 整数 / None 严格相同，浮点差 ≤ NUM_TOL，列表 / 字典逐项。"""
+    if isinstance(a, bool) or isinstance(b, bool) or a is None or b is None or isinstance(a, str) or isinstance(b, str):
+        return a == b
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return abs(a - b) <= NUM_TOL
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(num_eq(x, y) for x, y in zip(a, b))
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(num_eq(a[k], b[k]) for k in a)
+    return a == b
+
+
+def field_diffs(js, py):
+    """一笔的 PROBE_JS 结果与 geom_probe 结果不同的字段 {字段: [JS 值, 几何值]}（tm 不比）。"""
+    keys = (set(js) | set(py)) - {"tm"}
+    return {k: [js.get(k), py.get(k)] for k in sorted(keys) if not num_eq(js.get(k), py.get(k))}
+
+
+def compare(out, IC, gmaps, cal):
+    import geom_probe as G
     fails = []
 
     def check(ok, name, msg):
@@ -142,41 +164,98 @@ def main():
 
     for v in VIEWS:
         w, tag = v[0], f"{v[0]}×{v[1]}"
-        d1, d2 = r1[v][0]["preview/3"], r2[v][0]["snapshot/2"]
-        for name, d in (("R1", d1), ("R2", d2)):
-            (out / f"device_{w}_{name}_{d['page'].replace('/', '_')}.json").write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
-        check(not r1[v][1] and not r2[v][1] and d1["valid"]["ok"] and d2["valid"]["ok"], f"t4@{tag}", f"设备页自报问题：{r1[v][1] + r2[v][1]}")
-        for name, d in (("R1", d1), ("R2", d2)):
-            sdir = out / f"server_{d['page'].replace('/', '_')}"
-            for side in ("old", "new"):
-                sp = json.loads((sdir / f"probe_{w}_{side}.json").read_text(encoding="utf-8"))
-                diff = probe_diff(sp, d[side]["probes"])
-                check(not diff, f"t1@{tag}:{name}:{side}", f"{d[side]['page']}：{len(sp)} 笔，原始采样与服务器不同 {len(diff)} 笔 {diff[:5]}")
-            rows = J.judge_rows(IC, d["old"], d["new"], gmaps, cal)
-            J.write_table(rows, out, f"{w}_device_{name}")
-            srows = {r["id"]: r for r in ref[d["page"]][w]}
-            bad = [r["id"] for r in rows if r["verdict"] != srows[r["id"]]["verdict"] or
-                   (r["off_diff"] is None) != (srows[r["id"]]["off_diff"] is None) or
-                   (r["off_diff"] is not None and abs(r["off_diff"] - srows[r["id"]]["off_diff"]) > 0.01)]
-            worst = max((abs(r["off_diff"] - srows[r["id"]]["off_diff"]) for r in rows
-                         if r["off_diff"] is not None and srows[r["id"]]["off_diff"] is not None), default=0)
-            check(not bad, f"t2@{tag}:{name}", f"{d['page']}：判定 / 偏移差与服务器不同 {len(bad)} 笔 {bad[:5]}；偏移差最大相差 {worst:.4f} px；"
-                  f"设备判错 {sum(r['verdict'] == '错' for r in rows)}，服务器判错 {sum(r['verdict'] == '错' for r in ref[d['page']][w])}")
-            if name == "R2":
-                f3 = [r["id"] for r in rows if r["verdict"] in IC.FAIL_VERDICTS]
-                check(not f3, f"t3@{tag}", f"snapshot/2 对自己：失败 {len(f3)} 笔 {f3[:5]}")
-        base_files = [p for p in repos[v].files if p.startswith("checks/devcheck_base_")]
-        ok5 = (d2["base_cached"] and d2["base_ref"] == d1["base_ref"] and d2["base_ref"] in base_files and d2["old"] == d1["old"])
-        check(ok5, f"t5@{tag}", f"R2 复用基准页缓存 {d2['base_ref']}（R1 上传 {base_files}）；耗时 R1 {d1['old']['ms']} + {d1['new']['ms']}，R2 只测待测页 {d2['new']['ms']}")
-        puts = [p for m, p in repos[v].log if m == "PUT"]
-        check(not repos[v].bad and puts and all(PATH_RE.fullmatch(p) for p in puts), f"t7@{tag}", f"写操作 {puts}，越界请求 {repos[v].bad}")
-    da = ra[0]["preview/3"]
-    d1 = r1[VIEWS[0]][0]["preview/3"]
-    diff = probe_diff(da["old"]["probes"], d1["old"]["probes"]) + probe_diff(da["new"]["probes"], d1["new"]["probes"])
-    check(not diff, "t6", f"A/B 820：固定等待 vs 等布局稳定 逐笔采样不同 {len(diff)} 笔 {diff[:5]}；耗时（ms）固定 {da['old']['ms']} / {da['new']['ms']}，"
-          f"稳定 {d1['old']['ms']} / {d1['new']['ms']}")
+        P, R1, R2, RA = (json.loads((out / f"device_{w}_{n}.json").read_text(encoding="utf-8")) for n in ("P", "R1", "R2", "RA"))
+        dP, d1, d2, dA = P["res"]["preview/3"], R1["res"]["preview/3"], R2["res"]["snapshot/2"], RA["res"]["preview/3"]
+        warns = P["warns"] + R1["warns"] + R2["warns"] + RA["warns"]
+        check(not warns and all(d["valid"]["ok"] for d in (dP, d1, d2, dA)), f"t4@{tag}", f"设备页自报问题：{warns}")
+        sdir = out / "server_preview_3"
+        for side in ("old", "new"):
+            sp = json.loads((sdir / f"probe_{w}_{side}.json").read_text(encoding="utf-8"))
+            diff = sorted(i for i in set(sp) | set(dP[side]["probes"]) if field_diffs(sp.get(i, {}), dP[side]["probes"].get(i, {})))
+            check(not diff, f"t1@{tag}:{side}", f"设备 PROBE_JS 与服务器 {dP[side]['page']}：{len(sp)} 笔，不同 {len(diff)} 笔 {diff[:5]}")
+        ab = {}
+        for side in ("old", "new"):
+            run = dP[side]
+            for how, scr in (("实际滚动", run["scrolls"]), ("推出滚动", None)):
+                t0 = time.time()
+                geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, scr)
+                el = time.time() - t0
+                bad = {i: field_diffs(run["probes"][i], geo.get(i, {})) for i in run["probes"]}
+                bad = {i: d for i, d in bad.items() if d}
+                ab[f"{side}:{how}"] = bad
+                by = {}
+                for d in bad.values():
+                    for k in d:
+                        by[k] = by.get(k, 0) + 1
+                check(not bad, f"t8@{tag}:{side}:{how}", f"{run['page']}：geom_probe 与 PROBE_JS 不同 {len(bad)}/{len(run['probes'])} 笔，按字段 {by}；几何重算 {el:.1f} s")
+        (out / f"ab_{w}.json").write_text(json.dumps(ab, ensure_ascii=False, indent=1), encoding="utf-8")
+        srows = {r["id"]: r for r in json.loads((sdir / f"table_{w}.json").read_text(encoding="utf-8"))}
+        rows = J.judge_rows(IC, d1["old"], d1["new"], gmaps, cal)
+        J.write_table(rows, out, f"{w}_device_R1")
+        bad = [r["id"] for r in rows if r["verdict"] != srows[r["id"]]["verdict"] or (r["off_diff"] is None) != (srows[r["id"]]["off_diff"] is None)
+               or (r["off_diff"] is not None and abs(r["off_diff"] - srows[r["id"]]["off_diff"]) > NUM_TOL)]
+        check(not bad, f"t2@{tag}", f"preview/3 布局表判定与服务器不同 {len(bad)} 笔 {bad[:5]}；设备判错 {sum(r['verdict'] == '错' for r in rows)}，"
+              f"服务器判错 {sum(r['verdict'] == '错' for r in srows.values())}")
+        rows2 = J.judge_rows(IC, d2["old"], d2["new"], gmaps, cal)
+        f3 = [r["id"] for r in rows2 if r["verdict"] in IC.FAIL_VERDICTS]
+        check(not f3, f"t3@{tag}", f"snapshot/2 对自己：失败 {len(f3)} 笔 {f3[:5]}")
+        rp1 = json.loads((out / f"repo_{w}_R1.json").read_text(encoding="utf-8"))
+        rp2 = json.loads((out / f"repo_{w}_R2.json").read_text(encoding="utf-8"))
+        ok5 = d2["base_cached"] and d2["base_ref"] == d1["base_ref"] and d2["base_ref"] in rp1["files"] and d2["old"] == d1["old"]
+        check(ok5, f"t5@{tag}", f"R2 复用基准页 {d2['base_ref']}；R1 用时 {R1['wall_s']} s（两页 {d1['old']['ms']} / {d1['new']['ms']}），"
+              f"R2 用时 {R2['wall_s']} s（只测待测页 {d2['new']['ms']}）")
+        same = dA["old"]["layout"] == d1["old"]["layout"] and dA["new"]["layout"] == d1["new"]["layout"]
+        check(same, f"t6@{tag}", f"固定等待 vs 等布局稳定 布局表相同 {same}；用时 固定 {RA['wall_s']} s（{dA['old']['ms']} / {dA['new']['ms']}），"
+              f"稳定 {R1['wall_s']} s；设备 PROBE_JS 模式 {P['wall_s']} s")
+        puts = [p for m, p in rp1["log"] + rp2["log"] if m == "PUT"]
+        check(not rp1["bad"] and not rp2["bad"] and puts and all(PATH_RE.fullmatch(p) for p in puts), f"t7@{tag}", f"写操作 {puts}，越界请求 {rp1['bad'] + rp2['bad']}")
     print(f"== 失败 {len(fails)} 项 {fails}")
-    sys.exit(1 if fails else 0)
+    return fails
+
+
+def quick(out, IC, every, run_browser):
+    """几何对拍快速迭代：820 视口 P 模式每 every 笔跑一笔（run_browser 时开浏览器，存 device_820_Pq.json），然后只做 t8，逐笔列不一致字段。"""
+    import geom_probe as G
+    f = out / "device_820_Pq.json"
+    if run_browser:
+        base, srv = serve_root()
+        f.write_text(json.dumps(run_device(base, VIEWS[0], f"mode=probe&every={every}&page=preview/3&noupload=1"), ensure_ascii=False), encoding="utf-8")
+        srv.shutdown()
+    P = json.loads(f.read_text(encoding="utf-8"))["res"]["preview/3"]
+    for side in ("old", "new"):
+        run = P[side]
+        geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, run["scrolls"])
+        geo2 = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE)
+        bad = {i: field_diffs(run["probes"][i], geo[i]) for i in run["probes"]}
+        bad = {i: d for i, d in bad.items() if d}
+        bad2 = sum(bool(field_diffs(run["probes"][i], geo2[i])) for i in run["probes"])
+        scr = sum(tuple(run["scrolls"][i]) != tuple(G.scroll_for(G.Layout(run["layout"]), next(s for s in run["layout"]["strokes"] if s["id"] == i)["abs"][0]))
+                  for i in run["scrolls"])
+        print(f"== {side} {run['page']}：{len(run['probes'])} 笔，实际滚动下不同 {len(bad)}，推出滚动下不同 {bad2}，推出滚动与实际不同 {scr} 笔", flush=True)
+        for i, d in list(bad.items())[:12]:
+            print(f"   {i}: " + "；".join(f"{k}: JS={str(a)[:160]} | 几何={str(b)[:160]}" for k, (a, b) in d.items()), flush=True)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline"), default="all")
+    ap.add_argument("--every", type=int, default=10, help="quick：每几笔跑一笔")
+    ap.add_argument("--indep-check-dir", default=B.DEFAULT_IC_DIR)
+    args = ap.parse_args()
+    out = pathlib.Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    IC = B.load_ic(args.indep_check_dir)
+    from webgen.annotate import DRAFTS
+    gmaps = IC.RP.glyph_letter_maps(IC.RP.letter_maps(json.loads((DRAFTS / "notation_renames_week3_4.json").read_text(encoding="utf-8")).get("tex", {})))
+    cal = json.loads((pathlib.Path(args.indep_check_dir) / "indep_check_cal" / "calibration.json").read_text(encoding="utf-8"))
+    if args.phase in ("quick", "quick-offline"):
+        quick(out, IC, args.every, args.phase == "quick")
+        return
+    if args.phase in ("collect", "all"):
+        collect(out, IC, gmaps, cal)
+    if args.phase in ("compare", "all"):
+        sys.exit(1 if compare(out, IC, gmaps, cal) else 0)
 
 
 if __name__ == "__main__":

@@ -60,6 +60,44 @@ DUMP_JS = r"""() => {
 }"""
 
 
+# 布局表（默认模式）：每页只导出一遍几何，不做命中测试；服务器用 geom_probe.py 按 PROBE_JS 的口径纯几何重算每笔。
+# 坐标一律是「屏幕 px 相对正文卡片原点 (f.x, f.y)」，与滚动无关；另给导出时的滚动、f、视口与可滚动高度，服务器据此重放 probe_page 的滚动。
+#  text：过滤规则同 PROBE_JS（父元素不在 mjx-container / script / style / .annot-ui 里）的每个文字节点：节点原文 d、
+#        去空白前缀长度 p0（= PROBE_JS tOff）、父元素行高 lh、每个非空白字 [节点内偏移, l, t, r, b]（Range.getBoundingClientRect）。
+#  maths：每个 mjx-container：外框、父元素行高、overflow-x 与可见裁剪框；每个 [data-c]：字符、标签、href、x/y、getScreenCTM、外框。
+#  paths：被引用的字形路径 {id: d}；media：img / video 外框与 src；heads：h2 / h3 上沿与文字；strokes：每笔 placed 状态、abs、笔宽。
+LAYOUT_JS = r"""() => {
+  const art = document.querySelector('main article'), N = window.__nipcNotes, f = N.frame(), de = document.documentElement;
+  const R = q => [q.left - f.x, q.top - f.y, q.right - f.x, q.bottom - f.y];
+  const lhOf = el => { const cs = getComputedStyle(el), v = parseFloat(cs.lineHeight); return Number.isFinite(v) ? v : 1.7 * parseFloat(cs.fontSize); };
+  const text = [], rg = document.createRange(); let co = 0;
+  const w = document.createTreeWalker(art, NodeFilter.SHOW_TEXT);
+  for (let n = w.nextNode(); n; n = w.nextNode()) { const par = n.parentElement;
+    if (!(par && !par.closest('mjx-container, script, style, .annot-ui'))) continue;
+    const cs = [];
+    for (let o = 0; o < n.data.length; o++) { if (/\s/.test(n.data[o])) continue;
+      rg.setStart(n, o); rg.setEnd(n, o + 1); const q = rg.getBoundingClientRect(); cs.push([o, ...R(q)]); }
+    text.push({ d: n.data, p0: co, lh: lhOf(par), c: cs }); co += n.data.replace(/\s+/g, '').length; }
+  const paths = {}, need = new Set();
+  const maths = [...art.querySelectorAll('mjx-container')].map(mc => {
+    const cs = getComputedStyle(mc), q = mc.getBoundingClientRect();
+    const g = [...mc.querySelectorAll('[data-c]')].map(el => { const m = el.getScreenCTM && el.getScreenCTM();
+      const href = el.getAttribute('href') || el.getAttribute('xlink:href') || '';
+      if (href) need.add(href.slice(1));
+      return { c: el.getAttribute('data-c'), tag: el.tagName.toLowerCase(), href, x: +(el.getAttribute('x') || 0), y: +(el.getAttribute('y') || 0),
+               d: el.tagName.toLowerCase() === 'path' ? el.getAttribute('d') : null,
+               m: m ? [m.a, m.b, m.c, m.d, m.e - f.x, m.f - f.y] : null, r: R(el.getBoundingClientRect()) }; });
+    return { r: R(q), lh: lhOf(mc.parentElement || mc), ox: cs.overflowX, oy: cs.overflowY, g }; });
+  for (const id of need) { const el = document.getElementById(id); if (el) paths[id] = { tag: el.tagName.toLowerCase(), d: el.getAttribute('d') }; }
+  const media = [...art.querySelectorAll('img, video')].map(e => ({ src: (e.getAttribute('src') || '').split('/').pop(), r: R(e.getBoundingClientRect()) }));
+  const heads = [...art.querySelectorAll('h2, h3')].map(h => ({ t: h.getBoundingClientRect().top - f.y, s: h.textContent.trim() }));
+  const strokes = N.strokes().map(s => { const d = N.placed(s.id);
+    return { id: s.id, w: s.w, state: d ? d.state : 'none', abs: d && d.abs ? d.abs.map(p => [p[0], p[1]]) : null }; });
+  return { f: [f.x, f.y, f.s], scroll: [scrollX, scrollY], inner: [innerWidth, innerHeight], max_scroll: [de.scrollWidth - de.clientWidth, de.scrollHeight - de.clientHeight],
+           art_lh: lhOf(art), text, maths, paths, media, heads, strokes };
+}"""
+
+
 def load_ic(ic_dir):
     """import indep_check（不改它）：它在 diag_wt 分支的 tools/ 下，靠 sys.path 引入。"""
     sys.path.insert(0, str(ic_dir))
@@ -81,13 +119,14 @@ def build(IC):
     cfg = dict(base=BASE_PAGE, targets=list(TARGET_PAGES), default_targets=list(DEFAULT_TARGETS),
                grid=IC.RP_GRID, sample=IC.RP_SAMPLE, budget=IC.BUDGET_MS,
                probe_sha256=sha256(IC.PROBE_JS), texts_sha256=sha256(IC.page_texts_js()),
-               env_sha256=sha256(ENV_JS), dump_sha256=sha256(DUMP_JS))
+               env_sha256=sha256(ENV_JS), dump_sha256=sha256(DUMP_JS), layout_sha256=sha256(LAYOUT_JS))
     tpl = (pathlib.Path(__file__).with_name("devcheck_template.html")).read_text(encoding="utf-8")
     return (tpl.replace("/*@CFG@*/null", js_str(json.dumps(cfg, ensure_ascii=False)))
                .replace("/*@PROBE_JS@*/''", js_str(IC.PROBE_JS))
                .replace("/*@TEXTS_JS@*/''", js_str(IC.page_texts_js()))
                .replace("/*@ENV_JS@*/''", js_str(ENV_JS))
-               .replace("/*@DUMP_JS@*/''", js_str(DUMP_JS)))
+               .replace("/*@DUMP_JS@*/''", js_str(DUMP_JS))
+               .replace("/*@LAYOUT_JS@*/''", js_str(LAYOUT_JS)))
 
 
 def main():
@@ -95,7 +134,7 @@ def main():
     ap.add_argument("--indep-check-dir", default=DEFAULT_IC_DIR)
     args = ap.parse_args()
     html = build(load_ic(args.indep_check_dir))
-    for k in ("/*@CFG@*/", "/*@PROBE_JS@*/", "/*@TEXTS_JS@*/", "/*@ENV_JS@*/", "/*@DUMP_JS@*/"):
+    for k in ("/*@CFG@*/", "/*@PROBE_JS@*/", "/*@TEXTS_JS@*/", "/*@ENV_JS@*/", "/*@DUMP_JS@*/", "/*@LAYOUT_JS@*/"):
         assert k not in html, f"模板占位 {k} 没替换"
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding="utf-8")

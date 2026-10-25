@@ -93,8 +93,21 @@ def new_offsets(refs, dump):
     return out
 
 
+def probes_of(IC, run):
+    """一次运行的逐笔采样：设备 probe 模式直接用 PROBE_JS 结果；默认 layout 模式由布局表纯几何重算（geom_probe，与 PROBE_JS 对拍过）。"""
+    if run.get("probes") is not None:
+        return run["probes"]
+    import geom_probe as G
+    return G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE)
+
+
 def judge_rows(IC, old, new, gmaps, cal):
-    """逐笔判定行（与 indep_check.run 的行同字段）。old / new 是设备页的一次运行（probes、texts、dump）。"""
+    """逐笔判定行（与 indep_check.run 的行同字段）。old / new 是设备页的一次运行（probes 或 layout、texts、dump）。"""
+    import geom_probe as G
+    old = dict(old, probes=probes_of(IC, old))
+    new = dict(new, probes=probes_of(IC, new))
+    if new.get("dump") is None:
+        new["dump"] = G.dump_from_layout(new["layout"])
     imap = IC.IdentityMap(old["texts"], new["texts"])
     refs = IC.pick_refs(old["probes"], new["probes"], imap)
     noff = new_offsets(refs, new["dump"])
@@ -139,6 +152,8 @@ def validity(IC, d, env_check):
     probs = list(d.get("valid", {}).get("problems") or [])
     if d.get("probe_src_sha256") != hashlib.sha256(IC.PROBE_JS.encode("utf-8")).hexdigest():
         probs.append("页面里嵌的 PROBE_JS 与当前 indep_check.PROBE_JS 不同")
+    if d.get("cfg", {}).get("layout_sha256") != hashlib.sha256(B.LAYOUT_JS.encode("utf-8")).hexdigest():
+        probs.append("页面里的 LAYOUT_JS 与当前 build_devcheck.LAYOUT_JS 不同（geom_probe 口径可能对不上）")
     envs = {}
     if env_check:
         for key, run in (("old", d["old"]), ("new", d["new"])):
