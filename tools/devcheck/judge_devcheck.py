@@ -154,6 +154,10 @@ def validity(IC, d, env_check):
         probs.append("页面里嵌的 PROBE_JS 与当前 indep_check.PROBE_JS 不同")
     if d.get("cfg", {}).get("layout_sha256") != hashlib.sha256(B.LAYOUT_JS.encode("utf-8")).hexdigest():
         probs.append("页面里的 LAYOUT_JS 与当前 build_devcheck.LAYOUT_JS 不同（geom_probe 口径可能对不上）")
+    import geom_probe as G
+    for run in (d["old"], d["new"]):
+        if run.get("probes") is None and G.scroll_rule(run["layout"]) is None:
+            probs.append(f"{run['page']} 的滚动取整规则认不出：{run['layout'].get('scroll_rule')}")
     envs = {}
     if env_check:
         for key, run in (("old", d["old"]), ("new", d["new"])):

@@ -146,7 +146,14 @@
     }
     const msProbe = performance.now() - tProbe;
     const tLay = performance.now();
+    // 这台设备怎么取整滚动位置（probe_page 每笔 scrollTo 的是小数位置）：试几个小数目标，记实际 scrollY，服务器据此重放
+    const scroll_rule = [];
+    for (const t of [100.3, 100.5, 100.7, 101.25, 101.75, 102.49, 102.51]) {
+      scrollInstant(win, t); scroll_rule.push([t, win.scrollY]);
+    }
+    scrollInstant(win, 0);
     const layout = fn(SRC.layout)();
+    layout.scroll_rule = scroll_rule;
     const msLayout = performance.now() - tLay;
     if (MODE !== 'probe') onStroke(ids.length, ids.length);
     const texts = fn(SRC.texts)();

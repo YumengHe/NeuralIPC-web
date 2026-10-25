@@ -64,7 +64,7 @@ DUMP_JS = r"""() => {
 # 坐标一律是「屏幕 px 相对正文卡片原点 (f.x, f.y)」，与滚动无关；另给导出时的滚动、f、视口与可滚动高度，服务器据此重放 probe_page 的滚动。
 #  text：过滤规则同 PROBE_JS（父元素不在 mjx-container / script / style / .annot-ui 里）的每个文字节点：节点原文 d、
 #        去空白前缀长度 p0（= PROBE_JS tOff）、父元素行高 lh、每个非空白字 [节点内偏移, l, t, r, b]（Range.getBoundingClientRect）。
-#  maths：每个 mjx-container：外框、父元素行高、overflow-x 与可见裁剪框；每个 [data-c]：字符、标签、href、x/y、getScreenCTM、外框。
+#  maths：每个 mjx-container：外框、父元素行高、overflow-x / y；每个 [data-c]：字符、标签、href、x/y、计算后的 stroke 与 stroke-width、getScreenCTM、外框。
 #  paths：被引用的字形路径 {id: d}；media：img / video 外框与 src；heads：h2 / h3 上沿与文字；strokes：每笔 placed 状态、abs、笔宽。
 LAYOUT_JS = r"""() => {
   const art = document.querySelector('main article'), N = window.__nipcNotes, f = N.frame(), de = document.documentElement;
@@ -84,7 +84,8 @@ LAYOUT_JS = r"""() => {
     const g = [...mc.querySelectorAll('[data-c]')].map(el => { const m = el.getScreenCTM && el.getScreenCTM();
       const href = el.getAttribute('href') || el.getAttribute('xlink:href') || '';
       if (href) need.add(href.slice(1));
-      return { c: el.getAttribute('data-c'), tag: el.tagName.toLowerCase(), href, x: +(el.getAttribute('x') || 0), y: +(el.getAttribute('y') || 0),
+      const gs = getComputedStyle(el);
+      return { c: el.getAttribute('data-c'), tag: el.tagName.toLowerCase(), href, stroke: gs.stroke, sw: parseFloat(gs.strokeWidth) || 0, x: +(el.getAttribute('x') || 0), y: +(el.getAttribute('y') || 0),
                d: el.tagName.toLowerCase() === 'path' ? el.getAttribute('d') : null,
                m: m ? [m.a, m.b, m.c, m.d, m.e - f.x, m.f - f.y] : null, r: R(el.getBoundingClientRect()) }; });
     return { r: R(q), lh: lhOf(mc.parentElement || mc), ox: cs.overflowX, oy: cs.overflowY, g }; });
@@ -93,7 +94,7 @@ LAYOUT_JS = r"""() => {
   const heads = [...art.querySelectorAll('h2, h3')].map(h => ({ t: h.getBoundingClientRect().top - f.y, s: h.textContent.trim() }));
   const strokes = N.strokes().map(s => { const d = N.placed(s.id);
     return { id: s.id, w: s.w, state: d ? d.state : 'none', abs: d && d.abs ? d.abs.map(p => [p[0], p[1]]) : null }; });
-  return { f: [f.x, f.y, f.s], scroll: [scrollX, scrollY], inner: [innerWidth, innerHeight], max_scroll: [de.scrollWidth - de.clientWidth, de.scrollHeight - de.clientHeight],
+  return { f: [f.x, f.y, f.s], scroll: [scrollX, scrollY], dpr: devicePixelRatio, inner: [innerWidth, innerHeight], max_scroll: [de.scrollWidth - de.clientWidth, de.scrollHeight - de.clientHeight],
            art_lh: lhOf(art), text, maths, paths, media, heads, strokes };
 }"""
 

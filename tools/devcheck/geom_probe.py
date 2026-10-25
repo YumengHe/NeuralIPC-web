@@ -120,6 +120,18 @@ def flatten_path(d, nseg=16):
     return [np.array(p, dtype=float) for p in polys if len(p) >= 2]
 
 
+def edge_dist(polys, x, y):
+    """点到各折线（首尾相连）边的最短距离。"""
+    best = math.inf
+    for P in polys:
+        a, b = P, np.roll(P, -1, axis=0)
+        d = b - a
+        L2 = (d ** 2).sum(1)
+        t = np.where(L2 > 0, np.clip(((x - a[:, 0]) * d[:, 0] + (y - a[:, 1]) * d[:, 1]) / np.where(L2 > 0, L2, 1), 0, 1), 0)
+        best = min(best, float(np.sqrt(((a[:, 0] + t * d[:, 0] - x) ** 2 + (a[:, 1] + t * d[:, 1] - y) ** 2).min())))
+    return best
+
+
 def winding(polys, x, y):
     """点 (x, y) 对折线集合的绕数（各折线首尾相连）。"""
     wn = 0
@@ -159,6 +171,7 @@ class Layout:
         self.inner = L["inner"]
         self.max_scroll = L["max_scroll"]
         self.page_f = (L["f"][0] + L["scroll"][0], L["f"][1] + L["scroll"][1])
+        self.rule = scroll_rule(L)
         # 正文字
         self.chars = []          # [(节点序号, 偏移, l, t, r, b)]
         self.node_char = []      # 节点序号 → {偏移: 字序号}
@@ -198,7 +211,9 @@ class Layout:
                     a, b, c, d, e, f = g["m"]
                     det = a * d - b * c
                     inv = (d / det, -b / det, -c / det, a / det, e, f) if det else None
-                self.glyphs.append(dict(m=mi, k=k, c=nfkc(g["c"]), r=g["r"], polys=polys, shift=shift, inv=inv, clip=clip))
+                # 描边也算墨迹（浏览器命中测试含描边）：MathJax 字形 stroke = currentColor、stroke-width 3（字形单位，约 0.02 屏幕 px）
+                half = (g.get("sw") or 0) / 2 if (g.get("stroke") or "none") != "none" else 0.0
+                self.glyphs.append(dict(m=mi, k=k, c=nfkc(g["c"]), r=g["r"], polys=polys, shift=shift, inv=inv, clip=clip, half=half))
         self.glyph_grid = Grid([g["r"] for g in self.glyphs])
         self.media = L["media"]
         self.media_grid = Grid([q["r"] for q in self.media])
@@ -254,7 +269,7 @@ class Layout:
                 ia, ib, ic, idd, e, f = g["inv"]
                 X, Y = rx - e, ry - f
                 ux, uy = ia * X + ic * Y - g["shift"][0], ib * X + idd * Y - g["shift"][1]
-                ok = winding(g["polys"], ux, uy) != 0
+                ok = winding(g["polys"], ux, uy) != 0 or (g["half"] > 0 and edge_dist(g["polys"], ux, uy) <= g["half"])
             if ok and (hit is None or k > hit):
                 hit = k
         return hit
@@ -331,10 +346,30 @@ def _grid_hits(lay, P, x0, x1, y0, y1, st, r, fx, fy, neigh):
             neigh[h[0]] = h
 
 
+SCROLL_RULES = {
+    "round": lambda v, dpr: math.floor(v + 0.5),
+    "floor": lambda v, dpr: math.floor(v),
+    "ceil": lambda v, dpr: math.ceil(v),
+    "device_px": lambda v, dpr: math.floor(v * dpr + 0.5) / dpr,
+    "none": lambda v, dpr: v,
+}
+
+
+def scroll_rule(L):
+    """设备页实测的 [目标, 实际 scrollY] 对上哪种取整（按 SCROLL_RULES 顺序第一个全对上的）；没有实测或都对不上返回 None。"""
+    obs, dpr = L.get("scroll_rule") or [], L.get("dpr", 1)
+    for name, fn in SCROLL_RULES.items():
+        if obs and all(abs(fn(t, dpr) - a) < 1e-9 for t, a in obs):
+            return name
+    return None
+
+
 def scroll_for(lay, abs0):
-    """probe_page 的滚动：scrollTo(max(0, 起点页面 y − innerHeight / 2))，浏览器夹到 [0, 最大滚动]。返回 (scrollX, scrollY)。"""
+    """probe_page 的滚动：scrollTo(max(0, 起点页面 y − innerHeight / 2))，按这台设备的取整规则取整，再夹到 [0, 最大滚动]。返回 (scrollX, scrollY)。"""
     y = lay.page_f[1] + abs0[1] * lay.s
-    return lay.L["scroll"][0], min(max(0.0, y - lay.inner[1] / 2), lay.max_scroll[1])
+    v = max(0.0, y - lay.inner[1] / 2)
+    rule = SCROLL_RULES[lay.rule or "none"]
+    return lay.L["scroll"][0], min(rule(v, lay.L.get("dpr", 1)), lay.max_scroll[1])
 
 
 def probe(lay, sid, grid_px, sample_px, scroll=None):
