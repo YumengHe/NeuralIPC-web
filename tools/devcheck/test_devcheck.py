@@ -81,14 +81,16 @@ class FakeRepo:
         return route.fulfill(status=403, headers=CORS, body="")
 
 
-def run_device(base, view, query, repo=None):
-    """无头 Chromium 模拟 iPad 打开设备页，等跑完。repo 给了就放假 token、拦截 GitHub API。返回 {res, warns, done, wall_s}。"""
+def run_device(base, view, query, repo=None, plain=False):
+    """无头 Chromium 模拟 iPad 打开设备页，等跑完。repo 给了就放假 token、拦截 GitHub API。plain：不模拟 iPad（dpr 1、默认 UA、无触屏，
+    与服务器 indep_check 的浏览器环境相同，只差「在 iframe 里」这一点）。返回 {res, warns, done, wall_s}。"""
     from playwright.sync_api import sync_playwright
-    tag = f"{view[0]}×{view[1]} {query}"
+    tag = f"{view[0]}×{view[1]}{' plain' if plain else ''} {query}"
     t0 = time.time()
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        ctx = browser.new_context(viewport={"width": view[0], "height": view[1]}, device_scale_factor=2, user_agent=IPAD_UA, has_touch=True)
+        ctx = (browser.new_context(viewport={"width": view[0], "height": view[1]}) if plain else
+               browser.new_context(viewport={"width": view[0], "height": view[1]}, device_scale_factor=2, user_agent=IPAD_UA, has_touch=True))
         if repo is not None:
             ctx.add_init_script("try { localStorage.setItem('nipc-notes-sync', JSON.stringify({ token: 'test-token' })); } catch (e) {}")
             ctx.route("https://api.github.com/**", repo.handle)
@@ -245,6 +247,30 @@ def quick(out, IC, every, run_browser):
             print(f"   {i}: " + "；".join(f"{k}: JS={str(a)[:160]} | 几何={str(b)[:160]}" for k, (a, b) in d.items()), flush=True)
 
 
+def plain_check(out, every):
+    """t1 的归因：同一台服务器、同一视口、服务器同款浏览器环境（不模拟 iPad）里，设备页 iframe 内原样跑的 PROBE_JS 与 indep_check.probe_page
+    逐笔比（每 every 笔一笔，两个视口；服务器参照用 collect 写的 server_preview_3/probe_<宽>_*.json）。"""
+    base, srv = serve_root()
+    with ThreadPoolExecutor(len(VIEWS)) as ex:
+        res = dict(zip(VIEWS, ex.map(lambda v: run_device(base, v, f"mode=probe&every={every}&page=preview/3&noupload=1", plain=True), VIEWS)))
+    srv.shutdown()
+    for v, r in res.items():
+        (out / f"device_{v[0]}_Pplain.json").write_text(json.dumps(r, ensure_ascii=False), encoding="utf-8")
+        d = r["res"]["preview/3"]
+        for side in ("old", "new"):
+            sp = json.loads((out / "server_preview_3" / f"probe_{v[0]}_{side}.json").read_text(encoding="utf-8"))
+            dp = d[side]["probes"]
+            diff = {i: field_diffs(sp[i], dp[i]) for i in dp}
+            diff = {i: x for i, x in diff.items() if x}
+            by = {}
+            for x in diff.values():
+                for k in x:
+                    by[k] = by.get(k, 0) + 1
+            print(f"{'PASS' if not diff else 'FAIL'} t1plain@{v[0]}:{side} iframe 内 PROBE_JS（服务器同款环境）与 indep_check：{len(dp)} 笔，不同 {len(diff)} 笔，按字段 {by}", flush=True)
+            for i, x in list(diff.items())[:3]:
+                print(f"   {i}: " + "；".join(f"{k}: 服务器={str(a)[:120]} | iframe={str(b)[:120]}" for k, (a, b) in x.items()), flush=True)
+
+
 def diag(out, IC, name="device_820_Pq.json"):
     """几何对拍不一致的诊断：对 quick 结果里 JS 邻域有、几何没有的字形，报它的路径命令种类、外框内墨迹占比（0.5 px 点阵）、
     以及笔附近网格点（PROBE_JS 同口径）落在外框里却被几何判为不在墨迹里的个数与离墨迹边最近的距离。"""
@@ -324,7 +350,7 @@ def diag(out, IC, name="device_820_Pq.json"):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export"), default="all")
+    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export", "plain"), default="all")
     ap.add_argument("--every", type=int, default=10, help="quick：每几笔跑一笔")
     ap.add_argument("--diag-file", default="device_820_Pq.json", help="diag：out-dir 下哪份 P 数据")
     ap.add_argument("--skip-probe", action="store_true", help="collect 不重跑 P（沿用 out-dir 里已有的 device_<宽>_P.json）")
@@ -340,6 +366,9 @@ def main():
         for v in VIEWS:
             d = json.loads((out / f"device_{v[0]}_R1.json").read_text(encoding="utf-8"))["res"]["preview/3"]
             (out / f"devcheck_preview_3_local{v[0]}_{d['at'][:4]}0101T000000Z.json").write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+        return
+    if args.phase == "plain":
+        plain_check(out, args.every)
         return
     if args.phase == "diag":
         diag(out, IC, args.diag_file)
