@@ -253,7 +253,7 @@ def diag(out, IC):
     for side in ("old", "new"):
         run = P[side]
         lay = G.Layout(run["layout"])
-        geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, run["scrolls"])
+        geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, pressed=run["pressed"], only=set(run["probes"]))
         for sid, js in run["probes"].items():
             if js.get("state") != "ok" or js.get("nc") == geo[sid].get("nc"):
                 continue
@@ -262,7 +262,14 @@ def diag(out, IC):
             for ident in sorted(jsid ^ gid):
                 kind = "漏了" if ident in jsid else "多了"
                 if ident[0] != "m":
-                    print(f"   {side} {sid}：几何{kind}正文 {ident}")
+                    p = int(ident[1:])
+                    hit = [(ni, o, c) for ni, n in enumerate(run["layout"]["text"]) for (o, *c) in n["c"]
+                           if n["p0"] + G.js_ws_strip_len(n["d"][:o]) == p]
+                    ni, o, rect = hit[0]
+                    n = run["layout"]["text"][ni]
+                    over = [(k, [round(v, 1) for v in m["r"]]) for k, m in enumerate(run["layout"]["maths"])
+                            if m["r"][0] < rect[2] and m["r"][2] > rect[0] and m["r"][1] < rect[3] and m["r"][3] > rect[1]]
+                    print(f"   {side} {sid}：几何{kind}正文 {ident}「{n['d'][o]}」框 {[round(v, 1) for v in rect]} 节点 mb={n.get('mb')}，与之相交的公式容器 {over}")
                     continue
                 m, k = map(int, ident[1:].split(":"))
                 gi = next(i for i, g in enumerate(lay.glyphs) if g["m"] == m and g["k"] == k)
