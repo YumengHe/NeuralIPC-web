@@ -292,6 +292,28 @@ def plain_check(out, every):
                 print(f"   {i}: " + "；".join(f"{k}: 服务器={str(a)[:120]} | iframe={str(b)[:120]}" for k, (a, b) in x.items()), flush=True)
 
 
+def t2_plain(out, IC, gmaps, cal):
+    """t2 的归因：服务器同款浏览器环境里（不模拟 iPad）跑默认 layout 模式的设备页，判定表与 indep_check.run 的表逐笔比
+    （服务器表用 collect 写的 server_preview_3/table_<宽>.json）。"""
+    base, srv = serve_root()
+    with ThreadPoolExecutor(len(VIEWS)) as ex:
+        res = dict(zip(VIEWS, ex.map(lambda v: run_device(base, v, "page=preview/3&noupload=1", plain=True), VIEWS)))
+    srv.shutdown()
+    for v, r in res.items():
+        w = v[0]
+        (out / f"device_{w}_R1plain.json").write_text(json.dumps(r, ensure_ascii=False), encoding="utf-8")
+        d = r["res"]["preview/3"]
+        srows = {x["id"]: x for x in json.loads((out / "server_preview_3" / f"table_{w}.json").read_text(encoding="utf-8"))}
+        rows = J.judge_rows(IC, d["old"], d["new"], gmaps, cal)
+        bad = [(x["id"], srows[x["id"]]["verdict"], x["verdict_ic"], srows[x["id"]]["off_diff"], x["off_diff"]) for x in rows
+               if x["verdict_ic"] != srows[x["id"]]["verdict"] or (x["off_diff"] is None) != (srows[x["id"]]["off_diff"] is None)
+               or (x["off_diff"] is not None and abs(x["off_diff"] - srows[x["id"]]["off_diff"]) > NUM_TOL)]
+        print(f"{'PASS' if not bad else 'FAIL'} t2plain@{w} 服务器同款环境里的设备页（布局表 + 设备压住段）判定与 indep_check：{len(rows)} 笔，不同 {len(bad)} 笔；"
+              f"判错 设备 {sum(x['verdict_ic'] == '错' for x in rows)} / 服务器 {sum(x['verdict'] == '错' for x in srows.values())}", flush=True)
+        for b in bad:
+            print(f"   {b[0]}：服务器 {b[1]}（偏移差 {b[3]}）/ 设备 {b[2]}（偏移差 {b[4]}）", flush=True)
+
+
 def diag(out, IC, name="device_820_Pq.json"):
     """几何对拍不一致的诊断：对 quick 结果里 JS 邻域有、几何没有的字形，报它的路径命令种类、外框内墨迹占比（0.5 px 点阵）、
     以及笔附近网格点（PROBE_JS 同口径）落在外框里却被几何判为不在墨迹里的个数与离墨迹边最近的距离。"""
@@ -371,7 +393,7 @@ def diag(out, IC, name="device_820_Pq.json"):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export", "plain"), default="all")
+    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export", "plain", "t2plain"), default="all")
     ap.add_argument("--every", type=int, default=10, help="quick：每几笔跑一笔")
     ap.add_argument("--diag-file", default="device_820_Pq.json", help="diag：out-dir 下哪份 P 数据")
     ap.add_argument("--skip-probe", action="store_true", help="collect 不重跑 P（沿用 out-dir 里已有的 device_<宽>_P.json）")
@@ -387,6 +409,9 @@ def main():
         for v in VIEWS:
             d = json.loads((out / f"device_{v[0]}_R1.json").read_text(encoding="utf-8"))["res"]["preview/3"]
             (out / f"devcheck_preview_3_local{v[0]}_{d['at'][:4]}0101T000000Z.json").write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+        return
+    if args.phase == "t2plain":
+        t2_plain(out, IC, gmaps, cal)
         return
     if args.phase == "plain":
         plain_check(out, args.every)
