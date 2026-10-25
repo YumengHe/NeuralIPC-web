@@ -245,12 +245,12 @@ def quick(out, IC, every, run_browser):
             print(f"   {i}: " + "；".join(f"{k}: JS={str(a)[:160]} | 几何={str(b)[:160]}" for k, (a, b) in d.items()), flush=True)
 
 
-def diag(out, IC):
+def diag(out, IC, name="device_820_Pq.json"):
     """几何对拍不一致的诊断：对 quick 结果里 JS 邻域有、几何没有的字形，报它的路径命令种类、外框内墨迹占比（0.5 px 点阵）、
     以及笔附近网格点（PROBE_JS 同口径）落在外框里却被几何判为不在墨迹里的个数与离墨迹边最近的距离。"""
     import numpy as np
     import geom_probe as G
-    P = json.loads((out / "device_820_Pq.json").read_text(encoding="utf-8"))["res"]["preview/3"]
+    P = json.loads((out / name).read_text(encoding="utf-8"))["res"]["preview/3"]
     for side in ("old", "new"):
         run = P[side]
         lay = G.Layout(run["layout"])
@@ -326,6 +326,7 @@ def main():
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export"), default="all")
     ap.add_argument("--every", type=int, default=10, help="quick：每几笔跑一笔")
+    ap.add_argument("--diag-file", default="device_820_Pq.json", help="diag：out-dir 下哪份 P 数据")
     ap.add_argument("--skip-probe", action="store_true", help="collect 不重跑 P（沿用 out-dir 里已有的 device_<宽>_P.json）")
     ap.add_argument("--indep-check-dir", default=B.DEFAULT_IC_DIR)
     args = ap.parse_args()
@@ -341,7 +342,7 @@ def main():
             (out / f"devcheck_preview_3_local{v[0]}_{d['at'][:4]}0101T000000Z.json").write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
         return
     if args.phase == "diag":
-        diag(out, IC)
+        diag(out, IC, args.diag_file)
         return
     if args.phase in ("quick", "quick-offline"):
         quick(out, IC, args.every, args.phase == "quick")
