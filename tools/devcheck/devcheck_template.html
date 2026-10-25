@@ -164,7 +164,8 @@
                   tex, env_start, env_end, iframe_resizes: iresize, iframe_attr: [ifr.offsetWidth, ifr.offsetHeight],
                   waits: FIXED_WAITS ? 'fixed' : 'settle' };
     if (MODE === 'probe') { run.probes = JSON.parse(JSON.stringify(out)); run.scrolls = scrolls; }
-    if (withDump) run.dump = JSON.parse(JSON.stringify(fn(SRC.dump)()));
+    // 第二遍偏移的内容项坐标：layout 模式由布局表算（geom_probe.dump_from_layout），只在 probe 模式另导 DUMP_JS
+    if (withDump && MODE === 'probe') run.dump = JSON.parse(JSON.stringify(fn(SRC.dump)()));
     run.ms_layout = Math.round(msLayout);
     run.ms = { load: Math.round(tProbe - tLoad), probe: Math.round(msProbe), total: Math.round(performance.now() - tLoad) };
     return JSON.parse(JSON.stringify(run));

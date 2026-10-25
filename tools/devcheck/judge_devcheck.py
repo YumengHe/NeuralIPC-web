@@ -158,6 +158,8 @@ def validity(IC, d, env_check):
     for run in (d["old"], d["new"]):
         if run.get("probes") is None and G.scroll_rule(run["layout"]) is None:
             probs.append(f"{run['page']} 的滚动取整规则认不出：{run['layout'].get('scroll_rule')}")
+        if run.get("layout"):
+            print(f"   {run['page']} 布局表自检：{G.layout_stats(run['layout'])}", flush=True)
     envs = {}
     if env_check:
         for key, run in (("old", d["old"]), ("new", d["new"])):

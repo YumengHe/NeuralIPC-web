@@ -40,7 +40,7 @@ _TOK = re.compile(r"[MmLlHhVvQqTtCcSsZz]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+
 def flatten_path(d, nseg=16):
     """SVG path d → 若干闭合折线（[[x, y], ...]）。曲线按 nseg 段压平。"""
     toks = _TOK.findall(d or "")
-    polys, cur, i = [], [], 0
+    polys, cur, i, ctrl = [], [], 0, []
     x = y = sx = sy = 0.0
     cmd, last_ctrl, prev_cmd = None, None, None
 
@@ -95,6 +95,7 @@ def flatten_path(d, nseg=16):
                 px, py = nums(2)
                 qx, qy = (2 * x - last_ctrl[0], 2 * y - last_ctrl[1]) if last_ctrl and prev_cmd in "QqTt" else (x, y)
             px, py = px + ox, py + oy
+            ctrl.append([qx, qy])
             for k in range(1, nseg + 1):
                 u = k / nseg
                 cur.append([(1 - u) ** 2 * x + 2 * (1 - u) * u * qx + u * u * px, (1 - u) ** 2 * y + 2 * (1 - u) * u * qy + u * u * py])
@@ -107,6 +108,7 @@ def flatten_path(d, nseg=16):
                 x2, y2, px, py = nums(4)
                 x1, y1 = (2 * x - last_ctrl[0], 2 * y - last_ctrl[1]) if last_ctrl and prev_cmd in "CcSs" else (x, y)
             x2, y2, px, py = x2 + ox, y2 + oy, px + ox, py + oy
+            ctrl += [[x1, y1], [x2, y2]]
             for k in range(1, nseg + 1):
                 u = k / nseg
                 a, b, cc, dd = (1 - u) ** 3, 3 * (1 - u) ** 2 * u, 3 * (1 - u) * u * u, u ** 3
@@ -117,7 +119,12 @@ def flatten_path(d, nseg=16):
         prev_cmd = cmd
     if cur:
         polys.append(cur)
-    return [np.array(p, dtype=float) for p in polys if len(p) >= 2]
+    out = [np.array(p, dtype=float) for p in polys if len(p) >= 2]
+    flatten_path.ctrl_bounds = None
+    if out:   # 含控制点的外框（Skia getBounds 的口径）：核 CTM 时与压平外框各比一次
+        allp = np.vstack(out + ([np.array(ctrl, dtype=float)] if ctrl else []))
+        flatten_path.ctrl_bounds = (allp[:, 0].min(), allp[:, 1].min(), allp[:, 0].max(), allp[:, 1].max())
+    return out
 
 
 def edge_dist(polys, x, y):
@@ -193,6 +200,7 @@ class Layout:
         self.cont_rects = [m["r"] for m in L["maths"]]
         self.cont_grid = Grid(self.cont_rects)
         poly_cache = {}
+        self.ctm_fixed = 0
         for mi, m in enumerate(L["maths"]):
             clip = None if (m["ox"] == "visible" and m["oy"] == "visible") else m["r"]
             for k, g in enumerate(m["g"]):
@@ -200,15 +208,36 @@ class Layout:
                     pid = g["href"][1:]
                     if pid not in poly_cache:
                         p = L["paths"].get(pid)
-                        poly_cache[pid] = flatten_path(p["d"]) if p and p.get("d") else []
-                    polys, shift = poly_cache[pid], (g["x"], g["y"])
+                        poly_cache[pid] = (flatten_path(p["d"]), flatten_path.ctrl_bounds) if p and p.get("d") else ([], None)
+                    (polys, cb), shift = poly_cache[pid], (g["x"], g["y"])
                 elif g["tag"] == "path":
                     polys, shift = flatten_path(g["d"]), (0.0, 0.0)
+                    cb = flatten_path.ctrl_bounds
                 else:
-                    polys, shift = None, (0.0, 0.0)   # <text> 等：按外框
+                    polys, cb, shift = None, None, (0.0, 0.0)   # <text> 等：按外框
                 inv = None
-                if g["m"] and polys is not None:
+                if g["m"] and polys:
                     a, b, c, d, e, f = g["m"]
+                    # 核 CTM：路径外框（压平外框或含控制点外框，任一个）经 CTM 变换后应与浏览器给的字形外框重合
+                    # （WebKit 在 CSS zoom 下 getScreenCTM 可能不含 zoom）；都差 > 0.5 px 就用「路径外框 → 字形外框」拟合的缩放 + 平移代替（计 ctm_fixed）
+                    allp = np.vstack(polys) + np.array(shift)
+                    l_, t_, r_, b2 = g["r"]
+
+                    def off(bx):
+                        cx = np.array([bx[0], bx[2], bx[0], bx[2]]) + shift[0]
+                        cy = np.array([bx[1], bx[1], bx[3], bx[3]]) + shift[1]
+                        X, Y = a * cx + c * cy + e, b * cx + d * cy + f
+                        return max(abs(X.min() - l_), abs(X.max() - r_), abs(Y.min() - t_), abs(Y.max() - b2))
+                    fb = (allp[:, 0].min() - shift[0], allp[:, 1].min() - shift[1], allp[:, 0].max() - shift[0], allp[:, 1].max() - shift[1])
+                    if min(off(fb), off(cb) if cb else math.inf) > 0.5:
+                        px0, px1, py0, py1 = allp[:, 0].min(), allp[:, 0].max(), allp[:, 1].min(), allp[:, 1].max()
+                        if px1 > px0 and py1 > py0:
+                            ka = (r_ - l_) / (px1 - px0)
+                            kd = (b2 - t_) / (py1 - py0) * (1 if d > 0 else -1)
+                            a, b, c, d = ka, 0.0, 0.0, kd
+                            e = l_ - ka * (px0 + shift[0])
+                            f = (t_ - kd * (py0 + shift[1])) if kd > 0 else (t_ - kd * (py1 + shift[1]))
+                            self.ctm_fixed += 1
                     det = a * d - b * c
                     inv = (d / det, -b / det, -c / det, a / det, e, f) if det else None
                 # 描边也算墨迹（浏览器命中测试含描边）：MathJax 字形 stroke = currentColor、stroke-width 3（字形单位，约 0.02 屏幕 px）
@@ -239,7 +268,8 @@ class Layout:
         for k in self.char_grid.near(rx, ry):
             ni, o, l, t, r, b = self.chars[k]
             if l <= rx <= r and t <= ry <= b and r > l:
-                return ni, (o if rx < (l + r) / 2 else o + 1)
+                # 点在字框里：插入点就是这个字（不是按左右半边取整；quick#2 实测点在右半边 0.52–0.55 处浏览器仍给这个字）
+                return ni, o
         if e <= 0:
             return None
         best = None
@@ -253,7 +283,7 @@ class Layout:
         if best is None:
             return None
         ni, o, l, t, r, b = self.chars[best[1]]
-        return ni, (o if rx < (l + r) / 2 else o + 1)
+        return ni, (o + 1 if rx > r else o)
 
     def _glyph_hit(self, rx, ry):
         hit = None
@@ -454,6 +484,12 @@ def probe_all(L, grid_px, sample_px, scrolls=None):
     """一页全部笔：{笔 id: 结果}。scrolls 给了（设备 probe 模式记下的实际滚动）就用它，否则按 scroll_for 推。"""
     lay = Layout(L)
     return {s["id"]: probe(lay, s["id"], grid_px, sample_px, (scrolls or {}).get(s["id"])) for s in L["strokes"]}
+
+
+def layout_stats(L):
+    """布局表的自检数：滚动取整规则、CTM 与字形外框不符而改用拟合的字形数、字 / 字形 / 笔数。"""
+    lay = Layout(L)
+    return dict(scroll_rule=lay.rule, ctm_fixed=lay.ctm_fixed, chars=len(lay.chars), glyphs=len(lay.glyphs), strokes=len(L["strokes"]))
 
 
 def dump_from_layout(L):

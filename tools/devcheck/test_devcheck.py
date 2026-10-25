@@ -251,9 +251,10 @@ def diag(out, IC):
                 continue
             jsid = {c[0] for c in js["cand"]}
             gid = {c[0] for c in geo[sid]["cand"]}
-            for ident in sorted(jsid - gid):
+            for ident in sorted(jsid ^ gid):
+                kind = "漏了" if ident in jsid else "多了"
                 if ident[0] != "m":
-                    print(f"   {side} {sid}：几何漏了正文 {ident}")
+                    print(f"   {side} {sid}：几何{kind}正文 {ident}")
                     continue
                 m, k = map(int, ident[1:].split(":"))
                 gi = next(i for i, g in enumerate(lay.glyphs) if g["m"] == m and g["k"] == k)
@@ -264,7 +265,7 @@ def diag(out, IC):
                 l, t, r, b = g["r"]
                 xs, ys = np.arange(l, r, 0.5), np.arange(t, b, 0.5)
                 ink = sum(lay._glyph_hit(x, y) == gi for x in xs for y in ys)
-                print(f"   {side} {sid}：几何漏了字形 {ident} 「{g['c']}」 tag={raw['tag']} 命令 {cmds} 外框 {[round(v, 1) for v in g['r']]} "
+                print(f"   {side} {sid}：几何{kind}字形 {ident} 「{g['c']}」 tag={raw['tag']} 命令 {cmds} 外框 {[round(v, 1) for v in g['r']]} "
                       f"墨迹占比 {ink / max(1, len(xs) * len(ys)):.2f} clip={g['clip'] is not None} x/y={raw['x']},{raw['y']} m={[round(v, 3) for v in raw['m']]}")
                 # 这一笔的邻域网格点（第一层，1 行高）里落在该字形外框内的点：几何判不在墨迹里，离墨迹边多远（屏幕 px）
                 st = next(s for s in run["layout"]["strokes"] if s["id"] == sid)
@@ -284,9 +285,11 @@ def diag(out, IC):
                             continue
                         X, Y = rx - e0, ry - f0
                         ux, uy = ia * X + ic * Y, ib * X + idd * Y
+                        ux, uy = ux - g["shift"][0], uy - g["shift"][1]
                         wn = G.winding(g["polys"], ux, uy)
-                        dist = min(float(np.min(np.hypot(*(np.array([[a, c], [b_, dd]]) @ (pp - [ux, uy]).T)))) for pp in g["polys"])
-                        print(f"      网格点 ({x:.2f}, {y:.2f}) 在外框内：绕数 {wn}，离墨迹顶点最近 {dist:.3f} px，字形内 lh={lh}")
+                        ed = G.edge_dist(g["polys"], ux, uy)
+                        print(f"      网格点 ({x:.2f}, {y:.2f}) 在外框内：绕数 {wn}，离路径边 {ed:.2f} 字形单位（≈ {ed * abs(a):.3f} px），"
+                              f"半描边 {g['half']}，几何命中 {lay._glyph_hit(rx, ry) == gi}，clip {g['clip']}，ctm_fixed {lay.ctm_fixed}")
 
 
 def main():
