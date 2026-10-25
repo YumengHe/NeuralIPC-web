@@ -40,6 +40,8 @@
   const REPO = 'delluluwxy/neural-ipc-notes', SYNC_KEY = 'nipc-notes-sync';
   const qs = new URLSearchParams(location.search);
   const NO_UPLOAD = qs.get('noupload') === '1';
+  const FIXED_WAITS = qs.get('waits') === 'fixed';   // A/B 用：服务器 indep_check 的固定等待（1.5 s、0.8 s、每笔 30 + 100·重试 ms）；默认等布局稳定
+  const NO_CACHE = qs.get('nocache') === '1';        // 不用已上传的基准页采样，重测
 
   /** 结果只许写 checks/ 下的一个文件：不许 notes/、covers/、子目录、..。 */
   const checkPath = p => {
@@ -89,12 +91,23 @@
     await win.MathJax.startup.promise;
     await Promise.all([...win.document.images].map(i => (i.loading = 'eager', i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))));
     win.document.querySelectorAll('details').forEach(d => { d.open = true; });
-    await sleep(1500);
+    if (FIXED_WAITS) await sleep(1500); else await settle(win);
     const st = win.document.createElement('style');
     st.textContent = '#annot-layer, #annot-capture { pointer-events: none !important; }';
     win.document.head.appendChild(st);
-    await sleep(800);
+    if (FIXED_WAITS) await sleep(800); else await settle(win);
     return { ifr, win };
+  }
+  /** iframe 里两帧 requestAnimationFrame（标注层的重排在 rAF 里做，见 annotate.py scheduleRender）。 */
+  const frames2 = win => new Promise(r => win.requestAnimationFrame(() => win.requestAnimationFrame(r)));
+  /** 等到布局稳定：字体就绪后，连续两次「两帧之后」文档高度、正文宽、标注层重排计数都不变。 */
+  async function settle(win) {
+    if (win.document.fonts && win.document.fonts.ready) await win.document.fonts.ready;
+    const sig = () => JSON.stringify([win.document.documentElement.scrollHeight, win.document.querySelector('main article').getBoundingClientRect().width,
+                                      win.__nipcNotes.frame()]);
+    let prev = null;
+    for (let k = 0; k < 200; k++) { await frames2(win); const s = sig(); if (s === prev) return; prev = s; }
+    throw new Error('布局 200 次两帧后仍在变');
   }
   function scrollInstant(win, y) {
     try { win.scrollTo({ top: y, behavior: 'instant' }); }
@@ -103,7 +116,9 @@
 
   /** 一页逐笔采样（同 indep_check.probe_page）。onStroke(已做笔数) 更新进度。 */
   async function probePage(page, withDump, onStroke) {
+    const tLoad = performance.now();
     const { ifr, win } = await openPage(page);
+    const tProbe = performance.now();
     let iresize = 0;
     win.addEventListener('resize', () => { iresize++; });
     const fn = src => win.eval('(' + src + ')');
@@ -116,20 +131,23 @@
       if (b) {
         for (let attempt = 0; attempt < 3; attempt++) {
           scrollInstant(win, Math.max(0, b[1] - win.innerHeight / 2));
-          await sleep(30 + 100 * attempt);
+          if (FIXED_WAITS) await sleep(30 + 100 * attempt); else for (let a = 0; a <= attempt; a++) await frames2(win);
           out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
           if (out[i].state !== 'offscreen') break;
         }
       } else out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
       onStroke(Object.keys(out).length, ids.length);
     }
+    const msProbe = performance.now() - tProbe;
     const texts = fn(SRC.texts)();
     const env_end = fn(SRC.env)();
     let tex = [];
     try { tex = [...win.MathJax.startup.document.math].map(m => m.math); } catch (e) { /* 留空 */ }
     const run = { page, ids, probes: JSON.parse(JSON.stringify(out)), texts: JSON.parse(JSON.stringify(texts)),
-                  tex, env_start, env_end, iframe_resizes: iresize, iframe_attr: [ifr.offsetWidth, ifr.offsetHeight] };
+                  tex, env_start, env_end, iframe_resizes: iresize, iframe_attr: [ifr.offsetWidth, ifr.offsetHeight],
+                  waits: FIXED_WAITS ? 'fixed' : 'settle' };
     if (withDump) run.dump = JSON.parse(JSON.stringify(fn(SRC.dump)()));
+    run.ms = { load: Math.round(tProbe - tLoad), probe: Math.round(msProbe), total: Math.round(performance.now() - tLoad) };
     return JSON.parse(JSON.stringify(run));
   }
 
@@ -184,55 +202,100 @@
   }
   const doneLine = msg => { const d = document.createElement('div'); d.textContent = msg; $('#dc-done').appendChild(d); };
 
+  const ghHdr = (tok, accept) => ({ Authorization: 'Bearer ' + tok, Accept: accept || 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
+  /** 这台设备 + 这版基准页 + 这版采样代码的签名：签名相同，基准页的采样结果就相同，可以复用。 */
+  async function deviceSig() {
+    const html = await (await fetch(`../../${CFG.base}/week3_4.html`, { cache: 'no-store' })).text();
+    const sig = { ua: navigator.userAgent, viewport: [W, H], dpr: devicePixelRatio, probe_sha256: CFG.probe_sha256,
+                  texts_sha256: CFG.texts_sha256, env_sha256: CFG.env_sha256, base_html_sha256: await sha256(html) };
+    return { sig, key: (await sha256(JSON.stringify(sig))).slice(0, 12) };
+  }
+  /** 笔记仓库 checks/ 里同签名、有效的基准页采样（最新一份）；没有返回 null。只读。 */
+  async function findBase(tok, key, sig) {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/checks`, { headers: ghHdr(tok), cache: 'no-store' });
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error('列 checks/ ' + r.status);
+    const names = (await r.json()).map(f => f.path).filter(p => p.startsWith(`checks/devcheck_base_${key}_`)).sort();
+    if (!names.length) return null;
+    const path = checkPath(names[names.length - 1]);
+    const g = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, { headers: ghHdr(tok, 'application/vnd.github.raw'), cache: 'no-store' });
+    if (!g.ok) throw new Error('读 ' + path + ' ' + g.status);
+    const d = await g.json();
+    if (d.format !== 'nipc-devcheck-base' || JSON.stringify(d.sig) !== JSON.stringify(sig) || !(d.valid && d.valid.ok)) return null;
+    return { path, run: d.run };
+  }
+  /** 上传或给下载；返回提交 sha 或 null。 */
+  async function deliver(path, text, tok, msg, name, n) {
+    if (!tok) { doneLine(`${name}：采好 ${n} 笔。这台设备没有存同步 token，请点下载。`); offerDownload(path, text); return null; }
+    try { const sha = await upload(path, text, tok, msg); doneLine(`${name}：已上传 ${n} 笔（${String(sha).slice(0, 7)}）`); return sha; }
+    catch (e) { doneLine(`${name}：采好 ${n} 笔，上传失败（${e && e.message ? e.message : e}），请点下载。`); offerDownload(path, text); return null; }
+  }
+  function deviceInfo() {
+    return { ua: navigator.userAgent, viewport: [W, H], viewport_end: [innerWidth, innerHeight], dpr: devicePixelRatio,
+             screen: [screen.width, screen.height], resizes, platform: navigator.platform || '', maxTouchPoints: navigator.maxTouchPoints || 0 };
+  }
+  /** 两次运行（基准 / 待测）的 iframe 排版必须同一口径：CSS 决定的量相同。 */
+  function crossProblems(a, b) {
+    return ['inner', 'zoom', 'p_font', 'p_lh', 'root_font'].filter(k => JSON.stringify(a.env_start[k]) !== JSON.stringify(b.env_start[k]))
+      .map(k => `${a.page} 与 ${b.page} 的 ${k} 不同：${JSON.stringify(a.env_start[k])} / ${JSON.stringify(b.env_start[k])}`);
+  }
+
   async function main() {
     const targets = targetsFromQuery();
     let lock = null;
     try { if (navigator.wakeLock) lock = await navigator.wakeLock.request('screen'); } catch (e) { /* 没有也照跑 */ }
     const at = new Date().toISOString(), stamp = at.replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
-    const pages = [CFG.base, ...targets], total = { pages: pages.length, n: 0 };
+    const tok = NO_UPLOAD ? '' : token(), probeSha = await sha256(SRC.probe);
+    const { sig, key } = await deviceSig();
+    let base = null, basePath = null, baseCached = false;
+    if (tok && !NO_CACHE) {
+      say('查这台设备是否已测过基准页……');
+      try { const c = await findBase(tok, key, sig); if (c) { base = c.run; basePath = c.path; baseCached = true; } }
+      catch (e) { doneLine(`查基准页缓存失败（${e && e.message ? e.message : e}），重测基准页`); }
+    }
+    if (baseCached) doneLine(`基准页 ${CFG.base} 用这台设备上次的采样（${basePath.split('/').pop()}），这次只测待测页`);
+    const pages = [...(base ? [] : [CFG.base]), ...targets];
     const t0 = performance.now();
-    let doneStrokes = 0, perPage = null;
-    const runs = {};
+    let doneStrokes = 0;
+    const runs = [];
     for (let k = 0; k < pages.length; k++) {
-      const page = pages[k], isBase = k === 0;
+      const page = pages[k], isBase = !base && k === 0;
       say(`第 ${k + 1}/${pages.length} 页 ${page}：加载中……`);
-      runs[k] = await probePage(page, !isBase, (n, N) => {
-        perPage = N;
+      const run = await probePage(page, !isBase, (n, N) => {
         const done = doneStrokes + n, all = N * pages.length, el = (performance.now() - t0) / 1000;
         $('#dc-bar > div').style.width = (100 * done / all).toFixed(1) + '%';
         say(`第 ${k + 1}/${pages.length} 页 ${page}：${n}/${N} 笔，预计还要 ${fmtTime(el / done * (all - done))}`);
         if (n % 50 === 0 || n === N) console.log('[devcheck] ' + $('#dc-status').textContent);
       });
-      doneStrokes += runs[k].ids.length;
-      envProblems(runs[k]).forEach(warn);
+      doneStrokes += run.ids.length;
+      envProblems(run).forEach(warn);
+      if (isBase) {   // 基准页测完先存起来：以后同一设备只测待测页
+        base = run;
+        const problems = [...envProblems(run)];
+        if (resizes) problems.push(`设备视口变了 ${resizes} 次`);
+        basePath = checkPath(`checks/devcheck_base_${key}_${stamp}.json`);
+        const text = JSON.stringify({ format: 'nipc-devcheck-base', version: 1, key, sig, at, device: deviceInfo(), cfg: CFG,
+                                      probe_src_sha256: probeSha, valid: { ok: !problems.length, problems }, run });
+        await deliver(basePath, text, tok, `devcheck: base ${CFG.base} ${at}`, `基准页 ${CFG.base}`, run.ids.length);
+      } else runs.push(run);
     }
     if (resizes) warn(`运行中设备视口变了 ${resizes} 次（旋转或缩放过），结果无效`);
     if (innerWidth !== W || innerHeight !== H) warn(`设备视口 ${W}×${H} → ${innerWidth}×${innerHeight}，结果无效`);
-    const device = { ua: navigator.userAgent, viewport: [W, H], viewport_end: [innerWidth, innerHeight], dpr: devicePixelRatio,
-                     screen: [screen.width, screen.height], resizes, platform: navigator.platform || '', maxTouchPoints: navigator.maxTouchPoints || 0 };
-    const base = runs[0], tok = NO_UPLOAD ? '' : token(), results = {};
-    for (let k = 1; k < pages.length; k++) {
-      const run = runs[k], page = pages[k];
-      const path = checkPath(`checks/devcheck_${page.replace(/\//g, '_')}_${stamp}.json`);
-      const problems = [...envProblems(base), ...envProblems(run)];
+    const results = {};
+    for (const run of runs) {
+      const page = run.page, path = checkPath(`checks/devcheck_${page.replace(/\//g, '_')}_${stamp}.json`);
+      const problems = [...envProblems(base), ...envProblems(run), ...crossProblems(base, run)];
       if (resizes) problems.push(`设备视口变了 ${resizes} 次`);
-      const data = { format: 'nipc-devcheck', version: 1, page, base: CFG.base, at, device, cfg: CFG,
-                     probe_src_sha256: await sha256(SRC.probe), valid: { ok: !problems.length, problems },
+      problems.forEach(p => { if (!warns.includes(p)) warn(p); });
+      const data = { format: 'nipc-devcheck', version: 1, page, base: CFG.base, base_ref: basePath, base_cached: baseCached, at,
+                     device: deviceInfo(), sig, key, cfg: CFG, probe_src_sha256: probeSha, valid: { ok: !problems.length, problems },
                      old: base, new: run };
-      const text = JSON.stringify(data);
       results[page] = { path, data };
-      if (!tok) { doneLine(`${page}：采好 ${run.ids.length} 笔。这台设备没有存同步 token，请点下载。`); offerDownload(path, text); continue; }
       say(`上传 ${page}……`);
-      try {
-        const sha = await upload(path, text, tok, `devcheck: ${page} ${at}`);
-        doneLine(`${page}：已上传 ${run.ids.length} 笔（${String(sha).slice(0, 7)}）`);
-        results[page].sha = sha;
-      } catch (e) {
-        doneLine(`${page}：上传失败（${e && e.message ? e.message : e}），请点下载。`);
-        offerDownload(path, text);
-      }
+      results[page].sha = await deliver(path, JSON.stringify(data), tok, `devcheck: ${page} ${at}`, page, run.ids.length);
     }
-    say(warns.length ? '跑完了，但上面有警告：这次结果服务器会判无效。' : '全部跑完，可以关掉这一页了。');
+    const secs = Math.round((performance.now() - t0) / 1000);
+    say((warns.length ? '跑完了，但上面有警告：这次结果服务器会判无效。' : '全部跑完，可以关掉这一页了。') + `（用时 ${fmtTime(secs)}）`);
     $('#dc-bar > div').style.width = '100%';
     try { if (lock) await lock.release(); } catch (e) { /* 忽略 */ }
     return results;

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>笔记设备核对</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #fff; }
+  #dc-stage { position: fixed; left: 0; top: 0; }
+  #dc-stage iframe { position: absolute; left: 0; top: 0; border: 0; display: block; background: #fff; }
+  #dc-ui { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 9; max-width: 460px; padding: 12px 14px;
+           background: rgba(255,255,255,.96); color: #1d232b; border: 1px solid #c9d1db; border-radius: 10px;
+           font: 15px/1.55 -apple-system, "PingFang SC", sans-serif; box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+  #dc-ui b { font-weight: 600; }
+  #dc-bar { height: 6px; background: #e6eaf0; border-radius: 3px; margin: 8px 0 6px; overflow: hidden; }
+  #dc-bar > div { height: 100%; width: 0; background: #2f6fd6; transition: width .2s; }
+  #dc-warn { color: #b3261e; margin-top: 6px; }
+  #dc-done a { display: block; margin-top: 4px; color: #2f6fd6; }
+</style>
+</head>
+<body>
+<div id="dc-stage"></div>
+<div id="dc-ui">
+  <div><b>笔记设备核对</b>：页面会自己跑完，不用操作。请保持屏幕亮着、不要旋转、不要切到别的应用。</div>
+  <div id="dc-bar"><div></div></div>
+  <div id="dc-status">准备中……</div>
+  <div id="dc-warn"></div>
+  <div id="dc-done"></div>
+</div>
+<script>
+(() => {
+  'use strict';
+  const CFG = JSON.parse("{\"base\": \"snapshot/2\", \"targets\": [\"preview/3\", \"preview/2\", \"snapshot/2\"], \"default_targets\": [\"preview/3\", \"preview/2\"], \"grid\": 4.0, \"sample\": 2.0, \"budget\": 30000, \"probe_sha256\": \"5b3db4fe098cffb0d09e956c319550726d6a9c7baa64b15e2460546b6af5501c\", \"texts_sha256\": \"e6813b522318f0f2020fbcdbb2ceb03d95002c2e6f51a1b9fd437dd9599c448e\", \"env_sha256\": \"5fa5e6721ad2f9810a71c75de80f0378e04532a92c7ef6642c424762d1c424c4\", \"dump_sha256\": \"448824544d4b45372026ea3c9347ae31f1e17dbbe5ed66714cac1dc68c115d1b\"}");
+  // 以下四段 JS 由 tools/devcheck/build_devcheck.py 从 indep_check.py 原样嵌入（PROBE_JS、page_texts_js）或在该文件里定义（ENV_JS、DUMP_JS）
+  const SRC = { probe: "(args) => {\n  const [id, gridPx, samplePx, budgetMs, jx, jy] = args;   // jx, jy：整笔平移（屏幕 px），量核对器自身噪声用，平时 0\n  const tm = {}, T = (k, t) => { tm[k] = Math.round(performance.now() - t); };   // 各段耗时（ms），随结果交回，超时也交\n  const art = document.querySelector('main article');\n  // 文字节点 / 字形编号：正文静态，整页只建一次缓存在 window 上（以前每笔重建，算进每笔预算）\n  if (!window.__icIdx) {\n    const tb = performance.now(), nodeIx = new Map();\n    let ni = 0;\n    const walker = document.createTreeWalker(art, NodeFilter.SHOW_TEXT);\n    for (let n = walker.nextNode(); n; n = walker.nextNode()) nodeIx.set(n, ni++);\n    const glyphs = [...art.querySelectorAll('mjx-container [data-c]')];\n    // 正文字的全局位置：和 page_texts_js 的 text 同一口径（同样的节点过滤、去掉空白后的下标），给「内容在新版里原样 / 改写 / 删除」用\n    const tOff = new Map(); let co = 0;\n    for (const n of nodeIx.keys()) { const p = n.parentElement;\n      if (p && !p.closest('mjx-container, script, style, .annot-ui')) { tOff.set(n, co); co += n.data.replace(/\\s+/g, '').length; } }\n    const gMath = new Map(), gInM = new Map();\n    [...art.querySelectorAll('mjx-container')].forEach((m, i) => m.querySelectorAll('[data-c]').forEach((g, k) => { gMath.set(g, i); gInM.set(g, k); }));\n    window.__icIdx = { nodeIx, nodes: [...nodeIx.keys()], glyphs, gIx: new Map(glyphs.map((g, i) => [g, i])), tOff, gMath, gInM,\n                       heads: [...art.querySelectorAll('h2, h3')] };\n    T('index', tb);\n  }\n  const { nodeIx, nodes, glyphs, gIx, tOff, gMath, gInM, heads } = window.__icIdx;\n  // 一个命中项的内容身份：正文字 → {p: 全文去空白后的下标}，字形 → {m: 第几个公式, g: 公式里第几个字形}；\n  // id 是它的字符串形式（'p123' / 'm4:7'），跨页靠全文 diff / 公式串对齐换算（Python 的 IdentityMap）\n  const where = h => h.key[0] === 't'\n    ? (() => { const [ni, o] = h.key.slice(1).split(':').map(Number), n = nodes[ni];\n               const p = tOff.get(n) + n.data.slice(0, o).replace(/\\s+/g, '').length; return { p, id: 'p' + p }; })()\n    : (() => { const g = glyphs[+h.key.slice(1)], m = gMath.get(g), k = gInM.get(g); return { m, id: 'm' + m + ':' + k }; })();\n  const t0 = performance.now(), over = () => performance.now() - t0 > budgetMs;   // 每笔时间预算：超了交回去，Python 换粗一倍的网格重采\n  const N = window.__nipcNotes, f = N.frame();\n  const pl = N.placed(id);\n  T('placed', t0);\n  if (!pl || pl.state !== 'ok' || !pl.abs) return { state: pl ? pl.state : 'none', tm };\n  const s = N.strokes().find(t => t.id === id), pad = ((s && s.w) || 2.4) / 2 * f.s + 1;\n  const P = pl.abs.map(p => [f.x + p[0] * f.s + (jx || 0), f.y + p[1] * f.s + (jy || 0)]);\n  const inRect = (q, x, y, e) => x >= q.left - e && x <= q.right + e && y >= q.top - e && y <= q.bottom + e;\n  function hit(x, y, e) {   // 屏幕点 (x, y) 压住的字 / 字形：{c, key, q}；没有返回 null\n    const r = document.caretRangeFromPoint(x, y);\n    if (r && r.startContainer.nodeType === 3 && art.contains(r.startContainer)) {\n      const n = r.startContainer, par = n.parentElement;\n      if (par && !par.closest('mjx-container, script, style, .annot-ui')) {\n        for (const o of [r.startOffset, r.startOffset - 1]) {\n          if (o < 0 || o >= n.data.length || /\\s/.test(n.data[o])) continue;\n          const rg = document.createRange(); rg.setStart(n, o); rg.setEnd(n, o + 1);\n          const q = rg.getBoundingClientRect();\n          if (q.width && inRect(q, x, y, e)) return { c: n.data[o], key: 't' + nodeIx.get(n) + ':' + o, q };\n        }\n      }\n    }\n    for (const el of document.elementsFromPoint(x, y)) {\n      const g = el.closest && el.closest('[data-c]');\n      if (g && gIx.has(g)) {\n        const q = g.getBoundingClientRect();\n        if (inRect(q, x, y, e)) return { c: String.fromCodePoint(parseInt(g.getAttribute('data-c'), 16)).normalize('NFKC'), key: 'g' + gIx.get(g), q };\n      }\n    }\n    return null;\n  }\n  // 采样点\n  const S = [];\n  for (let i = 0; i < P.length; i++) {\n    if (i === 0) { S.push(P[0]); continue; }\n    const [x0, y0] = P[i - 1], [x1, y1] = P[i], L = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.ceil(L / samplePx));\n    for (let k = 1; k <= n; k++) S.push([x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n]);\n  }\n  // 命中测试只认视口内的点：有采样点在视口外就交回去重滚（笔比视口还高的只采视口内的部分，记 partial）\n  const inView = S.filter(([x, y]) => x >= 0 && y >= 0 && x < innerWidth && y < innerHeight);\n  if (inView.length < S.length && (S[0][1] < 0 || S[0][1] >= innerHeight)) return { state: 'offscreen', tm };\n  tm.nS = S.length;\n  const tp = performance.now(), pressed = [], seen = new Set();\n  for (const [x, y] of S) {\n    if (over()) { T('pressed', tp); return { state: 'timeout', stage: 'pressed', tm }; }\n    const h = hit(x, y, pad);\n    if (h && !seen.has(h.key)) { seen.add(h.key); pressed.push(h); }\n  }\n  T('pressed', tp);\n  const xs = P.map(p => p[0]), ys = P.map(p => p[1]);\n  const B = { l: Math.min(...xs), t: Math.min(...ys), r: Math.max(...xs), b: Math.max(...ys) };\n  // 行高：取笔压住的第一个字所在元素（字形取它公式外面那一层），没压住字就取正文 article。\n  // 以前取「起点 caretRangeFromPoint 的父元素」：起点落在公式 / 空白上时会拿到不相干的元素，10-25 实测 17 笔拿到 1590 px。\n  const lhEl = (() => { const h = pressed[0]; if (!h) return art;\n                        if (h.key[0] === 't') { const n = nodes[+h.key.slice(1).split(':')[0]]; return (n && n.parentElement) || art; }\n                        const g = glyphs[+h.key.slice(1)], m = g && g.closest('mjx-container'); return (m && m.parentElement) || art; })();\n  const lh = (() => { const cs = getComputedStyle(lhEl), v = parseFloat(cs.lineHeight);\n                      return Number.isFinite(v) ? v : 1.7 * parseFloat(cs.fontSize); })();\n  tm.lhEl = lhEl.tagName.toLowerCase() + (lhEl.className && typeof lhEl.className === 'string' ? '.' + lhEl.className.split(' ')[0] : '');\n  tm.lh = Math.round(lh * 10) / 10; tm.box = [Math.round(B.r - B.l), Math.round(B.b - B.t)];\n  const neigh = new Map();\n  // 邻域 = 离画出的折线不超过 1 行高的带（不是整个外接框：大圈 / 大括号的外接框有几万 px²，10-25 实测\n  // 6000 点 × 每次命中 ~2.5 ms 超预算）。网格只在视口内取（视口外命中测试无效）；先用纯几何算距离筛点，再做命中测试。\n  const gx0 = Math.max(0, B.l - lh), gx1 = Math.min(innerWidth - 1, B.r + lh), gy0 = Math.max(0, B.t - lh), gy1 = Math.min(innerHeight - 1, B.b + lh);\n  const segD2 = (x, y, [ax, ay], [bx, by]) => { const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;\n    const t = L2 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)) : 0;\n    return (ax + t * dx - x) ** 2 + (ay + t * dy - y) ** 2; };\n  const within = (x, y, r) => { if (P.length === 1) return segD2(x, y, P[0], P[0]) <= r * r;   // 点到折线的距离 ≤ r\n    for (let i = 1; i < P.length; i++) if (segD2(x, y, P[i - 1], P[i]) <= r * r) return true; return false; };\n  const nearStroke = (x, y) => within(x, y, lh);\n  const step = gridPx;\n  const tg = performance.now();\n  tm.nG = 0;\n  for (let y = gy0; y <= gy1; y += step)\n    for (let x = gx0; x <= gx1; x += step) {\n      if (!nearStroke(x, y)) continue;\n      if (over()) { T('grid', tg); return { state: 'timeout', stage: 'grid', tm }; }\n      tm.nG++;\n      const h = hit(x, y, 0);\n      if (h && !neigh.has(h.key)) neigh.set(h.key, h);\n    }\n  // 1 行高内什么都没有（空白处、公式字形之间的空隙、视口外的页边）：半径按 2、4 … 64 行高放大直到找到内容，\n  // 网格步长随半径放大（约 r/16）。还找不到，邻域为空，判定「无法核」（算失败，不当成对）。10-25 自测 i3/i4 抓到 9 笔这样的笔被当成对。\n  tm.r = 1;\n  for (let k = 1; !neigh.size && k <= 6; k++) {\n    const r = lh * 2 ** k, st = Math.max(gridPx, r / 16);\n    const hx0 = Math.max(0, B.l - r), hx1 = Math.min(innerWidth - 1, B.r + r), hy0 = Math.max(0, B.t - r), hy1 = Math.min(innerHeight - 1, B.b + r);\n    tm.r = 2 ** k;\n    for (let y = hy0; y <= hy1; y += st)\n      for (let x = hx0; x <= hx1; x += st) {\n        if (!within(x, y, r)) continue;\n        if (over()) { T('grid', tg); return { state: 'timeout', stage: 'grid', tm }; }\n        tm.nG++;\n        const h = hit(x, y, 0);\n        if (h && !neigh.has(h.key)) neigh.set(h.key, h);\n      }\n  }\n  T('grid', tg);\n  const order = [...neigh.values()].sort((a, b) => (Math.round(a.q.top / 4) - Math.round(b.q.top / 4)) || (a.q.left - b.q.left));\n  // 偏移参考：压住的第一个；没有就用离起点最近的邻域项\n  let ref = pressed[0] || null;\n  if (!ref && order.length) ref = order.map(h => [Math.hypot(Math.max(h.q.left - P[0][0], 0, P[0][0] - h.q.right), Math.max(h.q.top - P[0][1], 0, P[0][1] - h.q.bottom)), h])\n                                       .sort((a, b) => a[0] - b[0])[0][1];\n  // 图\n  let media = null;\n  for (const img of art.querySelectorAll('img, video')) {\n    const q = img.getBoundingClientRect();\n    if (q.width && 2 * S.filter(([x, y]) => inRect(q, x, y, 0)).length > S.length) {\n      media = { src: (img.getAttribute('src') || '').split('/').pop(), rel: [(B.l - q.left) / q.width, (B.t - q.top) / q.height],\n                size: [q.width / f.s, q.height / f.s] };\n      break;\n    }\n  }\n  // 所在小节：笔上沿之上最近的 h2 / h3；所在内容：压住的 + 邻域里的全部命中项的全文位置\n  let sec = null;\n  for (const h of heads) if (h.getBoundingClientRect().top <= B.t) sec = h.textContent.trim(); else break;\n  const at = [...pressed, ...order].map(where);\n  return { state: 'ok', pressed: pressed.map(h => h.c).join(''), neigh: order.map(h => h.c).join(''), sec,\n           pos: [...new Set(at.filter(a => 'p' in a).map(a => a.p))].sort((a, b) => a - b),\n           mids: [...new Set(at.filter(a => 'm' in a).map(a => a.m))].sort((a, b) => a - b),\n           ref: ref ? ref.c : null, off: ref ? [(P[0][0] - ref.q.left) / f.s, (P[0][1] - ref.q.top) / f.s] : null,\n           box: [B.l + scrollX, B.t + scrollY, B.r - B.l, B.b - B.t], media, tm,\n           // 邻域逐项：字、笔起点相对它左上角的偏移（正文卡片 px）、笔起点到它框的距离（屏幕 px）。\n           // 两页的偏移参考在 Python 里按邻域序列对齐后取同一个内容项（judge），不再各页各取最近的字\n           nc: order.map(h => h.c), noff: order.map(h => [(P[0][0] - h.q.left) / f.s, (P[0][1] - h.q.top) / f.s]),\n           nd: order.map(h => Math.hypot(Math.max(h.q.left - P[0][0], 0, P[0][0] - h.q.right), Math.max(h.q.top - P[0][1], 0, P[0][1] - h.q.bottom))),\n           // 偏移参考候选（压住的 + 邻域，按内容身份去重，离笔起点由近到远）：身份 id、字、偏移（正文卡片 px）\n           cand: (() => { const seen = new Set(), c = [];\n             for (const h of [...pressed, ...order]) { const w = where(h); if (seen.has(w.id)) continue; seen.add(w.id);\n               c.push([w.id, h.c, (P[0][0] - h.q.left) / f.s, (P[0][1] - h.q.top) / f.s,\n                       Math.hypot(Math.max(h.q.left - P[0][0], 0, P[0][0] - h.q.right), Math.max(h.q.top - P[0][1], 0, P[0][1] - h.q.bottom))]); }\n             return c.sort((a, b) => a[4] - b[4]); })() };\n}", texts: "() => { const art = document.querySelector('main article');\n      const t = []; const w = document.createTreeWalker(art, NodeFilter.SHOW_TEXT);\n      for (let n = w.nextNode(); n; n = w.nextNode()) { const p = n.parentElement;\n        if (p && !p.closest('mjx-container, script, style, .annot-ui')) t.push(n.data); }\n      const maths = [...art.querySelectorAll('mjx-container')].map(m => [...m.querySelectorAll('[data-c]')]\n        .map(g => String.fromCodePoint(parseInt(g.getAttribute('data-c'), 16)).normalize('NFKC')).join(''));\n      return { text: t.join('').replace(/\\s+/g, ''), maths }; }", env: "() => {\n  const de = document.documentElement, art = document.querySelector('main article'), main = document.querySelector('main');\n  const p = art && art.querySelector('p'), cp = p ? getComputedStyle(p) : null, cr = getComputedStyle(de), vv = window.visualViewport;\n  const r1 = v => Math.round(v * 100) / 100;\n  return { inner: [innerWidth, innerHeight], client: [de.clientWidth, de.clientHeight], scroll_h: de.scrollHeight,\n           zoom: (main && main.style.zoom) || '', art_w: art ? r1(art.getBoundingClientRect().width) : null,\n           art_offset_w: art ? art.offsetWidth : null, p_font: cp ? cp.fontSize : null, p_lh: cp ? cp.lineHeight : null,\n           root_font: cr.fontSize, tsa: cr.webkitTextSizeAdjust || cr.textSizeAdjust || '',\n           vv: vv ? [r1(vv.width), r1(vv.height), vv.scale] : null, dpr: devicePixelRatio,\n           frame: window.__nipcNotes ? (f => [r1(f.x), r1(f.y), f.s])(window.__nipcNotes.frame()) : null };\n}", dump: "() => {\n  const art = document.querySelector('main article'), N = window.__nipcNotes, f = N.frame();\n  const k = v => Math.round(v * 1000) / 1000, c = q => [k((q.left - f.x) / f.s), k((q.top - f.y) / f.s)];\n  const p = [], rg = document.createRange();\n  const w = document.createTreeWalker(art, NodeFilter.SHOW_TEXT);\n  for (let n = w.nextNode(); n; n = w.nextNode()) { const par = n.parentElement;\n    if (!(par && !par.closest('mjx-container, script, style, .annot-ui'))) continue;\n    for (let o = 0; o < n.data.length; o++) { if (/\\s/.test(n.data[o])) continue;\n      rg.setStart(n, o); rg.setEnd(n, o + 1); p.push(c(rg.getBoundingClientRect())); } }\n  const m = [...art.querySelectorAll('mjx-container')].map(mc => [...mc.querySelectorAll('[data-c]')].map(el => c(el.getBoundingClientRect())));\n  const a0 = {};\n  for (const s of N.strokes()) { const d = N.placed(s.id); a0[s.id] = d && d.abs ? [d.abs[0][0], d.abs[0][1]] : null; }\n  return { f: [f.x, f.y, f.s], p, m, a0 };\n}" };
+  // 与 indep_check.probe_page 里取笔起点的那一段相同
+  const BOX_JS = "id => { const d = window.__nipcNotes.placed(id); if (!d || !d.abs) return null; const f = window.__nipcNotes.frame();" +
+                 " return [f.x + d.abs[0][0] * f.s + scrollX, f.y + d.abs[0][1] * f.s + scrollY]; }";
+  const REPO = 'delluluwxy/neural-ipc-notes', SYNC_KEY = 'nipc-notes-sync';
+  const qs = new URLSearchParams(location.search);
+  const NO_UPLOAD = qs.get('noupload') === '1';
+  const FIXED_WAITS = qs.get('waits') === 'fixed';   // A/B 用：服务器 indep_check 的固定等待（1.5 s、0.8 s、每笔 30 + 100·重试 ms）；默认等布局稳定
+  const NO_CACHE = qs.get('nocache') === '1';        // 不用已上传的基准页采样，重测
+
+  /** 结果只许写 checks/ 下的一个文件：不许 notes/、covers/、子目录、..。 */
+  const checkPath = p => {
+    if (typeof p !== 'string' || !p.startsWith('checks/') || p.includes('..') || p.slice(7).includes('/') ||
+        /^(notes|covers)\//.test(p) || !/^checks\/devcheck_[A-Za-z0-9_]+_\d{8}T\d{6}Z\.json$/.test(p))
+      throw new Error('结果路径必须是 checks/devcheck_<页>_<时间>.json：' + p);
+    return p;
+  };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const $ = s => document.querySelector(s);
+  const say = msg => { $('#dc-status').textContent = msg; };
+  const warns = [];
+  const warn = msg => { warns.push(msg); $('#dc-warn').textContent = '注意：' + warns.join('；'); };
+  const fmtTime = s => s >= 90 ? `${Math.round(s / 60)} 分钟` : `${Math.max(1, Math.round(s))} 秒`;
+
+  function targetsFromQuery() {
+    const raw = (qs.get('page') || CFG.default_targets.join(',')).split(',').map(s => s.trim()).filter(Boolean);
+    for (const p of raw) if (!CFG.targets.includes(p)) throw new Error('不认识的待测页：' + p + '（只认 ' + CFG.targets.join(' / ') + '）');
+    return [...new Set(raw)];
+  }
+  async function waitFor(fn, ms) {
+    const t0 = Date.now();
+    for (;;) { try { const v = fn(); if (v) return v; } catch (e) { /* 还没就绪 */ }
+      if (Date.now() - t0 > ms) throw new Error('等待超时'); await sleep(100); }
+  }
+
+  // ---- 设备 / 视口记录 ----
+  const W = innerWidth, H = innerHeight;
+  let resizes = 0;
+  addEventListener('resize', () => { resizes++; });
+  const stage = $('#dc-stage');
+  stage.style.width = W + 'px'; stage.style.height = H + 'px';
+
+  /** 在 iframe 里打开一页，照 open_served + probe_page 的顺序准备好。返回 {ifr, win}。 */
+  async function openPage(page) {
+    stage.innerHTML = '';
+    const ifr = document.createElement('iframe');
+    ifr.width = W; ifr.height = H;
+    ifr.style.width = W + 'px'; ifr.style.height = H + 'px';
+    ifr.setAttribute('scrolling', 'yes');
+    const loaded = new Promise(r => { ifr.addEventListener('load', r, { once: true }); });
+    ifr.src = `../../${page}/week3_4.html`;
+    stage.appendChild(ifr);
+    await loaded;
+    const win = ifr.contentWindow;
+    await waitFor(() => win.__nipcNotes && win.MathJax && win.MathJax.startup && win.MathJax.startup.promise, 120000);
+    await win.MathJax.startup.promise;
+    await Promise.all([...win.document.images].map(i => (i.loading = 'eager', i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))));
+    win.document.querySelectorAll('details').forEach(d => { d.open = true; });
+    if (FIXED_WAITS) await sleep(1500); else await settle(win);
+    const st = win.document.createElement('style');
+    st.textContent = '#annot-layer, #annot-capture { pointer-events: none !important; }';
+    win.document.head.appendChild(st);
+    if (FIXED_WAITS) await sleep(800); else await settle(win);
+    return { ifr, win };
+  }
+  /** iframe 里两帧 requestAnimationFrame（标注层的重排在 rAF 里做，见 annotate.py scheduleRender）。 */
+  const frames2 = win => new Promise(r => win.requestAnimationFrame(() => win.requestAnimationFrame(r)));
+  /** 等到布局稳定：字体就绪后，连续两次「两帧之后」文档高度、正文宽、标注层重排计数都不变。 */
+  async function settle(win) {
+    if (win.document.fonts && win.document.fonts.ready) await win.document.fonts.ready;
+    const sig = () => JSON.stringify([win.document.documentElement.scrollHeight, win.document.querySelector('main article').getBoundingClientRect().width,
+                                      win.__nipcNotes.frame()]);
+    let prev = null;
+    for (let k = 0; k < 200; k++) { await frames2(win); const s = sig(); if (s === prev) return; prev = s; }
+    throw new Error('布局 200 次两帧后仍在变');
+  }
+  function scrollInstant(win, y) {
+    try { win.scrollTo({ top: y, behavior: 'instant' }); }
+    catch (e) { win.document.documentElement.style.scrollBehavior = 'auto'; win.scrollTo(0, y); }
+  }
+
+  /** 一页逐笔采样（同 indep_check.probe_page）。onStroke(已做笔数) 更新进度。 */
+  async function probePage(page, withDump, onStroke) {
+    const tLoad = performance.now();
+    const { ifr, win } = await openPage(page);
+    const tProbe = performance.now();
+    let iresize = 0;
+    win.addEventListener('resize', () => { iresize++; });
+    const fn = src => win.eval('(' + src + ')');
+    const probe = fn(SRC.probe), box = fn(BOX_JS);
+    const env_start = fn(SRC.env)();
+    const ids = win.__nipcNotes.strokes().map(s => s.id);
+    const out = {};
+    for (const i of ids) {
+      const b = box(i);
+      if (b) {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          scrollInstant(win, Math.max(0, b[1] - win.innerHeight / 2));
+          if (FIXED_WAITS) await sleep(30 + 100 * attempt); else for (let a = 0; a <= attempt; a++) await frames2(win);
+          out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+          if (out[i].state !== 'offscreen') break;
+        }
+      } else out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+      onStroke(Object.keys(out).length, ids.length);
+    }
+    const msProbe = performance.now() - tProbe;
+    const texts = fn(SRC.texts)();
+    const env_end = fn(SRC.env)();
+    let tex = [];
+    try { tex = [...win.MathJax.startup.document.math].map(m => m.math); } catch (e) { /* 留空 */ }
+    const run = { page, ids, probes: JSON.parse(JSON.stringify(out)), texts: JSON.parse(JSON.stringify(texts)),
+                  tex, env_start, env_end, iframe_resizes: iresize, iframe_attr: [ifr.offsetWidth, ifr.offsetHeight],
+                  waits: FIXED_WAITS ? 'fixed' : 'settle' };
+    if (withDump) run.dump = JSON.parse(JSON.stringify(fn(SRC.dump)()));
+    run.ms = { load: Math.round(tProbe - tLoad), probe: Math.round(msProbe), total: Math.round(performance.now() - tLoad) };
+    return JSON.parse(JSON.stringify(run));
+  }
+
+  /** iframe 排版是否等于直接打开：iframe 视口 = 设定尺寸 = 顶层视口，运行中视口没变，没被撑高，text-size-adjust 为 100%。 */
+  function envProblems(run) {
+    const p = [], e = run.env_start, f = run.env_end;
+    if (e.inner[0] !== W || e.inner[1] !== H) p.push(`${run.page} 的 iframe 视口 ${e.inner.join('×')} ≠ 设备视口 ${W}×${H}`);
+    if (e.inner[1] > H + 1 || run.iframe_attr[1] > H + 1) p.push(`${run.page} 的 iframe 被撑高（${run.iframe_attr[1]} px）`);
+    for (const k of ['inner', 'client', 'zoom', 'art_w', 'p_font', 'p_lh', 'root_font'])
+      if (JSON.stringify(e[k]) !== JSON.stringify(f[k])) p.push(`${run.page} 运行中 ${k} 变了：${JSON.stringify(e[k])} → ${JSON.stringify(f[k])}`);
+    if (e.tsa && !/^(100%|none)$/.test(String(e.tsa))) p.push(`${run.page} 的 text-size-adjust = ${e.tsa}（不是 100%）`);
+    if (run.iframe_resizes) p.push(`${run.page} 的 iframe 运行中尺寸变了 ${run.iframe_resizes} 次`);
+    return p;
+  }
+
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  function b64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  // 与标注层同步、covers 页同一读法
+  function token() { try { return (JSON.parse(localStorage.getItem(SYNC_KEY) || '{}') || {}).token || ''; } catch (e) { return ''; } }
+  /** 只写 checkPath(path) 这一个文件：GET 取 sha（404 = 新建），PUT；sha 冲突重拉一次。返回提交 sha。 */
+  async function upload(path, text, tok, msg) {
+    const url = `https://api.github.com/repos/${REPO}/contents/${checkPath(path)}`;
+    const hdr = { Authorization: 'Bearer ' + tok, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const g = await fetch(url, { method: 'GET', headers: hdr, cache: 'no-store' });
+      if (!g.ok && g.status !== 404) throw new Error('读取 ' + g.status);
+      const sha = g.ok ? (await g.json()).sha : null;
+      const body = { message: msg, content: b64(text) };
+      if (sha) body.sha = sha;
+      const p = await fetch(url, { method: 'PUT', headers: hdr, body: JSON.stringify(body) });
+      if (p.status === 409 || p.status === 422) continue;
+      if (!p.ok) throw new Error('写入 ' + p.status);
+      const j = await p.json();
+      return (j.commit && j.commit.sha) || (j.content && j.content.sha) || 'ok';
+    }
+    throw new Error('sha 冲突两次');
+  }
+  function offerDownload(path, text) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    a.download = checkPath(path).split('/').pop();
+    a.textContent = '下载结果 ' + a.download;
+    $('#dc-done').appendChild(a);
+  }
+  const doneLine = msg => { const d = document.createElement('div'); d.textContent = msg; $('#dc-done').appendChild(d); };
+
+  const ghHdr = (tok, accept) => ({ Authorization: 'Bearer ' + tok, Accept: accept || 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
+  /** 这台设备 + 这版基准页 + 这版采样代码的签名：签名相同，基准页的采样结果就相同，可以复用。 */
+  async function deviceSig() {
+    const html = await (await fetch(`../../${CFG.base}/week3_4.html`, { cache: 'no-store' })).text();
+    const sig = { ua: navigator.userAgent, viewport: [W, H], dpr: devicePixelRatio, probe_sha256: CFG.probe_sha256,
+                  texts_sha256: CFG.texts_sha256, env_sha256: CFG.env_sha256, base_html_sha256: await sha256(html) };
+    return { sig, key: (await sha256(JSON.stringify(sig))).slice(0, 12) };
+  }
+  /** 笔记仓库 checks/ 里同签名、有效的基准页采样（最新一份）；没有返回 null。只读。 */
+  async function findBase(tok, key, sig) {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/checks`, { headers: ghHdr(tok), cache: 'no-store' });
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error('列 checks/ ' + r.status);
+    const names = (await r.json()).map(f => f.path).filter(p => p.startsWith(`checks/devcheck_base_${key}_`)).sort();
+    if (!names.length) return null;
+    const path = checkPath(names[names.length - 1]);
+    const g = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, { headers: ghHdr(tok, 'application/vnd.github.raw'), cache: 'no-store' });
+    if (!g.ok) throw new Error('读 ' + path + ' ' + g.status);
+    const d = await g.json();
+    if (d.format !== 'nipc-devcheck-base' || JSON.stringify(d.sig) !== JSON.stringify(sig) || !(d.valid && d.valid.ok)) return null;
+    return { path, run: d.run };
+  }
+  /** 上传或给下载；返回提交 sha 或 null。 */
+  async function deliver(path, text, tok, msg, name, n) {
+    if (!tok) { doneLine(`${name}：采好 ${n} 笔。这台设备没有存同步 token，请点下载。`); offerDownload(path, text); return null; }
+    try { const sha = await upload(path, text, tok, msg); doneLine(`${name}：已上传 ${n} 笔（${String(sha).slice(0, 7)}）`); return sha; }
+    catch (e) { doneLine(`${name}：采好 ${n} 笔，上传失败（${e && e.message ? e.message : e}），请点下载。`); offerDownload(path, text); return null; }
+  }
+  function deviceInfo() {
+    return { ua: navigator.userAgent, viewport: [W, H], viewport_end: [innerWidth, innerHeight], dpr: devicePixelRatio,
+             screen: [screen.width, screen.height], resizes, platform: navigator.platform || '', maxTouchPoints: navigator.maxTouchPoints || 0 };
+  }
+  /** 两次运行（基准 / 待测）的 iframe 排版必须同一口径：CSS 决定的量相同。 */
+  function crossProblems(a, b) {
+    return ['inner', 'zoom', 'p_font', 'p_lh', 'root_font'].filter(k => JSON.stringify(a.env_start[k]) !== JSON.stringify(b.env_start[k]))
+      .map(k => `${a.page} 与 ${b.page} 的 ${k} 不同：${JSON.stringify(a.env_start[k])} / ${JSON.stringify(b.env_start[k])}`);
+  }
+
+  async function main() {
+    const targets = targetsFromQuery();
+    let lock = null;
+    try { if (navigator.wakeLock) lock = await navigator.wakeLock.request('screen'); } catch (e) { /* 没有也照跑 */ }
+    const at = new Date().toISOString(), stamp = at.replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    const tok = NO_UPLOAD ? '' : token(), probeSha = await sha256(SRC.probe);
+    const { sig, key } = await deviceSig();
+    let base = null, basePath = null, baseCached = false;
+    if (tok && !NO_CACHE) {
+      say('查这台设备是否已测过基准页……');
+      try { const c = await findBase(tok, key, sig); if (c) { base = c.run; basePath = c.path; baseCached = true; } }
+      catch (e) { doneLine(`查基准页缓存失败（${e && e.message ? e.message : e}），重测基准页`); }
+    }
+    if (baseCached) doneLine(`基准页 ${CFG.base} 用这台设备上次的采样（${basePath.split('/').pop()}），这次只测待测页`);
+    const pages = [...(base ? [] : [CFG.base]), ...targets];
+    const t0 = performance.now();
+    let doneStrokes = 0;
+    const runs = [];
+    for (let k = 0; k < pages.length; k++) {
+      const page = pages[k], isBase = !base && k === 0;
+      say(`第 ${k + 1}/${pages.length} 页 ${page}：加载中……`);
+      const run = await probePage(page, !isBase, (n, N) => {
+        const done = doneStrokes + n, all = N * pages.length, el = (performance.now() - t0) / 1000;
+        $('#dc-bar > div').style.width = (100 * done / all).toFixed(1) + '%';
+        say(`第 ${k + 1}/${pages.length} 页 ${page}：${n}/${N} 笔，预计还要 ${fmtTime(el / done * (all - done))}`);
+        if (n % 50 === 0 || n === N) console.log('[devcheck] ' + $('#dc-status').textContent);
+      });
+      doneStrokes += run.ids.length;
+      envProblems(run).forEach(warn);
+      if (isBase) {   // 基准页测完先存起来：以后同一设备只测待测页
+        base = run;
+        const problems = [...envProblems(run)];
+        if (resizes) problems.push(`设备视口变了 ${resizes} 次`);
+        basePath = checkPath(`checks/devcheck_base_${key}_${stamp}.json`);
+        const text = JSON.stringify({ format: 'nipc-devcheck-base', version: 1, key, sig, at, device: deviceInfo(), cfg: CFG,
+                                      probe_src_sha256: probeSha, valid: { ok: !problems.length, problems }, run });
+        await deliver(basePath, text, tok, `devcheck: base ${CFG.base} ${at}`, `基准页 ${CFG.base}`, run.ids.length);
+      } else runs.push(run);
+    }
+    if (resizes) warn(`运行中设备视口变了 ${resizes} 次（旋转或缩放过），结果无效`);
+    if (innerWidth !== W || innerHeight !== H) warn(`设备视口 ${W}×${H} → ${innerWidth}×${innerHeight}，结果无效`);
+    const results = {};
+    for (const run of runs) {
+      const page = run.page, path = checkPath(`checks/devcheck_${page.replace(/\//g, '_')}_${stamp}.json`);
+      const problems = [...envProblems(base), ...envProblems(run), ...crossProblems(base, run)];
+      if (resizes) problems.push(`设备视口变了 ${resizes} 次`);
+      problems.forEach(p => { if (!warns.includes(p)) warn(p); });
+      const data = { format: 'nipc-devcheck', version: 1, page, base: CFG.base, base_ref: basePath, base_cached: baseCached, at,
+                     device: deviceInfo(), sig, key, cfg: CFG, probe_src_sha256: probeSha, valid: { ok: !problems.length, problems },
+                     old: base, new: run };
+      results[page] = { path, data };
+      say(`上传 ${page}……`);
+      results[page].sha = await deliver(path, JSON.stringify(data), tok, `devcheck: ${page} ${at}`, page, run.ids.length);
+    }
+    const secs = Math.round((performance.now() - t0) / 1000);
+    say((warns.length ? '跑完了，但上面有警告：这次结果服务器会判无效。' : '全部跑完，可以关掉这一页了。') + `（用时 ${fmtTime(secs)}）`);
+    $('#dc-bar > div').style.width = '100%';
+    try { if (lock) await lock.release(); } catch (e) { /* 忽略 */ }
+    return results;
+  }
+  const done = main().catch(e => { say('出错停了：' + (e && e.message ? e.message : e)); warn('没有上传'); throw e; });
+  window.__devcheck = { done, checkPath, warns, CFG };
+})();
+</script>
+</body>
+</html>
