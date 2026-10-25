@@ -24,12 +24,16 @@ from .config import DRAFTS
 
 def renames_script(page_file):
     """记号改名表，嵌成 <script type="application/json" id="annot-renames">，供笔记把旧写法的锚点迁到新写法。
-    读讲稿目录里的 notation_renames_<页名>.json（{"tex": {旧 TeX: 新 TeX}, "text": {旧文字: 新文字}}，由改讲稿的人维护）；
+    读讲稿目录里的 notation_renames_<页名>.json（{"tex": {旧 TeX: 新 TeX}, "text": {旧文字: 新文字},
+    "quote": [{"from": 旧正文锚点, "to": 新正文锚点}]}，锚点 = {prefix, exact, suffix}，由改讲稿的人维护）；
     没有这个文件时用空表。文件不是合法 JSON 时直接报错停止生成。"""
     path = DRAFTS / f"notation_renames_{Path(page_file).stem}.json"
     data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     table = {k: {o: n for o, n in (data.get(k) or {}).items() if isinstance(o, str) and isinstance(n, str)}
              for k in ("tex", "text")}
+    keys = ("prefix", "exact", "suffix")
+    table["quote"] = [{side: {k: e[side][k] for k in keys} for side in ("from", "to")} for e in data.get("quote") or []
+                      if all(isinstance(e.get(side, {}).get(k), str) for side in ("from", "to") for k in keys)]
     body = json.dumps(table, ensure_ascii=False).replace("</", "<\\/")
     return f'<script type="application/json" id="annot-renames">{body}</script>\n'
 
@@ -478,6 +482,7 @@ ANNOT_JS = r"""
    * {"tex": {旧 TeX: 新 TeX}, "text": {旧文字: 新文字}}。锚点按原样找不到时，先按改名表（可连续改名）换成新写法再精确找；
    * 找到就把存的锚点改成新写法（之后同步）。改名表里没有的改动照旧走模糊匹配，再找不到就标灰。 */
   const collapse = s => (s || '').replace(/\s+/g, ' ');
+  const quoteKey = q => `${q.prefix}\u0001${q.exact}\u0001${q.suffix}`;
   function renameMap() {
     const el = document.getElementById('annot-renames');
     const raw = el ? el.textContent : '';
@@ -486,8 +491,11 @@ ANNOT_JS = r"""
       try { m = JSON.parse(raw || '{}') || {}; } catch (e) { m = {}; }
       const pick = (o, fn) => new Map(Object.entries(o && typeof o === 'object' ? o : {})
         .filter(([k, v]) => k && typeof v === 'string').map(([k, v]) => [fn(k), fn(v)]));
+      // quote：逐笔迁移（旧前后文整体 → 新前后文），用于句子被改写、字挪了位置、全局文字替换对不准的地方
+      const quote = new Map((Array.isArray(m.quote) ? m.quote : []).filter(e => e && e.from && e.to)
+        .map(e => [quoteKey(e.from), { prefix: e.to.prefix, exact: e.to.exact, suffix: e.to.suffix }]));
       renameMap.raw = raw;
-      renameMap.val = { tex: pick(m.tex, norm), text: pick(m.text, collapse) };
+      renameMap.val = { tex: pick(m.tex, norm), text: pick(m.text, collapse), quote };
     }
     return renameMap.val;
   }
@@ -534,6 +542,11 @@ ANNOT_JS = r"""
   function findQuote(a, orig, f) {
     let p = exactQuote(a, orig, f);
     if (p >= 0) return { pos: p };
+    const qa = renameMap().quote.get(quoteKey(a));
+    if (qa) {
+      const ma = Object.assign({}, a, qa);
+      if ((p = exactQuote(ma, orig, f)) >= 0) return { pos: p, migrated: ma };
+    }
     const ra = renamedQuote(a);
     if (ra && (p = exactQuote(ra, orig, f)) >= 0) return { pos: p, migrated: ra };
     p = fuzzyQuote(ra || a, orig, f);

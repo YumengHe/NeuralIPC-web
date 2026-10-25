@@ -758,7 +758,7 @@ html.annot-on #annot-capture { display: block; }
   viewer.addEventListener('close', () => opener && opener.focus({ preventScroll: true }));
 })();
 </script>
-<script type="application/json" id="annot-renames">{"tex": {}, "text": {}}</script>
+<script type="application/json" id="annot-renames">{"tex": {}, "text": {}, "quote": []}</script>
 <script>
 (() => {
   'use strict';
@@ -1136,6 +1136,7 @@ html.annot-on #annot-capture { display: block; }
    * {"tex": {旧 TeX: 新 TeX}, "text": {旧文字: 新文字}}。锚点按原样找不到时，先按改名表（可连续改名）换成新写法再精确找；
    * 找到就把存的锚点改成新写法（之后同步）。改名表里没有的改动照旧走模糊匹配，再找不到就标灰。 */
   const collapse = s => (s || '').replace(/\s+/g, ' ');
+  const quoteKey = q => `${q.prefix}\u0001${q.exact}\u0001${q.suffix}`;
   function renameMap() {
     const el = document.getElementById('annot-renames');
     const raw = el ? el.textContent : '';
@@ -1144,8 +1145,11 @@ html.annot-on #annot-capture { display: block; }
       try { m = JSON.parse(raw || '{}') || {}; } catch (e) { m = {}; }
       const pick = (o, fn) => new Map(Object.entries(o && typeof o === 'object' ? o : {})
         .filter(([k, v]) => k && typeof v === 'string').map(([k, v]) => [fn(k), fn(v)]));
+      // quote：逐笔迁移（旧前后文整体 → 新前后文），用于句子被改写、字挪了位置、全局文字替换对不准的地方
+      const quote = new Map((Array.isArray(m.quote) ? m.quote : []).filter(e => e && e.from && e.to)
+        .map(e => [quoteKey(e.from), { prefix: e.to.prefix, exact: e.to.exact, suffix: e.to.suffix }]));
       renameMap.raw = raw;
-      renameMap.val = { tex: pick(m.tex, norm), text: pick(m.text, collapse) };
+      renameMap.val = { tex: pick(m.tex, norm), text: pick(m.text, collapse), quote };
     }
     return renameMap.val;
   }
@@ -1192,6 +1196,11 @@ html.annot-on #annot-capture { display: block; }
   function findQuote(a, orig, f) {
     let p = exactQuote(a, orig, f);
     if (p >= 0) return { pos: p };
+    const qa = renameMap().quote.get(quoteKey(a));
+    if (qa) {
+      const ma = Object.assign({}, a, qa);
+      if ((p = exactQuote(ma, orig, f)) >= 0) return { pos: p, migrated: ma };
+    }
     const ra = renamedQuote(a);
     if (ra && (p = exactQuote(ra, orig, f)) >= 0) return { pos: p, migrated: ra };
     p = fuzzyQuote(ra || a, orig, f);
