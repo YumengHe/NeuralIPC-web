@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>笔记设备核对</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #fff; }
+  #dc-stage { position: fixed; left: 0; top: 0; }
+  #dc-stage iframe { position: absolute; left: 0; top: 0; border: 0; display: block; background: #fff; }
+  #dc-ui { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 9; max-width: 460px; padding: 12px 14px;
+           background: rgba(255,255,255,.96); color: #1d232b; border: 1px solid #c9d1db; border-radius: 10px;
+           font: 15px/1.55 -apple-system, "PingFang SC", sans-serif; box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+  #dc-ui b { font-weight: 600; }
+  #dc-bar { height: 6px; background: #e6eaf0; border-radius: 3px; margin: 8px 0 6px; overflow: hidden; }
+  #dc-bar > div { height: 100%; width: 0; background: #2f6fd6; transition: width .2s; }
+  #dc-warn { color: #b3261e; margin-top: 6px; }
+  #dc-done a { display: block; margin-top: 4px; color: #2f6fd6; }
+</style>
+</head>
+<body>
+<div id="dc-stage"></div>
+<div id="dc-ui">
+  <div><b>笔记设备核对</b>：页面会自己跑完，不用操作。请保持屏幕亮着、不要旋转、不要切到别的应用。</div>
+  <div id="dc-bar"><div></div></div>
+  <div id="dc-status">准备中……</div>
+  <div id="dc-warn"></div>
+  <div id="dc-done"></div>
+</div>
+<script>
+(() => {
+  'use strict';
+  const CFG = JSON.parse(/*@CFG@*/null);
+  // 以下四段 JS 由 tools/devcheck/build_devcheck.py 从 indep_check.py 原样嵌入（PROBE_JS、page_texts_js）或在该文件里定义（ENV_JS、DUMP_JS）
+  const SRC = { probe: /*@PROBE_JS@*/'', texts: /*@TEXTS_JS@*/'', env: /*@ENV_JS@*/'', dump: /*@DUMP_JS@*/'' };
+  // 与 indep_check.probe_page 里取笔起点的那一段相同
+  const BOX_JS = "id => { const d = window.__nipcNotes.placed(id); if (!d || !d.abs) return null; const f = window.__nipcNotes.frame();" +
+                 " return [f.x + d.abs[0][0] * f.s + scrollX, f.y + d.abs[0][1] * f.s + scrollY]; }";
+  const REPO = 'delluluwxy/neural-ipc-notes', SYNC_KEY = 'nipc-notes-sync';
+  const qs = new URLSearchParams(location.search);
+  const NO_UPLOAD = qs.get('noupload') === '1';
+
+  /** 结果只许写 checks/ 下的一个文件：不许 notes/、covers/、子目录、..。 */
+  const checkPath = p => {
+    if (typeof p !== 'string' || !p.startsWith('checks/') || p.includes('..') || p.slice(7).includes('/') ||
+        /^(notes|covers)\//.test(p) || !/^checks\/devcheck_[A-Za-z0-9_]+_\d{8}T\d{6}Z\.json$/.test(p))
+      throw new Error('结果路径必须是 checks/devcheck_<页>_<时间>.json：' + p);
+    return p;
+  };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const $ = s => document.querySelector(s);
+  const say = msg => { $('#dc-status').textContent = msg; };
+  const warns = [];
+  const warn = msg => { warns.push(msg); $('#dc-warn').textContent = '注意：' + warns.join('；'); };
+  const fmtTime = s => s >= 90 ? `${Math.round(s / 60)} 分钟` : `${Math.max(1, Math.round(s))} 秒`;
+
+  function targetsFromQuery() {
+    const raw = (qs.get('page') || CFG.default_targets.join(',')).split(',').map(s => s.trim()).filter(Boolean);
+    for (const p of raw) if (!CFG.targets.includes(p)) throw new Error('不认识的待测页：' + p + '（只认 ' + CFG.targets.join(' / ') + '）');
+    return [...new Set(raw)];
+  }
+  async function waitFor(fn, ms) {
+    const t0 = Date.now();
+    for (;;) { try { const v = fn(); if (v) return v; } catch (e) { /* 还没就绪 */ }
+      if (Date.now() - t0 > ms) throw new Error('等待超时'); await sleep(100); }
+  }
+
+  // ---- 设备 / 视口记录 ----
+  const W = innerWidth, H = innerHeight;
+  let resizes = 0;
+  addEventListener('resize', () => { resizes++; });
+  const stage = $('#dc-stage');
+  stage.style.width = W + 'px'; stage.style.height = H + 'px';
+
+  /** 在 iframe 里打开一页，照 open_served + probe_page 的顺序准备好。返回 {ifr, win}。 */
+  async function openPage(page) {
+    stage.innerHTML = '';
+    const ifr = document.createElement('iframe');
+    ifr.width = W; ifr.height = H;
+    ifr.style.width = W + 'px'; ifr.style.height = H + 'px';
+    ifr.setAttribute('scrolling', 'yes');
+    const loaded = new Promise(r => { ifr.addEventListener('load', r, { once: true }); });
+    ifr.src = `../../${page}/week3_4.html`;
+    stage.appendChild(ifr);
+    await loaded;
+    const win = ifr.contentWindow;
+    await waitFor(() => win.__nipcNotes && win.MathJax && win.MathJax.startup && win.MathJax.startup.promise, 120000);
+    await win.MathJax.startup.promise;
+    await Promise.all([...win.document.images].map(i => (i.loading = 'eager', i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))));
+    win.document.querySelectorAll('details').forEach(d => { d.open = true; });
+    await sleep(1500);
+    const st = win.document.createElement('style');
+    st.textContent = '#annot-layer, #annot-capture { pointer-events: none !important; }';
+    win.document.head.appendChild(st);
+    await sleep(800);
+    return { ifr, win };
+  }
+  function scrollInstant(win, y) {
+    try { win.scrollTo({ top: y, behavior: 'instant' }); }
+    catch (e) { win.document.documentElement.style.scrollBehavior = 'auto'; win.scrollTo(0, y); }
+  }
+
+  /** 一页逐笔采样（同 indep_check.probe_page）。onStroke(已做笔数) 更新进度。 */
+  async function probePage(page, withDump, onStroke) {
+    const { ifr, win } = await openPage(page);
+    let iresize = 0;
+    win.addEventListener('resize', () => { iresize++; });
+    const fn = src => win.eval('(' + src + ')');
+    const probe = fn(SRC.probe), box = fn(BOX_JS);
+    const env_start = fn(SRC.env)();
+    const ids = win.__nipcNotes.strokes().map(s => s.id);
+    const out = {};
+    for (const i of ids) {
+      const b = box(i);
+      if (b) {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          scrollInstant(win, Math.max(0, b[1] - win.innerHeight / 2));
+          await sleep(30 + 100 * attempt);
+          out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+          if (out[i].state !== 'offscreen') break;
+        }
+      } else out[i] = probe([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+      onStroke(Object.keys(out).length, ids.length);
+    }
+    const texts = fn(SRC.texts)();
+    const env_end = fn(SRC.env)();
+    let tex = [];
+    try { tex = [...win.MathJax.startup.document.math].map(m => m.math); } catch (e) { /* 留空 */ }
+    const run = { page, ids, probes: JSON.parse(JSON.stringify(out)), texts: JSON.parse(JSON.stringify(texts)),
+                  tex, env_start, env_end, iframe_resizes: iresize, iframe_attr: [ifr.offsetWidth, ifr.offsetHeight] };
+    if (withDump) run.dump = JSON.parse(JSON.stringify(fn(SRC.dump)()));
+    return JSON.parse(JSON.stringify(run));
+  }
+
+  /** iframe 排版是否等于直接打开：iframe 视口 = 设定尺寸 = 顶层视口，运行中视口没变，没被撑高，text-size-adjust 为 100%。 */
+  function envProblems(run) {
+    const p = [], e = run.env_start, f = run.env_end;
+    if (e.inner[0] !== W || e.inner[1] !== H) p.push(`${run.page} 的 iframe 视口 ${e.inner.join('×')} ≠ 设备视口 ${W}×${H}`);
+    if (e.inner[1] > H + 1 || run.iframe_attr[1] > H + 1) p.push(`${run.page} 的 iframe 被撑高（${run.iframe_attr[1]} px）`);
+    for (const k of ['inner', 'client', 'zoom', 'art_w', 'p_font', 'p_lh', 'root_font'])
+      if (JSON.stringify(e[k]) !== JSON.stringify(f[k])) p.push(`${run.page} 运行中 ${k} 变了：${JSON.stringify(e[k])} → ${JSON.stringify(f[k])}`);
+    if (e.tsa && !/^(100%|none)$/.test(String(e.tsa))) p.push(`${run.page} 的 text-size-adjust = ${e.tsa}（不是 100%）`);
+    if (run.iframe_resizes) p.push(`${run.page} 的 iframe 运行中尺寸变了 ${run.iframe_resizes} 次`);
+    return p;
+  }
+
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  function b64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  // 与标注层同步、covers 页同一读法
+  function token() { try { return (JSON.parse(localStorage.getItem(SYNC_KEY) || '{}') || {}).token || ''; } catch (e) { return ''; } }
+  /** 只写 checkPath(path) 这一个文件：GET 取 sha（404 = 新建），PUT；sha 冲突重拉一次。返回提交 sha。 */
+  async function upload(path, text, tok, msg) {
+    const url = `https://api.github.com/repos/${REPO}/contents/${checkPath(path)}`;
+    const hdr = { Authorization: 'Bearer ' + tok, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const g = await fetch(url, { method: 'GET', headers: hdr, cache: 'no-store' });
+      if (!g.ok && g.status !== 404) throw new Error('读取 ' + g.status);
+      const sha = g.ok ? (await g.json()).sha : null;
+      const body = { message: msg, content: b64(text) };
+      if (sha) body.sha = sha;
+      const p = await fetch(url, { method: 'PUT', headers: hdr, body: JSON.stringify(body) });
+      if (p.status === 409 || p.status === 422) continue;
+      if (!p.ok) throw new Error('写入 ' + p.status);
+      const j = await p.json();
+      return (j.commit && j.commit.sha) || (j.content && j.content.sha) || 'ok';
+    }
+    throw new Error('sha 冲突两次');
+  }
+  function offerDownload(path, text) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    a.download = checkPath(path).split('/').pop();
+    a.textContent = '下载结果 ' + a.download;
+    $('#dc-done').appendChild(a);
+  }
+  const doneLine = msg => { const d = document.createElement('div'); d.textContent = msg; $('#dc-done').appendChild(d); };
+
+  async function main() {
+    const targets = targetsFromQuery();
+    let lock = null;
+    try { if (navigator.wakeLock) lock = await navigator.wakeLock.request('screen'); } catch (e) { /* 没有也照跑 */ }
+    const at = new Date().toISOString(), stamp = at.replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    const pages = [CFG.base, ...targets], total = { pages: pages.length, n: 0 };
+    const t0 = performance.now();
+    let doneStrokes = 0, perPage = null;
+    const runs = {};
+    for (let k = 0; k < pages.length; k++) {
+      const page = pages[k], isBase = k === 0;
+      say(`第 ${k + 1}/${pages.length} 页 ${page}：加载中……`);
+      runs[k] = await probePage(page, !isBase, (n, N) => {
+        perPage = N;
+        const done = doneStrokes + n, all = N * pages.length, el = (performance.now() - t0) / 1000;
+        $('#dc-bar > div').style.width = (100 * done / all).toFixed(1) + '%';
+        say(`第 ${k + 1}/${pages.length} 页 ${page}：${n}/${N} 笔，预计还要 ${fmtTime(el / done * (all - done))}`);
+        if (n % 50 === 0 || n === N) console.log('[devcheck] ' + $('#dc-status').textContent);
+      });
+      doneStrokes += runs[k].ids.length;
+      envProblems(runs[k]).forEach(warn);
+    }
+    if (resizes) warn(`运行中设备视口变了 ${resizes} 次（旋转或缩放过），结果无效`);
+    if (innerWidth !== W || innerHeight !== H) warn(`设备视口 ${W}×${H} → ${innerWidth}×${innerHeight}，结果无效`);
+    const device = { ua: navigator.userAgent, viewport: [W, H], viewport_end: [innerWidth, innerHeight], dpr: devicePixelRatio,
+                     screen: [screen.width, screen.height], resizes, platform: navigator.platform || '', maxTouchPoints: navigator.maxTouchPoints || 0 };
+    const base = runs[0], tok = NO_UPLOAD ? '' : token(), results = {};
+    for (let k = 1; k < pages.length; k++) {
+      const run = runs[k], page = pages[k];
+      const path = checkPath(`checks/devcheck_${page.replace(/\//g, '_')}_${stamp}.json`);
+      const problems = [...envProblems(base), ...envProblems(run)];
+      if (resizes) problems.push(`设备视口变了 ${resizes} 次`);
+      const data = { format: 'nipc-devcheck', version: 1, page, base: CFG.base, at, device, cfg: CFG,
+                     probe_src_sha256: await sha256(SRC.probe), valid: { ok: !problems.length, problems },
+                     old: base, new: run };
+      const text = JSON.stringify(data);
+      results[page] = { path, data };
+      if (!tok) { doneLine(`${page}：采好 ${run.ids.length} 笔。这台设备没有存同步 token，请点下载。`); offerDownload(path, text); continue; }
+      say(`上传 ${page}……`);
+      try {
+        const sha = await upload(path, text, tok, `devcheck: ${page} ${at}`);
+        doneLine(`${page}：已上传 ${run.ids.length} 笔（${String(sha).slice(0, 7)}）`);
+        results[page].sha = sha;
+      } catch (e) {
+        doneLine(`${page}：上传失败（${e && e.message ? e.message : e}），请点下载。`);
+        offerDownload(path, text);
+      }
+    }
+    say(warns.length ? '跑完了，但上面有警告：这次结果服务器会判无效。' : '全部跑完，可以关掉这一页了。');
+    $('#dc-bar > div').style.width = '100%';
+    try { if (lock) await lock.release(); } catch (e) { /* 忽略 */ }
+    return results;
+  }
+  const done = main().catch(e => { say('出错停了：' + (e && e.message ? e.message : e)); warn('没有上传'); throw e; });
+  window.__devcheck = { done, checkPath, warns, CFG };
+})();
+</script>
+</body>
+</html>
