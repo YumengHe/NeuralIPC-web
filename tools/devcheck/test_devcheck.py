@@ -236,10 +236,42 @@ def quick(out, IC, every, run_browser):
             print(f"   {i}: " + "；".join(f"{k}: JS={str(a)[:160]} | 几何={str(b)[:160]}" for k, (a, b) in d.items()), flush=True)
 
 
+def diag(out, IC):
+    """几何对拍不一致的诊断：对 quick 结果里 JS 邻域有、几何没有的字形，报它的路径命令种类、外框内墨迹占比（0.5 px 点阵）、
+    以及笔附近网格点（PROBE_JS 同口径）落在外框里却被几何判为不在墨迹里的个数与离墨迹边最近的距离。"""
+    import numpy as np
+    import geom_probe as G
+    P = json.loads((out / "device_820_Pq.json").read_text(encoding="utf-8"))["res"]["preview/3"]
+    for side in ("old", "new"):
+        run = P[side]
+        lay = G.Layout(run["layout"])
+        geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, run["scrolls"])
+        for sid, js in run["probes"].items():
+            if js.get("state") != "ok" or js.get("nc") == geo[sid].get("nc"):
+                continue
+            jsid = {c[0] for c in js["cand"]}
+            gid = {c[0] for c in geo[sid]["cand"]}
+            for ident in sorted(jsid - gid):
+                if ident[0] != "m":
+                    print(f"   {side} {sid}：几何漏了正文 {ident}")
+                    continue
+                m, k = map(int, ident[1:].split(":"))
+                gi = next(i for i, g in enumerate(lay.glyphs) if g["m"] == m and g["k"] == k)
+                g = lay.glyphs[gi]
+                raw = run["layout"]["maths"][m]["g"][k]
+                d = (run["layout"]["paths"].get(raw["href"][1:]) or {}).get("d") or raw.get("d") or ""
+                cmds = "".join(sorted(set(c for c in d if c.isalpha())))
+                l, t, r, b = g["r"]
+                xs, ys = np.arange(l, r, 0.5), np.arange(t, b, 0.5)
+                ink = sum(lay._glyph_hit(x, y) == gi for x in xs for y in ys)
+                print(f"   {side} {sid}：几何漏了字形 {ident} 「{g['c']}」 tag={raw['tag']} 命令 {cmds} 外框 {[round(v, 1) for v in g['r']]} "
+                      f"墨迹占比 {ink / max(1, len(xs) * len(ys)):.2f} clip={g['clip'] is not None} x/y={raw['x']},{raw['y']} m={[round(v, 3) for v in raw['m']]}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline"), default="all")
+    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag"), default="all")
     ap.add_argument("--every", type=int, default=10, help="quick：每几笔跑一笔")
     ap.add_argument("--indep-check-dir", default=B.DEFAULT_IC_DIR)
     args = ap.parse_args()
@@ -249,6 +281,9 @@ def main():
     from webgen.annotate import DRAFTS
     gmaps = IC.RP.glyph_letter_maps(IC.RP.letter_maps(json.loads((DRAFTS / "notation_renames_week3_4.json").read_text(encoding="utf-8")).get("tex", {})))
     cal = json.loads((pathlib.Path(args.indep_check_dir) / "indep_check_cal" / "calibration.json").read_text(encoding="utf-8"))
+    if args.phase == "diag":
+        diag(out, IC)
+        return
     if args.phase in ("quick", "quick-offline"):
         quick(out, IC, args.every, args.phase == "quick")
         return
