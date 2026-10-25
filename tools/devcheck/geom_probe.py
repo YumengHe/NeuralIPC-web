@@ -37,7 +37,7 @@ def js_ws_strip_len(s):
 _TOK = re.compile(r"[MmLlHhVvQqTtCcSsZz]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")
 
 
-def flatten_path(d, nseg=16):
+def flatten_path(d, nseg=48):
     """SVG path d → 若干闭合折线（[[x, y], ...]）。曲线按 nseg 段压平。"""
     toks = _TOK.findall(d or "")
     polys, cur, i, ctrl = [], [], 0, []
@@ -252,10 +252,12 @@ class Layout:
     def _in(q, x, y, e):
         return q[0] - e <= x <= q[2] + e and q[1] - e <= y <= q[3] + e
 
-    def _blocked(self, rx, ry):
-        """点在公式容器或图（有面积）里：caretRangeFromPoint 给的不是文字节点。"""
+    def _blocked(self, rx, ry, ni=None):
+        """点在（画在这个字上面的）公式容器或图里：caretRangeFromPoint 给的不是文字节点。同层内联内容按文档顺序画，
+        后画的在上面：只有文档顺序在文字节点 ni 之后的公式（序号 ≥ 该节点的 mb）才挡住它；ni 为 None 时任何公式都挡。"""
+        mb = self.L["text"][ni].get("mb", 0) if ni is not None else 0
         for k in self.cont_grid.near(rx, ry):
-            if self._in(self.cont_rects[k], rx, ry, 0):
+            if k >= mb and self._in(self.cont_rects[k], rx, ry, 0):
                 return True
         for k in self.media_grid.near(rx, ry):
             q = self.media[k]["r"]
@@ -306,8 +308,8 @@ class Layout:
 
     def hit(self, rx, ry, e):
         """同 PROBE_JS hit(x, y, e)：返回 (key, 字, 外框 [l, t, r, b], where) 或 None。"""
-        if not self._blocked(rx, ry):
-            cr = self._caret(rx, ry, e)
+        cr = self._caret(rx, ry, e)
+        if cr and not self._blocked(rx, ry, cr[0]):
             if cr:
                 ni, o0 = cr
                 d = self.L["text"][ni]["d"]
@@ -402,11 +404,25 @@ def scroll_for(lay, abs0):
     return lay.L["scroll"][0], min(rule(v, lay.L.get("dpr", 1)), lay.max_scroll[1])
 
 
-def probe(lay, sid, grid_px, sample_px, scroll=None):
-    """一笔的 PROBE_JS 结果（state / pressed / neigh / sec / pos / mids / ref / off / box / media / nc / noff / nd / cand），无 tm。"""
+def pressed_hits(pre):
+    """设备上原样跑的压住段（build_devcheck.PRESSED_JS）结果 → 与 Layout.hit 同形的命中项列表。"""
+    out = []
+    for c, ident, l, t, r, b in pre["pressed"]:
+        where = ("p", int(ident[1:])) if ident[0] == "p" else ("m", *map(int, ident[1:].split(":")))
+        out.append((("dev", ident), c, (l, t, r, b), where))
+    return out
+
+
+def probe(lay, sid, grid_px, sample_px, scroll=None, pre=None):
+    """一笔的 PROBE_JS 结果（state / pressed / neigh / sec / pos / mids / ref / off / box / media / nc / noff / nd / cand），无 tm。
+    pre 给了（设备上原样跑的压住段结果）：压住串、行高、滚动都用它，只有邻域网格用几何。"""
     st = next((s for s in lay.L["strokes"] if s["id"] == sid), None)
+    if pre is not None and pre.get("state") != "ok":
+        return {"state": pre.get("state")}
     if st is None or st["state"] != "ok" or not st["abs"]:
         return {"state": st["state"] if st else "none"}
+    if pre is not None:
+        scroll = tuple(pre["scroll"])
     sx, sy = scroll or scroll_for(lay, st["abs"][0])
     fx, fy, s = lay.page_f[0] - sx, lay.page_f[1] - sy, lay.s
     W, H = lay.inner
@@ -424,15 +440,18 @@ def probe(lay, sid, grid_px, sample_px, scroll=None):
     in_view = sum(1 for x, y in S if x >= 0 and y >= 0 and x < W and y < H)
     if in_view < len(S) and (S[0][1] < 0 or S[0][1] >= H):
         return {"state": "offscreen"}
-    pressed, seen = [], set()
-    for x, y in S:
-        h = lay.hit(x - fx, y - fy, pad)
-        if h and h[0] not in seen:
-            seen.add(h[0])
-            pressed.append(h)
+    if pre is not None:
+        pressed, lh = pressed_hits(pre), pre["lh"]
+    else:
+        pressed, seen = [], set()
+        for x, y in S:
+            h = lay.hit(x - fx, y - fy, pad)
+            if h and h[0] not in seen:
+                seen.add(h[0])
+                pressed.append(h)
+        lh = lay.lh_of(pressed[0] if pressed else None)
     xs, ys = [p[0] for p in P], [p[1] for p in P]
     B = dict(l=min(xs), t=min(ys), r=max(xs), b=max(ys))
-    lh = lay.lh_of(pressed[0] if pressed else None)
     Pa = np.array(P)
     neigh = {}
     _grid_hits(lay, Pa, max(0, B["l"] - lh), min(W - 1, B["r"] + lh), max(0, B["t"] - lh), min(H - 1, B["b"] + lh), grid_px, lh, fx, fy, neigh)
@@ -480,10 +499,12 @@ def probe(lay, sid, grid_px, sample_px, scroll=None):
             "nd": [dist(scr(h)) for h in order], "cand": cand}
 
 
-def probe_all(L, grid_px, sample_px, scrolls=None):
-    """一页全部笔：{笔 id: 结果}。scrolls 给了（设备 probe 模式记下的实际滚动）就用它，否则按 scroll_for 推。"""
+def probe_all(L, grid_px, sample_px, scrolls=None, pressed=None, only=None):
+    """一页全部笔（only 给了只算这些）：{笔 id: 结果}。pressed 给了（设备上原样跑的压住段，layout 模式默认有）就用它的压住串、行高、滚动；
+    否则 scrolls（设备 probe 模式记下的实际滚动）或按 scroll_for 推滚动，压住串也用几何（插入点规则是近似）。"""
     lay = Layout(L)
-    return {s["id"]: probe(lay, s["id"], grid_px, sample_px, (scrolls or {}).get(s["id"])) for s in L["strokes"]}
+    return {s["id"]: probe(lay, s["id"], grid_px, sample_px, (scrolls or {}).get(s["id"]), (pressed or {}).get(s["id"]))
+            for s in L["strokes"] if only is None or s["id"] in only}
 
 
 def layout_stats(L):

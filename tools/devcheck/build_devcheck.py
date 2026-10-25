@@ -71,13 +71,15 @@ LAYOUT_JS = r"""() => {
   const R = q => [q.left - f.x, q.top - f.y, q.right - f.x, q.bottom - f.y];
   const lhOf = el => { const cs = getComputedStyle(el), v = parseFloat(cs.lineHeight); return Number.isFinite(v) ? v : 1.7 * parseFloat(cs.fontSize); };
   const text = [], rg = document.createRange(); let co = 0;
+  const mcs = [...art.querySelectorAll('mjx-container')]; let mk = 0;
   const w = document.createTreeWalker(art, NodeFilter.SHOW_TEXT);
   for (let n = w.nextNode(); n; n = w.nextNode()) { const par = n.parentElement;
     if (!(par && !par.closest('mjx-container, script, style, .annot-ui'))) continue;
+    while (mk < mcs.length && (mcs[mk].compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING)) mk++;   // 文档顺序在它之前的公式个数
     const cs = [];
     for (let o = 0; o < n.data.length; o++) { if (/\s/.test(n.data[o])) continue;
       rg.setStart(n, o); rg.setEnd(n, o + 1); const q = rg.getBoundingClientRect(); cs.push([o, ...R(q)]); }
-    text.push({ d: n.data, p0: co, lh: lhOf(par), c: cs }); co += n.data.replace(/\s+/g, '').length; }
+    text.push({ d: n.data, p0: co, lh: lhOf(par), mb: mk, c: cs }); co += n.data.replace(/\s+/g, '').length; }
   const paths = {}, need = new Set();
   const maths = [...art.querySelectorAll('mjx-container')].map(mc => {
     const cs = getComputedStyle(mc), q = mc.getBoundingClientRect();
@@ -97,6 +99,23 @@ LAYOUT_JS = r"""() => {
   return { f: [f.x, f.y, f.s], scroll: [scrollX, scrollY], dpr: devicePixelRatio, inner: [innerWidth, innerHeight], max_scroll: [de.scrollWidth - de.clientWidth, de.scrollHeight - de.clientHeight],
            art_lh: lhOf(art), text, maths, paths, media, heads, strokes };
 }"""
+
+
+PRESSED_CUT = "  const neigh = new Map();"
+PRESSED_TAIL = r"""
+  // （以上逐字取自 indep_check.PROBE_JS 到邻域网格之前）交回压住的每一项：字、内容身份、框（相对正文卡片原点的屏幕 px），以及行高、实际滚动
+  return { state: 'ok', lh, scroll: [scrollX, scrollY], tm,
+           pressed: pressed.map(h => [h.c, where(h).id, h.q.left - f.x, h.q.top - f.y, h.q.right - f.x, h.q.bottom - f.y]) };
+}"""
+
+
+def pressed_js(IC):
+    """「压住串」那一段在设备上原样跑：PROBE_JS 从开头到邻域网格之前逐字照搬（索引、hit、采样点、视口检查、压住循环、行高），
+    只把结尾换成交回压住项。插入点规则（caretRangeFromPoint）各浏览器不同、几何模拟不了，所以这一段用设备自己的命中测试；
+    邻域网格（e = 0，只看点落在哪个字框 / 字形墨迹里，与插入点规则无关）由服务器 geom_probe 按布局表算。"""
+    src = IC.PROBE_JS
+    assert src.count(PRESSED_CUT) == 1, "PROBE_JS 里找不到唯一的邻域网格起点，压住段截不出来"
+    return src[:src.index(PRESSED_CUT)] + PRESSED_TAIL
 
 
 def load_ic(ic_dir):
@@ -120,14 +139,16 @@ def build(IC):
     cfg = dict(base=BASE_PAGE, targets=list(TARGET_PAGES), default_targets=list(DEFAULT_TARGETS),
                grid=IC.RP_GRID, sample=IC.RP_SAMPLE, budget=IC.BUDGET_MS,
                probe_sha256=sha256(IC.PROBE_JS), texts_sha256=sha256(IC.page_texts_js()),
-               env_sha256=sha256(ENV_JS), dump_sha256=sha256(DUMP_JS), layout_sha256=sha256(LAYOUT_JS))
+               env_sha256=sha256(ENV_JS), dump_sha256=sha256(DUMP_JS), layout_sha256=sha256(LAYOUT_JS),
+               pressed_sha256=sha256(pressed_js(IC)))
     tpl = (pathlib.Path(__file__).with_name("devcheck_template.html")).read_text(encoding="utf-8")
     return (tpl.replace("/*@CFG@*/null", js_str(json.dumps(cfg, ensure_ascii=False)))
                .replace("/*@PROBE_JS@*/''", js_str(IC.PROBE_JS))
                .replace("/*@TEXTS_JS@*/''", js_str(IC.page_texts_js()))
                .replace("/*@ENV_JS@*/''", js_str(ENV_JS))
                .replace("/*@DUMP_JS@*/''", js_str(DUMP_JS))
-               .replace("/*@LAYOUT_JS@*/''", js_str(LAYOUT_JS)))
+               .replace("/*@LAYOUT_JS@*/''", js_str(LAYOUT_JS))
+               .replace("/*@PRESSED_JS@*/''", js_str(pressed_js(IC))))
 
 
 def main():
@@ -135,7 +156,7 @@ def main():
     ap.add_argument("--indep-check-dir", default=DEFAULT_IC_DIR)
     args = ap.parse_args()
     html = build(load_ic(args.indep_check_dir))
-    for k in ("/*@CFG@*/", "/*@PROBE_JS@*/", "/*@TEXTS_JS@*/", "/*@ENV_JS@*/", "/*@DUMP_JS@*/", "/*@LAYOUT_JS@*/"):
+    for k in ("/*@CFG@*/", "/*@PROBE_JS@*/", "/*@TEXTS_JS@*/", "/*@ENV_JS@*/", "/*@DUMP_JS@*/", "/*@LAYOUT_JS@*/", "/*@PRESSED_JS@*/"):
         assert k not in html, f"模板占位 {k} 没替换"
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding="utf-8")

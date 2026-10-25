@@ -176,9 +176,9 @@ def compare(out, IC, gmaps, cal):
         ab = {}
         for side in ("old", "new"):
             run = dP[side]
-            for how, scr in (("实际滚动", run["scrolls"]), ("推出滚动", None)):
+            for how, kw in (("设备压住段+几何邻域", dict(pressed=run["pressed"])), ("全几何", dict(scrolls=run["scrolls"]))):
                 t0 = time.time()
-                geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, scr)
+                geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, **kw)
                 el = time.time() - t0
                 bad = {i: field_diffs(run["probes"][i], geo.get(i, {})) for i in run["probes"]}
                 bad = {i: d for i, d in bad.items() if d}
@@ -187,7 +187,11 @@ def compare(out, IC, gmaps, cal):
                 for d in bad.values():
                     for k in d:
                         by[k] = by.get(k, 0) + 1
-                check(not bad, f"t8@{tag}:{side}:{how}", f"{run['page']}：geom_probe 与 PROBE_JS 不同 {len(bad)}/{len(run['probes'])} 笔，按字段 {by}；几何重算 {el:.1f} s")
+                msg = f"{run['page']}：{how} 与 PROBE_JS 不同 {len(bad)}/{len(run['probes'])} 笔，按字段 {by}；几何重算 {el:.1f} s"
+                if how == "全几何":   # 只作参考（插入点规则是近似），不算失败；交付走的是「设备压住段 + 几何邻域」
+                    print(f"INFO t8@{tag}:{side}:{how} {msg}", flush=True)
+                else:
+                    check(not bad, f"t8@{tag}:{side}", msg)
         (out / f"ab_{w}.json").write_text(json.dumps(ab, ensure_ascii=False, indent=1), encoding="utf-8")
         srows = {r["id"]: r for r in json.loads((sdir / f"table_{w}.json").read_text(encoding="utf-8"))}
         rows = J.judge_rows(IC, d1["old"], d1["new"], gmaps, cal)
@@ -224,14 +228,18 @@ def quick(out, IC, every, run_browser):
     P = json.loads(f.read_text(encoding="utf-8"))["res"]["preview/3"]
     for side in ("old", "new"):
         run = P[side]
-        geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, run["scrolls"])
-        geo2 = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE)
+        only = set(run["probes"])
+        t0 = time.time()
+        geo = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, pressed=run["pressed"], only=only)
+        el = time.time() - t0
+        geo2 = G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, run["scrolls"], only=only)
         bad = {i: field_diffs(run["probes"][i], geo[i]) for i in run["probes"]}
         bad = {i: d for i, d in bad.items() if d}
         bad2 = sum(bool(field_diffs(run["probes"][i], geo2[i])) for i in run["probes"])
-        scr = sum(tuple(run["scrolls"][i]) != tuple(G.scroll_for(G.Layout(run["layout"]), next(s for s in run["layout"]["strokes"] if s["id"] == i)["abs"][0]))
-                  for i in run["scrolls"])
-        print(f"== {side} {run['page']}：{len(run['probes'])} 笔，实际滚动下不同 {len(bad)}，推出滚动下不同 {bad2}，推出滚动与实际不同 {scr} 笔", flush=True)
+        prs = sum(run["pressed"][i].get("state") != run["probes"][i].get("state") or
+                  "".join(p[0] for p in run["pressed"][i].get("pressed", [])) != (run["probes"][i].get("pressed") or "") for i in only)
+        print(f"== {side} {run['page']}：{len(run['probes'])} 笔；设备压住段 + 几何邻域 与 PROBE_JS 不同 {len(bad)}（{el:.1f} s）；"
+              f"全几何（实际滚动）不同 {bad2}；设备压住段（不等帧）与 PROBE_JS 压住串不同 {prs}", flush=True)
         for i, d in list(bad.items())[:12]:
             print(f"   {i}: " + "；".join(f"{k}: JS={str(a)[:160]} | 几何={str(b)[:160]}" for k, (a, b) in d.items()), flush=True)
 

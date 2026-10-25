@@ -98,7 +98,7 @@ def probes_of(IC, run):
     if run.get("probes") is not None:
         return run["probes"]
     import geom_probe as G
-    return G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE)
+    return G.probe_all(run["layout"], IC.RP_GRID, IC.RP_SAMPLE, pressed=run.get("pressed"))
 
 
 def judge_rows(IC, old, new, gmaps, cal):

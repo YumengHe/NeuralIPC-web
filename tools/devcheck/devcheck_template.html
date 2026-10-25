@@ -33,7 +33,8 @@
   'use strict';
   const CFG = JSON.parse(/*@CFG@*/null);
   // 以下四段 JS 由 tools/devcheck/build_devcheck.py 从 indep_check.py 原样嵌入（PROBE_JS、page_texts_js）或在该文件里定义（ENV_JS、DUMP_JS）
-  const SRC = { probe: /*@PROBE_JS@*/'', texts: /*@TEXTS_JS@*/'', env: /*@ENV_JS@*/'', dump: /*@DUMP_JS@*/'', layout: /*@LAYOUT_JS@*/'' };
+  const SRC = { probe: /*@PROBE_JS@*/'', texts: /*@TEXTS_JS@*/'', env: /*@ENV_JS@*/'', dump: /*@DUMP_JS@*/'', layout: /*@LAYOUT_JS@*/'',
+                pressed: /*@PRESSED_JS@*/'' };
   // 与 indep_check.probe_page 里取笔起点的那一段相同
   const BOX_JS = "id => { const d = window.__nipcNotes.placed(id); if (!d || !d.abs) return null; const f = window.__nipcNotes.frame();" +
                  " return [f.x + d.abs[0][0] * f.s + scrollX, f.y + d.abs[0][1] * f.s + scrollY]; }";
@@ -144,6 +145,24 @@
         onStroke(Object.keys(out).length, ids.length);
       }
     }
+    // layout 模式：每笔只在设备上原样跑「压住串」那一段（PROBE_JS 到邻域网格之前），邻域网格交给服务器几何；不等帧（命中测试同步读当前滚动）
+    const pressed = {};   // probe 模式也跑一遍（同一实例里与完整 PROBE_JS 对拍）
+    {
+      const pr = fn(SRC.pressed);
+      let n = 0;
+      for (const i of ids) {
+        const b = box(i);
+        if (b) {
+          for (let attempt = 0; attempt < 3; attempt++) {
+            scrollInstant(win, Math.max(0, b[1] - win.innerHeight / 2));
+            for (let a = 0; a < attempt; a++) await frames2(win);
+            pressed[i] = pr([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+            if (pressed[i].state !== 'offscreen') break;
+          }
+        } else pressed[i] = pr([i, CFG.grid, CFG.sample, CFG.budget, 0, 0]);
+        if (++n % 20 === 0) { onStroke(n, ids.length); await new Promise(r => setTimeout(r, 0)); }   // 让进度条刷新
+      }
+    }
     const msProbe = performance.now() - tProbe;
     const tLay = performance.now();
     // 这台设备怎么取整滚动位置（probe_page 每笔 scrollTo 的是小数位置）：试几个小数目标，记实际 scrollY，服务器据此重放
@@ -164,6 +183,7 @@
                   tex, env_start, env_end, iframe_resizes: iresize, iframe_attr: [ifr.offsetWidth, ifr.offsetHeight],
                   waits: FIXED_WAITS ? 'fixed' : 'settle' };
     if (MODE === 'probe') { run.probes = JSON.parse(JSON.stringify(out)); run.scrolls = scrolls; }
+    run.pressed = JSON.parse(JSON.stringify(pressed));
     // 第二遍偏移的内容项坐标：layout 模式由布局表算（geom_probe.dump_from_layout），只在 probe 模式另导 DUMP_JS
     if (withDump && MODE === 'probe') run.dump = JSON.parse(JSON.stringify(fn(SRC.dump)()));
     run.ms_layout = Math.round(msLayout);
