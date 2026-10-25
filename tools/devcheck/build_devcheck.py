@@ -101,7 +101,19 @@ LAYOUT_JS = r"""() => {
 }"""
 
 
-PRESSED_CUT = "  const neigh = new Map();"
+# 盖在正文上面的固定 / 粘性元素（顶部粘性导航条、右下角标注工具条、顶部进度条）：点落在它们下面时 caretRangeFromPoint 给的是它们，
+# 不是正文字（elementsFromPoint 仍能穿过它们找到公式字形）。在滚动后（粘性元素已贴住视口）量视口坐标。full run 1180 宽实测 13 笔
+# 邻域「多了」导航条下面的字就是这个原因。
+OVERLAY_JS = r"""() => [...document.querySelectorAll('body *:not(svg *):not(mjx-container *)')].filter(e => {
+    const cs = getComputedStyle(e);
+    return (cs.position === 'fixed' || cs.position === 'sticky') && cs.display !== 'none' && cs.visibility !== 'hidden' &&
+           cs.pointerEvents !== 'none' && !e.closest('main article'); })
+  .map(e => { const q = e.getBoundingClientRect(), cs = getComputedStyle(e);
+    return { sel: e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (typeof e.className === 'string' && e.className ? '.' + e.className.split(' ')[0] : ''),
+             pos: cs.position, r: [q.left, q.top, q.right, q.bottom] }; })
+  .filter(o => o.r[2] > o.r[0] && o.r[3] > o.r[1])"""
+
+PRESSED_CUT ="  const neigh = new Map();"
 PRESSED_TAIL = r"""
   // （以上逐字取自 indep_check.PROBE_JS 到邻域网格之前）交回压住的每一项：字、内容身份、框（相对正文卡片原点的屏幕 px），以及行高、实际滚动
   return { state: 'ok', lh, scroll: [scrollX, scrollY], tm,
@@ -140,7 +152,7 @@ def build(IC):
                grid=IC.RP_GRID, sample=IC.RP_SAMPLE, budget=IC.BUDGET_MS,
                probe_sha256=sha256(IC.PROBE_JS), texts_sha256=sha256(IC.page_texts_js()),
                env_sha256=sha256(ENV_JS), dump_sha256=sha256(DUMP_JS), layout_sha256=sha256(LAYOUT_JS),
-               pressed_sha256=sha256(pressed_js(IC)))
+               pressed_sha256=sha256(pressed_js(IC)), overlay_sha256=sha256(OVERLAY_JS))
     tpl = (pathlib.Path(__file__).with_name("devcheck_template.html")).read_text(encoding="utf-8")
     return (tpl.replace("/*@CFG@*/null", js_str(json.dumps(cfg, ensure_ascii=False)))
                .replace("/*@PROBE_JS@*/''", js_str(IC.PROBE_JS))
@@ -148,7 +160,8 @@ def build(IC):
                .replace("/*@ENV_JS@*/''", js_str(ENV_JS))
                .replace("/*@DUMP_JS@*/''", js_str(DUMP_JS))
                .replace("/*@LAYOUT_JS@*/''", js_str(LAYOUT_JS))
-               .replace("/*@PRESSED_JS@*/''", js_str(pressed_js(IC))))
+               .replace("/*@PRESSED_JS@*/''", js_str(pressed_js(IC)))
+               .replace("/*@OVERLAY_JS@*/''", js_str(OVERLAY_JS)))
 
 
 def main():
@@ -156,7 +169,7 @@ def main():
     ap.add_argument("--indep-check-dir", default=DEFAULT_IC_DIR)
     args = ap.parse_args()
     html = build(load_ic(args.indep_check_dir))
-    for k in ("/*@CFG@*/", "/*@PROBE_JS@*/", "/*@TEXTS_JS@*/", "/*@ENV_JS@*/", "/*@DUMP_JS@*/", "/*@LAYOUT_JS@*/", "/*@PRESSED_JS@*/"):
+    for k in ("/*@CFG@*/", "/*@PROBE_JS@*/", "/*@TEXTS_JS@*/", "/*@ENV_JS@*/", "/*@DUMP_JS@*/", "/*@LAYOUT_JS@*/", "/*@PRESSED_JS@*/", "/*@OVERLAY_JS@*/"):
         assert k not in html, f"模板占位 {k} 没替换"
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding="utf-8")

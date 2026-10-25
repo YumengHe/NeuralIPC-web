@@ -179,6 +179,8 @@ class Layout:
         self.max_scroll = L["max_scroll"]
         self.page_f = (L["f"][0] + L["scroll"][0], L["f"][1] + L["scroll"][1])
         self.rule = scroll_rule(L)
+        self.overlays = [o["r"] for o in L.get("overlays") or []]
+        self.cur_f = (0.0, 0.0)   # 当前这笔滚动下正文卡片原点的屏幕坐标（probe 里设）
         # 正文字
         self.chars = []          # [(节点序号, 偏移, l, t, r, b)]
         self.node_char = []      # 节点序号 → {偏移: 字序号}
@@ -310,7 +312,9 @@ class Layout:
 
     def hit(self, rx, ry, e):
         """同 PROBE_JS hit(x, y, e)：返回 (key, 字, 外框 [l, t, r, b], where) 或 None。"""
-        cr = self._caret(rx, ry, e)
+        sx_, sy_ = rx + self.cur_f[0], ry + self.cur_f[1]   # 屏幕坐标：盖在正文上的固定 / 粘性元素按视口坐标挡字
+        covered = any(q[0] <= sx_ <= q[2] and q[1] <= sy_ <= q[3] for q in self.overlays)
+        cr = None if covered else self._caret(rx, ry, e)
         if cr and not self._blocked(rx, ry, cr[0]):
             if cr:
                 ni, o0 = cr
@@ -427,6 +431,7 @@ def probe(lay, sid, grid_px, sample_px, scroll=None, pre=None):
         scroll = tuple(pre["scroll"])
     sx, sy = scroll or scroll_for(lay, st["abs"][0])
     fx, fy, s = lay.page_f[0] - sx, lay.page_f[1] - sy, lay.s
+    lay.cur_f = (fx, fy)
     W, H = lay.inner
     pad = (st["w"] or 2.4) / 2 * s + 1
     P = [(fx + p[0] * s + 0, fy + p[1] * s + 0) for p in st["abs"]]
