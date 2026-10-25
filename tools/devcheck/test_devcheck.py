@@ -314,6 +314,21 @@ def t2_plain(out, IC, gmaps, cal):
             print(f"   {b[0]}：服务器 {b[1]}（偏移差 {b[3]}）/ 设备 {b[2]}（偏移差 {b[4]}）", flush=True)
 
 
+def t8_verdict(out, IC, gmaps, cal):
+    """t8 残差对判定的影响：同一份 P 数据，判定用 PROBE_JS 原结果 vs 用「设备压住段 + 几何邻域」，逐笔比判定与偏移差。"""
+    for v in VIEWS:
+        d = json.loads((out / f"device_{v[0]}_P.json").read_text(encoding="utf-8"))["res"]["preview/3"]
+        strip = lambda r: {k: x for k, x in r.items() if k not in ("probes", "dump")}
+        a = {x["id"]: x for x in J.judge_rows(IC, d["old"], d["new"], gmaps, cal)}
+        b = {x["id"]: x for x in J.judge_rows(IC, strip(d["old"]), strip(d["new"]), gmaps, cal)}
+        bad = [(i, a[i]["verdict_ic"], b[i]["verdict_ic"], a[i]["off_diff"], b[i]["off_diff"], a[i]["why"][:80], b[i]["why"][:80]) for i in a
+               if a[i]["verdict_ic"] != b[i]["verdict_ic"] or (a[i]["off_diff"] is None) != (b[i]["off_diff"] is None)
+               or (a[i]["off_diff"] is not None and abs(a[i]["off_diff"] - b[i]["off_diff"]) > NUM_TOL)]
+        print(f"{'PASS' if not bad else 'FAIL'} t8v@{v[0]} 判定：PROBE_JS 原结果 vs 设备压住段 + 几何邻域，{len(a)} 笔，不同 {len(bad)} 笔", flush=True)
+        for x in bad:
+            print(f"   {x[0]}：PROBE_JS {x[1]}（{x[3]}，{x[5]}）/ 几何 {x[2]}（{x[4]}，{x[6]}）", flush=True)
+
+
 def diag(out, IC, name="device_820_Pq.json"):
     """几何对拍不一致的诊断：对 quick 结果里 JS 邻域有、几何没有的字形，报它的路径命令种类、外框内墨迹占比（0.5 px 点阵）、
     以及笔附近网格点（PROBE_JS 同口径）落在外框里却被几何判为不在墨迹里的个数与离墨迹边最近的距离。"""
@@ -393,7 +408,7 @@ def diag(out, IC, name="device_820_Pq.json"):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export", "plain", "t2plain"), default="all")
+    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export", "plain", "t2plain", "t8verdict"), default="all")
     ap.add_argument("--every", type=int, default=10, help="quick：每几笔跑一笔")
     ap.add_argument("--diag-file", default="device_820_Pq.json", help="diag：out-dir 下哪份 P 数据")
     ap.add_argument("--skip-probe", action="store_true", help="collect 不重跑 P（沿用 out-dir 里已有的 device_<宽>_P.json）")
@@ -409,6 +424,9 @@ def main():
         for v in VIEWS:
             d = json.loads((out / f"device_{v[0]}_R1.json").read_text(encoding="utf-8"))["res"]["preview/3"]
             (out / f"devcheck_preview_3_local{v[0]}_{d['at'][:4]}0101T000000Z.json").write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+        return
+    if args.phase == "t8verdict":
+        t8_verdict(out, IC, gmaps, cal)
         return
     if args.phase == "t2plain":
         t2_plain(out, IC, gmaps, cal)
