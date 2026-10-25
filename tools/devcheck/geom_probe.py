@@ -267,11 +267,13 @@ class Layout:
 
     def _caret(self, rx, ry, e):
         """插入点 (节点序号, 偏移) 或 None。"""
-        for k in self.char_grid.near(rx, ry):
-            ni, o, l, t, r, b = self.chars[k]
-            if l <= rx <= r and t <= ry <= b and r > l:
-                # 点在字框里：插入点就是这个字（不是按左右半边取整；quick#2 实测点在右半边 0.52–0.55 处浏览器仍给这个字）
-                return ni, o
+        inside = [k for k in self.char_grid.near(rx, ry) if self.chars[k][2] <= rx <= self.chars[k][4] and self.chars[k][3] <= ry <= self.chars[k][5]
+                  and self.chars[k][4] > self.chars[k][2]]
+        if inside:
+            # 点在字框里：插入点就是这个字（不是按左右半边取整；quick#2 实测点在右半边 0.52–0.55 处浏览器仍给这个字）。
+            # 相邻字框有亚像素重叠时取左边界最大（最靠后）的那个：quick#3 实测 x = 527.98 落在「6」[520.34, 527.98] 与「.」[527.97, 531.80] 的重叠里，浏览器给「.」
+            k = max(inside, key=lambda k: (self.chars[k][2], k))
+            return self.chars[k][0], self.chars[k][1]
         if e <= 0:
             return None
         best = None
