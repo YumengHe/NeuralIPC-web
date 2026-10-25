@@ -270,6 +270,19 @@ def diag(out, IC):
                     over = [(k, [round(v, 1) for v in m["r"]]) for k, m in enumerate(run["layout"]["maths"])
                             if m["r"][0] < rect[2] and m["r"][2] > rect[0] and m["r"][1] < rect[3] and m["r"][3] > rect[1]]
                     print(f"   {side} {sid}：几何{kind}正文 {ident}「{n['d'][o]}」框 {[round(v, 1) for v in rect]} 节点 mb={n.get('mb')}，与之相交的公式容器 {over}")
+                    st = next(s for s in run["layout"]["strokes"] if s["id"] == sid)
+                    sx, sy = run["pressed"][sid]["scroll"]
+                    fx, fy, s = lay.page_f[0] - sx, lay.page_f[1] - sy, lay.s
+                    Pp = [(fx + q[0] * s, fy + q[1] * s) for q in st["abs"]]
+                    lh = run["pressed"][sid]["lh"]
+                    xs_, ys_ = [q[0] for q in Pp], [q[1] for q in Pp]
+                    for y in G._axis(max(0, min(ys_) - lh), min(lay.inner[1] - 1, max(ys_) + lh), IC.RP_GRID):
+                        for x in G._axis(max(0, min(xs_) - lh), min(lay.inner[0] - 1, max(xs_) + lh), IC.RP_GRID):
+                            rx, ry = x - fx, y - fy
+                            if lay._in(rect, rx, ry, 0):
+                                near = [(lay.chars[k][0], lay.chars[k][1], [round(v, 2) for v in lay.chars[k][2:]]) for k in lay.char_grid.near(rx, ry)
+                                        if lay._in(lay.chars[k][2:], rx, ry, 0.5)]
+                                print(f"      网格点 ({rx:.2f}, {ry:.2f}) 在框内：几何 hit = {lay.hit(rx, ry, 0)}；附近字框 {near}")
                     continue
                 m, k = map(int, ident[1:].split(":"))
                 gi = next(i for i, g in enumerate(lay.glyphs) if g["m"] == m and g["k"] == k)
