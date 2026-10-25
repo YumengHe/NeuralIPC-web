@@ -290,7 +290,10 @@ html.annot-on #annot-capture { display: block; }
 <p>本节梳理 hydro 从"重叠"到"接触力"的计算链条（1.1 压强怎么来，1.2 压强怎么变成求解器用的力，1.3 怎么求解），提取其建模假设；1.4 给出用于比较的解析解。</p>
 <h3 id="w1-1" class="numbered">1.1 Elandt et al. 2019：压力场模型</h3>
 
-<p><strong>做法</strong></p>
+<p><strong>条件。</strong> 每个物体里预先算好一个压强场：压强只看这一点在物体里有多深，\(\epsilon\) 是穿入程度（表面为 0、最深处为 1），\(E_h\) 是人工设定的压力场模量；两个物体用四面体网格表示，并且发生了重叠。</p>
+<p>\[\color{#c0392b}{p_0=E_h\,\epsilon}\]</p>
+<p><strong>结论。</strong> 接触面取两侧压强相等的那些点，在每对相交的四面体里是一块平面多边形；物体受的接触力是接触面上压强沿法向 \(\hat{\mathbf n}\) 的积分：</p>
+<p>\[\color{#c0392b}{\mathcal S=\{\mathbf x:\ p_{0_A}(\mathbf x)=p_{0_B}(\mathbf x)\},\qquad \mathbf f=\int_{\mathcal S}p_0\,\hat{\mathbf n}\;dS}\]</p>
 <details><summary>推导：压力场模型（预设压强场 → 等压接触面 → 接触力）</summary>
 
 <p><b>① 预设压强场</b></p>
@@ -382,6 +385,10 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w1-2" class="numbered">1.2 Masterjohn et al. 2022：速度层面近似</h3>
 
 <p>Elandt 的模型配合加速度层面的变步长积分器使用（每步由力求加速度再积分，接触刚度大时步长须很小，无法实时）。1.1 的接触面由许多平面多边形拼成，本文把每块多边形改写为一根弹簧，使其可用于速度层面求解器（每步隐式求下一时刻速度，可取大步长），hydro 因此可实时运行，已在 Drake 开源。</p>
+<p><strong>条件。</strong> 1.1 的接触面由平面多边形拼成，每块多边形上压强随位置线性变化；接触面两侧的压强都随深入深度线性增大，斜率（压强梯度）分别是 \(\Gamma_A\)、\(\Gamma_B\)，\(s_A\)、\(s_B\) 是接触面进入两侧的深度；一个时间步内多边形面积取步首值 \(A_0\)；接触只推不拉：</p>
+<p>\[\color{#c0392b}{p_A=\Gamma_A\,s_A,\qquad p_B=\Gamma_B\,s_B,\qquad A=A_0,\qquad f_n\ge0}\]</p>
+<p><strong>结论。</strong> 每块多边形等价于一根独立的弹簧。\(\phi\) 是形心处的有符号距离（穿透为负），\(f_n\) 是这块多边形给的法向力，\((\cdot)_+\) 表示负数取 0：</p>
+<p>\[\color{#c0392b}{f_n=(-k\phi)_+,\qquad k=\Gamma\,A_0,\qquad \Gamma=\frac{\Gamma_A\,\Gamma_B}{\Gamma_A+\Gamma_B}}\]</p>
 <details><summary>推导：一块多边形 → 一根弹簧</summary>
 
 <p><b>① 一块多边形的力 = 面积 × 形心压强</b></p>
@@ -495,12 +502,15 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w1-3" class="numbered">1.3 Castro et al. 2023：SAP 求解器</h3>
 
 <p>带接触的时间步进通常要解"不接触则无力、有力则必须贴紧"的二选一条件，难以稳健求解。本文把柔顺接触的一步时间积分写成只含速度的强凸无约束优化，求解器称为 SAP，解唯一，牛顿法可证收敛。Drake 与 Genesis 的 hydro 都用它。</p>
-<p><strong>做法</strong></p>
+<p><strong>条件。</strong> 每个接触是 1.2 的弹簧再加一个阻尼：\(k\) 是接触刚度，\(\tau_d\) 是耗散时间尺度，\(\Delta t\) 是步长；一步之内有符号距离按下一步法向速度 \(v_n\) 匀速变化；全体物体满足动量方程，\(\mathbf M\) 是质量矩阵，\(\mathbf v^*\) 是不计接触时的下一步速度，\(\mathbf J^T\boldsymbol\gamma\) 是各接触冲量合起来对物体的作用：</p>
+<p>\[\color{#c0392b}{\gamma_n/\Delta t=(-k\phi-\tau_d\,k\,v_n)_+,\qquad \phi=\phi_0+\Delta t\,v_n,\qquad \mathbf M(\mathbf v-\mathbf v^*)=\mathbf J^T\boldsymbol\gamma(\mathbf v)}\]</p>
+<p><strong>结论。</strong> 下一步速度是一个碗形函数的唯一最低点，牛顿法一定能求到；接触刚度大到弹簧的振动周期短于 \(\beta\) 个步长时，\(R\) 被一个只含数值参数 \(\beta\)、质量 \(m\) 的下限顶住，力不再由压力场给的 \(k\) 决定：</p>
+<p>\[\color{#c0392b}{\mathbf v=\arg\min_{\mathbf v}\ \tfrac12\|\mathbf v-\mathbf v^*\|_{\mathbf M}^2+\sum_{\text{接触}}\tfrac12R_n\,\gamma_n^2,\qquad R_n=\max\Big(\frac{\beta^2}{4\pi^2}\,\frac1m,\ \frac{1}{\Delta t\,k(\Delta t+\tau_d)}\Big)}\]</p>
 <details><summary>推导：SAP（带阻尼的弹簧冲量 → 动量方程 = 求最小值 → 近刚性封顶）</summary>
 
 <p><b>① 每个接触是一根带阻尼的弹簧</b></p>
 
-<p>已知：接触刚度 \(k\)、耗散时间尺度 \(\tau_\delta\)、步长 \(\Delta t\)、步首有符号距离 \(\phi_0\)；求：一步内的法向冲量 \(\gamma_n\)，用下一步法向速度 \(v_n\) 表示。</p>
+<p>已知：接触刚度 \(k\)、耗散时间尺度 \(\tau_d\)、步长 \(\Delta t\)、步首有符号距离 \(\phi_0\)；求：一步内的法向冲量 \(\gamma_n\)，用下一步法向速度 \(v_n\) 表示。</p>
 
 
 
@@ -508,7 +518,7 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<p>式 (1)：带阻尼弹簧的接触模型。\(\gamma_n\) 是一步内的法向冲量，即力乘步长；\(k\) 是接触刚度；\(\phi\) 是下一步的有符号距离，穿透为负；\(\tau_\delta\) 是耗散时间尺度，单位秒，阻尼系数为 \(\tau_dk\)；\(v_n\) 是法向相对速度，分开为正；\((\cdot)_+\) 表示负数取 0。它说的是：接触力 = 弹簧力 + 阻尼力，穿得越深推得越大，相互靠近得越快推得越大，只推不拉；\(\tau_\delta\) 越大，碰后反弹越小。</p>
+<p>式 (1)：带阻尼弹簧的接触模型。\(\gamma_n\) 是一步内的法向冲量，即力乘步长；\(k\) 是接触刚度；\(\phi\) 是下一步的有符号距离，穿透为负；\(\tau_d\) 是耗散时间尺度，单位秒，阻尼系数为 \(\tau_dk\)；\(v_n\) 是法向相对速度，分开为正；\((\cdot)_+\) 表示负数取 0。它说的是：接触力 = 弹簧力 + 阻尼力，穿得越深推得越大，相互靠近得越快推得越大，只推不拉；\(\tau_d\) 越大，碰后反弹越小。</p>
 
 <p>式 (2)：一步内的运动学关系。\(\phi_0\) 是步首的有符号距离。它说的是：一步之内重叠量按下一步的速度匀速变化，下一步的穿透量 = 步首穿透量 + 一步内走过的量。</p>
 
@@ -516,7 +526,7 @@ html.annot-on #annot-capture { display: block; }
 
 
 
-<figure style="margin:12px 0"><img src="assets/images/core_1.3_h.png" width="1294" height="910" style="width:597px;max-width:100%;height:auto" alt="横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\Delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\Delta t\,k(\Delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_\delta\)：\(\tau_\delta\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_\delta\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。" loading="lazy"><figcaption class="small">横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\Delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\Delta t\,k(\Delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_\delta\)：\(\tau_\delta\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_\delta\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。</figcaption></figure>
+<figure style="margin:12px 0"><img src="assets/images/core_1.3_h.png" width="1294" height="910" style="width:597px;max-width:100%;height:auto" alt="横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\Delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\Delta t\,k(\Delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_d\)：\(\tau_d\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_d\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。" loading="lazy"><figcaption class="small">横轴是下一步的法向速度 \(v_n\)，往左是两物体互相靠近，往右是分开；纵轴是这一步的法向冲量 \(\gamma_n\)。式 (3) 说冲量是 \(v_n\) 的一条直线再取正部：在 \(v_n=0\) 处高度是 \(-\Delta t\,k\phi_0\)，只由步首穿了多深决定；往分开方向走，冲量按斜率 \(-\Delta t\,k(\Delta t+\tau_d)\) 下降，降到 0 以后一直保持 0。绿线和蓝线只差耗散时间 \(\tau_d\)：\(\tau_d\) 大的那根更陡，在更小的分开速度下就降到 0，说明 \(\tau_d\) 越大，下一步速度在冲量里占的分量越重，碰撞后反弹越小。因为冲量只依赖下一步速度这一个未知量，下一小段才能把整步写成对速度的最小化。</figcaption></figure>
 
 
 
@@ -535,7 +545,7 @@ html.annot-on #annot-capture { display: block; }
 
 <p>式 (5)：记号定义。\(R\) 是 (3) 中冲量随下一步速度变化的斜率的倒数：下一步速度每增加一点，冲量按固定比例减少。</p>
 
-<p>结果：解动量方程等价于找 (6) 中函数的最低点。\(k\)、\(\Delta t\)、\(\tau_\delta\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
+<p>结果：解动量方程等价于找 (6) 中函数的最低点。\(k\)、\(\Delta t\)、\(\tau_d\) 越大 → \(R\) 越小，接触项越「硬」，因为同样的速度变化引起更大的冲量变化。函数是碗形，第一项因质量矩阵正定是碗形，第二项是线性函数取正部再平方，也向上弯，所以最低点唯一，牛顿法每步下降都能走到它。</p>
 
 <figure style="margin:12px 0"><img src="assets/images/core_1.3_i.png" width="1237" height="942" style="width:552px;max-width:100%;height:auto" alt="把式 (6) 的目标函数降到一维来看。灰虚线只有惯性项 \(\tfrac12M(v-v^*)^2\)，碗底在 \(v^*\)，也就是不计接触时物体下一步会有的速度，这里它朝着对方撞过去。蓝实线加上了接触项 \(\tfrac12R\gamma_n^2\)：越往靠近一侧走，冲量越大，这一项涨得越快，于是整只碗被往分开一侧抬起来，碗底挪到了 \(v\)。这个 \(v\) 就是式 (4) 动量方程的解，接触冲量正好把速度从 \(v^*\) 推到这里。两项都是向上弯的，合起来的曲线只有一个碗底，所以解唯一，牛顿法每一步往下走都会走到它。" loading="lazy"><figcaption class="small">把式 (6) 的目标函数降到一维来看。灰虚线只有惯性项 \(\tfrac12M(v-v^*)^2\)，碗底在 \(v^*\)，也就是不计接触时物体下一步会有的速度，这里它朝着对方撞过去。蓝实线加上了接触项 \(\tfrac12R\gamma_n^2\)：越往靠近一侧走，冲量越大，这一项涨得越快，于是整只碗被往分开一侧抬起来，碗底挪到了 \(v\)。这个 \(v\) 就是式 (4) 动量方程的解，接触冲量正好把速度从 \(v^*\) 推到这里。两项都是向上弯的，合起来的曲线只有一个碗底，所以解唯一，牛顿法每一步往下走都会走到它。</figcaption></figure>
 <details><summary>推导</summary><p>记目标函数：</p>
@@ -573,8 +583,8 @@ html.annot-on #annot-capture { display: block; }
 </details>
 <p><strong>实现</strong></p>
 <ul>
-<li>Drake：每次牛顿迭代用稀疏 Cholesky 分解；\(\tau_\delta\) 取接触两侧几何体各自的值之和，每侧默认 0.1 s</li>
-<li>Genesis：每步最多 5 次牛顿迭代，方向用预条件共轭梯度求；\(\tau_\delta\) 全局一个值，默认 0.1 s</li>
+<li>Drake：每次牛顿迭代用稀疏 Cholesky 分解；\(\tau_d\) 取接触两侧几何体各自的值之和，每侧默认 0.1 s</li>
+<li>Genesis：每步最多 5 次牛顿迭代，方向用预条件共轭梯度求；\(\tau_d\) 全局一个值，默认 0.1 s</li>
 </ul>
 <p class="kp">结论：SAP 按 1.2 的刚度求解；接触刚度大到触发近刚性处理时，力改由数值参数决定，不再是压力场给出的值。</p>
 
@@ -583,15 +593,13 @@ html.annot-on #annot-capture { display: block; }
 <p>两个光滑弹性曲面接触的闭式解，不依赖任何仿真代码，作为比较 hydro 与本项目的裁判。</p>
 <figure style="margin:12px 0"><img src="assets/images/hz00_contact_profile.png" width="1161" height="719" style="width:534px;max-width:100%;height:auto" alt="hz00_contact_profile"></figure>
 <p><em>这张图说明：刚球压进弹性垫子时，真正贴住球的区域比两者几何重叠的区域窄。横轴是离接触中心的水平距离，竖直方向放大显示。红线是球面，蓝线是垫子变形后的表面，米色是垫子，灰色虚线是垫子原来的表面；球底比原表面低出压深 \(\delta\)。中间粉色带是真实接触区 \(|r|\le a=\sqrt{R\delta}\)：带内蓝线贴着红线，垫子跟着球面凹下去。到粉色带边缘，垫子已经下陷 \(\delta/2\)，并不是回到原表面才和球分开。再往外，球面要到右侧点线 \(r=\sqrt{2R\delta}\)（几何重叠的边缘）才升回原表面，但这一段蓝线在红线下方，两者之间是缝隙：垫子被接触区带着下陷，却没有碰到球。所以按几何重叠估的接触半径比真实的宽。</em></p>
-<details><summary>推导：Hertz 接触（球面形状 → 接触半径 → 合力 → 弹性能 → 刚度）</summary>
-
-<p>以下推导刚球（半径 \(R\)）压弹性半空间（杨氏模量 \(E\)、泊松比 \(\nu\)，即侧向膨胀应变 ÷ 轴向压缩应变）。两个物体都可变形时，两者的下沉相加，结论只需把有效模量 \(E^*\) 和半径 \(R\) 换成下面的合成值，下标 1、2 表示两个物体。</p>
-
-
-
+<p><strong>条件。</strong> 刚球（半径 \(R\)）压弹性半空间（杨氏模量 \(E\)、泊松比 \(\nu\)，即侧向膨胀应变 ÷ 轴向压缩应变），压深 \(\delta\)；两个物体都可变形时，两者的下沉相加，结论只需把有效模量 \(E^*\) 和半径 \(R\) 换成下面的合成值，下标 1、2 表示两个物体：</p>
 <p>\[\color{#c0392b}{\frac{1}{E^*}=\frac{1-\nu_1^2}{E_1}+\frac{1-\nu_2^2}{E_2},\qquad \frac1R=\frac1{R_1}+\frac1{R_2}}\]</p>
-
-
+<p>接触区比球小得多，球面比最低点高出的 \(h\) 远小于 \(R\)；接触区（半径 \(a\)）内垫子表面贴住球面，下沉 \(u\) 等于压深减去球面高出的量；线弹性、无摩擦：</p>
+<p>\[\color{#c0392b}{r^2+(R-h)^2=R^2,\qquad h\ll R,\qquad u(r)=\delta-h(r)\ \ (r\le a)}\]</p>
+<p><strong>结论。</strong> 真实接触半径、合力、弹性能、刚度分别是</p>
+<p>\[\color{#c0392b}{a^2=R\delta,\qquad F=\frac43E^*R^{1/2}\delta^{3/2},\qquad U=\frac{8}{15}E^*R^{1/2}\delta^{5/2},\qquad K=2E^*a}\]</p>
+<details><summary>推导：Hertz 接触（球面形状 → 接触半径 → 合力 → 弹性能 → 刚度）</summary>
 
 <p><b>① 球面形状</b></p>
 
@@ -781,7 +789,11 @@ html.annot-on #annot-capture { display: block; }
 </tr>
 </tbody>
 </table></div>
-<p><strong>外修正网络的输入 \(\mathbf A(\mathbf q)^{-1}\mathbf z\)</strong>：</p>
+<p><strong>外修正网络的输入 \(\mathbf A(\mathbf q)^{-1}\mathbf z\)</strong></p>
+<p><strong>条件。</strong> 把手是一个刚性坐标架，朝向 \(\mathbf R_A\)、位置 \(\mathbf t_A\)，局部坐标按刚体变换换成世界坐标；旋转矩阵满足 \(\mathbf R_A^T\mathbf R_A=\mathbf I\)；碰撞体的状态 \(\mathbf z\) 由它在世界里的位置 \(\mathbf p_z\) 和朝向 \(\mathbf R_z\) 组成：</p>
+<p>\[\color{#c0392b}{\mathbf x_{\text{世界}}=\mathbf R_A\,\mathbf x_{\text{局部}}+\mathbf t_A,\qquad \mathbf R_A^{T}\mathbf R_A=\mathbf I,\qquad \mathbf z=(\mathbf p_z,\mathbf R_z)}\]</p>
+<p><strong>结论。</strong> 外修正网络的输入是碰撞体相对把手的位置和朝向：</p>
+<p>\[\color{#c0392b}{\mathbf A(\mathbf q)^{-1}\mathbf z=\big(\mathbf R_A^{T}(\mathbf p_z-\mathbf t_A),\ \mathbf R_A^{T}\mathbf R_z\big)}\]</p>
 <details><summary>推导：外修正网络的输入（碰撞体世界位姿 → 相对把手的位姿）</summary>
 
 <p><b>① 刚体变换求逆：世界坐标 → 局部坐标</b></p>
@@ -986,7 +998,13 @@ html.annot-on #annot-capture { display: block; }
 <p><strong>参考位置</strong>：每个物体有一份固定的参考网格（物体在参考姿态下的顶点坐标 \(\mathbf x_{\text{ref}}\)）。刚体任一时刻的顶点位置 \(\mathbf x_t\) 都是参考网格整体旋转 \(\mathbf R\)、平移 \(\mathbf t\) 的结果，见下式。所以顶点当前位置与参考位置之差，就是该顶点相对参考姿态移动了多少，反映物体当前的姿态。</p>
 <p>\[\color{#c0392b}{\mathbf x_t=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t}\]</p>
 <p><strong>锚点</strong>：每个物体从顶点中选 4 个点作为锚点，用最远点采样选取：先任取一个顶点，之后每次选离已选点最远的顶点，直到选够 4 个，使锚点在物体上尽量分散。刚体有 6 个自由度，3 个不共线的点即可确定其姿态；论文对比 3、4、8 个锚点，4 个的位置误差最小。</p>
-<p><strong>由锚点加速度得到物体运动</strong>：</p>
+<p><strong>由锚点加速度得到物体运动</strong></p>
+<p><strong>条件。</strong> 网络每帧给出每个锚点的加速度 \(\mathbf a_t\)，\(\mathbf q_t\) 是锚点在第 \(t\) 帧的位置，\(\Delta t\) 是帧间隔，速度和加速度都按相邻两帧之差定义；物体是刚体，所有顶点都是参考网格整体旋转 \(\mathbf R\)、平移 \(\mathbf t\) 的结果；取让 4 个参考锚点 \(\mathbf q_{\text{ref}}^{k}\) 离预测锚点 \(\hat{\mathbf q}_{t+1}^{k}\) 最近（距离平方和最小）的那个刚体变换：</p>
+<p>\[\color{#c0392b}{\mathbf v_t=\frac{\mathbf q_t-\mathbf q_{t-1}}{\Delta t},\qquad \mathbf a_t=\frac{\mathbf v_{t+1}-\mathbf v_t}{\Delta t},\qquad \mathbf x=\mathbf R\,\mathbf x_{\text{ref}}+\mathbf t}\]</p>
+<p>\[\color{#c0392b}{(\mathbf R,\mathbf t)=\arg\min_{\mathbf R^T\mathbf R=\mathbf I,\ \det\mathbf R=1}\ \sum_k\big\|\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big\|^2}\]</p>
+<p><strong>结论。</strong> 先由加速度得到预测锚点，再求旋转和平移，最后作用到每个顶点 \(v\)。\(\bar{\mathbf q}_{\text{ref}}\)、\(\bar{\hat{\mathbf q}}\) 是两组锚点的形心，\(\mathbf U\)、\(\mathbf V\) 来自两组锚点去掉形心后的相关矩阵 \(\mathbf H=\sum_k\mathbf r_k\hat{\mathbf r}_k^T\) 的奇异值分解：</p>
+<p>\[\color{#c0392b}{\hat{\mathbf q}_{t+1}=\mathbf a_t\,\Delta t^2+2\mathbf q_t-\mathbf q_{t-1},\qquad \mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}}\]</p>
+<p>\[\color{#c0392b}{\mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T},\qquad \mathbf x_{t+1}^{(v)}=\mathbf R\,\mathbf x_{\text{ref}}^{(v)}+\mathbf t}\]</p>
 <details><summary>推导：由锚点加速度得到物体运动（Verlet → Kabsch → 全体顶点）</summary>
 
 <p><b>① Verlet 积分：锚点加速度 → 锚点新位置</b></p>
@@ -1032,14 +1050,25 @@ html.annot-on #annot-capture { display: block; }
 
 <figure style="margin:12px 0"><img src="assets/images/core_2.4_n.png" width="1484" height="511" style="width:716px;max-width:100%;height:auto" alt="左边灰色是参考姿态下的 4 个锚点，连成一个四面体（这里画的是它的投影）。右边红点是网络对 4 个锚点各自预测的新位置，红虚线连起来的形状和参考的不一样，说明它已经不是刚体了。蓝色是按式 (4) 找到的最佳刚体摆放：把参考四面体只转、只挪、不变形，让它离 4 个红点的距离平方和最小，结果由式 (6)(7) 直接写出。每个锚点上的黑短线是它被「掰回」刚体的那一段残差，预测越不像刚体，这些线越长，多出来的变形就被丢掉了。" loading="lazy"><figcaption class="small">左边灰色是参考姿态下的 4 个锚点，连成一个四面体（这里画的是它的投影）。右边红点是网络对 4 个锚点各自预测的新位置，红虚线连起来的形状和参考的不一样，说明它已经不是刚体了。蓝色是按式 (4) 找到的最佳刚体摆放：把参考四面体只转、只挪、不变形，让它离 4 个红点的距离平方和最小，结果由式 (6)(7) 直接写出。每个锚点上的黑短线是它被「掰回」刚体的那一段残差，预测越不像刚体，这些线越长，多出来的变形就被丢掉了。</figcaption></figure>
 <details><summary>推导</summary><p>式 (4) 的目标函数对 \(\mathbf t\) 求导并令其为 0：</p>
-<p>\[\sum_k\big(\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big)=0\quad\Longrightarrow\quad\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\qquad(6)\]</p>
+<p>\[\sum_k\big(\mathbf R\,\mathbf q_{\text{ref}}^{k}+\mathbf t-\hat{\mathbf q}_{t+1}^{k}\big)=0\]</p>
+<p>4 个锚点，\(\mathbf t\) 出现 4 次；两边除以 4，\(\bar{\mathbf q}_{\text{ref}}=\frac14\sum_k\mathbf q_{\text{ref}}^{k}\)、\(\bar{\hat{\mathbf q}}=\frac14\sum_k\hat{\mathbf q}_{t+1}^{k}\) 是两组锚点的形心：</p>
+<p>\[\mathbf R\,\bar{\mathbf q}_{\text{ref}}+\mathbf t-\bar{\hat{\mathbf q}}=0\quad\Longrightarrow\quad\mathbf t=\bar{\hat{\mathbf q}}-\mathbf R\,\bar{\mathbf q}_{\text{ref}}\qquad(6)\]</p>
 <p>代回，记去掉形心后的坐标 \(\mathbf r_k=\mathbf q_{\text{ref}}^{k}-\bar{\mathbf q}_{\text{ref}}\)、\(\hat{\mathbf r}_k=\hat{\mathbf q}_{t+1}^{k}-\bar{\hat{\mathbf q}}\)，由式 (5) \(\|\mathbf R\mathbf r_k\|=\|\mathbf r_k\|\)：</p>
 <p>\[\sum_k\|\mathbf R\,\mathbf r_k-\hat{\mathbf r}_k\|^2=\sum_k\|\mathbf r_k\|^2+\sum_k\|\hat{\mathbf r}_k\|^2-2\,\mathrm{tr}(\mathbf R\,\mathbf H),\qquad \mathbf H=\sum_k\mathbf r_k\,\hat{\mathbf r}_k^{T}\]</p>
-<p>所以要让 \(\mathrm{tr}(\mathbf R\mathbf H)\) 最大。对 \(\mathbf H\) 做奇异值分解：</p>
-<p>\[\mathbf H=\mathbf U\boldsymbol\Sigma\mathbf V^{T}\]</p>
-<p>记 \(\mathbf M=\mathbf V^{T}\mathbf R\,\mathbf U\)，它也是正交矩阵：</p>
-<p>\[\mathrm{tr}(\mathbf R\mathbf H)=\mathrm{tr}(\mathbf M\boldsymbol\Sigma)=\sum_i M_{ii}\sigma_i\le\sum_i\sigma_i\]</p>
-<p>\(\mathbf M=\mathbf I\) 时取到最大，即 \(\mathbf R=\mathbf V\mathbf U^{T}\)；为满足式 (5) 的 \(\det\mathbf R=1\)，最后一个方向乘 \(\det(\mathbf V\mathbf U^{T})\)：</p>
+<p>前两项与 \(\mathbf R\) 无关，所以要让 \(\mathrm{tr}(\mathbf R\mathbf H)\) 最大。对 \(\mathbf H\) 做奇异值分解，\(\mathbf U\)、\(\mathbf V\) 是正交矩阵，奇异值从大到小排 \(\sigma_1\ge\sigma_2\ge\sigma_3\ge0\)：</p>
+<p>\[\mathbf H=\mathbf U\boldsymbol\Sigma\mathbf V^{T},\qquad \boldsymbol\Sigma=\mathrm{diag}(\sigma_1,\sigma_2,\sigma_3)\]</p>
+<p>代入，再用迹的轮换 \(\mathrm{tr}(\mathbf A\mathbf B)=\mathrm{tr}(\mathbf B\mathbf A)\) 把 \(\mathbf V^T\) 挪到最前面：</p>
+<p>\[\mathrm{tr}(\mathbf R\mathbf H)=\mathrm{tr}(\mathbf R\,\mathbf U\boldsymbol\Sigma\mathbf V^{T})=\mathrm{tr}(\mathbf V^{T}\mathbf R\,\mathbf U\,\boldsymbol\Sigma)\]</p>
+<p>记 \(\mathbf M=\mathbf V^{T}\mathbf R\,\mathbf U\)。三个正交矩阵相乘还是正交矩阵，每一列都是单位向量，所以每个对角元 \(|M_{ii}|\le1\)。\(\boldsymbol\Sigma\) 是对角阵，迹只取到 \(\mathbf M\) 的对角元：</p>
+<p>\[\mathrm{tr}(\mathbf M\boldsymbol\Sigma)=M_{11}\sigma_1+M_{22}\sigma_2+M_{33}\sigma_3\le\sigma_1+\sigma_2+\sigma_3\]</p>
+<p>等号在 \(\mathbf M=\mathbf I\) 时取到，反解 \(\mathbf R=\mathbf V\mathbf M\mathbf U^{T}\)：</p>
+<p>\[\mathbf R=\mathbf V\mathbf U^{T}\]</p>
+<p>但式 (5) 要求 \(\det\mathbf R=1\)。由 \(\det\mathbf M=\det\mathbf V^{T}\cdot\det\mathbf R\cdot\det\mathbf U=\det\mathbf R\cdot\det(\mathbf V\mathbf U^{T})\)（正交矩阵的行列式是 \(\pm1\)，\(\det\mathbf V^{T}=\det\mathbf V\)），分两种情况：</p>
+<ul>
+<li>\(\det(\mathbf V\mathbf U^{T})=1\)：\(\mathbf M=\mathbf I\) 满足 \(\det\mathbf M=1\)，就取 \(\mathbf R=\mathbf V\mathbf U^{T}\)。</li>
+<li>\(\det(\mathbf V\mathbf U^{T})=-1\)：\(\det\mathbf M\) 必须是 \(-1\)，\(\mathbf M=\mathbf I\) 不允许。行列式为 \(-1\) 的正交矩阵至少把一个方向翻转，翻转在哪个方向，那一项就从 \(+\sigma_i\) 变成 \(-\sigma_i\)；翻在最小的 \(\sigma_3\) 上损失最小，最大值 \(\sigma_1+\sigma_2-\sigma_3\) 在 \(\mathbf M=\mathrm{diag}(1,1,-1)\) 取到。</li>
+</ul>
+<p>两种情况合成一个式子，把 \(\mathbf M=\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\) 代回 \(\mathbf R=\mathbf V\mathbf M\mathbf U^{T}\)：</p>
 <p>\[\mathbf R=\mathbf V\,\mathrm{diag}\big(1,1,\det(\mathbf V\mathbf U^{T})\big)\,\mathbf U^{T}\qquad(7)\]</p></details>
 <p><b>③ 推到所有顶点</b></p>
 
@@ -1056,7 +1085,11 @@ html.annot-on #annot-capture { display: block; }
 <details><summary>推导</summary><p>把式 (6)(7) 给出的 \(\mathbf R\)、\(\mathbf t\) 代入式 (8)，对每个顶点 \(v\)：</p>
 <p>\[\mathbf x_{t+1}^{(v)}=\mathbf R\,\mathbf x_{\text{ref}}^{(v)}+\mathbf t\qquad(9)\]</p></details>
 </details>
-<p><strong>步长输入方式 FiLM</strong>（Feature-wise Linear Modulation，逐特征线性调制）：</p>
+<p><strong>步长输入方式 FiLM</strong>（Feature-wise Linear Modulation，逐特征线性调制）</p>
+<p><strong>条件。</strong> 每个物体有一个 768 维特征 \(h\)；一个小网络（MLP）把步长 \(n_s\) 和它的平方变成每一维各自的缩放 \(\gamma_i\) 与偏移 \(\beta_i\)；每一维特征先乘缩放再加偏移：</p>
+<p>\[\color{#c0392b}{\big(\gamma,\beta\big)=\mathrm{MLP}\big([n_s,n_s^2]\big),\qquad h_i\leftarrow\gamma_i\,h_i+\beta_i}\]</p>
+<p><strong>结论。</strong> 每一维特征都按步长做一次线性变换，同一个网络因此能按不同步长给出不同的预测：</p>
+<p>\[\color{#c0392b}{h_i\leftarrow\gamma_i(n_s)\,h_i+\beta_i(n_s),\qquad i=1,\dots,768}\]</p>
 <details><summary>推导：步长输入方式 FiLM（步长 → 缩放与偏移 → 调制每维特征）</summary>
 
 <p><b>① 用步长调制特征</b></p>
@@ -1213,8 +1246,12 @@ html.annot-on #annot-capture { display: block; }
 <p>\[\color{#c0392b}{U_{\text{Hertz}}=\frac{8}{15}E^*R^{1/2}\delta^{5/2}}\]</p>
 <p><strong>设计考虑</strong></p>
 <ul>
-<li><strong>重力不进入 \(U_c\)</strong>：</li>
+<li><strong>重力不进入 \(U_c\)</strong></li>
 </ul>
+<p><strong>条件。</strong> \(U_c\) 按上面的定义是加局部修正前后总势能之差；重力势能只看每个节点的高度 \(y_i\)，\(m_i\) 是节点质量，\(\mathrm g\) 是重力加速度；粗状态取全网格位置按节点质量加权的仿射拟合，平移部分 \(\mathbf t\) 就是质心；局部修正 \(\Psi w\) 是位置减去这个拟合（\(\mathbf B\) 是拟合的线性部分，\(\mathbf r_i\) 是节点相对质心的静止位置）：</p>
+<p>\[\color{#c0392b}{E_{\text{重}}=\sum_i m_i\,\mathrm g\,y_i,\qquad \mathbf t=\sum_i \frac{m_i}{\sum_j m_j}\,\mathbf x_i,\qquad \Psi w=\mathbf x-\big(\mathbf B\,\mathbf r+\mathbf t\big),\quad \sum_i m_i\,\mathbf r_i=0}\]</p>
+<p><strong>结论。</strong> 局部修正不移动质心，所以它在重力方向做的功为 0，\(U_c\) 与 \(\mathrm g\) 无关，生成标签时可以关掉重力：</p>
+<p>\[\color{#c0392b}{\sum_i m_i(\Psi w)_i=0\quad\Longrightarrow\quad \Delta E_{\text{重}}=\mathrm g\sum_i m_i(\Psi w)_{y,i}=0}\]</p>
 <details><summary>推导：重力不进入 \(U_c\)（重力项之差 → 质量加权拟合 → 重力项为 0）</summary>
 
 <p><b>① 重力项之差</b></p>
@@ -1318,6 +1355,11 @@ html.annot-on #annot-capture { display: block; }
 
 <p><strong>BEM（边界元法）</strong>：只在基体表面划网格，内部变形由半空间解析解给出。对 3.2 的每个样本求弹性能作为标签。</p>
 <p><strong>网格</strong>：原表面 \(z=0\) 上间距 \(\ell=0.008\) 的方格，取 \(r\le0.18\) 的圆盘（覆盖所有可能接触处），共 1597 格；每格压强取常数 \(p_j\)。网格建在变形前的表面上：线弹性小变形下，表面点的水平移动和表面倾斜忽略不计。</p>
+<p><strong>条件。</strong> 半空间表面一点上按一个力 \(P\)，离它 \(s\) 处的下沉是 \(u\)；线弹性下各格压强造成的下沉直接相加；\(w_i\) 是第 \(i\) 格处压头若表面不变形会压进去多少（\(z\) 是压头表面高度，\(z_0\) 是它的最低点）；压强不能为负，表面不能穿过压头，有压强的格子表面正好贴住压头；每格受力 \(p_i\ell^2\)，从零慢慢加载，做功是力乘下沉的一半：</p>
+<p>\[\color{#c0392b}{u=\frac{P}{\pi E^*s},\qquad w=\delta-(z-z_0),\qquad U=\sum_i\tfrac12\,(p_i\ell^2)\,u_i}\]</p>
+<p>\[\color{#c0392b}{p_i\ge0,\qquad u_i\ge w_i,\qquad p_i&gt;0\Rightarrow u_i=w_i}\]</p>
+<p><strong>结论。</strong> 下沉是压强的线性函数（柔度矩阵 \(C\)），压强是一个带非负约束的二次最小化的解，标签是二次型：</p>
+<p>\[\color{#c0392b}{u=C\,p,\qquad p=\arg\min_{p\ge0}\ \tfrac12 p^TCp - p^Tw,\qquad U=\tfrac12\ell^2\,p^TCp}\]</p>
 <details><summary>推导：BEM 标签（下沉与压强 → 求压强 → 弹性能）</summary>
 
 <p><b>① 下沉与压强：柔度矩阵</b></p>
@@ -1429,6 +1471,11 @@ html.annot-on #annot-capture { display: block; }
 <p>\[\color{#c0392b}{U_k=\delta_k^2\exp(g)}\]</p>
 </li>
 </ol>
+<p><strong>条件。</strong> 单区能量写成上式；\(g\) 由网络从高度图特征和 \(\log\delta\) 算出，网络的激活函数是 \(\tanh\)（输出有界、斜率在 0 到 1 之间）；指数函数恒为正：</p>
+<p>\[\color{#c0392b}{U=\delta^2\exp(g),\qquad g=\mathrm{NN}(\text{特征},\ \log\delta),\qquad |\tanh(x)|\le1,\quad 0&lt;\tanh&#x27;(x)\le1,\qquad \exp(x)&gt;0}\]</p>
+<p><strong>结论。</strong> 不论网络输出什么，能量都非负、没接触时为 0，接触瞬间力为 0；网络输出下面的 \(g\) 时正好给出 Hertz 弹性能：</p>
+<p>\[\color{#c0392b}{U\ge0,\quad U(\delta=0)=0,\qquad \frac{dU}{d\delta}\to0\ \ (\delta\to0)}\]</p>
+<p>\[\color{#c0392b}{g=\log\Big(\frac{8}{15}E^*R^{1/2}\Big)+0.5\log\delta\ \Longrightarrow\ U=U_{\text{Hertz}}}\]</p>
 <details><summary>推导：\(\delta^2\exp(g)\) 的性质</summary>
 
 <p><b>① 能量非负，没接触时为 0</b></p>
@@ -1563,6 +1610,10 @@ html.annot-on #annot-capture { display: block; }
 <li>离散：每块接触多边形只在形心取一点（1.2）</li>
 </ul>
 <p><strong>受控场景：刚球压 FEM 块</strong>（块的杨氏模量远大于压力场模量 \(E_h\)，块几乎不变形）：物体从刚好接触处静止释放、只受自重，测静止后的压深 \(\delta\)，与压力场公式令接触力等于重量解出的预测压深比较（下面推导 ③）。</p>
+<p><strong>条件。</strong> 块的压强随球面进入块的深度 \(s\) 线性增大，斜率是压力场模量 \(E_h\) 除以块内到表面的最大距离 \(D_h\)；合力是压强的面积分；球面满足球的方程，\(y\) 是从球最低点往上量的高度；静止时接触力等于球的重量 \(m\mathrm g\)，压深 \(\delta\) 远小于球半径 \(R\)：</p>
+<p>\[\color{#c0392b}{p=\frac{E_h}{D_h}\,s,\qquad F=\int p\,dA,\qquad r^2+(R-y)^2=R^2,\qquad F=m\mathrm g,\qquad \delta\ll R}\]</p>
+<p><strong>结论。</strong> 合力等于压强斜率乘球压进块的体积（球冠体积），由此预测静止压深与球半径的平方根成反比：</p>
+<p>\[\color{#c0392b}{F=\frac{E_h}{D_h}\,V,\qquad V=\pi R\delta^2\Big(1-\frac{\delta}{3R}\Big),\qquad \delta\approx\sqrt{\frac{m\mathrm gD_h}{\pi E_hR}}\ \propto R^{-1/2}}\]</p>
 <details><summary>推导：刚球压 FEM 块的压力场公式</summary>
 
 <p><b>① 合力 = 压强斜率 × 球压进块的体积</b></p>
@@ -1768,12 +1819,14 @@ html.annot-on #annot-capture { display: block; }
 </ul>
 <p><strong>hydro 搭法</strong></p>
 <ul>
-<li>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 = 压力场模量 \(E_h\) 除以基体内到表面的最大距离 \(D_h\)，再乘深度<ul>
-<li>力 = 压力场斜率 × 重叠体积，推导见下</li>
-</ul>
-</li>
+<li>(A) 刚性压头不带压力场（Drake 做法）；基体带压力场，压强 = 压力场模量 \(E_h\) 除以基体内到表面的最大距离 \(D_h\)，再乘深度</li>
 <li>(B) 两侧均为刚体、各带压力场、共用全局刚度 \(H\)（Genesis 刚体–刚体做法）</li>
 </ul>
+<p><strong>hydro (A) 的力</strong></p>
+<p><strong>条件。</strong> 基体的压强随压头进入基体的深度 \(s\) 线性增大，斜率是 \(E_h/D_h\)；合力是压强的面积分；重叠体积 \(V\) 是进入深度的面积分：</p>
+<p>\[\color{#c0392b}{p=\frac{E_h}{D_h}\,s,\qquad F=\int p\,dA,\qquad V=\int s\,dA}\]</p>
+<p><strong>结论。</strong> hydro (A) 的力等于压力场斜率乘重叠体积，只看重叠了多少体积，不看重叠的形状：</p>
+<p>\[\color{#c0392b}{F_{\text{hydro}}=\frac{E_h}{D_h}\,V}\]</p>
 <details><summary>推导：hydro (A) 的力 = 压力场斜率 × 重叠体积</summary>
 
 <p><b>① hydro (A) 的力</b></p>
@@ -1806,6 +1859,10 @@ html.annot-on #annot-capture { display: block; }
 <li>网格尺寸 \(h\)：取三档，依次减半，外推到网格无限细</li>
 <li>块大小：块有限大，取两档外推到无限大</li>
 </ul>
+<p><strong>条件。</strong> 离散尺寸 \(h\) 足够小时，读数 \(X\) 与真值 \(X_\infty\) 之差按 \(h\) 的 \(p\) 次方变小（\(C\) 是与 \(h\) 无关的常数，\(p\) 是收敛阶）；粗、中、细三档尺寸相邻之比都是 \(\rho\)，各算一次得到三个读数：</p>
+<p>\[\color{#c0392b}{X(h)=X_\infty+C\,h^p,\qquad h_c=\rho\,h_m,\quad h_m=\rho\,h_f}\]</p>
+<p><strong>结论。</strong> 用中、细两档读数外推出真值；收敛阶由三档读数实测：</p>
+<p>\[\color{#c0392b}{X_\infty=X^{(f)}+\frac{X^{(f)}-X^{(m)}}{\rho^p-1},\qquad p=\frac{\ln\big[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})\big]}{\ln \rho}}\]</p>
 <details><summary>方法：Richardson 外推（本页之后凡说「外推」都是它）</summary>
 
 <p><b>① 外推值</b></p>
@@ -1858,10 +1915,10 @@ html.annot-on #annot-capture { display: block; }
 <p>\[\frac{X^{(c)}-X^{(m)}}{X^{(m)}-X^{(f)}}=\frac{h_m^p}{h_f^p}=\rho^p\]</p>
 <p>两边取对数：</p>
 <p>\[p=\frac{\ln\big[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})\big]}{\ln \rho}\qquad(9)\]</p></details>
-<p><b>③ 本页三项各取什么</b></p>
-
+</details>
+<p><strong>本页三项各取什么</strong></p>
 <ul>
-<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(\rho=2\)），\(p\) 按式 (9) \(p=\ln[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})]/\ln \rho\) 实测，代入式 (7) \(X_\infty=X^{(f)}+(X^{(f)}-X^{(m)})/(\rho^p-1)\)</li>
+<li>网格：三档 \(h\)、\(h/2\)、\(h/4\)（\(\rho=2\)），\(p\) 按 \(p=\ln[(X^{(c)}-X^{(m)})/(X^{(m)}-X^{(f)})]/\ln \rho\) 实测，代入 \(X_\infty=X^{(f)}+(X^{(f)}-X^{(m)})/(\rho^p-1)\)</li>
 <li>\(\hat d\)：两档，取 \(p=1\)（偏差与 \(\hat d\) 成正比，\(h\) 换成 \(\hat d\)），即两点连直线延长到 \(\hat d=0\)</li>
 <li>块大小：两档半宽 \(L_s&lt;L_l\)，取 \(h=1/L\)、\(p=1\)，即两点连直线延长到 \(1/L=0\)（块无限大）</li>
 </ul>
@@ -1869,7 +1926,6 @@ html.annot-on #annot-capture { display: block; }
 <ul>
 <li>三项修正量相加：最终值 = 块外推值 + 网格外推值 − 中等网格大块的读数（各项都从同一个基准读数出发修正，修正量叠加）</li>
 </ul>
-</details>
 <h3 id="w5-2" class="numbered">E0 前提：标签与解析解一致</h3>
 
 <p><strong>设置</strong>：半径 1 刚球压长方体（下称块），杨氏模量 \(E=10^5\)、泊松比 \(\nu=0.3\)，压深 0.004–0.024，比较标签弹性能与 Hertz 弹性能（1.4 ⑤）之比，1 为一致：</p>
@@ -1880,7 +1936,7 @@ html.annot-on #annot-capture { display: block; }
 <p><em>这张图是下面收敛曲线那批仿真的场景，画的是最深压深 0.024。左边是整体、真实比例：刚球压在弹性块上，压深只有球半径的几十分之一，所以这样看不出块上有坑。右边是过球心剖开的剖面，竖直方向放大了 5 倍：块顶面被压出一个坑，球正坐在坑里；红色那一段是块表面真正受到接触力的地方，它的宽度约等于 Hertz 公式里的接触圈直径 \(2a\)（这里 \(a=\sqrt{R\delta}\approx0.155\)）——这就是标签要和 Hertz 比的那个接触。</em></p>
 <figure style="margin:12px 0"><img src="assets/images/e0_label_convergence.png" width="1627" height="723" style="width:945px;max-width:100%;height:auto" alt="e0_label_convergence"></figure>
 <p><em>左右两幅分别是压深 0.004 和 0.024 时，IPC 标签能量与 Hertz 解析解之比随 \(\hat d\) 的变化，三种点形对应三档网格（\(h_c\) 0.025 / 0.0125 / 0.00625）。\(\hat d\) 从 1e-3 减到 2.5e-4，压深 0.004 的比值从 1.81–1.94 降到 1.22–1.32；只有 \(h_c\) 0.0125 跑到 6.25e-5，比值降到 1.16（压深 0.024 为 1.20）。比值随 \(\hat d\) 变小、网格变细一直在下降、还没到 1，所以标签要把 \(\hat d\) 和网格都外推到 0 才能和 Hertz 比。</em></p>
-<p><strong>结果</strong>：用 Richardson 外推（见 5.0「方法」）：网格取 0.025、0.0125、0.00625 三档，实测收敛阶 \(p=1.8\text{–}2.0\)；\(\hat d\)、块大小各两档、\(p=1\)。外推后压深 0.004–0.024 处比值为 1.003–1.012（第 2 周的网格外推结果；第 3–4 周改用同组共用收敛阶后，现行标签只做了压深 0.004–0.013 四档，值为 0.997–1.008，见 week3–4 页 9.1 节）。</p>
+<p><strong>结果</strong>：用 Richardson 外推（见 5.0「方法」）：网格取 0.025、0.0125、0.00625 三档，实测收敛阶 \(p=1.8\text{–}2.0\)；\(\hat d\)、块大小各两档、\(p=1\)。外推后压深 0.004–0.024 处比值为 1.003–1.012（第 2 周的网格外推结果；第 3–4 周改用同组共用收敛阶后，现行标签只做了压深 0.004–0.013 四档，值为 1.003–1.007；week3–4 页 4.1 节的 1.003–1.011 还包括半径 2 的球）。</p>
 <p class="kp">结论：标签与 Hertz 一致，标签可信。</p>
 
 <h3 id="w5-3" class="numbered">E1 球压厚块：球半径 ×2</h3>
@@ -1891,8 +1947,11 @@ html.annot-on #annot-capture { display: block; }
 <p><em>两张图只差球的半径，用来检验压到同样深时力怎样随球半径变化。深灰色是刚球，蓝色是被压的弹性块（宽 4.8、深 2.4，远大于接触区，可当半空间）。上图球半径 \(R=1\)，下图 \(2R=2\)，两球都压进块顶面 0.024；压深相对块很小，图上看不出凹陷。两张图用同一个相机，大小差别就是真实的几何差别。</em></p>
 <p><strong>裁判（Hertz，1.4 ④）</strong>：有效模量 \(E^*\) 与压深 \(\delta\) 不变，力只随球半径的平方根变化，半径 ×2 → <strong>×1.41</strong></p>
 <p>\[\color{#c0392b}{F=\frac43E^*R^{1/2}\delta^{3/2},\qquad \frac{F(2R)}{F(R)}=\frac{(2R)^{1/2}}{R^{1/2}}=\sqrt2\approx1.41}\]</p>
-<p><strong>hydro (A)</strong>：力与球半径成正比，半径 ×2 → <strong>×2</strong></p>
-<p>\[\color{#c0392b}{F_A=\frac{E_h}{D_h}\,\pi R\,\delta^{2}}\]</p>
+<p><strong>hydro (A)</strong></p>
+<p><strong>条件。</strong> 球面满足球的方程，\(y\) 是从球最低点往上量的高度，压深 \(\delta\) 远小于 \(R\)；块的压强随深度线性增大，斜率 \(E_h/D_h\)；合力是压强的面积分：</p>
+<p>\[\color{#c0392b}{r^2+(R-y)^2=R^2,\qquad y\le\delta\ll R,\qquad p=\frac{E_h}{D_h}\times\text{深度},\qquad F=\int p\,dA}\]</p>
+<p><strong>结论。</strong> 力与球半径成正比，半径 ×2 → <strong>×2</strong>；压强换成深度的任意函数，力仍与 \(R\) 成正比：</p>
+<p>\[\color{#c0392b}{F_A=\frac{E_h}{D_h}\,\pi R\,\delta^{2},\qquad \frac{F_A(2R)}{F_A(R)}=2}\]</p>
 <details><summary>推导：hydro (A)</summary>
 
 <p><b>① 重叠体积</b></p>
@@ -1957,7 +2016,10 @@ html.annot-on #annot-capture { display: block; }
 <p>\[F=2\pi R\int_0^\delta p(\delta-u)\,du\qquad(11)\]</p>
 <p>积分里不含 \(R\)，所以对任意 \(p\) 都有 \(F\propto R\)。</p></details>
 </details>
-<p><strong>hydro (B)</strong>：半径 ×2 时力的比值介于 1 与 2 之间，\(D_h\) 是块内到表面的最大距离：</p>
+<p><strong>hydro (B)</strong></p>
+<p><strong>条件。</strong> 重叠体积同 hydro (A)；球和块各带压力场，梯度都是全局刚度 \(H\) 除以各自内部到表面的最大距离（球是 \(R\)，块是 \(D_h\)），两侧梯度像 1.2 那样串联；压强 = 合成梯度 × 重叠深度：</p>
+<p>\[\color{#c0392b}{V=\pi R\,\delta^2,\qquad \Gamma_{\text{球}}=\frac HR,\quad \Gamma_{\text{块}}=\frac H{D_h},\qquad \Gamma=\frac{\Gamma_{\text{球}}\,\Gamma_{\text{块}}}{\Gamma_{\text{球}}+\Gamma_{\text{块}}},\qquad p=\Gamma\times\text{重叠深度}}\]</p>
+<p><strong>结论。</strong> 半径 ×2 时力的比值介于 1 与 2 之间：</p>
 <p>\[\color{#c0392b}{\frac{F_B(2R)}{F_B(R)}=\frac{2(R+D_h)}{2R+D_h}}\]</p>
 <details><summary>推导：hydro (B)</summary>
 
@@ -2019,7 +2081,7 @@ html.annot-on #annot-capture { display: block; }
 </tr>
 </tbody>
 </table></div>
-<p>偏差 −0.9% 至 +0.8%，通过。表中是第 2 周的网格外推结果；第 3–4 周改用同组共用收敛阶后，现行标签的能量比为 1.4148–1.4184，见 week3–4 页 9.1 节。</p>
+<p>偏差 −0.9% 至 +0.8%，通过。表中是第 2 周的网格外推结果；第 3–4 周改用同组共用收敛阶后，现行标签的能量比为 1.4173–1.4196，见 week3–4 页 4.3 节。</p>
 <p class="kp">结论：球半径 ×2，解析 ×1.41，标签 ×1.40–1.43，hydro (A) 恒为 ×2。</p>
 
 <h3 id="w5-4" class="numbered">E2 平底压头：半径 ×1、×2、×4</h3>
@@ -2028,8 +2090,11 @@ html.annot-on #annot-capture { display: block; }
 <figure style="margin:12px 0"><img src="assets/images/E2_a.png" width="1170" height="946" style="width:519px;max-width:100%;height:auto" alt="E2_a"></figure>
 <figure style="margin:12px 0"><img src="assets/images/E2_b.png" width="1170" height="946" style="width:519px;max-width:100%;height:auto" alt="E2_b"></figure>
 <p><em>两张图只差平底压头的半径。深灰色圆柱是刚性平底压头（高 0.8），蓝色是和 E1 同样的块（宽 4.8、深 2.4）。上图压头半径 \(a=0.25\)，下图 \(4a=1.0\)，压深都是 0.024。平底压头的接触区就是整个底面，半径变几倍，接触面积就变几的平方倍。</em></p>
-<p><strong>裁判：Boussinesq 平底解</strong>：力与平底半径成正比，半径 ×1、×2、×4 → <strong>力 ×1、×2、×4</strong></p>
-<p>\[\color{#c0392b}{F_{\text{解析}}=2E^{*}a\,\delta}\]</p>
+<p><strong>裁判：Boussinesq 平底解</strong></p>
+<p><strong>条件。</strong> 平底下表面处处下沉同样的压深；表面一点 \(B\) 的下沉是各处压强按点力解叠加（\(s\) 是施压点 \(C\) 到 \(B\) 的距离）；平底的压强分布取下面的形式（\(t\) 是离圆心的距离，\(p_m\) 待定）；合力是压强的面积分：</p>
+<p>\[\color{#c0392b}{u(t)=\delta\ \ (t\le a),\qquad u(B)=\frac{1}{\pi E^*}\int\frac{p(C)}{s}\,dA,\qquad p(t)=\frac{p_m\,a}{\sqrt{a^2-t^2}},\qquad F=\int_0^a p(t)\,2\pi t\,dt}\]</p>
+<p><strong>结论。</strong> 力与平底半径成正比，半径 ×1、×2、×4 → <strong>力 ×1、×2、×4</strong>：</p>
+<p>\[\color{#c0392b}{p_m=\frac{E^*\delta}{\pi a},\qquad F_{\text{解析}}=2E^{*}a\,\delta}\]</p>
 <details><summary>推导：Boussinesq 平底解（与 1.4 ③ 相同的叠加方法）</summary>
 
 <p><b>① 平底压头的力</b></p>
@@ -2065,7 +2130,11 @@ html.annot-on #annot-capture { display: block; }
 <p>代入式 (5)：</p>
 <p>\[F_{\text{解析}}=2\pi a^2\cdot\frac{E^*\delta}{\pi a}=2E^*a\,\delta\qquad(6)\]</p></details>
 </details>
-<p><strong>hydro</strong>：平底各点进入基体的深度都一样，压强处处相同，力 = 压强 × 接触面积 → 半径 ×1、×2、×4，<strong>力 ×1、×4、×16</strong></p>
+<p><strong>hydro</strong></p>
+<p><strong>条件。</strong> 平底各点进入基体的深度都是压深；hydro (A) 每点压强只看该点的深度；合力是压强的面积分：</p>
+<p>\[\color{#c0392b}{\text{深度}(\mathbf x)=\delta\ \ (|\mathbf x|\le a),\qquad p=p(\text{深度}),\qquad F=\int p\,dA}\]</p>
+<p><strong>结论。</strong> 压强处处相同，力 = 压强 × 接触面积 → 半径 ×1、×2、×4，<strong>力 ×1、×4、×16</strong>：</p>
+<p>\[\color{#c0392b}{F_{\text{hydro}}=p(\delta)\,\pi a^2\ \propto a^2}\]</p>
 <details><summary>推导：hydro 的力</summary>
 
 <p><b>② hydro 的力随半径 ×4 变 ×16</b></p>
@@ -2098,8 +2167,11 @@ html.annot-on #annot-capture { display: block; }
 <figure style="margin:12px 0"><img src="assets/images/E3_a.png" width="1660" height="1060" style="width:526px;max-width:100%;height:auto" alt="E3_a"></figure>
 <figure style="margin:12px 0"><img src="assets/images/E3_b.png" width="1660" height="1060" style="width:526px;max-width:100%;height:auto" alt="E3_b"></figure>
 <p><em>两张图只差两个凸台之间的距离。深灰色是一个刚体：两个半径 \(a=0.25\)、高 0.5 的平底圆柱凸台，顶上用一根细杆连成一体；蓝色是同一块（图里只拍了块顶面中间一部分）。上图两凸台中心距 \(L=4a=1.0\)，下图拉开到 \(L=10a=2.5\)，凸台大小和压深 0.024 都不变。</em></p>
-<p><strong>裁判</strong>：每个凸台的力，\(a\) 是凸台半径，\(L\) 是中心距：</p>
-<p>\[\color{#c0392b}{F=\frac{2E^{*}a\,\delta}{1+2a/(\pi L)}}\]</p>
+<p><strong>裁判</strong></p>
+<p><strong>条件。</strong> 一个凸台单独压时的力是 E2 的平底解；一个凸台的力 \(F\) 在中心距 \(L\) 处让表面下沉，远处可把它看成一个点力；每个凸台底面的下沉 = 自己压出的 + 邻居压过来的，合起来等于压深：</p>
+<p>\[\color{#c0392b}{F_{\text{单独}}=2E^*a\,\delta,\qquad u(L)=\frac{F}{\pi E^*L},\qquad \delta=u_{\text{自己}}+u_{\text{邻居}}}\]</p>
+<p><strong>结论。</strong> 每个凸台的力比单独压时小，\(a\) 是凸台半径，\(L\) 是中心距：</p>
+<p>\[\color{#c0392b}{F=\frac{2E^{*}a\,\delta}{1+2a/(\pi L)},\qquad \frac{F}{F_{\text{单独}}}=\frac{1}{1+2a/(\pi L)}}\]</p>
 <details><summary>推导：两凸台对称，受力均为 F</summary>
 
 <p><b>① 每个凸台的力</b></p>
@@ -2204,6 +2276,12 @@ html.annot-on #annot-capture { display: block; }
 <li><strong>剪切模量</strong> \(G\)、<strong>拉梅常数</strong> \(\lambda\)、<strong>侧限模量</strong> \(M_c\)（侧向被约束时竖直方向的刚度）：定义与推导见下面「推导 1」①；\(\nu\to0.5\) 时 \(M_c\to\infty\)</li>
 </ul>
 <p>材料给球让位有两种方式：原地压缩，或从球底下侧向挤出。下面分别推出两种方式下的力，再比较哪种需要的压强小。</p>
+<p><strong>原地压缩</strong></p>
+<p><strong>条件。</strong> 线弹性的胡克定律，\(G\)、\(\lambda\) 由 \(E\)、\(\nu\) 确定；原地压缩时材料侧向被挡住不动；球面满足球的方程且 \(h\ll R\)，离中心 \(r\) 处压入层的深度 \(w\) 是压深减去球面高出的量；每点竖直应变 = 该点压入深度 ÷ 层厚；合力是压强的面积分：</p>
+<p>\[\color{#c0392b}{\sigma_z=\lambda(\varepsilon_x+\varepsilon_y+\varepsilon_z)+2G\varepsilon_z,\qquad G=\frac{E}{2(1+\nu)},\quad \lambda=\frac{E\nu}{(1+\nu)(1-2\nu)},\qquad \varepsilon_x=\varepsilon_y=0}\]</p>
+<p>\[\color{#c0392b}{r^2+(R-h)^2=R^2,\quad h\ll R,\qquad w=\delta-h,\qquad \varepsilon_z=\frac wb,\qquad F=\int p\,dA}\]</p>
+<p><strong>结论。</strong> 侧向被挡住时竖直刚度是侧限模量 \(M_c\)，\(\nu\to0.5\) 时它趋于无穷；中心压强与压深成正比，力与球半径成正比，半径 ×2 → 力 ×2：</p>
+<p>\[\color{#c0392b}{M_c=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)},\qquad p_c=\frac{M_c\delta}{b},\qquad F=\pi M_c\frac{R\,\delta^{2}}{b}}\]</p>
 <details><summary>推导 1：原地压缩，力 ∝ R</summary>
 
 <p><b>① 侧限模量</b></p>
@@ -2257,6 +2335,12 @@ html.annot-on #annot-capture { display: block; }
 <p>\[V=\int w\,dA=\int_0^{\sqrt{2R\delta}}\Big(\delta-\frac{r^2}{2R}\Big)2\pi r\,dr=2\pi\Big(R\delta^2-\frac{R\delta^2}{2}\Big)=\pi R\delta^2\qquad(11)\]</p>
 <p>\[F=\frac{M_c}{b}\,V=\pi M_c\frac{R\,\delta^{2}}{b}\qquad(12)\]</p></details>
 </details>
+<p><strong>侧向挤出</strong></p>
+<p><strong>条件。</strong> 被球占据的体积（同原地压缩，\(V=\pi R\delta^2\)）只能从接触边缘那圈高 \(b\) 的圆柱侧面流出，接触边缘取压入深度为 0 处；底面粘结、顶面贴球，材料在层厚方向被剪切，剪切应力与剪切应变成正比；一小段材料两侧的压强差被上下两面的剪切应力拦住；边缘压强为 0，合力约为中心压强的一半乘接触面积：</p>
+<p>\[\color{#c0392b}{w(a)=0,\qquad \bar u=\frac{V}{2\pi ab},\qquad \gamma\approx\frac{\bar u}{b},\quad \tau=G\gamma}\]</p>
+<p>\[\color{#c0392b}{(p_1-p_2)\,b\,w_e=2\tau\,\Delta r\,w_e,\qquad p(a)=0,\quad F\approx\tfrac12\,p_s\cdot\pi a^2}\]</p>
+<p><strong>结论。</strong> 这是量级推导，只保留比例关系、略去数值系数。接触半径由几何重叠定，中心压强与接触半径平方成正比，力与球半径的平方成正比，半径 ×2 → 力 ×4：</p>
+<p>\[\color{#c0392b}{a^2=2R\delta,\qquad p_s\propto\frac{G\,a^2\delta}{b^3},\qquad F\propto\frac{G\,R^2\delta^3}{b^3}}\]</p>
 <details><summary>推导 2：侧向挤出，力 ∝ R²（量级推导：只保留与 \(a\)、\(b\)、\(\delta\) 的比例关系，略去数值系数）</summary>
 
 层很薄时，材料沿层面方向流动，沿厚度方向的剪切起主导作用，这一近似称为<b>润滑近似</b>。
@@ -2305,6 +2389,11 @@ html.annot-on #annot-capture { display: block; }
 <p>\[F\ \propto\ \frac{G\,R^2\delta^3}{b^3}\qquad(20)\]</p>
 <p>半径 ×2：\((2R)^2/R^2=4\)，力 ×4。</p></details>
 </details>
+<p><strong>材料走哪种方式</strong></p>
+<p><strong>条件。</strong> 上面两种方式各自需要的中心压强，\(G\)、\(M_c\) 用 \(E\)、\(\nu\) 表示：</p>
+<p>\[\color{#c0392b}{p_c=\frac{M_c\delta}{b},\qquad p_s\propto\frac{G\,a^2\delta}{b^3},\qquad G=\frac{E}{2(1+\nu)},\qquad M_c=\frac{E(1-\nu)}{(1+\nu)(1-2\nu)}}\]</p>
+<p><strong>结论。</strong> 材料按所需压强小的方式让位。比值远大于 1 时原地压缩、力 \(\propto R\)；远小于 1 时侧向挤出、力 \(\propto R^2\)；\(\nu\to0.5\) 时比值趋于 0：</p>
+<p>\[\color{#c0392b}{\frac{p_s}{p_c}\ \propto\ \frac{1-2\nu}{2(1-\nu)}\Big(\frac ab\Big)^2}\]</p>
 <details><summary>推导 3：材料走哪种方式</summary>
 
 <p><b>④ 两种方式所需的中心压强之比</b></p>

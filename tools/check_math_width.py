@@ -5,7 +5,7 @@
     /bin/python tools/check_math_width.py week3_4.html week2.html [--width 1440]
     /bin/python tools/check_math_width.py week3_4.html --shot "第一步：平底的解" <输出 png>
 页面按仓库根目录的相对路径给。不给 --shot 时只读、不写文件；--shot 展开全部折叠，把含这段文字的最小折叠块
-（没有就取所在段落）整块截成一张长图，写到给的路径，供自查实际版式。依赖 playwright（用户目录安装的 chromium）。
+（不在折叠里就从所在段落截到后面第一个折叠的标题，该折叠保持收起）整块截成一张长图，写到给的路径，供自查实际版式。依赖 playwright（用户目录安装的 chromium）。
 """
 import argparse
 import pathlib
@@ -45,11 +45,16 @@ def shot(page, text, out):
     page.evaluate("Promise.all([...document.images].map(i => (i.loading = 'eager', i.complete ? 0 : "
                   "new Promise(r => { i.onload = i.onerror = r; }))))")
     target = page.locator("details", has_text=text).last
-    if target.count() == 0:
+    tail = None
+    if target.count() == 0:            # 折叠外的文字：从该段截到后面第一个折叠的标题（那个折叠收起，即读者不展开时看到的样子）
         target = page.locator("p", has_text=text).first
+        tail = target.element_handle().evaluate_handle(
+            "p => { let e = p; while (e.nextElementSibling && e.tagName !== 'DETAILS') e = e.nextElementSibling;"
+            " if (e.tagName === 'DETAILS') e.open = false; return e; }")
     target.scroll_into_view_if_needed()
-    box = page.evaluate("e => { const r = e.getBoundingClientRect(); return {x: r.x + scrollX, y: r.y + scrollY, "
-                        "w: r.width, h: r.height}; }", target.element_handle())
+    box = page.evaluate("([e, t]) => { const r = e.getBoundingClientRect(), b = (t || e).getBoundingClientRect();"
+                        " return {x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: b.bottom - r.top}; }",
+                        [target.element_handle(), tail])
     stem, seg = out[:-4] if out.endswith(".png") else out, 1800      # 长块按 1800 px 一段切开，便于逐段看清
     for k, y0 in enumerate(range(0, int(box["h"]) + 1, seg), 1):
         path = f"{stem}_{k:02d}.png"
