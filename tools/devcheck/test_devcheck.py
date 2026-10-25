@@ -266,6 +266,27 @@ def diag(out, IC):
                 ink = sum(lay._glyph_hit(x, y) == gi for x in xs for y in ys)
                 print(f"   {side} {sid}：几何漏了字形 {ident} 「{g['c']}」 tag={raw['tag']} 命令 {cmds} 外框 {[round(v, 1) for v in g['r']]} "
                       f"墨迹占比 {ink / max(1, len(xs) * len(ys)):.2f} clip={g['clip'] is not None} x/y={raw['x']},{raw['y']} m={[round(v, 3) for v in raw['m']]}")
+                # 这一笔的邻域网格点（第一层，1 行高）里落在该字形外框内的点：几何判不在墨迹里，离墨迹边多远（屏幕 px）
+                st = next(s for s in run["layout"]["strokes"] if s["id"] == sid)
+                sx, sy = run["scrolls"][sid]
+                fx, fy, s = lay.page_f[0] - sx, lay.page_f[1] - sy, lay.s
+                Pp = [(fx + p[0] * s, fy + p[1] * s) for p in st["abs"]]
+                lh = js["tm"]["lh"]
+                xs_, ys_ = [p[0] for p in Pp], [p[1] for p in Pp]
+                gx = G._axis(max(0, min(xs_) - lh), min(lay.inner[0] - 1, max(xs_) + lh), IC.RP_GRID)
+                gy = G._axis(max(0, min(ys_) - lh), min(lay.inner[1] - 1, max(ys_) + lh), IC.RP_GRID)
+                ia, ib, ic, idd, e0, f0 = g["inv"]
+                a, b_, c, dd, _, _ = raw["m"]
+                for y in gy:
+                    for x in gx:
+                        rx, ry = x - fx, y - fy
+                        if not lay._in(g["r"], rx, ry, 0):
+                            continue
+                        X, Y = rx - e0, ry - f0
+                        ux, uy = ia * X + ic * Y, ib * X + idd * Y
+                        wn = G.winding(g["polys"], ux, uy)
+                        dist = min(float(np.min(np.hypot(*(np.array([[a, c], [b_, dd]]) @ (pp - [ux, uy]).T)))) for pp in g["polys"])
+                        print(f"      网格点 ({x:.2f}, {y:.2f}) 在外框内：绕数 {wn}，离墨迹顶点最近 {dist:.3f} px，字形内 lh={lh}")
 
 
 def main():
