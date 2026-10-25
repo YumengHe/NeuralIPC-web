@@ -108,7 +108,7 @@ def judge_rows(IC, old, new, gmaps, cal):
     new = dict(new, probes=probes_of(IC, new))
     if new.get("dump") is None:
         new["dump"] = G.dump_from_layout(new["layout"])
-    imap = IC.IdentityMap(old["texts"], new["texts"])
+    imap = IC.IdentityMap(old["texts"], new["texts"], gmaps)   # 同 indep_check.run（8978bb5 起带改名表、要 texts.mpos）
     refs = IC.pick_refs(old["probes"], new["probes"], imap)
     noff = new_offsets(refs, new["dump"])
     rows = []

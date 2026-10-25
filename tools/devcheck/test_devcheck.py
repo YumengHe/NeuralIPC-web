@@ -106,7 +106,7 @@ def run_device(base, view, query, repo=None):
     return dict(res=res, warns=warns, done=done, wall_s=wall)
 
 
-def collect(out, IC, gmaps, cal):
+def collect(out, IC, gmaps, cal, skip_probe=False):
     base, srv = serve_root()
     widths = [v[0] for v in VIEWS]
     for pg in NEW_SPEC:
@@ -115,7 +115,8 @@ def collect(out, IC, gmaps, cal):
     with ThreadPoolExecutor(12) as ex:
         ref = {pg: ex.submit(IC.run, "snap", spec, widths, out / f"server_{pg.replace('/', '_')}", gmaps, None, (0, 0), cal)
                for pg, spec in NEW_SPEC.items()}
-        pr = {v: ex.submit(run_device, base, v, "mode=probe&page=preview/3&noupload=1") for v in VIEWS}
+        # skip_probe：沿用上一轮的 P（PROBE_JS 没变、只改了 IdentityMap / page_texts 时，P 只用于 t1 / t8 的逐笔采样对拍）
+        pr = {} if skip_probe else {v: ex.submit(run_device, base, v, "mode=probe&page=preview/3&noupload=1") for v in VIEWS}
         ra = {v: ex.submit(run_device, base, v, "page=preview/3&waits=fixed&noupload=1") for v in VIEWS}
         r1 = {v: ex.submit(run_device, base, v, "page=preview/3", repos[v]) for v in VIEWS}
         r1 = {v: f.result() for v, f in r1.items()}
@@ -128,7 +129,7 @@ def collect(out, IC, gmaps, cal):
     srv.shutdown()
     for v in VIEWS:
         w = v[0]
-        for name, r in (("P", pr[v]), ("R1", r1[v]), ("R2", r2[v]), ("RA", ra[v])):
+        for name, r in ([("P", pr[v])] if pr else []) + [("R1", r1[v]), ("R2", r2[v]), ("RA", ra[v])]:
             (out / f"device_{w}_{name}.json").write_text(json.dumps(r, ensure_ascii=False), encoding="utf-8")
         for name, repo in (("R1", repos[v]), ("R2", r2repo[v])):
             (out / f"repo_{w}_{name}.json").write_text(json.dumps(dict(log=repo.log, bad=repo.bad, files=sorted(repo.files)), ensure_ascii=False), encoding="utf-8")
@@ -323,8 +324,9 @@ def diag(out, IC):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag"), default="all")
+    ap.add_argument("--phase", choices=("collect", "compare", "all", "quick", "quick-offline", "diag", "export"), default="all")
     ap.add_argument("--every", type=int, default=10, help="quick：每几笔跑一笔")
+    ap.add_argument("--skip-probe", action="store_true", help="collect 不重跑 P（沿用 out-dir 里已有的 device_<宽>_P.json）")
     ap.add_argument("--indep-check-dir", default=B.DEFAULT_IC_DIR)
     args = ap.parse_args()
     out = pathlib.Path(args.out_dir)
@@ -333,6 +335,11 @@ def main():
     from webgen.annotate import DRAFTS
     gmaps = IC.RP.glyph_letter_maps(IC.RP.letter_maps(json.loads((DRAFTS / "notation_renames_week3_4.json").read_text(encoding="utf-8")).get("tex", {})))
     cal = json.loads((pathlib.Path(args.indep_check_dir) / "indep_check_cal" / "calibration.json").read_text(encoding="utf-8"))
+    if args.phase == "export":   # 把 collect 的 R1 数据（与设备页上传的文件同结构）单独写出，给 judge_devcheck --local 端到端试
+        for v in VIEWS:
+            d = json.loads((out / f"device_{v[0]}_R1.json").read_text(encoding="utf-8"))["res"]["preview/3"]
+            (out / f"devcheck_preview_3_local{v[0]}_{d['at'][:4]}0101T000000Z.json").write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+        return
     if args.phase == "diag":
         diag(out, IC)
         return
@@ -340,7 +347,7 @@ def main():
         quick(out, IC, args.every, args.phase == "quick")
         return
     if args.phase in ("collect", "all"):
-        collect(out, IC, gmaps, cal)
+        collect(out, IC, gmaps, cal, args.skip_probe)
     if args.phase in ("compare", "all"):
         sys.exit(1 if compare(out, IC, gmaps, cal) else 0)
 
