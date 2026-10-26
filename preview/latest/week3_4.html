@@ -241,7 +241,7 @@ html.annot-on #annot-capture { display: block; }
 }
 </style>
 <script>window.NIPC_SNAPSHOT = {"format":"nipc-notes","version":1,"page":"week3_4.html","path":"/Neural-IPC-web/week3_4.html","colWidth":920,"strokes":[],"tombstones":{}};</script>
-<script>window.NIPC_PAGE = "b57bb0aaf0d1";</script>
+<script>window.NIPC_PAGE = "2219c3e52ca7";</script>
 <script>window.MathJax = {tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]}, svg: {fontCache: "global"}};</script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 <a class="skip" href="#content">跳转到正文</a><div id="progress" aria-hidden="true"></div>
@@ -278,7 +278,9 @@ html.annot-on #annot-capture { display: block; }
 <li><strong>第 6.4 节「为什么原理上比 IPC + FEM 快」</strong> 你说过要自己写。现在是我按已实测的数写的草稿，口径写明了（一个是单个接触区，一个是整个系统，端到端还没比），请改写或删掉。</li>
 <li><strong>第 5.4 节最后一段「轴对称时不必用二维……一维、二维用平滑过渡连起来」</strong> 和全二维主线冲突。我先没删，要不要删？</li>
 <li><strong>平头尖边</strong>：「0.5% 要直径约 91 格」是暂定值。尖边圆角化和尖边补偿走哪条还没定，页面上只写成「应对方案」。</li>
-<li><strong>还没出结果、没写进页面的</strong>：斜压浅压的月牙（方案一 + 交叉检查在跑）、覆盖比例对照、平头横向偏移。</li>
+<li><strong>还没写进页面的</strong>：斜压浅压的月牙，数字只放在 Notion。</li>
+<li><strong>月牙用哪种参考，要你定</strong>：按原预注册改用四档自加密外推当参考后，MC1、MC2 都过；MC3（这个参考对旧的稠密边界元外推）不过，差多少跟着边界元的分辨率走。以后月牙用哪种参考，请你定。</li>
+<li><strong>覆盖比例对照和平头横向偏移</strong>：正式结果已出，写进了第 6.3 节平头那段（一句话 + 一张小表 + 一张图）和第 6.5 节尖边那条。</li>
 <li><strong>第 6.3 节的数字</strong>只放了每一级一个；完整数字放在 Notion。</li>
 </ul>
 <p><strong>这次要讲的三件事</strong></p>
@@ -1039,6 +1041,45 @@ html.annot-on #annot-capture { display: block; }
 <li><strong>平头：发现了尖边问题。</strong> 平底压头的边缘压强理论上是无穷大，格子在边缘附近怎么也分辨不准，误差只按「1 / 格数」下降，不是光滑形状的 2 阶。要到 0.5%，压头直径上要约 91 格（暂定）。应对方案有两类：按格子被盖住的比例算（覆盖比例），以及在尖边处补偿或把尖边圆角化。</li>
 </ul>
 <figure style="margin:12px 0"><img src="assets/images/w34_meeting_26_fullgap_flat_edge.png" width="1270" height="855" style="width:624px;max-width:100%;height:auto" alt="平底压头，横轴是压头直径上有几格，纵轴是能量误差，两个轴都取对数。压头相对格子平移到 15 个不同位置，红线是这 15 个位置里最差的，蓝线是平均。两条线都和灰色斜率 −1 的参考线平行：格子数加倍，误差只减半。红色横线 0.5% 和竖线 91 格的交点，就是现在暂定要的格子数。" loading="lazy"><figcaption class="small">平底压头，横轴是压头直径上有几格，纵轴是能量误差，两个轴都取对数。压头相对格子平移到 15 个不同位置，红线是这 15 个位置里最差的，蓝线是平均。两条线都和灰色斜率 −1 的参考线平行：格子数加倍，误差只减半。红色横线 0.5% 和竖线 91 格的交点，就是现在暂定要的格子数。</figcaption></figure>
+<ul>
+<li><strong>覆盖比例试过了，不够。</strong> 边缘格按被压头盖住的面积比例算进去以后，剩下的误差是干净的「1 / 格数」；但压头放在格子里 15 个不同位置时，能量的起伏（标准差）只降到原来的 0.2–0.5 倍，它自己的系统偏差还更大（91 格时，15 个位置平均偏小约 1.4%，格心做法同样的平均约 0.3%，大了约 5 倍）。平头沿表面滑动时还会冒出一个不该有的横向力，约为压力的 0.3–0.9%；同样的检查在球上不到 0.003%，平头大了两个数量级。</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>压头直径上的格数</th>
+<th>能量起伏：格心</th>
+<th>能量起伏：覆盖比例</th>
+<th>假横向力 ÷ 压力：格心</th>
+<th>假横向力 ÷ 压力：覆盖比例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>45</td>
+<td>0.62%</td>
+<td>0.05%</td>
+<td>0.93%</td>
+<td>0.26%</td>
+</tr>
+<tr>
+<td>91</td>
+<td>0.10%</td>
+<td>0.07%</td>
+<td>0.28%</td>
+<td>0.45%</td>
+</tr>
+<tr>
+<td>181</td>
+<td>0.10%</td>
+<td>0.03%</td>
+<td>0.91%</td>
+<td>0.37%</td>
+</tr>
+</tbody>
+</table></div>
+<p>表里是压头沿一个方向平移一整格：能量起伏是这一路上能量的（最大 − 最小）÷ 平均，假横向力取这一路上的最大值。格心做法的能量是一格一格跳的，横向力用相邻两个位置的能量差来估。</p>
+<figure style="margin:12px 0"><img src="assets/images/w34_meeting_27_fullgap_flat_slide.png" width="1277" height="847" style="width:516px;max-width:100%;height:auto" alt="平底压头直径上 91 格，压深不变，让压头沿一个方向从一格的这头平移到那头，横轴是平移了几分之几格，纵轴是格子算出的横向力除以压力。真实的平头压在平面上，横向力应该处处是 0（灰线）。红点是格心做法，格心落在压头里才算接触，横向力用相邻两个位置的能量差来估，所以两端没有点；蓝点是按被盖住的面积算的做法。两种做法都在零上下摆，最大都在千分之几：换成按面积算，并没有把这个假横向力去掉。" loading="lazy"><figcaption class="small">平底压头直径上 91 格，压深不变，让压头沿一个方向从一格的这头平移到那头，横轴是平移了几分之几格，纵轴是格子算出的横向力除以压力。真实的平头压在平面上，横向力应该处处是 0（灰线）。红点是格心做法，格心落在压头里才算接触，横向力用相邻两个位置的能量差来估，所以两端没有点；蓝点是按被盖住的面积算的做法。两种做法都在零上下摆，最大都在千分之几：换成按面积算，并没有把这个假横向力去掉。</figcaption></figure>
 <h3 id="w6-4">为什么原理上比 IPC + FEM 快（草稿，待你改写）</h3>
 
 <ul>
@@ -1050,8 +1091,8 @@ html.annot-on #annot-capture { display: block; }
 <h3 id="w6-5">已知局限和下一步</h3>
 
 <ul>
-<li><strong>尖边</strong>：平底需要很密的格子；覆盖比例和尖边补偿 / 圆角化正在比。</li>
-<li><strong>月牙</strong>：斜压很浅时接触区是一条很窄的月牙，格子要很细，计算量大；参考解和交叉检查在跑。</li>
+<li><strong>尖边</strong>：平底要很密的格子；覆盖比例压不掉平移起伏，还多出系统偏差，平头滑动时有约千分之几的假横向力。下一步试尖边补偿和圆角化。</li>
+<li><strong>月牙</strong>：斜压很浅时接触区是一条很窄的月牙，格子要很细，计算量大；拿什么当参考解还要定。</li>
 <li><strong>薄层</strong>：层核在一维已经对过有限元，搬到二维还要加一项整体柔度，待做。</li>
 <li><strong>网络</strong>：每格一个等效间隙修正，只看几何、不看压深和位置；修正后照样解同一个求最大值问题，所以凸性和「力是能量的导数」由结构保证（二维的单调构造）。</li>
 <li><strong>泊松比</strong>：敏感度实验在跑。</li>
